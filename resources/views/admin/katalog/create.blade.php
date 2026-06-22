@@ -47,7 +47,7 @@
 
     .form-input:focus, .form-textarea:focus, .form-select:focus {
         outline: none;
-        border-color: #0B1354;
+        border-color: #022648;
         box-shadow: 0 0 0 3px rgba(11, 19, 84, 0.1);
     }
 
@@ -67,7 +67,7 @@
     }
 
     .form-file-input:hover {
-        border-color: #0B1354;
+        border-color: #022648;
         background: rgba(11, 19, 84, 0.02);
     }
 

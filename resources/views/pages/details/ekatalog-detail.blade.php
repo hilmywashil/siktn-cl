@@ -67,7 +67,7 @@
         .detail-desc-section h2 {
             margin: 0;
             font-size: 22px;
-            color: #0B1354;
+            color: #022648;
             font-weight: 700;
             text-transform: uppercase;
         }
@@ -91,7 +91,7 @@
         .detail-gallery-section h2 {
             margin: 0;
             font-size: 22px;
-            color: #0B1354;
+            color: #022648;
             font-weight: 700;
             text-transform: uppercase;
         }

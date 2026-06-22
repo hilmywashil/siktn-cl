@@ -658,8 +658,18 @@ body {
 }
 
 .program-org-section .grid .item .content p {
+    font-size: 14px;
+    color: #000;
     text-align: start;
     margin: 0;
+}
+
+.program-org-section .grid .item .content a {
+    text-align: start;
+    font-size: 14px;
+    font-style: italic;
+    font-weight: 500;
+    margin-top: 10px;
 }
 
 .program-org-section .item img {
@@ -1075,9 +1085,8 @@ body {
 
 .kegiatan-featured-card {
     width: 100%;
-    border-radius: 12px;
+    border-radius: 5px;
     overflow: hidden;
-    border: 1px solid #e5e7eb;
     font-family: "Google Sans", sans-serif;
 }
 
@@ -1369,6 +1378,7 @@ body {
 .berita-page-section .item .content h2 {
     font-size: 20px;
     color: #022648;
+    text-transform: uppercase;
     margin: 0;
 }
 
@@ -1467,6 +1477,80 @@ body {
 
 .page-number i {
     font-size: 12px;
+}
+
+.white-page-banner-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1300px;
+    gap: 20px;
+    text-align: center;
+}
+
+.white-page-banner-section h1 {
+    width: 700px;
+    margin: 0;
+    color: #022648;
+    font-size: 35px;
+}
+
+.white-page-banner-section p {
+    width: 750px;
+    font-size: 14px;
+    margin: 0;
+}
+
+.tujuan-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1300px;
+    gap: 50px;
+
+}
+
+.tujuan-section h1 {
+    width: 700px;
+    margin: 0;
+    color: #022648;
+    font-size: 25px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.tujuan-section .grid {
+    width: 100%;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(2, 2fr);
+}
+
+.tujuan-section .grid .item {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    gap: 10px;
+    padding: 40px;
+    border-radius: 5px;
+    background-color: #FFFFFF;
+}
+
+.tujuan-section .grid .item h2 {
+    color: #022648;
+    font-size: 20px;
+    margin: 0;
+}
+
+.tujuan-section .grid .item p {
+    color: #000;
+    font-size: 14px;
+    margin: 0;
 }
 
 /* ==============================================

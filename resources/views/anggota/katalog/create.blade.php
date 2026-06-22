@@ -5,11 +5,11 @@
 @push('styles')
     <style>
         :root {
-            --primary-blue: #0B1354;
+            --primary-blue: #022648;
             --secondary-blue: #18227C;
             --accent-yellow: #C59217;
             --accent-red: #D60B1C;
-            --text-dark: #0B1354;
+            --text-dark: #022648;
             --text-grey: #6b7280;
             --bg-light: #F8F9FC;
         }

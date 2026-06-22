@@ -5,11 +5,11 @@
 @push('styles')
     <style>
         :root {
-            --primary-blue: #0B1354;
+            --primary-blue: #022648;
             --secondary-blue: #18227C;
             --accent-yellow: #C59217;
             --accent-red: #D60B1C;
-            --text-dark: #0B1354;
+            --text-dark: #022648;
             --text-grey: #6b7280;
             --bg-light: #F8F9FC;
         }
@@ -1039,7 +1039,7 @@
                                 <i class="fas fa-award"></i>
                             </div>
                             <div class="info-card-content">
-                                <span class="info-card-label">Referensi Anggota CAAIP</span>
+                                <span class="info-card-label">Referensi Anggota Karang Taruna</span>
                                 <span class="info-card-value">{{ $anggota->ref_hipmi }}</span>
                             </div>
                         </div>
@@ -1068,7 +1068,7 @@
                             <div class="kta-front-curve"></div>
                             
                             <div class="kta-logo-front">
-                                <img src="{{ asset('assets/img/logo.png') }}" alt="CAAIP" onerror="this.src='https://ui-avatars.com/api/?name=CAAIP&background=090b62&color=fff'">
+                                <img src="{{ asset('assets/img/logo.png') }}" alt="Karang Taruna" onerror="this.src='https://ui-avatars.com/api/?name=Karang Taruna&background=090b62&color=fff'">
                             </div>
 
                             <div class="kta-member-name">{{ $anggota->nama_lengkap }}</div>
@@ -1408,7 +1408,7 @@
             printWindow.document.write(`
                 <html>
                     <head>
-                        <title>Cetak KTA - CAAIP</title>
+                        <title>Cetak KTA - Karang Taruna</title>
                         ${stylesHtml}
                         <style>
                             body {

@@ -352,7 +352,7 @@
         <span class="breadcrumb-current">Tambah Admin</span>
     </div>
     <h1 class="page-title">Tambah Admin Baru</h1>
-    <p class="page-desc">Lengkapi formulir di bawah untuk menambahkan administrator baru ke sistem CAAIP Alumni</p>
+    <p class="page-desc">Lengkapi formulir di bawah untuk menambahkan administrator baru ke sistem Karang Taruna</p>
 </div>
 
 <form action="{{ route('admin.store-admin') }}" method="POST">

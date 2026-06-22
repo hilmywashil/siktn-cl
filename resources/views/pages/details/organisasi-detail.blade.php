@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $organisasi->nama )
+@section('title', $organisasi->nama)
 
 @push('styles')
     <style>

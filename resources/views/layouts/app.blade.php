@@ -14,7 +14,7 @@
         <div class="header-inner">
             <div class="logo">
                 <a href="{{ route('home') }}">
-                    <img src="{{ asset('assets-front/images/logo_karang_taruna.png') }}" alt="Logo CAAIP">
+                    <img src="{{ asset('assets-front/images/logo_karang_taruna.png') }}" alt="Logo Karang Taruna">
                 </a>
             </div>
             <div class="nav-link">
@@ -33,7 +33,7 @@
                     <form action="{{ route('admin.logout') }}" method="POST" style="display: inline;">
                         @csrf
                         <button type="submit" class="btn-transparent-border-black"
-                            style="cursor: pointer; padding: 12px 20px; border: 1px solid #000; border-radius: 7px; background: transparent; font-family: inherit; font-size: inherit; font-weight: 500;">
+                            style="cursor: pointer; padding: 12px 20px; border: 1px solid #000; border-radius: 7px; background: transparent; font-family: inherit; font-size: 14px; font-weight: 500;">
                             Keluar
                         </button>
                     </form>
@@ -42,7 +42,7 @@
                     <form action="{{ route('anggota.logout') }}" method="POST" style="display: inline;">
                         @csrf
                         <button type="submit" class="btn-transparent-border-black"
-                            style="cursor: pointer; padding: 12px 20px; border: 1px solid #000; border-radius: 7px; background: transparent; font-family: inherit; font-size: inherit; font-weight: 500;">
+                            style="cursor: pointer; padding: 12px 20px; border: 1px solid #000; border-radius: 7px; background: transparent; font-family: inherit; font-size: 14px; font-weight: 500;">
                             Keluar
                         </button>
                     </form>

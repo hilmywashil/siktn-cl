@@ -120,7 +120,7 @@
 
         .stat-icon.total {
             background: rgba(11, 19, 84, 0.1);
-            color: #0B1354;
+            color: #022648;
         }
 
         .stat-icon.pending {
@@ -458,7 +458,7 @@
 @section('content')
     <div class="page-header">
         <h1>Daftar Anggota</h1>
-        <p>Lihat data anggota CAAIP Alumni</p>
+        <p>Lihat data anggota Karang Taruna</p>
     </div>
 
     {{-- Filter Domisili (Hanya untuk BPD) --}}

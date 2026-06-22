@@ -2,7 +2,7 @@
     <div class="footer-grid">
         <!-- Logo & Description -->
         <div class="footer-brand">
-            <img src="{{ asset('assets-front/images/logo_karang_taruna.png') }}" alt="Logo CAAIP" class="footer-logo">
+            <img src="{{ asset('assets-front/images/logo_karang_taruna.png') }}" alt="Logo Karang Taruna" class="footer-logo">
             <p class="footer-desc">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
                 dolore magna aliqua.

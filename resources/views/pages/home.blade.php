@@ -80,62 +80,24 @@
             <div class="right">
                 <div class="member-carousel" id="memberCarousel">
                     <div class="member-track" id="memberTrack">
-                        <div class="member-card"
-                            style="background-image:url('{{ asset('assets-front/images/people/jokowi.jpg') }}')">
-                            <div class="member-info">
-                                <span class="name">Pria Solo</span>
-                                <span class="role">Ketua Karang Taruna</span>
+                        @forelse($organisasiList as $org)
+                            <div class="member-card" style="background-image:url('{{ Storage::url($org->foto) }}')">
+                                <a href="{{ route('organisasi.show', $org->nama) }}">
+                                    <div class="member-info">
+                                        <span class="name">{{ $org->nama }}</span>
+                                        <span class="role">{{ $org->jabatan }}</span>
+                                    </div>
+                                </a>
                             </div>
-                        </div>
-                        <div class="member-card"
-                            style="background-image:url('{{ asset('assets-front/images/people/jokowi.jpg') }}')">
-                            <div class="member-info">
-                                <span class="name">Pria Solo</span>
-                                <span class="role">Ketua Karang Taruna</span>
+                        @empty
+                            <div class="member-card"
+                                style="background-image:url('{{ asset('assets-front/images/people/jokowi.jpg') }}')">
+                                <div class="member-info">
+                                    <span class="name">Pria Solo</span>
+                                    <span class="role">Ketua Karang Taruna</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="member-card"
-                            style="background-image:url('{{ asset('assets-front/images/people/jokowi.jpg') }}')">
-                            <div class="member-info">
-                                <span class="name">Pria Solo</span>
-                                <span class="role">Ketua Karang Taruna</span>
-                            </div>
-                        </div>
-                        <div class="member-card"
-                            style="background-image:url('{{ asset('assets-front/images/people/jokowi.jpg') }}')">
-                            <div class="member-info">
-                                <span class="name">Pria Solo</span>
-                                <span class="role">Ketua Karang Taruna</span>
-                            </div>
-                        </div>
-                        <div class="member-card"
-                            style="background-image:url('{{ asset('assets-front/images/people/jokowi.jpg') }}')">
-                            <div class="member-info">
-                                <span class="name">Pria Solo</span>
-                                <span class="role">Ketua Karang Taruna</span>
-                            </div>
-                        </div>
-                        <div class="member-card"
-                            style="background-image:url('{{ asset('assets-front/images/people/jokowi.jpg') }}')">
-                            <div class="member-info">
-                                <span class="name">Pria Solo</span>
-                                <span class="role">Ketua Karang Taruna</span>
-                            </div>
-                        </div>
-                        <div class="member-card"
-                            style="background-image:url('{{ asset('assets-front/images/people/jokowi.jpg') }}')">
-                            <div class="member-info">
-                                <span class="name">Pria Solo</span>
-                                <span class="role">Ketua Karang Taruna</span>
-                            </div>
-                        </div>
-                        <div class="member-card"
-                            style="background-image:url('{{ asset('assets-front/images/people/jokowi.jpg') }}')">
-                            <div class="member-info">
-                                <span class="name">Pria Solo</span>
-                                <span class="role">Ketua Karang Taruna</span>
-                            </div>
-                        </div>
+                        @endforelse
                     </div>
                 </div>
 
@@ -156,18 +118,20 @@
                     <img src="{{ asset('assets-front/images/icons/corporate.png') }}" alt="Icon">
                     <div class="content">
                         <h3>CSR</h3>
-                        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ea quidem asperiores rerum laboriosam
-                            inventore quis fuga provident, in, vitae non, delectus praesentium autem? In culpa nihil,
-                            repudiandae ea totam corporis.</p>
+                        <p>Melalui berbagai inisiatif Corporate Social Responsibility (CSR), SIKTN berkomitmen memberikan
+                            kontribusi nyata bagi masyarakat, lingkungan, dan pembangunan sosial yang berkelanjutan melalui
+                            kolaborasi anggota dan mitra organisasi.</p>
+                        <a href="{{ route('program.csr') }}">Lihat Detail →</a>
                     </div>
                 </div>
                 <div class="item">
                     <img src="{{ asset('assets-front/images/icons/system.png') }}" alt="Icon">
                     <div class="content">
                         <h3>BIDANG</h3>
-                        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ea quidem asperiores rerum laboriosam
-                            inventore quis fuga provident, in, vitae non, delectus praesentium autem? In culpa nihil,
-                            repudiandae ea totam corporis.</p>
+                        <p>Program Bidang SIKTN dirancang untuk mendukung pengembangan organisasi, meningkatkan kapasitas
+                            anggota, memperkuat kolaborasi, serta mewujudkan program kerja yang terarah, terukur, dan
+                            memberikan dampak positif bagi seluruh pemangku kepentingan.</p>
+                        <a href="{{ route('program.bidang') }}">Lihat Detail →</a>
                     </div>
                 </div>
             </div>
@@ -254,46 +218,39 @@
             </div>
             <div class="content">
                 <div class="left">
-                    <div class="kegiatan-featured-card">
-                        <div class="kegiatan-featured-card__banner">
-                            <img src="{{ asset('assets-front/images/foto_1.jpg') }}" alt="Foto Kegiatan"
-                                class="kegiatan-featured-card__image" />
-                            <div class="kegiatan-featured-card__overlay">
-                                <span class="kegiatan-featured-card__category">Category</span>
-                                <h2>Membangun Sinergi: Rapat Kerja Tahunan Organisasi</h2>
-                                <p>Senin, 27 April 2020</p>
+                    @if ($kegiatanBeritaLastest)
+                        <a href="{{ route('berita-detail', $kegiatanBeritaLastest->slug) }}">
+                            <div class="kegiatan-featured-card">
+                                <div class="kegiatan-featured-card__banner">
+                                    <img src="{{ asset('storage/' . $kegiatanBeritaLastest->gambar) }}"
+                                        alt="{{ $kegiatanBeritaLastest->judul }}" class="kegiatan-featured-card__image" />
+                                    <div class="kegiatan-featured-card__overlay">
+                                        <span class="kegiatan-featured-card__category">Informasi Kegiatan</span>
+                                        <h2>{{ $kegiatanBeritaLastest->judul }}</h2>
+                                        <p>{{ \Illuminate\Support\Carbon::parse($kegiatanBeritaLastest->tanggal_publish)->locale('id')->translatedFormat('l, d F Y') }}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                        </a>
+                    @endif
                 </div>
                 <div class="right">
-                    <div class="kegiatan-card">
-                        <img src="{{ asset('assets-front/images/foto_1.jpg') }}" alt="Thumbnail">
-                        <div class="content-card">
-                            <h2 class="line-clamp-3">
-                                Mencetak Pemimpin Masa Depan Melalui Pelatihan Kepemimpinan
-                            </h2>
-                            <p>Senin, 27 April 2020</p>
-                        </div>
-                    </div>
-                    <div class="kegiatan-card">
-                        <img src="{{ asset('assets-front/images/foto_1.jpg') }}" alt="Thumbnail">
-                        <div class="content-card">
-                            <h2 class="line-clamp-3">
-                                Berbagi Kepedulian Melalui Aksi Sosial Bersama
-                            </h2>
-                            <p>Senin, 27 April 2020</p>
-                        </div>
-                    </div>
-                    <div class="kegiatan-card">
-                        <img src="{{ asset('assets-front/images/foto_1.jpg') }}" alt="Thumbnail">
-                        <div class="content-card">
-                            <h2 class="line-clamp-3">
-                                Menghadapi Tantangan Era Digital dengan Seminar Inovasi Organisasi
-                            </h2>
-                            <p>Senin, 27 April 2020</p>
-                        </div>
-                    </div>
+                    @forelse($kegiatanBeritaLast as $kegiatan)
+                        <a href="{{ route('berita-detail', $kegiatan->slug) }}">
+                            <div class="kegiatan-card">
+                                <img src="{{ asset('storage/' . $kegiatan->gambar) }}" alt="Thumbnail">
+                                <div class="content-card">
+                                    <h2 class="line-clamp-3">
+                                        {{ $kegiatan->judul }}
+                                    </h2>
+                                    <p>{{ \Illuminate\Support\Carbon::parse($kegiatanBeritaLastest->tanggal_publish)->locale('id')->translatedFormat('l, d F Y') }}
+                                </div>
+                            </div>
+                        </a>
+                    @empty
+                        <h2>Belum ada berita lainnya.</h2>
+                    @endforelse
                 </div>
             </div>
             <a href="{{ route('buku-anggota') }}" class="btn-yellow-text-black">Lihat Lebih Banyak</a>

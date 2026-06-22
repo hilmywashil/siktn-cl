@@ -6,6 +6,7 @@ use App\Models\Katalog;
 use App\Models\Misi;
 use App\Models\Anggota;
 use App\Models\Berita;
+use App\Models\Organisasi;
 use App\Models\StrategicPlan;
 
 class HomeController extends Controller
@@ -30,11 +31,23 @@ class HomeController extends Controller
             ->orderByDesc('approved_at')
             ->take(10)
             ->get();
-
-        // Berita
-        $kegiatanBerita = Berita::active()
-            ->latestPublish()
-            ->take(5)
+        $organisasiList = Organisasi::where('aktif', true)
+            ->orderByRaw("
+        FIELD(kategori,
+            'ketua_umum',
+            'wakil_ketua_umum',
+            'ketua_bidang',
+            'sekretaris_umum',
+            'wakil_sekretaris_umum'
+        )
+    ")
+            ->take(10)
+            ->get();
+        $kegiatanBeritaLastest = Berita::active()->latest()->first();
+        $kegiatanBeritaLast = Berita::active()
+            ->latest()
+            ->skip(1)
+            ->take(3)
             ->get();
 
         $dokumentasiBerita = Berita::active()
@@ -61,10 +74,12 @@ class HomeController extends Controller
             'misi',
             'totalAnggota',
             'anggotaList',
-            'kegiatanBerita',
+            'kegiatanBeritaLast',
+            'kegiatanBeritaLastest',
             'dokumentasiBerita',
             'tataKelola',
-            'programLayanan'
+            'programLayanan',
+            'organisasiList'
         ));
     }
 }

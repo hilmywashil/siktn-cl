@@ -24,7 +24,7 @@
         border-left: 4px solid;
     }
 
-    .stat-card.total { border-left-color: #0B1354; }
+    .stat-card.total { border-left-color: #022648; }
     .stat-card.pending { border-left-color: #C59217; }
     .stat-card.approved { border-left-color: #10B981; }
     .stat-card.rejected { border-left-color: #D60B1C; }
@@ -82,7 +82,7 @@
 
     .filter-select:focus, .search-input:focus {
         outline: none;
-        border-color: #0B1354;
+        border-color: #022648;
         box-shadow: 0 0 0 3px rgba(11, 19, 84, 0.1);
     }
 
@@ -197,7 +197,7 @@
     }
 
     .btn-add {
-        background: #0B1354;
+        background: #022648;
         color: white;
         padding: 0.625rem 1.125rem;
         font-size: 0.875rem;
@@ -211,7 +211,7 @@
 
     .btn-view {
         background: rgba(11, 19, 84, 0.1);
-        color: #0B1354;
+        color: #022648;
     }
 
     .btn-view:hover {

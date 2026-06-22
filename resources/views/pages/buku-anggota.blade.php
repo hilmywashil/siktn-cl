@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Buku Informasi Anggota - CAAIP')
+@section('title', 'Buku Informasi Anggota - Karang Taruna')
 
 @section('hero-background', asset('assets-front/images/foto_5.png'))
 @section('page-title', 'BUKU INFORMASI ANGGOTA')
 @section('page-subtitle', 'Corps Alumni Akademi Ilmu Pelayaran')
-@section('page-description', 'Daftar resmi alumni STIP Jakarta yang terdaftar dalam CAAIP.')
+@section('page-description', 'Daftar resmi alumni STIP Jakarta yang terdaftar dalam Karang Taruna.')
 @section('hero-buttons', 'hide')
 
 @push('styles')

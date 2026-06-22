@@ -5,10 +5,10 @@
     <div class="sidebar-header">
         <div class="brand">
             <div class="brand-logo">
-                <img src="{{ asset('assets-front/images/logo_karang_taruna.png') }}" alt="CAAIP Logo" width="75" height="75" style="object-fit: contain;">
+                <img src="{{ asset('assets-front/images/logo_karang_taruna.png') }}" alt="Karang Taruna Logo" width="75" height="75" style="object-fit: contain;">
             </div>
             <div class="brand-text" style="margin-left: 20px;">
-                <div class="brand-title">CAAIP</div>
+                <div class="brand-title">Karang Taruna</div>
                 <div class="brand-subtitle">ALUMNI</div>
             </div>
         </div>

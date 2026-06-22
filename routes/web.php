@@ -156,14 +156,15 @@ Route::get('/berita/{slug}', [BeritaController::class, 'show'])->name('berita-de
 // Other Public Pages
 Route::get('/organisasi', function () {
     $ketuaUmum = \App\Models\Organisasi::aktif()->kategori('ketua_umum')->ordered()->get();
+    $wakilKetua = \App\Models\Organisasi::aktif()->kategori('wakil_ketua_umum')->ordered()->get();
     $ketuaBidang = \App\Models\Organisasi::aktif()->kategori('ketua_bidang')->ordered()->get();
     $sekretarisUmum = \App\Models\Organisasi::aktif()->kategori('sekretaris_umum')->ordered()->get();
     $pengurusLainnya = \App\Models\Organisasi::aktif()
-        ->whereNotIn('kategori', ['ketua_umum', 'ketua_bidang', 'sekretaris_umum'])
+        ->whereNotIn('kategori', ['ketua_umum', 'ketua_bidang', 'sekretaris_umum', 'wakil_ketua_umum'])
         ->ordered()
         ->get();
 
-    return view('pages.organisasi', compact('ketuaUmum', 'ketuaBidang', 'sekretarisUmum', 'pengurusLainnya'));
+    return view('pages.organisasi', compact('ketuaUmum', 'ketuaBidang', 'sekretarisUmum', 'pengurusLainnya', 'wakilKetua'));
 })->name('organisasi');
 Route::get('/organisasi/{nama}', [PublicOrganisasiController::class, 'show'])
     ->name('organisasi.show');
@@ -173,6 +174,9 @@ Route::view('/about', 'pages.about')->name('about');
 Route::view('/vision-mission', 'pages.visi-misi')->name('vision-mission');
 Route::view('/how-to-join', 'pages.how-to-join')->name('how-to-join');
 Route::view('/contact', 'pages.contact')->name('contact');
+Route::view('/program/csr', 'pages.program.csr')->name('program.csr');
+Route::view('/program/bidang', 'pages.program.bidang')->name('program.bidang');
+
 
 
 // Active Member & Outline

@@ -9,7 +9,7 @@
            ============================================== */
 
         :root {
-            --primary-blue: #0B1354;
+            --primary-blue: #022648;
             --secondary-blue: #2A348D;
             --accent-yellow: #FFE701;
             --text-dark: #04293B;
@@ -567,7 +567,7 @@
         <div class="header-inner">
             <div class="logo">
                 <a href="{{ route('home') }}">
-                    <img src="{{ asset('assets-front/images/logo_karang_taruna.png') }}" alt="Logo CAAIP">
+                    <img src="{{ asset('assets-front/images/logo_karang_taruna.png') }}" alt="Logo Karang Taruna">
                 </a>
             </div>
             <div class="nav-link">
@@ -725,7 +725,7 @@
 
                 <div class="form-grid">
                     <div class="form-group full-width">
-                        <label>Apakah anda referensi dari Anggota CAAIP?<span>*</span></label>
+                        <label>Apakah anda referensi dari Anggota Karang Taruna?<span>*</span></label>
                         <div class="radio-group">
                             <label class="radio-item"><input type="radio" name="ref_hipmi" value="Ya" required> Ya</label>
                             <label class="radio-item"><input type="radio" name="ref_hipmi" value="Tidak" required>
@@ -734,7 +734,7 @@
                     </div>
 
                     <div class="form-group full-width">
-                        <label>Apakah Anda aktif di organisasi selain CAAIP?<span>*</span></label>
+                        <label>Apakah Anda aktif di organisasi selain Karang Taruna?<span>*</span></label>
                         <div class="radio-group">
                             <label class="radio-item"><input type="radio" name="aktif_org_lain" value="Ya" required>
                                 Ya</label>
@@ -820,7 +820,7 @@
                 icon: 'error',
                 title: 'Oops!',
                 text: '{{ session('error') }}',
-                confirmButtonColor: '#0B1354',
+                confirmButtonColor: '#022648',
                 confirmButtonText: 'OK'
             });
         @endif
@@ -840,7 +840,7 @@
                 icon: 'error',
                 title: 'Validasi Gagal',
                 html: `{!! implode('<br>', $errors->all()) !!}`,
-                confirmButtonColor: '#0B1354',
+                confirmButtonColor: '#022648',
                 confirmButtonText: 'OK'
             });
         @endif

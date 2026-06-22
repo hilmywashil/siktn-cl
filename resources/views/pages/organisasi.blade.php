@@ -31,6 +31,27 @@
                     </div>
                 </div>
             @endif
+            
+            @if($wakilKetua->count() > 0)
+                <div class="grid-section">
+                    <div class="grid-title">
+                        <h2>Ketua Umum</h2>
+                    </div>
+                    <div class="grid-1">
+                        @foreach($wakilKetua as $org)
+                            <a href="{{ route('organisasi.show', $org->nama) }}">
+                                <div class="card">
+                                    <img src="{{ $org->foto_url }}" alt="{{ $org->nama }}">
+                                    <div>
+                                        <h3>{{ Str::words($org->nama, 2, '') }}</h3>
+                                        <p>{{ $org->jabatan }}</p>
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
 
             @if($ketuaBidang->count() > 0)
                 <div class="grid-section">

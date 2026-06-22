@@ -50,7 +50,7 @@ $activeMenu = 'berita';
     .form-textarea:focus,
     .form-select:focus {
         outline: none;
-        border-color: #0B1354;
+        border-color: #022648;
         box-shadow: 0 0 0 3px rgba(11, 19, 84, 0.1);
     }
 
@@ -173,7 +173,7 @@ $activeMenu = 'berita';
     }
 
     .back-link:hover {
-        color: #0B1354;
+        color: #022648;
     }
 
     @media (max-width: 1024px) {
@@ -240,12 +240,12 @@ $activeMenu = 'berita';
                 <p>Gambar saat ini</p>
             </div>
 
-            <input type="file" name="gambar" class="form-input" accept="image/jpeg,image/jpg,image/png"
+            <input type="file" name="gambar" class="form-input" accept="image/jpeg,image/jpg,image/png,image/webp",
                 onchange="previewImage(event)">
             @error('gambar')
             <div class="error-message">{{ $message }}</div>
             @enderror
-            <div class="form-help">Format: JPG, JPEG, PNG. Maksimal 2MB. Kosongkan jika tidak ingin mengubah gambar.</div>
+            <div class="form-help">Format: JPG, JPEG, PNG, WEBP. Maksimal 2MB. Kosongkan jika tidak ingin mengubah gambar.</div>
 
             <div class="image-preview" id="imagePreview">
                 <p style="margin-bottom: 0.5rem; font-size: 0.8125rem; color: #6b7280;">Preview gambar baru:</p>
@@ -283,7 +283,7 @@ $activeMenu = 'berita';
         <div class="form-group">
             <label class="form-label">Statistik</label>
             <div style="padding: 1rem; background: #f9fafb; border-radius: 4px; font-size: 0.875rem; color: #6b7280;">
-                <strong style="color: #0B1354;">{{ number_format($berita->views) }}</strong> kali dilihat
+                <strong style="color: #022648;">{{ number_format($berita->views) }}</strong> kali dilihat
             </div>
         </div>
 

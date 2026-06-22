@@ -520,7 +520,7 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">Manajemen Admin</h1>
-        <p class="page-desc">Kelola seluruh akun administrator CAAIP Alumni</p>
+        <p class="page-desc">Kelola seluruh akun administrator Karang Taruna</p>
     </div>
     <a href="{{ route('admin.create-admin') }}" class="btn-primary">
         <svg viewBox="0 0 24 24">

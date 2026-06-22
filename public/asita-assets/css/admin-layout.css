@@ -16,7 +16,7 @@ body {
 /* ============ SIDEBAR ============ */
 .sidebar {
     width: 280px;
-    background: #0B1354;
+    background: #022648;
     display: flex;
     flex-direction: column;
     position: fixed;
@@ -39,7 +39,7 @@ body {
 .brand-logo {
     width: 50px;
     height: 50px;
-    background: #0B1354;
+    background: #022648;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -202,7 +202,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #0B1354;
+    color: #022648;
     font-weight: 700;
     font-size: 1.125rem;
     flex-shrink: 0;
@@ -248,7 +248,7 @@ body {
 
 .topbar-left h2 {
     font-size: 1.75rem;
-    color: #0B1354;
+    color: #022648;
     margin-bottom: 0.25rem;
     font-weight: 700;
 }
@@ -340,7 +340,7 @@ body {
         right: 2rem;
         width: 56px;
         height: 56px;
-        background: #0B1354;
+        background: #022648;
         border: none;
         border-radius: 50%;
         cursor: pointer;
@@ -446,19 +446,19 @@ body {
 
 /* 2. Flat Brand Colors for Buttons & Active Tabs */
 .filter-tab.active {
-    background: #0B1354 !important;
-    border-color: #0B1354 !important;
+    background: #022648 !important;
+    border-color: #022648 !important;
     color: #ffffff !important;
 }
 
 .filter-tab:hover:not(.active) {
     background: #f3f4f6 !important;
-    color: #0B1354 !important;
+    color: #022648 !important;
 }
 
 .pagination-btn.active {
-    background: #0B1354 !important;
-    border-color: #0B1354 !important;
+    background: #022648 !important;
+    border-color: #022648 !important;
     color: #ffffff !important;
 }
 
@@ -476,14 +476,14 @@ body {
 .welcome-card,
 .welcome-card-gradient,
 .admin-header-card {
-    background: #0B1354 !important;
+    background: #022648 !important;
     border-radius: 6px !important;
 }
 
 .btn-primary-flat {
-    background: #0B1354 !important;
+    background: #022648 !important;
     color: white !important;
-    border: 1px solid #0B1354 !important;
+    border: 1px solid #022648 !important;
     border-radius: 4px !important;
     font-weight: 600;
 }
@@ -515,7 +515,7 @@ body {
 }
 
 .badge-super_admin {
-    background: #0B1354 !important;
+    background: #022648 !important;
     color: #ffffff !important;
     border: 1px solid #C59217 !important;
     font-weight: 700 !important;
@@ -523,7 +523,7 @@ body {
 }
 
 .badge-bpd {
-    background: #0B1354 !important;
+    background: #022648 !important;
     color: #ffffff !important;
     border: 1px solid rgba(255,255,255,0.4) !important;
     font-weight: 700 !important;

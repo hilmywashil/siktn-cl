@@ -73,7 +73,7 @@
 
         .stat-icon.total {
             background: rgba(11, 19, 84, 0.1);
-            color: #0B1354;
+            color: #022648;
         }
 
         .stat-icon.pending {
@@ -229,7 +229,7 @@
         }
 
         .btn-icon.view {
-            border-color: #0B1354;
+            border-color: #022648;
         }
 
         .btn-icon.view:hover {
@@ -237,7 +237,7 @@
         }
 
         .btn-icon.view svg {
-            stroke: #0B1354;
+            stroke: #022648;
         }
 
         .btn-icon.disabled {
@@ -379,7 +379,7 @@
 @section('content')
     <div class="page-header">
         <h1>Kelola Anggota</h1>
-        <p>Kelola dan verifikasi pendaftaran anggota CAAIP Alumni</p>
+        <p>Kelola dan verifikasi pendaftaran anggota Karang Taruna</p>
     </div>
 
     {{-- Success Message --}}

@@ -20,7 +20,7 @@ $activeMenu = 'dashboard';
         </div>
         <div class="welcome-text">
             <h1>Selamat Datang, {{ auth()->guard('admin')->user()->name }}</h1>
-            <p>Dashboard Admin CAAIP Alumni</p>
+            <p>Dashboard Admin Karang Taruna</p>
             <span class="category-badge badge-{{ auth()->guard('admin')->user()->category }}">
                 {{ strtoupper(auth()->guard('admin')->user()->category) }}
             </span>

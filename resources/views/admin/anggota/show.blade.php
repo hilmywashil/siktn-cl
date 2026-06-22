@@ -194,9 +194,9 @@
         }
 
         .tab-button.active {
-            color: #0B1354;
+            color: #022648;
             background: white;
-            border-bottom-color: #0B1354;
+            border-bottom-color: #022648;
         }
 
         .tabs-content {
@@ -316,7 +316,7 @@
         }
 
         .btn-download {
-            background: #0B1354;
+            background: #022648;
         }
 
         .btn-download:hover {
@@ -424,7 +424,7 @@
 
         .form-control:focus {
             outline: none;
-            border-color: #0B1354;
+            border-color: #022648;
             box-shadow: 0 0 0 3px rgba(11, 19, 84, 0.1);
         }
 
@@ -502,7 +502,7 @@
 }
 
 .btn-password {
-    background: #0B1354;
+    background: #022648;
     color: white;
 }
 

@@ -5,7 +5,7 @@
 @push('styles')
     <style>
         :root {
-            --primary-blue: #0B1354;
+            --primary-blue: #022648;
             --secondary-blue: #2A348D;
             --accent-yellow: #C59217;
             --text-dark: #04293B;
@@ -79,7 +79,7 @@
         .kta-card {
             width: 480px;
             height: 280px;
-            background: linear-gradient(135deg, #0B1354 0%, #1e208f 50%, #040536 100%);
+            background: linear-gradient(135deg, #022648 0%, #1e208f 50%, #040536 100%);
             border-radius: 16px;
             padding: 20px;
             position: relative;
@@ -398,7 +398,7 @@
             
             <h1 class="success-title">Pendaftaran Berhasil!</h1>
             <p class="success-subtitle">
-                Terima kasih telah mendaftar di Corps Alumni Akademi Ilmu Pelayaran (CAAIP). Akun pendaftaran Anda telah berhasil dibuat dan saat ini sedang dalam proses verifikasi oleh tim administrator.
+                Terima kasih telah mendaftar di Corps Alumni Akademi Ilmu Pelayaran (Karang Taruna). Akun pendaftaran Anda telah berhasil dibuat dan saat ini sedang dalam proses verifikasi oleh tim administrator.
             </p>
 
             <h3 class="kta-section-title">Kartu Anggota Digital Sementara</h3>
@@ -406,7 +406,7 @@
             <div class="kta-card-wrapper">
                 <div class="kta-card">
                     <div class="kta-header">
-                        <img src="{{ asset('assets/img/logo.png') }}" class="kta-logo" alt="CAAIP" onerror="this.src='https://ui-avatars.com/api/?name=CAAIP&background=090b62&color=fff'">
+                        <img src="{{ asset('assets/img/logo.png') }}" class="kta-logo" alt="Karang Taruna" onerror="this.src='https://ui-avatars.com/api/?name=Karang Taruna&background=090b62&color=fff'">
                         <div class="kta-title">
                             <h2>Corps Alumni Akademi Ilmu Pelayaran</h2>
                             <p>KARTU TANDA ANGGOTA DIGITAL SEMENTARA</p>
@@ -449,7 +449,7 @@
                     
                     <div class="kta-footer">
                         <span class="kta-footer-text">Corps Alumni Akademi Ilmu Pelayaran - STIP Jakarta</span>
-                        <span class="kta-barcode">CAAIP-{{ str_pad($anggota->id, 4, '0', STR_PAD_LEFT) }}</span>
+                        <span class="kta-barcode">Karang Taruna-{{ str_pad($anggota->id, 4, '0', STR_PAD_LEFT) }}</span>
                     </div>
                 </div>
             </div>
@@ -516,7 +516,7 @@
             printWindow.document.write(`
                 <html>
                     <head>
-                        <title>Cetak KTA - CAAIP</title>
+                        <title>Cetak KTA - Karang Taruna</title>
                         ${stylesHtml}
                         <style>
                             body {

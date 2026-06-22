@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $anggota->nama_lengkap . ' - Buku Informasi Anggota CAAIP')
+@section('title', $anggota->nama_lengkap . ' - Buku Informasi Anggota Karang Taruna')
 
 @push('styles')
     <style>

@@ -11,7 +11,7 @@
         const cards = Array.from(track.children);
         if (cards.length === 0) return;
 
-        const AUTOPLAY_DELAY = 4000; // ms, set 0 untuk mematikan autoplay
+        const AUTOPLAY_DELAY = 0; // ms, set 0 untuk mematikan autoplay
 
         // Jumlah kartu yang tampil penuh (tanpa intip) per breakpoint
         function getVisibleCount() {

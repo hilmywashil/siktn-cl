@@ -50,7 +50,7 @@ $activeMenu = 'berita';
     .form-textarea:focus,
     .form-select:focus {
         outline: none;
-        border-color: #0B1354;
+        border-color: #022648;
         box-shadow: 0 0 0 3px rgba(11, 19, 84, 0.1);
     }
 
@@ -156,7 +156,7 @@ $activeMenu = 'berita';
     }
 
     .back-link:hover {
-        color: #0B1354;
+        color: #022648;
     }
 
     @media (max-width: 1024px) {
@@ -216,12 +216,12 @@ $activeMenu = 'berita';
             <label class="form-label">
                 Gambar Utama <span class="required">*</span>
             </label>
-            <input type="file" name="gambar" class="form-input" accept="image/jpeg,image/jpg,image/png" required
+            <input type="file" name="gambar" class="form-input" accept="image/jpeg,image/jpg,image/png,image/webp" required
                 onchange="previewImage(event)">
             @error('gambar')
             <div class="error-message">{{ $message }}</div>
             @enderror
-            <div class="form-help">Format: JPG, JPEG, PNG. Maksimal 2MB</div>
+            <div class="form-help">Format: JPG, JPEG, PNG, WEBP. Maksimal 2MB</div>
             <div class="image-preview" id="imagePreview">
                 <img src="" alt="Preview" id="previewImg">
             </div>

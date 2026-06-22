@@ -18,7 +18,7 @@ $activeMenu = 'berita';
     }
 
     .add-btn {
-        background: #0B1354;
+        background: #022648;
         color: white;
         padding: 0.75rem 1.5rem;
         border-radius: 4px;
@@ -77,7 +77,7 @@ $activeMenu = 'berita';
 
     .berita-title {
         font-weight: 600;
-        color: #0B1354;
+        color: #022648;
         margin-bottom: 0.25rem;
     }
 
@@ -135,12 +135,12 @@ $activeMenu = 'berita';
 
     .btn-edit {
         background: rgba(11, 19, 84, 0.1);
-        color: #0B1354;
+        color: #022648;
         border: 1px solid rgba(11, 19, 84, 0.15);
     }
 
     .btn-edit:hover {
-        background: #0B1354;
+        background: #022648;
         color: white;
     }
 
@@ -229,9 +229,9 @@ $activeMenu = 'berita';
     }
 
     .pag-btn.pag-active {
-        background: #0B1354;
+        background: #022648;
         color: white;
-        border-color: #0B1354;
+        border-color: #022648;
         font-weight: 500;
         pointer-events: none;
     }
@@ -282,8 +282,8 @@ $activeMenu = 'berita';
 
 <div class="content-header">
     <div>
-        <h3 style="font-size: 1.5rem; font-weight: 700; color: #0B1354; margin-bottom: 0.5rem;">Daftar Berita</h3>
-        <p style="color: #6b7280;">Kelola semua berita dan artikel CAAIP Alumni</p>
+        <h3 style="font-size: 1.5rem; font-weight: 700; color: #022648; margin-bottom: 0.5rem;">Daftar Berita</h3>
+        <p style="color: #6b7280;">Kelola semua berita dan artikel Karang Taruna</p>
     </div>
     <a href="{{ route('admin.berita.create') }}" class="add-btn">
         <svg viewBox="0 0 24 24" width="20" height="20" style="stroke: currentColor; fill: none; stroke-width: 2;">
