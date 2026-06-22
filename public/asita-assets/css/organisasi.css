@@ -1,0 +1,366 @@
+.organisasi {
+    display: flex;
+    flex-direction: column;
+    padding: 100px;
+    text-align: center;
+    align-items: center;
+}
+
+.organisasi>h2 {
+    margin-bottom: 50px;
+}
+
+.organisasi-layout1 {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 100px;
+}
+
+.organisasi a {
+    text-decoration: none;
+    color: #04293B;
+}
+
+.organisasi-card {
+    width: auto;
+    padding: 50px;
+    text-align: center;
+    border: 1px solid #04293B;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.org-heading {
+    margin-bottom: 50px;
+}
+
+.organisasi-card:hover {
+    transform: translateY(-5px);
+    cursor: pointer;
+}
+
+.organisasi-card img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    margin-bottom: 20px;
+    border: #04293B 1px solid;
+    border-radius: 10px;
+}
+
+.organisasi-card h4 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.organisasi-card p {
+    font-size: 16px;
+}
+
+.organisasi-card .container {
+    padding: 0 10px;
+}
+
+.organisasi-layout2 {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 100px;
+}
+
+.organisasi-layout2-content {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 1024px) {
+    .organisasi {
+        display: flex;
+        flex-direction: column;
+        padding: 30px;
+        text-align: center;
+        align-items: center;
+    }
+
+    .organisasi-card {
+        padding: 20px;
+    }
+
+    .organisasi-card img {
+        height: 200px;
+        margin-bottom: 5px;
+    }
+
+    .organisasi-card h4 {
+        font-size: 15px;
+    }
+
+    .organisasi-card p {
+        font-size: 14px;
+    }
+
+    .organisasi-layout2 {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 100px;
+    }
+
+    .organisasi-layout2-content {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+}
+
+/* Modal Styles */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    backdrop-filter: blur(4px);
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 20px;
+    max-width: 450px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideUp 0.3s ease;
+    position: relative;
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.modal-close:hover {
+    background: white;
+    transform: rotate(90deg);
+}
+
+.modal-close svg {
+    width: 20px;
+    height: 20px;
+    stroke: #04293B;
+}
+
+/* Header with Logo */
+.modal-header {
+    background: #04293B;
+    padding: 1.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.modal-header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.modal-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.modal-header-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-org-name {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 1px;
+}
+
+.modal-org-region {
+    color: #FDB515;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-top: 0.25rem;
+}
+
+/* Photo Container with Diagonal Design */
+.modal-photo-container {
+    position: relative;
+    height: 400px;
+    background: linear-gradient(135deg, #04293B 0%, #04293B 50%, white 50%, white 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.modal-diagonal-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #04293B 0%, #04293B 48%, white 52%, white 100%);
+}
+
+.modal-diagonal-bg::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 150px;
+    height: 100px;
+    background: linear-gradient(135deg, transparent 0%, transparent 50%, #6DBAED 50%, #6DBAED 100%);
+}
+
+.modal-diagonal-bg::after {
+    content: '';
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    width: 100px;
+    height: 70px;
+    background: linear-gradient(135deg, transparent 0%, transparent 50%, #6DBAED 50%, #6DBAED 100%);
+    opacity: 0.7;
+}
+
+.modal-photo-circle {
+    position: relative;
+    z-index: 1;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    border: 6px solid #6DBAED;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Body Content */
+.modal-body {
+    padding: 2rem;
+    text-align: center;
+    background: white;
+}
+
+.modal-nama {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #04293B;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+.modal-jabatan {
+    font-size: 1rem;
+    color: #6b7280;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+@media (max-width: 1024px) {
+    .modal-content {
+        margin: 1rem;
+        max-width: 100%;
+    }
+
+    .modal-header {
+        padding: 1.25rem;
+    }
+
+    .modal-logo {
+        width: 50px;
+        height: 50px;
+    }
+
+    .modal-org-name {
+        font-size: 1.25rem;
+    }
+
+    .modal-org-region {
+        font-size: 0.75rem;
+    }
+
+    .modal-photo-container {
+        height: 350px;
+    }
+
+    .modal-photo-circle {
+        width: 180px;
+        height: 180px;
+        border-width: 5px;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-nama {
+        font-size: 1.5rem;
+    }
+
+    .modal-jabatan {
+        font-size: 0.9375rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-photo-container {
+        height: 300px;
+    }
+
+    .modal-photo-circle {
+        width: 160px;
+        height: 160px;
+    }
+}

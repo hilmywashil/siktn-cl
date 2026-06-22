@@ -1,0 +1,75 @@
+.informasi-kegiatan {
+    padding: 50px 100px 100px 100px;
+}
+
+.informasi-kegiatan-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+}
+
+.informasi-kegiatan-card {
+    display: flex;
+    flex-direction: column;
+    border: #04293B 1px solid;
+    border-radius: 20px;
+    transition: transform 0.3s ;
+}
+
+.informasi-kegiatan-card-image img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 20px 20px 0px 0px;
+}
+
+.informasi-kegiatan-card-text {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.info-kegiatan-btn-more {
+    color: #04293B;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 15px;
+    padding: 0px 20px 20px 20px;
+
+}
+
+.informasi-kegiatan-card:hover {
+    transform: translateY(-10px);
+}
+
+@media (max-width: 1024px) {
+    .informasi-kegiatan {
+        padding: 20px 20px 50px 20px;
+    }
+
+    .informasi-kegiatan-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .informasi-kegiatan-card-text {
+        padding: 15px;
+    }
+
+    .informasi-kegiatan-card-image img {
+        height: 200px;
+    }
+
+    .informasi-kegiatan-card-text h3 {
+        font-size: 15px;
+    }
+
+    .informasi-kegiatan-card-text p {
+        font-size: 12px;
+    }
+
+    .info-kegiatan-btn-more {
+        font-size: 12px;
+        padding: 0px 15px 20px 10px;
+    }
+}

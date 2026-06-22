@@ -1,0 +1,2451 @@
+html {
+    scroll-behavior: smooth;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+body {
+    font-family: 'Google Sans', sans-serif;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+#scrollTop {
+    position: fixed;
+    right: 30px;
+    bottom: 30px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition: 0.2s;
+
+    mix-blend-mode: difference;
+}
+
+#scrollTop.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+#scrollTop svg {
+    position: absolute;
+    transform: rotate(-90deg);
+}
+
+#scrollTop circle {
+    fill: none;
+    stroke: white;
+    stroke-width: 3;
+    stroke-dasharray: 138;
+    stroke-dashoffset: 138;
+}
+
+#scrollTop i {
+    font-size: 18px;
+    z-index: 2;
+    color: white;
+}
+
+.btn-navy {
+    font-size: 14px;
+    text-decoration: none;
+    color: #FFFFFF;
+    background-color: #022648;
+    padding: 12px 20px;
+    border: #022648 1px solid;
+    border-radius: 7px;
+    transition: all 0.2s;
+}
+
+.btn-white {
+    font-size: 14px;
+    text-decoration: none;
+    color: #000;
+    background-color: #fff;
+    padding: 12px 20px;
+    border: #fff 1px solid;
+    border-radius: 7px;
+    transition: all 0.2s;
+}
+
+.btn-white .fa {
+    font-size: 14px;
+}
+
+.btn-white:hover {
+    background-color: transparent;
+    color: #fff;
+}
+
+.btn-yellow {
+    font-size: 14px;
+    text-decoration: none;
+    color: #000;
+    background-color: #FFF000;
+    padding: 12px 20px;
+    border: #FFF000 1px solid;
+    border-radius: 7px;
+    transition: all 0.2s;
+}
+
+.btn-yellow .fa {
+    font-size: 14px;
+}
+
+.btn-yellow:hover {
+    background-color: transparent;
+    color: #fff;
+}
+
+.btn-yellow-border-black {
+    font-size: 14px;
+    text-decoration: none;
+    color: #000;
+    background-color: #FFF000;
+    padding: 12px 20px;
+    border: #000 1px solid;
+    border-radius: 7px;
+    transition: all 0.2s;
+}
+
+.btn-yellow-border-black .fa {
+    font-size: 14px;
+}
+
+.btn-yellow-border-black:hover {
+    background-color: transparent;
+}
+
+.btn-transparent-border-black {
+    font-size: 14px;
+    text-decoration: none;
+    color: #000;
+    background-color: transparent;
+    padding: 12px 20px;
+    border: #000 1px solid;
+    border-radius: 7px;
+    transition: all 0.2s;
+}
+
+.btn-transparent-border-black .fa {
+    font-size: 14px;
+}
+
+.btn-yellow-text-black {
+    font-size: 14px;
+    text-decoration: none;
+    color: #000;
+    background-color: #FFF000;
+    padding: 12px 20px;
+    border: #FFF000 1px solid;
+    border-radius: 7px;
+    transition: all 0.2s;
+}
+
+.btn-yellow-text-black .fa {
+    font-size: 14px;
+}
+
+.btn-yellow-text-black:hover {
+    background-color: transparent;
+    color: #000;
+}
+
+/* =============================================
+   SHARED HEADER LAYOUT
+   Digunakan oleh .header-sticky dan .page-header
+   ============================================= */
+
+.header-inner {
+    width: 100%;
+    max-width: 1300px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 50px;
+}
+
+.header-inner .logo img {
+    display: block;
+    width: 80px;
+    height: 80px;
+}
+
+.header-inner .nav-link {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.header-inner .nav-link a {
+    font-size: 15px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.header-inner .nav-link a:hover {
+    transform: translateY(-2px);
+}
+
+.header-inner .nav-link a.active {
+    font-weight: 700;
+}
+
+.header-inner .buttons {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+/* =============================================
+   STICKY HEADER (muncul saat scroll)
+   ============================================= */
+
+.header-sticky {
+    background-color: #FFFFFF;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+
+    position: fixed;
+    top: -150px;
+    left: 0;
+
+    z-index: 999;
+    transition: 0.3s;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.header-sticky.show {
+    top: 0;
+}
+
+/* Warna link khusus untuk sticky header (background putih) */
+.header-sticky .header-inner {
+    position: relative;
+}
+
+.header-sticky .header-inner .nav-link a {
+    color: #000;
+}
+
+.header-sticky .header-inner .nav-link a:hover {
+    color: #FFF000;
+    transform: translateY(-2px);
+}
+
+/* =============================================
+   WRAPPER / HERO SECTION
+   ============================================= */
+
+.wrapper-page {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 20px 200px 20px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.page-banner {
+    color: #FFFFFF;
+    width: 100%;
+    max-width: 1300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* =============================================
+   PAGE HEADER (di dalam hero/wrapper-page)
+   ============================================= */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.page-header .header-inner .nav-link a {
+    color: #FFFFFF;
+}
+
+.page-header .header-inner .nav-link a:hover {
+    color: #FFF000;
+    transform: translateY(-3px);
+}
+
+/* =============================================
+   PAGE TITLE (konten hero)
+   ============================================= */
+
+.page-title {
+    margin-top: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.page-title h1 {
+    color: #FFF000;
+    font-size: 50px;
+    width: 900px;
+    text-align: center;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.page-title h2 {
+    font-size: 25px;
+    font-weight: 400;
+    margin-top: 0;
+}
+
+.page-title p {
+    font-size: 14px;
+    font-weight: 400;
+    text-align: center;
+    width: 500px;
+    margin-top: 20px;
+}
+
+.page-title .buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    margin-top: 40px;
+}
+
+.wrapper-white-1 {
+    background-color: #F0F0F6;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 100px 20px;
+}
+
+.about-section {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    max-width: 1300px;
+    gap: 50px;
+}
+
+.about-section .left {
+    flex: 1;
+}
+
+.about-section .right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    padding: 50px 20px;
+    gap: 20px;
+}
+
+.about-section .right h2 {
+    margin: 0;
+    font-size: 25px;
+    color: #022648;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.about-section .right p {
+    font-size: 14px;
+    color: #000;
+}
+
+.about-section .left img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.wrapper-lightblue {
+    background-color: #DCEEFF;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 100px 20px;
+}
+
+.wrapper-blue-1 {
+    background-color: #022648;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 100px 20px;
+}
+
+.stats-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1300px;
+    gap: 50px;
+}
+
+.stats-section .grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.stats-section .grid .item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.stats-section .grid .item h2 {
+    font-weight: 700;
+    font-size: 45px;
+    color: #FFF000;
+    margin: 0;
+}
+
+.stats-section .grid .item p {
+    font-size: 14px;
+    color: #FFFFFF;
+    margin: 0;
+}
+
+.stats-section .grid .item .icon {
+    padding: 20px;
+    background-color: #0A4D8C;
+    border-radius: 5px;
+}
+
+.stats-section .grid .item .icon img {
+    width: 50px;
+    color: #FFFFFF;
+}
+
+/* ============================================
+   ORGANIZATION SECTION
+   ============================================ */
+.organization-section {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: start;
+    width: 100%;
+    max-width: 1300px;
+    gap: 50px;
+}
+
+.organization-section .left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    gap: 20px;
+}
+
+.organization-section .left h2 {
+    margin: 0;
+    font-size: 25px;
+    color: #022648;
+}
+
+.organization-section .left p {
+    color: #000;
+    font-size: 14px;
+}
+
+.organization-section .right {
+    flex: 1.5;
+    min-width: 0;
+    /* penting agar flex child tidak overflow saat carousel digeser */
+}
+
+/* ============================================
+   MEMBER CAROUSEL
+   ============================================ */
+.member-carousel {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.member-track {
+    display: flex;
+    gap: 20px;
+    transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+    will-change: transform;
+}
+
+.member-card {
+    position: relative;
+    /* JIKA 3 KARTU, GANTI DENGAN: */
+    flex: 0 0 calc(33.333% - 13.333px);
+    /* JIKA 2 KARTU, GANTI DENGAN: */
+    /* flex: 0 0 calc(50% - 12px); */
+    min-width: 0;
+    aspect-ratio: 3 / 5;
+    border-radius: 5px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+}
+
+.member-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top,
+            rgba(2, 14, 30, 0.85) 0%,
+            rgba(2, 14, 30, 0.35) 35%,
+            rgba(2, 14, 30, 0) 60%);
+}
+
+.member-info {
+    position: absolute;
+    left: 18px;
+    bottom: 16px;
+    z-index: 2;
+}
+
+.member-info .name {
+    display: block;
+    color: #FFD600;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.3;
+}
+
+.member-info .role {
+    display: block;
+    color: #fff;
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+/* ============================================
+   DOTS / INDICATOR
+   ============================================ */
+.member-dots {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.member-dots button {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: none;
+    background: #cfe0f2;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.member-dots button.active {
+    background: #022648;
+    transform: scale(1.15);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 992px) {
+    .organization-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 576px) {
+    .member-card {
+        flex: 0 0 100%;
+        /* 1 kartu penuh di mobile */
+    }
+}
+
+.program-org-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1300px;
+    gap: 50px;
+}
+
+.program-org-section h2 {
+    margin: 0;
+    font-size: 25px;
+    color: #022648;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+}
+
+.program-org-section p {
+    text-align: center;
+    color: #000;
+    max-width: 700px;
+    font-size: 14px;
+}
+
+.program-org-section .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+}
+
+.program-org-section .grid .item {
+    background-color: #FFFFFF;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 30px;
+    border-radius: 5px;
+}
+
+.program-org-section .grid .item .content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    gap: 10px;
+}
+
+.program-org-section .grid .item .content h3 {
+    margin: 0;
+    color: #022648;
+    font-size: 20px;
+}
+
+.program-org-section .grid .item .content p {
+    text-align: start;
+    margin: 0;
+}
+
+.program-org-section .item img {
+    width: 80px;
+    height: 80px;
+}
+
+.pilar-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1300px;
+    gap: 50px;
+}
+
+.pilar-section h2 {
+    margin: 0;
+    font-size: 25px;
+    color: #FFF000;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+}
+
+.pilar-section p {
+    text-align: center;
+    color: #fff;
+    max-width: 700px;
+    font-size: 14px;
+}
+
+.pilar-section .cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+    gap: 25px;
+
+}
+
+.pilar-section .cards img {
+    width: 100px;
+}
+
+.pilar-section .cards .card-blue h3 {
+    font-size: 20px;
+    color: #FFF000;
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: 700;
+    margin: 0;
+}
+
+.pilar-section .cards .card-white h3 {
+    font-size: 20px;
+    color: #022648;
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: 700;
+    margin: 0;
+}
+
+.pilar-section .cards .card-white {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    padding: 50px;
+    gap: 20px;
+    transition: all 0.2s;
+}
+
+.pilar-section .cards .card-blue {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #2A2C83;
+    padding: 50px;
+    gap: 20px;
+    transition: all 0.2s;
+}
+
+.pilar-section .cards .card-blue:hover,
+.pilar-section .cards .card-white:hover {
+    transform: scale(1.05);
+    cursor: pointer;
+}
+
+.pilar-section .cards .card-blue p {
+    color: #fff;
+    font-size: 14px;
+}
+
+
+.pilar-section .cards .card-white p {
+    color: #000;
+    font-size: 14px;
+}
+
+.red-bottom-divider {
+    width: 100%;
+    background-color: #EB021A;
+    padding: 10px;
+}
+
+/* .program-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1300px;
+    gap: 50px;
+}
+
+.program-section h2 {
+    margin: 0;
+    font-size: 25px;
+    color: #022648;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+}
+
+.program-section p {
+    text-align: center;
+    color: #000;
+    max-width: 700px;
+    font-size: 14px;
+}
+
+.program-section .item-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+.program-section .item-grid .item {
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+    justify-content: start;
+    align-items: center;
+    background-color: #FFF;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.program-section .item-grid .item::after {
+    content: '';
+    position: absolute;
+    bottom: -40px;
+    right: -40px;
+    width: 100px;
+    height: 100px;
+    background-color: #BB8D14;
+    border-radius: 50%;
+}
+
+.program-section .item-grid img {
+    width: 80px;
+}
+
+.program-section .item-grid h3 {
+    font-size: 20px;
+    color: #022648;
+    text-transform: uppercase;
+    text-align: left;
+    font-weight: 700;
+    margin: 0;
+}
+
+.program-section .item-grid p {
+    color: #000;
+    font-size: 14px;
+    text-align: left;
+} */
+
+.wrapper-gold-1 {
+    background-color: #BB8D14;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 100px 20px;
+}
+
+.anggota-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1300px;
+    gap: 50px;
+}
+
+.anggota-section h2 {
+    margin: 0;
+    font-size: 25px;
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+}
+
+.anggota-section p {
+    text-align: center;
+    color: #fff;
+    max-width: 700px;
+    font-size: 14px;
+}
+
+.anggota-section .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+}
+
+.anggota-section .item {
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #FFF;
+    padding: 30px;
+    gap: 20px;
+}
+
+.anggota-section .item img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+}
+
+.anggota-section .item h3 {
+    font-size: 20px;
+    color: #022648;
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: 700;
+    margin: 0;
+}
+
+.anggota-section .item p {
+    text-align: center;
+    color: #000;
+    max-width: 700px;
+    font-size: 12px;
+}
+
+.katalog-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1300px;
+    gap: 50px;
+}
+
+.katalog-section h2 {
+    margin: 0;
+    font-size: 25px;
+    color: #FFFFFF;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+}
+
+.katalog-section>div>p {
+    text-align: center;
+    color: #FFFFFF;
+    max-width: 700px;
+    font-size: 14px;
+}
+
+.katalog-section .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+}
+
+.katalog-section .item {
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #FFF;
+    padding: 30px;
+    gap: 20px;
+}
+
+.katalog-section .item img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+}
+
+.katalog-section .item h3 {
+    font-size: 20px;
+    color: #022648;
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: 700;
+    margin: 0;
+}
+
+.katalog-section .item p {
+    text-align: center;
+    color: #000;
+    max-width: 700px;
+    font-size: 14px;
+}
+
+.wrapper-image-2 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 100px 20px 100px 20px;
+    background-image:
+        linear-gradient(#02264880, #02264880),
+        url('../images/bg_5.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.bergabung-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1300px;
+    gap: 30px;
+}
+
+.bergabung-section h1 {
+    margin: 0;
+    color: #fff;
+    text-align: center;
+    font-weight: 400;
+    font-size: 50px;
+    width: 100%;
+    max-width: 1000px;
+    font-style: italic;
+}
+
+.bergabung-section .buttons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.kegiatan-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1300px;
+    gap: 50px;
+}
+
+.kegiatan-section h2 {
+    margin: 0;
+    font-size: 25px;
+    color: #022648;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+}
+
+.kegiatan-section p {
+    text-align: center;
+    color: #000;
+    max-width: 700px;
+    font-size: 14px;
+}
+
+.kegiatan-section .content {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.kegiatan-section .content .left {
+    flex: 1.5;
+}
+
+.kegiatan-section .content .right {
+    flex: 1;
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.kegiatan-featured-card {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    font-family: "Google Sans", sans-serif;
+}
+
+.kegiatan-featured-card__banner {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+}
+
+.kegiatan-featured-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.kegiatan-featured-card__overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 30px 30px;
+    background: linear-gradient(to top,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.8) 60%,
+            rgba(0, 0, 0, 0.4) 90%,
+            rgba(0, 0, 0, 0) 100%);
+}
+
+.kegiatan-featured-card__category {
+    display: inline-block;
+    background: #FFF000;
+    color: #000;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    letter-spacing: 0.03em;
+}
+
+.kegiatan-featured-card h2 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.45;
+    color: #ffffff;
+    text-align: left;
+}
+
+.kegiatan-featured-card p {
+    margin: 0;
+    font-size: 12px;
+    text-align: left;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.kegiatan-card {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+
+.kegiatan-card img {
+    flex: 1;
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.kegiatan-card .content-card {
+    flex: 1.5;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+}
+
+.kegiatan-card .content-card .line-clamp-3 {
+    margin: 0;
+    color: #022648;
+    font-size: 20px;
+    text-align: left;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.visi-misi-section {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+    width: 100%;
+    max-width: 1300px;
+    gap: 50px;
+}
+
+.visi-misi-section .left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.visi-misi-section .left .visi-container {
+    padding: 20px;
+    background-color: #022648;
+}
+
+.visi-misi-section .left .misi-container {
+    padding: 20px;
+    background-color: #0A4D8C;
+}
+
+.visi-misi-section .left .visi-container h2,
+.visi-misi-section .left .misi-container h2 {
+    color: #FFFFFF;
+    font-size: 20px;
+}
+
+.visi-misi-section .left .visi-container p,
+.visi-misi-section .left .misi-container p {
+    font-size: 14px;
+    color: #FFFFFF;
+}
+
+.visi-misi-section .right {
+    flex: 1;
+}
+
+.visi-misi-section .right img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.wrapper-image-3 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 100px 20px 100px 20px;
+    background-image:
+        linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+        url('../images/about_image.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.organisasi-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1300px;
+    gap: 75px;
+}
+
+.organisasi-section h2 {
+    margin: 0;
+    font-size: 25px;
+    color: #022648;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+}
+
+.organisasi-section .grid-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 25px;
+}
+
+.organisasi-section .grid-section .grid-1 {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 25px;
+}
+
+.organisasi-section .grid-section .grid-4 {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+}
+
+.organisasi-section .grid-section .card {
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #FFF;
+    padding: 30px;
+    gap: 20px;
+    /* transition: all 0.2s; */
+}
+
+/* .organisasi-section .grid-section .card:hover {
+    transform: scale(1.05);
+    cursor: pointer;
+} */
+
+.organisasi-section .grid-section .card img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    object-position: center center;
+}
+
+.organisasi-section .grid-section .card h3 {
+    font-size: 20px;
+    color: #022648;
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: 700;
+    margin: 0;
+}
+
+.organisasi-section .grid-section .card p {
+    text-align: center;
+    color: #000;
+    max-width: 700px;
+    font-size: 12px;
+}
+
+.organisasi-section a {
+    text-decoration: none;
+}
+
+.berita-page-section {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    max-width: 1300px;
+    gap: 100px;
+}
+
+.berita-page-section .left {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.berita-page-section .item {
+    display: flex;
+    align-items: stretch;
+    gap: 25px;
+}
+
+.berita-page-section .item .image {
+    flex: 1;
+    display: flex;
+}
+
+.berita-page-section .item .image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 7px;
+}
+
+.berita-page-section .item .content {
+    flex: 1.5;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px;
+}
+
+.berita-page-section .item .content a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.berita-page-section .item .content h2 {
+    font-size: 20px;
+    color: #022648;
+    margin: 0;
+}
+
+.berita-page-section .item .content p {
+    font-size: 14px;
+    margin: 0;
+}
+
+.berita-page-section .item .content i {
+    font-size: 12px;
+    margin-left: 10px;
+    font-style: italic;
+    transition: all 0.2s;
+}
+
+
+.berita-page-section .item .content .date {
+    font-size: 12px;
+    font-style: italic;
+}
+
+.berita-page-section .item .content .btn {
+    text-decoration: none;
+    color: inherit;
+    font-size: 14px;
+    font-style: italic;
+    transition: all 0.2s;
+}
+
+.berita-page-section .item .content .btn:hover {
+    padding-left: 5px;
+    color: #FFF000;
+}
+
+.berita-page-section .right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 25px;
+}
+
+.berita-page-section .right h2 {
+    margin: 0;
+    font-size: 25px;
+    color: #022648;
+    font-weight: 700;
+}
+
+.divider-line {
+    width: 100%;
+    text-align: left;
+    margin-left: 0
+}
+
+.wrapper-pagination-white {
+    background-color: #F0F0F6;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 100px;
+}
+
+.pagination-section {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    max-width: 1300px;
+    gap: 10px;
+}
+
+.pagination-section a {
+    text-decoration: none;
+    color: #022648;
+}
+
+.page-number {
+    background-color: #FFF;
+    padding: 10px;
+    border: #022648 solid 1px;
+    border-radius: 5px;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.page-number:hover {
+    background-color: #022648;
+    color: #FFF000;
+}
+
+.page-number.active {
+    background-color: #022648;
+    color: #FFF000;
+}
+
+.page-number i {
+    font-size: 12px;
+}
+
+/* ==============================================
+   RESPONSIVE CSS
+   Breakpoints:
+   - Tablet  : max-width 1024px
+   - Mobile  : max-width 768px
+   - Small   : max-width 480px
+   ============================================== */
+
+/* ── Scroll Top ── */
+@media (max-width: 768px) {
+    #scrollTop {
+        right: 16px;
+        bottom: 16px;
+        width: 40px;
+        height: 40px;
+    }
+
+    #scrollTop i {
+        font-size: 14px;
+    }
+}
+
+/* ── Buttons ── */
+@media (max-width: 480px) {
+
+    .btn-white,
+    .btn-yellow,
+    .btn-yellow-border-black,
+    .btn-transparent-border-black,
+    .btn-yellow-text-black {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+}
+
+/* ==============================================
+   HEADER
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .header-inner {
+        gap: 20px;
+    }
+
+    .header-inner .nav-link {
+        gap: 16px;
+    }
+
+    .header-inner .buttons {
+        gap: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-inner {
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-inner .logo img {
+        width: 56px;
+        height: 56px;
+    }
+
+    /* Nav links jadi horizontal scrollable di bawah logo */
+    .header-inner .nav-link {
+        position: static;
+        transform: none;
+        order: 3;
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .header-inner .nav-link a {
+        font-size: 13px;
+    }
+
+    .header-inner .buttons {
+        margin-left: 0;
+        gap: 8px;
+    }
+
+    .header-sticky {
+        padding: 12px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-inner .buttons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .header-inner .buttons a,
+    .header-inner .buttons button {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+}
+
+/* ==============================================
+   WRAPPER / HERO
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .wrapper-page {
+        padding: 40px 20px 120px 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .wrapper-page {
+        padding: 30px 16px 80px 16px;
+    }
+
+    .page-title {
+        margin-top: 80px;
+    }
+
+    .page-title h1 {
+        font-size: 34px;
+        text-align: center;
+    }
+
+    .page-title h2 {
+        font-size: 18px;
+        text-align: center;
+    }
+
+    .page-title p {
+        text-align: center;
+    }
+
+    .page-title .buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        margin-top: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-title h1 {
+        font-size: 26px;
+    }
+
+    .page-title h2 {
+        font-size: 15px;
+    }
+}
+
+/* ==============================================
+   ABOUT SECTION
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .about-section {
+        gap: 30px;
+    }
+
+    .about-section .right {
+        padding: 30px 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .wrapper-white-1 {
+        padding: 60px 16px;
+    }
+
+    .about-section {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .about-section .left img {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+    }
+
+    .about-section .right {
+        padding: 0;
+    }
+
+    .about-section .right h2 {
+        font-size: 20px;
+    }
+}
+
+/* ==============================================
+   PILAR SECTION (HOME)
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .wrapper-blue-1 {
+        padding: 60px 20px;
+    }
+
+    .pilar-section .cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .pilar-section .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .pilar-section .cards .card-blue,
+    .pilar-section .cards .card-white {
+        padding: 36px 24px;
+    }
+
+    .pilar-section h2 {
+        font-size: 20px;
+    }
+}
+
+/* ==============================================
+   PILAR SECTION (ABOUT)
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .pilar-section-about .cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .pilar-section-about .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .pilar-section-about .cards .card-blue,
+    .pilar-section-about .cards .card-white {
+        padding: 36px 24px;
+    }
+
+    .pilar-section-about h2 {
+        font-size: 20px;
+    }
+}
+
+/* ==============================================
+   PROGRAM SECTION
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .program-section .item-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .program-section h2 {
+        font-size: 20px;
+    }
+
+    .program-section .item-grid .item {
+        flex-direction: column;
+        gap: 20px;
+        padding: 24px;
+        text-align: center;
+    }
+
+    .program-section .item-grid h3 {
+        text-align: center;
+        font-size: 17px;
+    }
+
+    .program-section .item-grid p {
+        text-align: center;
+    }
+}
+
+/* ==============================================
+   ANGGOTA SECTION
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .wrapper-gold-1 {
+        padding: 60px 20px;
+    }
+
+    .anggota-section .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .anggota-section h2 {
+        font-size: 20px;
+    }
+
+    .anggota-section .item h3 {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .anggota-section .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==============================================
+   KATALOG SECTION
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .katalog-section .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .katalog-section h2 {
+        font-size: 20px;
+    }
+
+    .katalog-section .item h3 {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .katalog-section .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==============================================
+   BERGABUNG SECTION
+   ============================================== */
+
+@media (max-width: 768px) {
+
+    .wrapper-image-2,
+    .wrapper-image-3 {
+        padding: 60px 16px;
+    }
+
+    .bergabung-section h1 {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .bergabung-section h1 {
+        font-size: 22px;
+    }
+}
+
+/* ==============================================
+   VISI SECTION
+   ============================================== */
+
+@media (max-width: 768px) {
+    .visi-section {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .visi-section .left img {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+    }
+
+    .visi-section .right {
+        padding: 40px 16px;
+    }
+
+    .visi-section .right h2 {
+        font-size: 20px;
+    }
+}
+
+/* ==============================================
+   NILAI SECTION
+   ============================================== */
+
+@media (max-width: 768px) {
+    .nilai-section {
+        flex-direction: column;
+    }
+
+    .nilai-section .left,
+    .nilai-section .right {
+        padding: 60px 24px;
+        align-items: center;
+    }
+
+    .nilai-section .left p {
+        text-align: center;
+    }
+
+    .nilai-section .right p {
+        text-align: center;
+    }
+
+    .nilai-section .left h2,
+    .nilai-section .right h2 {
+        font-size: 20px;
+        text-align: center;
+    }
+}
+
+/* ==============================================
+   ORGANISASI SECTION
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .organisasi-section .grid-section .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .organisasi-section h2 {
+        font-size: 20px;
+    }
+
+    .organisasi-section .grid-section .card {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .organisasi-section .grid-section .grid-4 {
+        grid-template-columns: 1fr;
+    }
+
+    .organisasi-section .grid-section .card img {
+        width: 110px;
+        height: 110px;
+    }
+}
+
+/* ==============================================
+   BERITA PAGE SECTION
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .berita-page-section {
+        flex-direction: column;
+        gap: 50px;
+    }
+
+    .berita-page-section .right {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .berita-page-section .item {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .berita-page-section .item .image img {
+        height: 200px;
+    }
+
+    .berita-page-section .item .content h2 {
+        font-size: 17px;
+    }
+
+    .berita-page-section .right h2 {
+        font-size: 20px;
+    }
+}
+
+/* ==============================================
+   PAGINATION
+   ============================================== */
+
+@media (max-width: 480px) {
+    .pagination-section {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+        padding: 0 16px;
+    }
+
+    .page-number {
+        padding: 8px;
+        font-size: 12px;
+    }
+}
+
+/* ==============================================
+   GLOBAL WRAPPER PADDING
+   ============================================== */
+
+@media (max-width: 768px) {
+
+    .wrapper-white-1,
+    .wrapper-blue-1,
+    .wrapper-gold-1 {
+        padding: 60px 16px;
+    }
+
+    .wrapper-pagination-white {
+        padding-bottom: 60px;
+    }
+}
+
+/* ==============================================
+   HAMBURGER MENU
+   ============================================== */
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    padding: 0;
+    gap: 6px;
+    z-index: 1001;
+    flex-shrink: 0;
+}
+
+.hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    border-radius: 2px;
+    transition: transform 0.35s cubic-bezier(.4, 0, .2, 1),
+        opacity 0.25s ease,
+        width 0.3s ease;
+    transform-origin: center;
+}
+
+/* Warna untuk sticky header (bg putih) */
+.header-sticky .hamburger span {
+    background-color: #000;
+}
+
+/* Warna untuk page header (bg gelap) */
+.page-header .hamburger span {
+    background-color: #fff;
+}
+
+/* State: open */
+.hamburger.open span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger.open span:nth-child(2) {
+    opacity: 0;
+    width: 0;
+}
+
+.hamburger.open span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+/* ==============================================
+   MOBILE NAV DRAWER
+   ============================================== */
+
+.mobile-nav-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-nav-overlay.open {
+    opacity: 1;
+}
+
+.mobile-nav-drawer {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 280px;
+    max-width: 85vw;
+    height: 100dvh;
+    background-color: #022648;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    transition: right 0.35s cubic-bezier(.4, 0, .2, 1);
+    box-shadow: -5px 0 30px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+}
+
+.mobile-nav-drawer.open {
+    right: 0;
+}
+
+/* Header drawer */
+.mobile-nav-drawer .drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobile-nav-drawer .drawer-header img {
+    width: 48px;
+    height: 48px;
+}
+
+.mobile-nav-drawer .drawer-close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+    font-size: 20px;
+    line-height: 1;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Nav links di drawer */
+.mobile-nav-drawer .drawer-links {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0;
+    flex: 1;
+}
+
+.mobile-nav-drawer .drawer-links a {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 15px;
+    padding: 14px 24px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+    font-family: 'Google Sans', sans-serif;
+}
+
+.mobile-nav-drawer .drawer-links a:hover {
+    color: #FFF000;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-left-color: #FFF000;
+}
+
+.mobile-nav-drawer .drawer-links a.active {
+    color: #FFF000;
+    font-weight: 700;
+    border-left-color: #FFF000;
+    background-color: rgba(255, 231, 1, 0.08);
+}
+
+/* Divider */
+.mobile-nav-drawer .drawer-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 8px 24px;
+}
+
+/* Tombol CTA di drawer */
+.mobile-nav-drawer .drawer-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobile-nav-drawer .drawer-buttons a {
+    text-decoration: none;
+    text-align: center;
+    padding: 12px;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.mobile-nav-drawer .drawer-buttons .btn-drawer-white {
+    color: #022648;
+    background-color: #fff;
+    border: 1px solid #fff;
+}
+
+.mobile-nav-drawer .drawer-buttons .btn-drawer-white:hover {
+    background-color: transparent;
+    color: #fff;
+}
+
+.mobile-nav-drawer .drawer-buttons .btn-drawer-yellow {
+    color: #000;
+    background-color: #FFF000;
+    border: 1px solid #FFF000;
+}
+
+.mobile-nav-drawer .drawer-buttons .btn-drawer-yellow:hover {
+    background-color: transparent;
+    color: #fff;
+}
+
+/* ==============================================
+   RESPONSIVE: KAPAN HAMBURGER MUNCUL
+   ============================================== */
+
+@media (max-width: 900px) {
+
+    /* Sembunyikan nav & buttons asli */
+    .header-inner .nav-link {
+        display: none !important;
+    }
+
+    .header-inner .buttons {
+        display: none !important;
+    }
+
+    /* Tampilkan hamburger */
+    .hamburger {
+        display: flex;
+        margin-left: auto;
+    }
+
+    /* Tampilkan overlay */
+    .mobile-nav-overlay {
+        display: block;
+        pointer-events: none;
+    }
+
+    .mobile-nav-overlay.open {
+        pointer-events: all;
+    }
+
+    /* Pastikan header-inner tidak wrap aneh */
+    .header-inner {
+        flex-wrap: nowrap;
+        gap: 16px;
+    }
+}
+
+/* ==============================================
+   FOOTER
+   ============================================== */
+
+.site-footer {
+    background-color: #022648;
+    color: #fff;
+    padding: 80px 20px 40px;
+    font-family: 'Google Sans', sans-serif;
+}
+
+.footer-grid {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+    gap: 40px;
+}
+
+/* ── Brand / Logo ── */
+.footer-logo {
+    width: 100px;
+    margin-bottom: 30px;
+    display: block;
+}
+
+.footer-desc {
+    font-size: 14px;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 300px;
+    margin: 0;
+}
+
+/* ── Column headings ── */
+.footer-heading {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 25px;
+    color: #FFF000;
+}
+
+/* ── Nav links ── */
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.footer-links a:hover {
+    color: #FFF000;
+}
+
+/* ── Contact column ── */
+.footer-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.footer-contact-label {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 5px;
+    color: #fff;
+}
+
+.footer-contact-text {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ── Social icons ── */
+.footer-socials {
+    display: flex;
+    gap: 15px;
+    margin-top: 5px;
+}
+
+.footer-socials a {
+    color: #fff;
+    font-size: 20px;
+    text-decoration: none;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.footer-socials a:hover {
+    color: #FFF000;
+    transform: translateY(-3px);
+}
+
+/* ==============================================
+   BOTTOM BAR
+   ============================================== */
+
+.footer-bottom {
+    background-color: #FFF000;
+    padding: 20px 0;
+    color: #000;
+    font-family: 'Google Sans', sans-serif;
+}
+
+.footer-bottom-inner {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    gap: 16px;
+}
+
+.footer-copyright {
+    font-size: 13px;
+    margin: 0;
+}
+
+.footer-copyright a {
+    color: #000;
+    text-decoration: none;
+    font-weight: 600;
+    transition: opacity 0.2s;
+}
+
+.footer-copyright a:hover {
+    opacity: 0.8;
+}
+
+.footer-bottom-links {
+    display: flex;
+    gap: 30px;
+}
+
+.footer-bottom-links a {
+    color: #000;
+    text-decoration: none;
+    font-size: 13px;
+    transition: opacity 0.2s;
+}
+
+.footer-bottom-links a:hover {
+    opacity: 0.8;
+}
+
+/* ==============================================
+   RESPONSIVE
+   ============================================== */
+
+/* Tablet: 1024px */
+@media (max-width: 1024px) {
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 40px 30px;
+    }
+
+    .footer-brand {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 24px;
+    }
+
+    .footer-logo {
+        width: 72px;
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+
+    .footer-desc {
+        max-width: 100%;
+    }
+}
+
+/* Mobile: 768px */
+@media (max-width: 768px) {
+    .site-footer {
+        padding: 60px 16px 32px;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 36px;
+    }
+
+    .footer-brand {
+        flex-direction: column;
+        gap: 16px;
+        grid-column: auto;
+    }
+
+    .footer-logo {
+        width: 64px;
+    }
+
+    .footer-desc {
+        max-width: 100%;
+    }
+
+    .footer-heading {
+        font-size: 16px;
+        margin-bottom: 16px;
+    }
+}
+
+/* Mobile: 480px - Bottom Bar */
+@media (max-width: 600px) {
+    .footer-bottom-inner {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+
+    .footer-bottom-links {
+        gap: 20px;
+    }
+}

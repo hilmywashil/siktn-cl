@@ -1,0 +1,346 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+
+html {
+    scroll-behavior: smooth;
+}
+
+.anggota-carousel .owl-nav {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+}
+
+.anggota-carousel .owl-nav button {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    color: #2A348D !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    transition: 0.3s;
+}
+
+.anggota-carousel .owl-prev {
+    margin-left: -70px;
+}
+
+.anggota-carousel .owl-next {
+    margin-right: -70px;
+}
+
+.anggota-carousel .owl-nav button span {
+    display: none;
+}
+
+.anggota-carousel .owl-prev::before {
+    content: "\f104";
+    font-family: FontAwesome;
+}
+
+.anggota-carousel .owl-next::before {
+    content: "\f105";
+    font-family: FontAwesome;
+}
+
+@media (max-width: 1024px) {
+    .anggota-carousel .owl-nav {
+        display: none;
+    }
+}
+
+/* SHOWCASE CAROUSEL */
+.showcase-carousel .owl-nav {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+}
+
+.showcase-carousel .owl-nav.disabled {
+    display: flex !important;
+}
+
+.showcase-carousel .owl-nav button {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    color: #2A348D !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    transition: 0.3s;
+}
+
+.showcase-carousel .owl-prev {
+    margin-left: -70px;
+}
+
+.showcase-carousel .owl-next {
+    margin-right: -70px;
+}
+
+.showcase-carousel .owl-nav button span {
+    display: none;
+}
+
+.showcase-carousel .owl-prev::before {
+    content: "\f104";
+    font-family: FontAwesome;
+}
+
+.showcase-carousel .owl-next::before {
+    content: "\f105";
+    font-family: FontAwesome;
+}
+
+@media (max-width: 1024px) {
+    .showcase-carousel .owl-nav {
+        display: none;
+    }
+}
+
+
+#btnTop {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 20px;
+    background: #2A348D;
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.3s;
+}
+
+#btnTop:hover {
+    transform: translateY(-10px);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* ================== GLOBAL ACCENT ================== */
+.yellow-accent {
+    width: 100px;
+    height: 10px;
+    background: #FFD400;
+    border-radius: 999px;
+    margin-bottom: 25px;
+}
+
+.green-accent {
+    width: 100px;
+    height: 10px;
+    background: #009944;
+    border-radius: 999px;
+    margin-bottom: 25px;
+}
+
+/* ================== END GLOBAL ACCENT ================== */
+
+/* ================== GLOBAL BUTTONS ================== */
+.btn {
+    display: inline-block;
+    padding: 10px 25px;
+    background: #2A348D;
+    border: #2A348D 1px solid;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: transform 0.3s;
+    font-size: 15px !important;
+}
+
+.btn-transparent {
+    display: inline-block;
+    padding: 10px 25px;
+    background: transparent;
+    color: #2A348D;
+    text-decoration: none;
+    border: #2A348D 1px solid;
+    border-radius: 5px;
+    transition: transform 0.3s;
+    font-size: 15px !important;
+}
+
+.btn:hover,
+.btn-transparent:hover {
+    transform: scale(1.05);
+}
+
+.buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.social-icons {
+    font-size: 30px;
+    color: #04293B;
+    text-decoration: none;
+    transition: 0.3s;
+
+    width: 55px;
+    height: 55px;
+    background: #ffffff;
+    border-radius: 50%;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-icons:hover {
+    color: #FFD400;
+    transform: scale(1.1);
+}
+
+@media (max-width: 1024px) {
+    .btn {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    .btn-transparent {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    .buttons {
+        gap: 10px;
+    }
+
+    .social-icons {
+        font-size: 16px;
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* ================== END BUTTONS ================== */
+
+/* ================== GLOBAL CONTAINERS ================== */
+.page-banner {
+    width: 100%;
+    max-width: 1300px;
+    color: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.page-banners {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 100px;
+}
+
+.page-banner-2 {
+    width: 100%;
+    max-width: 1300px;
+    color: #04293B;
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+    justify-content: space-between;
+}
+
+.page-banner h1 {
+    font-size: 30px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.page-banner-2 h1 {
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+
+.page-banner p {
+    font-size: 20px;
+}
+
+.page-banner-2 p {
+    font-size: 20px;
+}
+
+.back-button {
+    font-size: 30px;
+    text-decoration: none;
+    color: #04293B;
+    transition: transform 0.3s;
+    margin-bottom: 20px;
+}
+
+.back-button:hover {
+    transform: translateX(-10px);
+}
+
+@media (max-width: 1024px) {
+    .page-banners {
+        padding: 50px 20px;
+    }
+
+    .page-banner {
+        text-align: center;
+    }
+
+    .page-banner h1 {
+        font-size: 20px;
+    }
+
+    .page-banner p {
+        font-size: 16px;
+    }
+
+    .page-banner-2 {
+        flex-direction: column-reverse;
+        gap: 50px;
+    }
+
+    .page-banner-2 h1 {
+        font-size: 30px;
+    }
+
+    .page-banner-2 p {
+        font-size: 16px;
+    }
+
+    .back-button {
+        display: none;
+    }
+
+    #btnTop {
+        width: 40px;
+        height: 40px;
+        font-size: 15px;
+    }
+}

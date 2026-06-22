@@ -1,0 +1,13 @@
+.outlines {
+    display: flex;
+    background-color: #f5f5f5;
+    justify-content: center;
+    align-items: center;
+    padding: 100px;
+
+}
+
+.list-outline {
+    list-style-type: none;
+    margin: 0;
+}
