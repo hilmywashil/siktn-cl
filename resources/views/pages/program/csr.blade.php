@@ -97,4 +97,51 @@
             </div>
         </div>
     </section>
+    <section class="wrapper-white-1">
+        <div class="tujuan-section" data-aos="fade-up">
+            <h1>Fokus Program CSR</h1>
+            <div class="grid">
+                {{-- LOOP AREA --}}
+                <div class="item-2">
+                    <img src="{{ asset('assets-front/images/icons/education.png') }}" alt="">
+                    <h2>Pendidikan</h2>
+                    <p>Mendukung peningkatan kualitas pendidikan melalui berbagai kegiatan seperti:</p>
+                    <ul>
+                        <li>Pemberian beasiswa pendidikan</li>
+                        <li>Bantuan perlengkapan sekolah</li>
+                        <li>Pelatihan keterampilan dan pengembangan kompetensi</li>
+                        <li>Seminar dan workshop edukatif</li>
+                        <li>Program literasi digital</li>
+                    </ul>
+                </div>
+                <div class="item-2">
+                    <img src="{{ asset('assets-front/images/icons/heart-rate.png') }}" alt="">
+                    <h2>Kesehatan</h2>
+                    <p>Meningkatkan kesadaran dan akses masyarakat terhadap layanan kesehatan melalui:</p>
+                    <ul>
+                        <li>Pemeriksaan kesehatan gratis</li>
+                        <li>Donor darah</li>
+                        <li>Pelatihan keterampilan dan pengembangan kompetensi</li>
+                        <li>Edukasi kesehatan masyarakat</li>
+                        <li>Bantuan alat kesehatan</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="wrapper-lightblue">
+        <div class="about-section" data-aos="fade-up">
+            <div class="left">
+                <img src="{{ asset('assets-front/images/bg_5.jpg') }}" alt="Tentang Karang Taruna">
+            </div>
+            <div class="right">
+                <h2>Mari Menjadi Bagian<br>dari Perubahan Positif
+                </h2>
+                <p>Setiap kontribusi yang diberikan memiliki arti besar bagi masyarakat yang membutuhkan. Bergabunglah
+                    bersama SIKTN dalam mewujudkan program-program sosial yang memberikan manfaat nyata dan berkelanjutan
+                    bagi Indonesia.</p>
+                <a href="{{ route('contact') }}" class="btn-yellow-text-black">Hubungi Kami </a>
+            </div>
+        </div>
+    </section>
 @endsection

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $berita->judul )
+@section('title', $berita->judul)
 
 @push('styles')
     <style>
@@ -228,10 +228,10 @@
         }
 
         /* =============================================
-                                                                               HERO BANNER — berita detail
-                                                                               Menggunakan class yang sama (.wrapper-page)
-                                                                               namun dengan padding lebih kecil
-                                                                               ============================================= */
+                                                                                       HERO BANNER — berita detail
+                                                                                       Menggunakan class yang sama (.wrapper-page)
+                                                                                       namun dengan padding lebih kecil
+                                                                                       ============================================= */
 
         .detail-hero-wrapper {
             width: 100%;
@@ -253,7 +253,7 @@
 
         .detail-hero-banner h1 {
             margin: 0 0 10px;
-            font-size: 36px;
+            font-size: 40px;
             font-weight: 700;
             line-height: 1.3;
             word-wrap: break-word;
@@ -261,6 +261,7 @@
             overflow-wrap: break-word;
             hyphens: auto;
             max-width: 860px;
+            text-transform: capitalize;
         }
 
         .detail-hero-banner .hero-date {
@@ -269,8 +270,8 @@
         }
 
         /* =============================================
-                                                                               RESPONSIVE
-                                                                               ============================================= */
+                                                                                       RESPONSIVE
+                                                                                       ============================================= */
 
         @media (max-width: 1024px) {
             .detail-berita-container {

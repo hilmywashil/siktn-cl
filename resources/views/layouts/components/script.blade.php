@@ -16,7 +16,7 @@
         // Jumlah kartu yang tampil penuh (tanpa intip) per breakpoint
         function getVisibleCount() {
             const w = window.innerWidth;
-            if (w <= 576) return 1;
+            if (w <= 576) return 2; // ← ubah dari 1 ke 2
             if (w <= 992) return 2;
             return 3;
         }

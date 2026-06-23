@@ -1,7 +1,3 @@
-/* ==============================================
-   BASE & RESET
-   ============================================== */
-
 html {
     scroll-behavior: smooth;
 }
@@ -22,11 +18,6 @@ body {
     margin: 0;
     overflow-x: hidden;
 }
-
-
-/* ==============================================
-   SCROLL TO TOP BUTTON
-   ============================================== */
 
 #scrollTop {
     position: fixed;
@@ -71,24 +62,6 @@ body {
     z-index: 2;
     color: white;
 }
-
-@media (max-width: 768px) {
-    #scrollTop {
-        right: 16px;
-        bottom: 16px;
-        width: 40px;
-        height: 40px;
-    }
-
-    #scrollTop i {
-        font-size: 14px;
-    }
-}
-
-
-/* ==============================================
-   BUTTON VARIANTS
-   ============================================== */
 
 .btn-navy {
     font-size: 14px;
@@ -195,22 +168,10 @@ body {
     color: #000;
 }
 
-@media (max-width: 480px) {
-
-    .btn-white,
-    .btn-yellow,
-    .btn-yellow-border-black,
-    .btn-transparent-border-black,
-    .btn-yellow-text-black {
-        padding: 10px 14px;
-        font-size: 13px;
-    }
-}
-
-
-/* ==============================================
-   HEADER SHARED LAYOUT
-   ============================================== */
+/* =============================================
+   SHARED HEADER LAYOUT
+   Digunakan oleh .header-sticky dan .page-header
+   ============================================= */
 
 .header-inner {
     width: 100%;
@@ -257,59 +218,9 @@ body {
     gap: 25px;
 }
 
-@media (max-width: 1024px) {
-    .header-inner {
-        gap: 20px;
-    }
-
-    .header-inner .nav-link {
-        gap: 16px;
-    }
-
-    .header-inner .buttons {
-        gap: 12px;
-    }
-}
-
-@media (max-width: 900px) {
-    .header-inner {
-        flex-wrap: nowrap;
-        gap: 16px;
-    }
-
-    .header-inner .nav-link {
-        display: none !important;
-    }
-
-    .header-inner .buttons {
-        display: none !important;
-    }
-}
-
-@media (max-width: 768px) {
-    .header-inner .logo img {
-        width: 56px;
-        height: 56px;
-    }
-}
-
-@media (max-width: 480px) {
-    .header-inner .buttons {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .header-inner .buttons a,
-    .header-inner .buttons button {
-        font-size: 12px;
-        padding: 8px 12px;
-    }
-}
-
-
-/* ==============================================
-   STICKY HEADER
-   ============================================== */
+/* =============================================
+   STICKY HEADER (muncul saat scroll)
+   ============================================= */
 
 .header-sticky {
     background-color: #FFFFFF;
@@ -331,6 +242,7 @@ body {
     top: 0;
 }
 
+/* Warna link khusus untuk sticky header (background putih) */
 .header-sticky .header-inner {
     position: relative;
 }
@@ -344,16 +256,9 @@ body {
     transform: translateY(-2px);
 }
 
-@media (max-width: 768px) {
-    .header-sticky {
-        padding: 12px 16px;
-    }
-}
-
-
-/* ==============================================
-   PAGE WRAPPER / HERO SECTION
-   ============================================== */
+/* =============================================
+   WRAPPER / HERO SECTION
+   ============================================= */
 
 .wrapper-page {
     width: 100%;
@@ -375,22 +280,9 @@ body {
     justify-content: center;
 }
 
-@media (max-width: 1024px) {
-    .wrapper-page {
-        padding: 40px 20px 120px 20px;
-    }
-}
-
-@media (max-width: 768px) {
-    .wrapper-page {
-        padding: 30px 16px 80px 16px;
-    }
-}
-
-
-/* ==============================================
-   PAGE HEADER (inside hero)
-   ============================================== */
+/* =============================================
+   PAGE HEADER (di dalam hero/wrapper-page)
+   ============================================= */
 
 .page-header {
     display: flex;
@@ -408,10 +300,9 @@ body {
     transform: translateY(-3px);
 }
 
-
-/* ==============================================
-   PAGE TITLE (hero content)
-   ============================================== */
+/* =============================================
+   PAGE TITLE (konten hero)
+   ============================================= */
 
 .page-title {
     margin-top: 150px;
@@ -451,62 +342,6 @@ body {
     margin-top: 40px;
 }
 
-@media (max-width: 1024px) {
-    .page-title h1 {
-        width: 100%;
-        font-size: 42px;
-    }
-
-    .page-title p {
-        width: 100%;
-        max-width: 500px;
-    }
-}
-
-@media (max-width: 768px) {
-    .page-title {
-        margin-top: 80px;
-    }
-
-    .page-title h1 {
-        font-size: 34px;
-        text-align: center;
-        width: 100%;
-    }
-
-    .page-title h2 {
-        font-size: 18px;
-        text-align: center;
-    }
-
-    .page-title p {
-        text-align: center;
-        width: 100%;
-    }
-
-    .page-title .buttons {
-        flex-direction: column;
-        align-items: center;
-        gap: 12px;
-        margin-top: 24px;
-    }
-}
-
-@media (max-width: 480px) {
-    .page-title h1 {
-        font-size: 26px;
-    }
-
-    .page-title h2 {
-        font-size: 15px;
-    }
-}
-
-
-/* ==============================================
-   SECTION WRAPPER BACKGROUNDS
-   ============================================== */
-
 .wrapper-white-1 {
     background-color: #F0F0F6;
     width: 100%;
@@ -514,106 +349,6 @@ body {
     justify-content: center;
     padding: 100px 20px;
 }
-
-.wrapper-lightblue {
-    background-color: #DCEEFF;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    padding: 100px 20px;
-}
-
-.wrapper-blue-1 {
-    background-color: #022648;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    padding: 100px 20px;
-}
-
-.wrapper-gold-1 {
-    background-color: #BB8D14;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    padding: 100px 20px;
-}
-
-.wrapper-image-2 {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 100px 20px;
-    background-image:
-        linear-gradient(#02264880, #02264880),
-        url('../images/bg_5.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-.wrapper-image-3 {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 100px 20px;
-    background-image:
-        linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-        url('../images/about_image.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-.wrapper-pagination-white {
-    background-color: #F0F0F6;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    padding-bottom: 100px;
-}
-
-.red-bottom-divider {
-    width: 100%;
-    background-color: #EB021A;
-    padding: 10px;
-}
-
-@media (max-width: 768px) {
-
-    .wrapper-white-1,
-    .wrapper-lightblue,
-    .wrapper-blue-1,
-    .wrapper-gold-1 {
-        padding: 60px 16px;
-    }
-
-    .wrapper-image-2,
-    .wrapper-image-3 {
-        padding: 60px 16px;
-    }
-
-    .wrapper-pagination-white {
-        padding-bottom: 60px;
-    }
-}
-
-@media (max-width: 480px) {
-
-    .wrapper-white-1,
-    .wrapper-lightblue,
-    .wrapper-blue-1,
-    .wrapper-gold-1 {
-        padding: 48px 16px;
-    }
-}
-
-
-/* ==============================================
-   ABOUT SECTION
-   ============================================== */
 
 .about-section {
     display: flex;
@@ -657,41 +392,21 @@ body {
     border-radius: 8px;
 }
 
-@media (max-width: 1024px) {
-    .about-section {
-        gap: 30px;
-    }
-
-    .about-section .right {
-        padding: 30px 10px;
-    }
+.wrapper-lightblue {
+    background-color: #DCEEFF;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 100px 20px;
 }
 
-@media (max-width: 768px) {
-    .about-section {
-        flex-direction: column;
-        gap: 24px;
-    }
-
-    .about-section .left img {
-        width: 100%;
-        height: 280px;
-        object-fit: cover;
-    }
-
-    .about-section .right {
-        padding: 0;
-    }
-
-    .about-section .right h2 {
-        font-size: 20px;
-    }
+.wrapper-blue-1 {
+    background-color: #022648;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 100px 20px;
 }
-
-
-/* ==============================================
-   STATS SECTION
-   ============================================== */
 
 .stats-section {
     display: flex;
@@ -741,33 +456,9 @@ body {
     color: #FFFFFF;
 }
 
-@media (max-width: 1024px) {
-    .stats-section .grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 30px;
-    }
-}
-
-@media (max-width: 480px) {
-    .stats-section .grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
-    }
-
-    .stats-section .grid .item h2 {
-        font-size: 34px;
-    }
-
-    .stats-section .grid .item .icon img {
-        width: 36px;
-    }
-}
-
-
-/* ==============================================
+/* ============================================
    ORGANIZATION SECTION
-   ============================================== */
-
+   ============================================ */
 .organization-section {
     display: flex;
     flex-direction: row;
@@ -801,30 +492,12 @@ body {
 .organization-section .right {
     flex: 1.5;
     min-width: 0;
+    /* penting agar flex child tidak overflow saat carousel digeser */
 }
 
-@media (max-width: 992px) {
-    .organization-section {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .organization-section .left h2 {
-        font-size: 20px;
-    }
-}
-
-@media (max-width: 768px) {
-    .organization-section {
-        gap: 30px;
-    }
-}
-
-
-/* ==============================================
+/* ============================================
    MEMBER CAROUSEL
-   ============================================== */
-
+   ============================================ */
 .member-carousel {
     position: relative;
     width: 100%;
@@ -840,7 +513,10 @@ body {
 
 .member-card {
     position: relative;
+    /* JIKA 3 KARTU, GANTI DENGAN: */
     flex: 0 0 calc(33.333% - 13.333px);
+    /* JIKA 2 KARTU, GANTI DENGAN: */
+    /* flex: 0 0 calc(50% - 12px); */
     min-width: 0;
     aspect-ratio: 3 / 5;
     border-radius: 5px;
@@ -882,18 +558,9 @@ body {
     opacity: 0.9;
 }
 
-@media (max-width: 576px) {
-    .member-card {
-        flex: 0 0 calc(50% - 10px);
-        /* sama seperti desktop, 2 kartu */
-    }
-}
-
-
-/* ==============================================
-   MEMBER DOTS / CAROUSEL INDICATOR
-   ============================================== */
-
+/* ============================================
+   DOTS / INDICATOR
+   ============================================ */
 .member-dots {
     display: flex;
     gap: 8px;
@@ -916,10 +583,22 @@ body {
     transform: scale(1.15);
 }
 
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 992px) {
+    .organization-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
 
-/* ==============================================
-   PROGRAM ORG SECTION
-   ============================================== */
+@media (max-width: 576px) {
+    .member-card {
+        flex: 0 0 100%;
+        /* 1 kartu penuh di mobile */
+    }
+}
 
 .program-org-section {
     display: flex;
@@ -951,7 +630,6 @@ body {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 30px;
-    width: 100%;
 }
 
 .program-org-section .grid .item {
@@ -1000,43 +678,11 @@ body {
     color: #FFF000;
 }
 
+
 .program-org-section .item img {
     width: 80px;
     height: 80px;
-    flex-shrink: 0;
 }
-
-@media (max-width: 1024px) {
-    .program-org-section .grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 768px) {
-    .program-org-section h2 {
-        font-size: 20px;
-    }
-
-    .program-org-section .grid .item {
-        flex-direction: column;
-        text-align: center;
-        padding: 24px;
-    }
-
-    .program-org-section .grid .item .content {
-        align-items: center;
-    }
-
-    .program-org-section .grid .item .content p,
-    .program-org-section .grid .item .content a {
-        text-align: center;
-    }
-}
-
-
-/* ==============================================
-   PILAR SECTION (HOME & ABOUT)
-   ============================================== */
 
 .pilar-section {
     display: flex;
@@ -1069,21 +715,11 @@ body {
     grid-template-columns: repeat(3, 1fr);
     width: 100%;
     gap: 25px;
+
 }
 
 .pilar-section .cards img {
     width: 100px;
-}
-
-.pilar-section .cards .card-blue {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: #2A2C83;
-    padding: 50px;
-    gap: 20px;
-    transition: all 0.2s;
 }
 
 .pilar-section .cards .card-blue h3 {
@@ -1095,9 +731,13 @@ body {
     margin: 0;
 }
 
-.pilar-section .cards .card-blue p {
-    color: #fff;
-    font-size: 14px;
+.pilar-section .cards .card-white h3 {
+    font-size: 20px;
+    color: #022648;
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: 700;
+    margin: 0;
 }
 
 .pilar-section .cards .card-white {
@@ -1111,18 +751,15 @@ body {
     transition: all 0.2s;
 }
 
-.pilar-section .cards .card-white h3 {
-    font-size: 20px;
-    color: #022648;
-    text-transform: uppercase;
-    text-align: center;
-    font-weight: 700;
-    margin: 0;
-}
-
-.pilar-section .cards .card-white p {
-    color: #000;
-    font-size: 14px;
+.pilar-section .cards .card-blue {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #2A2C83;
+    padding: 50px;
+    gap: 20px;
+    transition: all 0.2s;
 }
 
 .pilar-section .cards .card-blue:hover,
@@ -1131,31 +768,106 @@ body {
     cursor: pointer;
 }
 
-@media (max-width: 1024px) {
-    .pilar-section .cards {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .pilar-section h2 {
-        font-size: 20px;
-    }
-
-    .pilar-section .cards {
-        grid-template-columns: 1fr;
-    }
-
-    .pilar-section .cards .card-blue,
-    .pilar-section .cards .card-white {
-        padding: 36px 24px;
-    }
+.pilar-section .cards .card-blue p {
+    color: #fff;
+    font-size: 14px;
 }
 
 
-/* ==============================================
-   ANGGOTA SECTION
-   ============================================== */
+.pilar-section .cards .card-white p {
+    color: #000;
+    font-size: 14px;
+}
+
+.red-bottom-divider {
+    width: 100%;
+    background-color: #EB021A;
+    padding: 10px;
+}
+
+/* .program-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1300px;
+    gap: 50px;
+}
+
+.program-section h2 {
+    margin: 0;
+    font-size: 25px;
+    color: #022648;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+}
+
+.program-section p {
+    text-align: center;
+    color: #000;
+    max-width: 700px;
+    font-size: 14px;
+}
+
+.program-section .item-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+.program-section .item-grid .item {
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+    justify-content: start;
+    align-items: center;
+    background-color: #FFF;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.program-section .item-grid .item::after {
+    content: '';
+    position: absolute;
+    bottom: -40px;
+    right: -40px;
+    width: 100px;
+    height: 100px;
+    background-color: #BB8D14;
+    border-radius: 50%;
+}
+
+.program-section .item-grid img {
+    width: 80px;
+}
+
+.program-section .item-grid h3 {
+    font-size: 20px;
+    color: #022648;
+    text-transform: uppercase;
+    text-align: left;
+    font-weight: 700;
+    margin: 0;
+}
+
+.program-section .item-grid p {
+    color: #000;
+    font-size: 14px;
+    text-align: left;
+} */
+
+.wrapper-gold-1 {
+    background-color: #BB8D14;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 100px 20px;
+}
 
 .anggota-section {
     display: flex;
@@ -1184,9 +896,8 @@ body {
 }
 
 .anggota-section .grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 25px;
 }
 
@@ -1223,21 +934,6 @@ body {
     font-size: 12px;
 }
 
-@media (max-width: 768px) {
-    .anggota-section h2 {
-        font-size: 20px;
-    }
-
-    .anggota-section .item h3 {
-        font-size: 16px;
-    }
-}
-
-
-/* ==============================================
-   KATALOG SECTION
-   ============================================== */
-
 .katalog-section {
     display: flex;
     flex-direction: column;
@@ -1265,9 +961,8 @@ body {
 }
 
 .katalog-section .grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 25px;
 }
 
@@ -1304,20 +999,19 @@ body {
     font-size: 14px;
 }
 
-@media (max-width: 768px) {
-    .katalog-section h2 {
-        font-size: 20px;
-    }
-
-    .katalog-section .item h3 {
-        font-size: 16px;
-    }
+.wrapper-image-2 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 100px 20px 100px 20px;
+    background-image:
+        linear-gradient(#02264880, #02264880),
+        url('../images/bg_5.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
-
-
-/* ==============================================
-   BERGABUNG SECTION
-   ============================================== */
 
 .bergabung-section {
     display: flex;
@@ -1345,28 +1039,6 @@ body {
     align-items: center;
     gap: 20px;
 }
-
-@media (max-width: 768px) {
-    .bergabung-section h1 {
-        font-size: 28px;
-    }
-
-    .bergabung-section .buttons {
-        flex-direction: column;
-        gap: 12px;
-    }
-}
-
-@media (max-width: 480px) {
-    .bergabung-section h1 {
-        font-size: 22px;
-    }
-}
-
-
-/* ==============================================
-   KEGIATAN SECTION
-   ============================================== */
 
 .kegiatan-section {
     display: flex;
@@ -1417,33 +1089,6 @@ body {
     align-items: center;
     gap: 20px;
 }
-
-@media (max-width: 1024px) {
-    .kegiatan-section .content {
-        gap: 16px;
-    }
-}
-
-@media (max-width: 768px) {
-    .kegiatan-section h2 {
-        font-size: 20px;
-    }
-
-    .kegiatan-section .content {
-        flex-direction: column;
-    }
-
-    .kegiatan-section .content .left,
-    .kegiatan-section .content .right {
-        width: 100%;
-        flex: none;
-    }
-}
-
-
-/* ==============================================
-   KEGIATAN FEATURED CARD
-   ============================================== */
 
 .kegiatan-featured-card {
     width: 100%;
@@ -1507,17 +1152,6 @@ body {
     color: rgba(255, 255, 255, 0.75);
 }
 
-@media (max-width: 768px) {
-    .kegiatan-featured-card__banner {
-        height: 260px;
-    }
-}
-
-
-/* ==============================================
-   KEGIATAN CARD (small)
-   ============================================== */
-
 .kegiatan-card {
     width: 100%;
     display: flex;
@@ -1551,21 +1185,6 @@ body {
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
-
-@media (max-width: 480px) {
-    .kegiatan-card .content-card .line-clamp-3 {
-        font-size: 16px;
-    }
-
-    .kegiatan-card img {
-        height: 90px;
-    }
-}
-
-
-/* ==============================================
-   VISI MISI SECTION
-   ============================================== */
 
 .visi-misi-section {
     display: flex;
@@ -1616,75 +1235,19 @@ body {
     object-fit: cover;
 }
 
-@media (max-width: 768px) {
-    .visi-misi-section {
-        flex-direction: column;
-        gap: 0;
-    }
-
-    .visi-misi-section .right img {
-        height: 280px;
-    }
+.wrapper-image-3 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 100px 20px 100px 20px;
+    background-image:
+        linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+        url('../images/about_image.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
-
-
-/* ==============================================
-   VISI SECTION (ABOUT PAGE)
-   ============================================== */
-
-@media (max-width: 768px) {
-    .visi-section {
-        flex-direction: column;
-        gap: 0;
-    }
-
-    .visi-section .left img {
-        width: 100%;
-        height: 280px;
-        object-fit: cover;
-    }
-
-    .visi-section .right {
-        padding: 40px 16px;
-    }
-
-    .visi-section .right h2 {
-        font-size: 20px;
-    }
-}
-
-
-/* ==============================================
-   NILAI SECTION
-   ============================================== */
-
-@media (max-width: 768px) {
-    .nilai-section {
-        flex-direction: column;
-    }
-
-    .nilai-section .left,
-    .nilai-section .right {
-        padding: 60px 24px;
-        align-items: center;
-    }
-
-    .nilai-section .left p,
-    .nilai-section .right p {
-        text-align: center;
-    }
-
-    .nilai-section .left h2,
-    .nilai-section .right h2 {
-        font-size: 20px;
-        text-align: center;
-    }
-}
-
-
-/* ==============================================
-   ORGANISASI SECTION
-   ============================================== */
 
 .organisasi-section {
     display: flex;
@@ -1711,7 +1274,6 @@ body {
     justify-content: center;
     align-items: center;
     gap: 25px;
-    width: 100%;
 }
 
 .organisasi-section .grid-section .grid-1 {
@@ -1724,9 +1286,9 @@ body {
 }
 
 .organisasi-section .grid-section .grid-4 {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 25px;
 }
 
@@ -1739,7 +1301,13 @@ body {
     background-color: #FFF;
     padding: 30px;
     gap: 20px;
+    /* transition: all 0.2s; */
 }
+
+/* .organisasi-section .grid-section .card:hover {
+    transform: scale(1.05);
+    cursor: pointer;
+} */
 
 .organisasi-section .grid-section .card img {
     width: 150px;
@@ -1767,195 +1335,6 @@ body {
 .organisasi-section a {
     text-decoration: none;
 }
-
-@media (max-width: 768px) {
-    .organisasi-section h2 {
-        font-size: 20px;
-    }
-
-    .organisasi-section .grid-section .card img {
-        width: 110px;
-        height: 110px;
-    }
-}
-
-
-/* ==============================================
-   WHITE PAGE BANNER
-   ============================================== */
-
-.white-page-banner-section {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    max-width: 1300px;
-    gap: 20px;
-    text-align: center;
-}
-
-.white-page-banner-section h1 {
-    width: 700px;
-    margin: 0;
-    color: #022648;
-    font-size: 35px;
-}
-
-.white-page-banner-section p {
-    width: 750px;
-    font-size: 14px;
-    margin: 0;
-}
-
-@media (max-width: 1024px) {
-    .white-page-banner-section h1 {
-        width: 100%;
-        font-size: 28px;
-    }
-
-    .white-page-banner-section p {
-        width: 100%;
-    }
-}
-
-@media (max-width: 768px) {
-    .white-page-banner-section h1 {
-        font-size: 24px;
-    }
-}
-
-@media (max-width: 480px) {
-    .white-page-banner-section h1 {
-        font-size: 20px;
-    }
-}
-
-
-/* ==============================================
-   TUJUAN SECTION
-   ============================================== */
-
-.tujuan-section {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    max-width: 1300px;
-    gap: 50px;
-}
-
-.tujuan-section h1 {
-    width: 700px;
-    margin: 0;
-    color: #022648;
-    font-size: 25px;
-    text-transform: uppercase;
-    text-align: center;
-}
-
-.tujuan-section .grid {
-    width: 100%;
-    display: grid;
-    gap: 20px;
-    grid-template-columns: repeat(2, 1fr);
-}
-
-.tujuan-section .grid .item {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: start;
-    gap: 10px;
-    padding: 40px;
-    border-radius: 5px;
-    background-color: #FFFFFF;
-}
-
-.tujuan-section .grid .item h2 {
-    color: #022648;
-    font-size: 20px;
-    margin: 0;
-}
-
-.tujuan-section .grid .item p {
-    color: #000;
-    font-size: 14px;
-    margin: 0;
-}
-
-.tujuan-section .grid .item-2 {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: start;
-    gap: 10px;
-    padding: 40px;
-    border-radius: 5px;
-    background-color: #DCEEFF;
-}
-
-.tujuan-section .grid .item-2 img {
-    width: 40px;
-}
-
-.tujuan-section .grid .item-2 h2 {
-    color: #022648;
-    font-size: 20px;
-    margin: 0;
-}
-
-.tujuan-section .grid .item-2 p {
-    color: #000;
-    font-size: 14px;
-    margin: 0;
-}
-
-.tujuan-section .grid .item-2 ul {
-    margin: 0;
-    margin-left: -25px;
-}
-
-.tujuan-section .grid .item-2 li {
-    color: #000;
-    font-size: 14px;
-    margin: 0;
-}
-
-@media (max-width: 1024px) {
-    .tujuan-section h1 {
-        width: 100%;
-    }
-}
-
-@media (max-width: 768px) {
-    .tujuan-section h1 {
-        font-size: 20px;
-    }
-
-    .tujuan-section .grid {
-        grid-template-columns: 1fr;
-    }
-
-    .tujuan-section .grid .item,
-    .tujuan-section .grid .item-2 {
-        padding: 28px 20px;
-    }
-}
-
-@media (max-width: 480px) {
-
-    .tujuan-section .grid .item h2,
-    .tujuan-section .grid .item-2 h2 {
-        font-size: 17px;
-    }
-}
-
-
-/* ==============================================
-   BERITA PAGE SECTION
-   ============================================== */
 
 .berita-page-section {
     display: flex;
@@ -2022,6 +1401,7 @@ body {
     transition: all 0.2s;
 }
 
+
 .berita-page-section .item .content .date {
     font-size: 12px;
     font-style: italic;
@@ -2058,49 +1438,16 @@ body {
 .divider-line {
     width: 100%;
     text-align: left;
-    margin-left: 0;
+    margin-left: 0
 }
 
-@media (max-width: 1024px) {
-    .berita-page-section {
-        flex-direction: column;
-        gap: 50px;
-    }
-
-    .berita-page-section .right {
-        width: 100%;
-    }
+.wrapper-pagination-white {
+    background-color: #F0F0F6;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 100px;
 }
-
-@media (max-width: 768px) {
-    .berita-page-section .item {
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .berita-page-section .item .image img {
-        height: 200px;
-    }
-
-    .berita-page-section .item .content h2 {
-        font-size: 17px;
-    }
-
-    .berita-page-section .right h2 {
-        font-size: 20px;
-    }
-}
-
-@media (max-width: 480px) {
-    .berita-page-section .item .content h2 {
-        font-size: 15px;
-    }
-}
-
-
-/* ==============================================
-   PAGINATION SECTION
-   ============================================== */
 
 .pagination-section {
     display: flex;
@@ -2139,6 +1486,603 @@ body {
     font-size: 12px;
 }
 
+.white-page-banner-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1300px;
+    gap: 20px;
+    text-align: center;
+}
+
+.white-page-banner-section h1 {
+    width: 700px;
+    margin: 0;
+    color: #022648;
+    font-size: 35px;
+}
+
+.white-page-banner-section p {
+    width: 750px;
+    font-size: 14px;
+    margin: 0;
+}
+
+.tujuan-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1300px;
+    gap: 50px;
+
+}
+
+.tujuan-section h1 {
+    width: 700px;
+    margin: 0;
+    color: #022648;
+    font-size: 25px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.tujuan-section .grid {
+    width: 100%;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(2, 2fr);
+}
+
+.tujuan-section .grid .item {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    gap: 10px;
+    padding: 40px;
+    border-radius: 5px;
+    background-color: #FFFFFF;
+}
+
+.tujuan-section .grid .item h2 {
+    color: #022648;
+    font-size: 20px;
+    margin: 0;
+}
+
+.tujuan-section .grid .item p {
+    color: #000;
+    font-size: 14px;
+    margin: 0;
+}
+
+.tujuan-section .grid .item-2 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    gap: 10px;
+    padding: 40px;
+    border-radius: 5px;
+    background-color: #DCEEFF;
+}
+
+.tujuan-section .grid .item-2 img {
+    width: 40px;
+}
+
+.tujuan-section .grid .item-2 h2 {
+    color: #022648;
+    font-size: 20px;
+    margin: 0;
+}
+
+.tujuan-section .grid .item-2 p {
+    color: #000;
+    font-size: 14px;
+    margin: 0;
+}
+
+.tujuan-section .grid .item-2 ul {
+    margin: 0;
+    margin-left: -25px;
+}
+
+.tujuan-section .grid .item-2 li {
+    color: #000;
+    font-size: 14px;
+    margin: 0;
+}
+
+
+/* ==============================================
+   RESPONSIVE CSS
+   Breakpoints:
+   - Tablet  : max-width 1024px
+   - Mobile  : max-width 768px
+   - Small   : max-width 480px
+   ============================================== */
+
+/* ── Scroll Top ── */
+@media (max-width: 768px) {
+    #scrollTop {
+        right: 16px;
+        bottom: 16px;
+        width: 40px;
+        height: 40px;
+    }
+
+    #scrollTop i {
+        font-size: 14px;
+    }
+}
+
+/* ── Buttons ── */
+@media (max-width: 480px) {
+
+    .btn-white,
+    .btn-yellow,
+    .btn-yellow-border-black,
+    .btn-transparent-border-black,
+    .btn-yellow-text-black {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+}
+
+/* ==============================================
+   HEADER
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .header-inner {
+        gap: 20px;
+    }
+
+    .header-inner .nav-link {
+        gap: 16px;
+    }
+
+    .header-inner .buttons {
+        gap: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-inner {
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-inner .logo img {
+        width: 56px;
+        height: 56px;
+    }
+
+    /* Nav links jadi horizontal scrollable di bawah logo */
+    .header-inner .nav-link {
+        position: static;
+        transform: none;
+        order: 3;
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .header-inner .nav-link a {
+        font-size: 13px;
+    }
+
+    .header-inner .buttons {
+        margin-left: 0;
+        gap: 8px;
+    }
+
+    .header-sticky {
+        padding: 12px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-inner .buttons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .header-inner .buttons a,
+    .header-inner .buttons button {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+}
+
+/* ==============================================
+   WRAPPER / HERO
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .wrapper-page {
+        padding: 40px 20px 120px 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .wrapper-page {
+        padding: 30px 16px 80px 16px;
+    }
+
+    .page-title {
+        margin-top: 80px;
+    }
+
+    .page-title h1 {
+        font-size: 34px;
+        text-align: center;
+        width: 100%;
+    }
+
+    .page-title h2 {
+        font-size: 18px;
+        text-align: center;
+    }
+
+    .page-title p {
+        text-align: center;
+        width: 100%;
+    }
+
+    .page-title .buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        margin-top: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-title h1 {
+        font-size: 26px;
+    }
+
+    .page-title h2 {
+        font-size: 15px;
+    }
+}
+
+/* ==============================================
+   ABOUT SECTION
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .about-section {
+        gap: 30px;
+    }
+
+    .about-section .right {
+        padding: 30px 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .wrapper-white-1 {
+        padding: 60px 16px;
+    }
+
+    .about-section {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .about-section .left img {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+    }
+
+    .about-section .right {
+        padding: 0;
+    }
+
+    .about-section .right h2 {
+        font-size: 20px;
+    }
+}
+
+/* ==============================================
+   PILAR SECTION (HOME)
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .wrapper-blue-1 {
+        padding: 60px 20px;
+    }
+
+    .pilar-section .cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .pilar-section .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .pilar-section .cards .card-blue,
+    .pilar-section .cards .card-white {
+        padding: 36px 24px;
+    }
+
+    .pilar-section h2 {
+        font-size: 20px;
+    }
+}
+
+/* ==============================================
+   PILAR SECTION (ABOUT)
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .pilar-section-about .cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .pilar-section-about .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .pilar-section-about .cards .card-blue,
+    .pilar-section-about .cards .card-white {
+        padding: 36px 24px;
+    }
+
+    .pilar-section-about h2 {
+        font-size: 20px;
+    }
+}
+
+/* ==============================================
+   PROGRAM SECTION
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .program-section .item-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .program-section h2 {
+        font-size: 20px;
+    }
+
+    .program-section .item-grid .item {
+        flex-direction: column;
+        gap: 20px;
+        padding: 24px;
+        text-align: center;
+    }
+
+    .program-section .item-grid h3 {
+        text-align: center;
+        font-size: 17px;
+    }
+
+    .program-section .item-grid p {
+        text-align: center;
+    }
+}
+
+/* ==============================================
+   ANGGOTA SECTION
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .wrapper-gold-1 {
+        padding: 60px 20px;
+    }
+
+    .anggota-section .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .anggota-section h2 {
+        font-size: 20px;
+    }
+
+    .anggota-section .item h3 {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .anggota-section .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==============================================
+   KATALOG SECTION
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .katalog-section .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .katalog-section h2 {
+        font-size: 20px;
+    }
+
+    .katalog-section .item h3 {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .katalog-section .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==============================================
+   BERGABUNG SECTION
+   ============================================== */
+
+@media (max-width: 768px) {
+
+    .wrapper-image-2,
+    .wrapper-image-3 {
+        padding: 60px 16px;
+    }
+
+    .bergabung-section h1 {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .bergabung-section h1 {
+        font-size: 22px;
+    }
+}
+
+/* ==============================================
+   VISI SECTION
+   ============================================== */
+
+@media (max-width: 768px) {
+    .visi-section {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .visi-section .left img {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+    }
+
+    .visi-section .right {
+        padding: 40px 16px;
+    }
+
+    .visi-section .right h2 {
+        font-size: 20px;
+    }
+}
+
+/* ==============================================
+   NILAI SECTION
+   ============================================== */
+
+@media (max-width: 768px) {
+    .nilai-section {
+        flex-direction: column;
+    }
+
+    .nilai-section .left,
+    .nilai-section .right {
+        padding: 60px 24px;
+        align-items: center;
+    }
+
+    .nilai-section .left p {
+        text-align: center;
+    }
+
+    .nilai-section .right p {
+        text-align: center;
+    }
+
+    .nilai-section .left h2,
+    .nilai-section .right h2 {
+        font-size: 20px;
+        text-align: center;
+    }
+}
+
+/* ==============================================
+   ORGANISASI SECTION
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .organisasi-section .grid-section .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .organisasi-section h2 {
+        font-size: 20px;
+    }
+
+    .organisasi-section .grid-section .card {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .organisasi-section .grid-section .grid-4 {
+        grid-template-columns: 1fr;
+    }
+
+    .organisasi-section .grid-section .card img {
+        width: 110px;
+        height: 110px;
+    }
+}
+
+/* ==============================================
+   BERITA PAGE SECTION
+   ============================================== */
+
+@media (max-width: 1024px) {
+    .berita-page-section {
+        flex-direction: column;
+        gap: 50px;
+    }
+
+    .berita-page-section .right {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .berita-page-section .item {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .berita-page-section .item .image img {
+        height: 200px;
+    }
+
+    .berita-page-section .item .content h2 {
+        font-size: 17px;
+    }
+
+    .berita-page-section .right h2 {
+        font-size: 20px;
+    }
+}
+
+/* ==============================================
+   PAGINATION
+   ============================================== */
+
 @media (max-width: 480px) {
     .pagination-section {
         flex-wrap: wrap;
@@ -2153,9 +2097,25 @@ body {
     }
 }
 
+/* ==============================================
+   GLOBAL WRAPPER PADDING
+   ============================================== */
+
+@media (max-width: 768px) {
+
+    .wrapper-white-1,
+    .wrapper-blue-1,
+    .wrapper-gold-1 {
+        padding: 60px 16px;
+    }
+
+    .wrapper-pagination-white {
+        padding-bottom: 60px;
+    }
+}
 
 /* ==============================================
-   HAMBURGER BUTTON
+   HAMBURGER MENU
    ============================================== */
 
 .hamburger {
@@ -2185,14 +2145,17 @@ body {
     transform-origin: center;
 }
 
+/* Warna untuk sticky header (bg putih) */
 .header-sticky .hamburger span {
     background-color: #000;
 }
 
+/* Warna untuk page header (bg gelap) */
 .page-header .hamburger span {
     background-color: #fff;
 }
 
+/* State: open */
 .hamburger.open span:nth-child(1) {
     transform: translateY(8px) rotate(45deg);
 }
@@ -2206,16 +2169,8 @@ body {
     transform: translateY(-8px) rotate(-45deg);
 }
 
-@media (max-width: 900px) {
-    .hamburger {
-        display: flex;
-        margin-left: auto;
-    }
-}
-
-
 /* ==============================================
-   MOBILE NAV OVERLAY
+   MOBILE NAV DRAWER
    ============================================== */
 
 .mobile-nav-overlay {
@@ -2231,22 +2186,6 @@ body {
 .mobile-nav-overlay.open {
     opacity: 1;
 }
-
-@media (max-width: 900px) {
-    .mobile-nav-overlay {
-        display: block;
-        pointer-events: none;
-    }
-
-    .mobile-nav-overlay.open {
-        pointer-events: all;
-    }
-}
-
-
-/* ==============================================
-   MOBILE NAV DRAWER
-   ============================================== */
 
 .mobile-nav-drawer {
     position: fixed;
@@ -2269,6 +2208,7 @@ body {
     right: 0;
 }
 
+/* Header drawer */
 .mobile-nav-drawer .drawer-header {
     display: flex;
     align-items: center;
@@ -2295,6 +2235,7 @@ body {
     justify-content: center;
 }
 
+/* Nav links di drawer */
 .mobile-nav-drawer .drawer-links {
     display: flex;
     flex-direction: column;
@@ -2325,12 +2266,14 @@ body {
     background-color: rgba(255, 231, 1, 0.08);
 }
 
+/* Divider */
 .mobile-nav-drawer .drawer-divider {
     height: 1px;
     background: rgba(255, 255, 255, 0.1);
     margin: 8px 24px;
 }
 
+/* Tombol CTA di drawer */
 .mobile-nav-drawer .drawer-buttons {
     display: flex;
     flex-direction: column;
@@ -2371,6 +2314,43 @@ body {
     color: #fff;
 }
 
+/* ==============================================
+   RESPONSIVE: KAPAN HAMBURGER MUNCUL
+   ============================================== */
+
+@media (max-width: 900px) {
+
+    /* Sembunyikan nav & buttons asli */
+    .header-inner .nav-link {
+        display: none !important;
+    }
+
+    .header-inner .buttons {
+        display: none !important;
+    }
+
+    /* Tampilkan hamburger */
+    .hamburger {
+        display: flex;
+        margin-left: auto;
+    }
+
+    /* Tampilkan overlay */
+    .mobile-nav-overlay {
+        display: block;
+        pointer-events: none;
+    }
+
+    .mobile-nav-overlay.open {
+        pointer-events: all;
+    }
+
+    /* Pastikan header-inner tidak wrap aneh */
+    .header-inner {
+        flex-wrap: nowrap;
+        gap: 16px;
+    }
+}
 
 /* ==============================================
    FOOTER
@@ -2391,6 +2371,7 @@ body {
     gap: 40px;
 }
 
+/* ── Brand / Logo ── */
 .footer-logo {
     width: 100px;
     margin-bottom: 30px;
@@ -2405,6 +2386,7 @@ body {
     margin: 0;
 }
 
+/* ── Column headings ── */
 .footer-heading {
     font-size: 18px;
     font-weight: 700;
@@ -2412,6 +2394,7 @@ body {
     color: #FFF000;
 }
 
+/* ── Nav links ── */
 .footer-links {
     list-style: none;
     padding: 0;
@@ -2432,6 +2415,7 @@ body {
     color: #FFF000;
 }
 
+/* ── Contact column ── */
 .footer-contact-list {
     display: flex;
     flex-direction: column;
@@ -2452,6 +2436,7 @@ body {
     margin: 0;
 }
 
+/* ── Social icons ── */
 .footer-socials {
     display: flex;
     gap: 15px;
@@ -2470,64 +2455,8 @@ body {
     transform: translateY(-3px);
 }
 
-@media (max-width: 1024px) {
-    .footer-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 40px 30px;
-    }
-
-    .footer-brand {
-        grid-column: 1 / -1;
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 24px;
-    }
-
-    .footer-logo {
-        width: 72px;
-        margin-bottom: 0;
-        flex-shrink: 0;
-    }
-
-    .footer-desc {
-        max-width: 100%;
-    }
-}
-
-@media (max-width: 768px) {
-    .site-footer {
-        padding: 60px 16px 32px;
-    }
-
-    .footer-grid {
-        grid-template-columns: 1fr;
-        gap: 36px;
-    }
-
-    .footer-brand {
-        flex-direction: column;
-        gap: 16px;
-        grid-column: auto;
-    }
-
-    .footer-logo {
-        width: 64px;
-    }
-
-    .footer-desc {
-        max-width: 100%;
-    }
-
-    .footer-heading {
-        font-size: 16px;
-        margin-bottom: 16px;
-    }
-}
-
-
 /* ==============================================
-   FOOTER BOTTOM BAR
+   BOTTOM BAR
    ============================================== */
 
 .footer-bottom {
@@ -2579,6 +2508,68 @@ body {
     opacity: 0.8;
 }
 
+/* ==============================================
+   RESPONSIVE
+   ============================================== */
+
+/* Tablet: 1024px */
+@media (max-width: 1024px) {
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 40px 30px;
+    }
+
+    .footer-brand {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 24px;
+    }
+
+    .footer-logo {
+        width: 72px;
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+
+    .footer-desc {
+        max-width: 100%;
+    }
+}
+
+/* Mobile: 768px */
+@media (max-width: 768px) {
+    .site-footer {
+        padding: 60px 16px 32px;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 36px;
+    }
+
+    .footer-brand {
+        flex-direction: column;
+        gap: 16px;
+        grid-column: auto;
+    }
+
+    .footer-logo {
+        width: 64px;
+    }
+
+    .footer-desc {
+        max-width: 100%;
+    }
+
+    .footer-heading {
+        font-size: 16px;
+        margin-bottom: 16px;
+    }
+}
+
+/* Mobile: 480px - Bottom Bar */
 @media (max-width: 600px) {
     .footer-bottom-inner {
         flex-direction: column;
