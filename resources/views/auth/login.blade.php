@@ -37,7 +37,7 @@
 
       <a href="{{ route('home') }}">
         <div class="logo">
-          <img src="{{ asset('assets-front/images/logo_karang_taruna.png') }}" height="42">
+          <img src="{{ asset('assets-front/images/logo_karang_taruna.png') }}" height="80">
         </div>
       </a>
 

@@ -12,16 +12,17 @@
                     </a>
                 </div>
                 <div class="nav-link">
-                    <a href="{{ route('home') }}" @if(Route::currentRouteName() == 'home') class="active"
-                    @endif>Beranda</a>
-                    <a href="{{ route('about') }}" @if(Route::currentRouteName() == 'about') class="active"
-                    @endif>Tentang</a>
-                    <a href="{{ route('organisasi') }}" @if(Route::currentRouteName() == 'organisasi') class="active"
-                    @endif>Organisasi</a>
-                    <a href="{{ route('e-katalog') }}" @if(Route::currentRouteName() == 'e-katalog') class="active"
-                    @endif>E-Catalog</a>
-                    <a href="{{ route('berita') }}" @if(Route::currentRouteName() == 'berita') class="active"
-                    @endif>Berita</a>
+                    <a href="{{ route('home') }}" @if(Route::currentRouteName() == 'home') class="active" @endif>Home</a>
+                    <a href="{{ route('organisasi') }}" @if(Route::currentRouteName() == 'organisasi') class="active" @endif>Organisasi</a>
+                    <div class="nav-dropdown">
+                        <a href="{{ url('/program') }}" @if(request()->is('program*')) class="active" @endif>Program <i class="fa fa-caret-down" style="margin-left: 4px;"></i></a>
+                        <div class="nav-dropdown-content">
+                            <a href="{{ route('program.csr') }}">CSR</a>
+                            <a href="{{ route('program.bidang') }}">Bidang</a>
+                        </div>
+                    </div>
+                    <a href="{{ route('e-katalog') }}" @if(Route::currentRouteName() == 'e-katalog') class="active" @endif>E-Katalog</a>
+                    <a href="{{ route('berita') }}" @if(Route::currentRouteName() == 'berita') class="active" @endif>Berita</a>
                 </div>
                 <div class="buttons">
                     {{-- <a href="{{ route('join-us') }}" class="btn-white"><i class="fa fa-user-plus"

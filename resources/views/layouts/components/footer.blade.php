@@ -13,13 +13,11 @@
         <div class="footer-col">
             <h3 class="footer-heading">Navigasi</h3>
             <ul class="footer-links">
-                <li><a href="{{ route('home') }}">Beranda</a></li>
-                <li><a href="#">Tentang Kami</a></li>
-                <li><a href="#">Program & Layanan</a></li>
-                <li><a href="#">Kegiatan</a></li>
-                <li><a href="{{ route('e-katalog') }}">E-Catalog</a></li>
-                <li><a href="{{ route('berita') }}">Berita/Blog</a></li>
-                <li><a href="#">Kontak</a></li>
+                <li><a href="{{ route('home') }}">Home</a></li>
+                <li><a href="{{ route('organisasi') }}">Organisasi</a></li>
+                <li><a href="{{ url('/program') }}">Program</a></li>
+                <li><a href="{{ route('e-katalog') }}">E-Katalog</a></li>
+                <li><a href="{{ route('berita') }}">Berita</a></li>
             </ul>
         </div>
 
@@ -72,7 +70,7 @@
     <div class="footer-bottom-inner">
         <p class="footer-copyright">
             Copyright &copy; 2026 Karang Taruna | Powered by
-            <a href="https://www.cyberlabs.co.id" target="_blank">CyberLabs</a>
+            <a href="#" target="_blank">Alcomedia.id</a>
         </p>
         <div class="footer-bottom-links">
             <a href="#">Privacy Policy</a>
