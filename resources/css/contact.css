@@ -1,0 +1,90 @@
+.contacts {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 100px;
+}
+
+.contact-wrapper {
+    width: 100%;
+    max-width: 1300px;
+    display: flex;
+    flex-direction: row;
+}
+
+.getintouch {
+    color: #000;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+
+.getintouch h1 {
+    font-weight: 600;
+}
+
+.contact {
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+}
+
+.contact-child {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.contact-child i {
+    color: #2A348D;
+    font-size: 30px;
+    margin: 0;
+}
+
+.contact-child h4 {
+    font-size: 20px;
+}
+
+.maps {
+    width: 50%;
+}
+
+.map {
+    display: flex;
+    justify-content: end;
+}
+
+@media (max-width: 1024px) {
+    .contacts {
+        padding: 50px 20px;
+    }
+
+    .contact {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        gap: 20px;
+    }
+
+    .contact-wrapper {
+        flex-direction: column;
+    }
+
+    .getintouch {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .maps {
+        width: 100%;
+    }
+
+    .map {
+        display: flex;
+        justify-content: center;
+    }
+
+}

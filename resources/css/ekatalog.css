@@ -1,0 +1,285 @@
+.showcase-wrappers {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 25px 100px 100px 100px;
+}
+
+.e-katalog-content {
+    width: 100%;
+    max-width: 1300px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+}
+
+.e-katalog-content a {
+    text-decoration: none;
+    color: #04293B;
+}
+
+.katalog-card {
+    padding: 30px;
+    text-align: center;
+    border: 1px solid #04293B;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.katalog-card:hover {
+    cursor: pointer;
+}
+
+.katalog-card img {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+}
+
+.katalog-card h4 {
+    font-size: 15px;
+    margin: 10px 0px 10px 0px;
+}
+
+.katalog-card p {
+    font-size: 15px;
+}
+
+.katalog-card .container {
+    padding: 0 10px;
+}
+
+.search-katalogs {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 100px 25px 100px;
+}
+
+.search-katalog {
+    width: 100%;
+    max-width: 1300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.search-box {
+    position: relative;
+    width: 100%;
+}
+
+.search-box input {
+    width: 100%;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    padding: 10px 40px 10px 15px;
+    border-radius: 7px;
+    border: 1px solid #04293B;
+}
+
+.search-box i {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.detail-katalog-logo {
+    display: flex;
+    justify-content: end;
+}
+
+.detail-katalog-photo {
+    display: flex;
+    justify-content: end;
+}
+
+.detail-katalog-photo img {
+    width: 500px;
+    height: 500px;
+    object-fit: cover;
+    border-radius: 20px;
+    border: #04293B 2px solid;
+}
+
+.detail-katalog-logo img {
+    width: 500px;
+    height: auto;
+    object-fit: contain;
+}
+
+.detail-katalog-texts {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 100px 100px 100px;
+}
+
+.detail-katalog-text {
+    width: 100%;
+    max-width: 1300px;
+}
+
+.detail-katalog-text p {
+    text-align: justify;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+.details-katalog-images {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 100px 100px 100px;
+}
+
+.detail-katalog-images {
+    width: 100%;
+    max-width: 1300px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.detail-katalog-images img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    border: #04293B 1px solid;
+    border-radius: 20px;
+}
+
+.detail-katalog-contacts {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 100px 100px 100px;
+}
+
+.detail-katalog-contact-map {
+    width: 100%;
+    max-width: 1300px;
+    display: flex;
+    flex-direction: row;
+}
+
+.detail-katalog-contact {
+    flex: 1;
+}
+
+.detail-katalog-contact h1 {
+    margin-bottom: 50px;
+}
+
+.detail-katalog-map {
+    flex: 1;
+}
+
+.map-embed {
+    width: 700px;
+    height: 450px;
+    border: 1px solid #04293B;
+    border-radius: 20px;
+}
+
+@media (max-width: 1024px) {
+    .showcase-wrappers {
+        padding: 20px 20px 50px 20px;
+    }
+
+    .search-katalogs {
+        padding: 50px 20px 0px 20px;
+    }
+
+    .e-katalog-content {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .katalog-card {
+        padding: 20px;
+    }
+
+    .katalog-card img {
+        height: 100px;
+    }
+
+    .katalog-card h4 {
+        font-size: 15px;
+    }
+
+    .katalog-card p {
+        font-size: 14px;
+    }
+
+    .search-katalog {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .detail-katalog-logo img {
+        width: 100%;
+    }
+
+    .detail-katalog-photo img {
+        width: 100%;
+        height: 300px;
+    }
+
+    .detail-katalog-logo {
+        justify-content: center;
+    }
+
+    .detail-katalog-photo {
+        justify-content: center;
+    }
+
+    .detail-katalog-texts {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0px 20px 50px 20px;
+    }
+
+
+    .detail-katalog-images {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 30px;
+    }
+
+    .details-katalog-images {
+        padding: 0px 20px 50px 20px;
+    }
+
+    .detail-katalog-images img {
+        width: 100%;
+        height: 200px;
+    }
+
+    .detail-katalog-text p {
+        text-align: justify;
+        font-size: 12px;
+    }
+
+    .detail-katalog-contacts {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0px 20px 50px 20px;
+    }
+
+    .detail-katalog-contact-map {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .map-embed {
+        width: 100%;
+        height: 400px;
+    }
+}

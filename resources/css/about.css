@@ -1,0 +1,264 @@
+.hero-abouts {
+    background-image: linear-gradient(#2a348d9f, #2a348d9f), url('../images/mountain.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    color: white;
+    text-align: center;
+    padding: 100px 100px 100px 100px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-about {
+    width: 100%;
+    max-width: 1300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-about h1 {
+    font-size: 50px;
+}
+
+.hero-about p {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 1024px) {
+    .hero-abouts {
+        padding: 100px 20px;
+    }
+
+    .hero-about h1 {
+        font-size: 30px;
+    }
+
+    .hero-about p {
+        font-size: 16px;
+        margin-bottom: 0px;
+    }
+
+}
+
+.info-abouts {
+    background-color: #2A348D;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 100px;
+}
+
+.info-about {
+    width: 100%;
+    max-width: 1300px;
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+}
+
+.info-about-image {
+    width: 50%;
+}
+
+.info-about-image img {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    border-radius: 20px;
+}
+
+.info-about-text {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+}
+
+.info-about-text p {
+    font-size: 15px;
+}
+
+@media (max-width: 1024px) {
+    .info-abouts {
+        padding: 50px 20px;
+    }
+
+    .info-about {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .info-about-image {
+        width: 100%;
+    }
+
+    .info-about-image img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 20px;
+    }
+
+    .info-about-text {
+        width: 100%;
+    }
+}
+
+.cities-bandung {
+    background-image: linear-gradient(#2a348d9f, #2a348d9f), url('../images/cities/bandung.jpg');
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 100px;
+}
+
+.cities-bekasi {
+    background-image: linear-gradient(#2a348d9f, #2a348d9f), url('../images/cities/bekasi.jpg');
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 100px;
+}
+
+.cities-cirebon {
+    background-image: linear-gradient(#2a348d9f, #2a348d9f), url('../images/cities/cirebon.jpg');
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 100px;
+}
+
+.cities-bogor {
+    background-image: linear-gradient(#2a348d9f, #2a348d9f), url('../images/cities/bogor.jpg');
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 100px;
+}
+
+.cities-kab-bogor {
+    background-image: linear-gradient(#2a348d9f, #2a348d9f), url('../images/cities/kab-bogor.png');
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 100px;
+}
+
+.cities-sukabumi {
+    background-image: linear-gradient(#2a348d9f, #2a348d9f), url('../images/cities/sukabumi.jpg');
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 100px;
+}
+
+.cities-cianjur {
+    background-image: linear-gradient(#2a348d9f, #2a348d9f), url('../images/cities/cianjur.jpg');
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 100px;
+}
+
+.cities-depok {
+    background-image: linear-gradient(#2a348d9f, #2a348d9f), url('../images/cities/depok.jpg');
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 100px;
+}
+
+.cities-pangandaran {
+    background-image: linear-gradient(#2a348d9f, #2a348d9f), url('../images/cities/pangandaran.jpg');
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 100px;
+}
+
+.cities-sumedang {
+    background-image: linear-gradient(#2a348d9f, #2a348d9f), url('../images/cities/sumedang.jpg');
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 100px;
+}
+
+.city {
+    width: 100%;
+    max-width: 1300px;
+    display: flex;
+    flex-direction: row;
+}
+
+.city-reversed {
+    width: 100%;
+    max-width: 1300px;
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.city h1,
+.city-reversed h1 {
+    font-size: 50px;
+    color: #ffffff;
+}
+
+@media (max-width: 1024px) {
+
+    .cities-bekasi,
+    .cities-cirebon,
+    .cities-bogor,
+    .cities-kab-bogor,
+    .cities-sukabumi,
+    .cities-cianjur,
+    .cities-depok,
+    .cities-pangandaran,
+    .cities-sumedang {
+        padding: 50px 20px;
+    }
+
+    .city h1,
+    .city-reversed h1 {
+        font-size: 25px;
+        color: #ffffff;
+    }
+
+}
