@@ -84,6 +84,12 @@
         color: #0a2540;
     }
 
+    .search-form {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
     .search-box {
         position: relative;
     }
@@ -93,13 +99,46 @@
         border: 1px solid #e5e7eb;
         border-radius: 8px;
         font-size: 0.875rem;
-        width: 300px;
+        width: 250px;
         font-family: 'Montserrat', sans-serif;
     }
 
     .search-input:focus {
         outline: none;
         border-color: #ffd700;
+    }
+
+    .filter-select {
+        padding: 0.625rem 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-family: 'Montserrat', sans-serif;
+        background-color: white;
+        color: #374151;
+        cursor: pointer;
+    }
+    
+    .filter-select:focus {
+        outline: none;
+        border-color: #ffd700;
+    }
+
+    .search-btn {
+        padding: 0.625rem 1.25rem;
+        background-color: #0a2540;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: 'Montserrat', sans-serif;
+        transition: background 0.2s;
+    }
+    .search-btn:hover {
+        background-color: #ffd700;
+        color: #0a2540;
     }
 
     .search-icon {
@@ -162,6 +201,7 @@
         font-weight: 700;
         font-size: 1rem;
         flex-shrink: 0;
+        overflow: hidden;
     }
 
     .admin-details {
@@ -537,16 +577,50 @@
 </div>
 @endif
 
+@if(session('created_credentials'))
+<div style="margin-bottom: 2rem; padding: 1.5rem; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+    <h3 style="color: #0a2540; margin-bottom: 0.5rem; font-weight: 700; font-size: 1.125rem;">
+        Akun Admin Berhasil Dibuat
+    </h3>
+    <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">Silakan salin detail akun di bawah ini untuk diberikan kepada pengurus yang bersangkutan.</p>
+    
+    <textarea id="credentialText" readonly style="width: 100%; height: 110px; padding: 1rem; border-radius: 8px; border: 1px solid #d1d5db; margin-bottom: 1rem; font-family: monospace; font-size: 0.875rem; background: #f9fafb; color: #111827; resize: none; line-height: 1.5;">
+Nama     : {{ session('created_credentials')['name'] }}
+Jabatan  : {{ session('created_credentials')['role'] }}
+Username : {{ session('created_credentials')['username'] }}
+Password : {{ session('created_credentials')['password'] }}</textarea>
+    
+    <button type="button" onclick="copyCredentials()" class="btn-primary" style="background: #0a2540; border: none; padding: 0.625rem 1.25rem; border-radius: 8px; color: white; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; font-size: 0.875rem; transition: background 0.2s;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        Salin Kredensial
+    </button>
+</div>
+@endif
+
 <div class="admin-table-container">
     <div class="table-header">
         <h3 class="table-title">Daftar Admin ({{ $admins->total() }})</h3>
-        <div class="search-box">
-            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.35-4.35"/>
-            </svg>
-            <input type="text" class="search-input" placeholder="Cari admin...">
-        </div>
+        <form action="{{ route('admin.info-admin') }}" method="GET" class="search-form">
+            <select name="role" class="filter-select">
+                <option value="">Semua Kategori</option>
+                <option value="super_admin" {{ request('role') == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
+                <option value="pimpinan" {{ request('role') == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
+                <option value="pnkt" {{ request('role') == 'pnkt' ? 'selected' : '' }}>PNKT (Pusat)</option>
+                <option value="ppkt" {{ request('role') == 'ppkt' ? 'selected' : '' }}>PPKT (Provinsi)</option>
+                <option value="pkkt" {{ request('role') == 'pkkt' ? 'selected' : '' }}>PKKT (Kab/Kota)</option>
+            </select>
+            <div class="search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input type="text" name="search" class="search-input" placeholder="Cari admin..." value="{{ request('search') }}">
+            </div>
+            <button type="submit" class="search-btn">Filter</button>
+            @if(request()->has('search') || request()->has('role'))
+                <a href="{{ route('admin.info-admin') }}" class="search-btn" style="background:#fef2f2; color:#dc2626; border: 1px solid #fecaca; text-decoration:none;">Reset</a>
+            @endif
+        </form>
     </div>
 
 <table class="admin-table">
@@ -564,10 +638,16 @@
         <tr>
             <td>
                 <div class="admin-cell">
-                    <div class="admin-avatar-table">{{ strtoupper(substr($adminItem->name, 0, 2)) }}</div>
+                    <div class="admin-avatar-table">
+                        @if($adminItem->photo)
+                            <img src="{{ $adminItem->photo_url }}" alt="{{ $adminItem->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        @else
+                            {{ strtoupper(substr($adminItem->name, 0, 2)) }}
+                        @endif
+                    </div>
                     <div class="admin-details">
                         <div class="admin-name-table">{{ $adminItem->name }}</div>
-                        <div class="admin-email-table">Super Admin</div>
+                        <div class="admin-email-table">{{ $adminItem->role_display_name }}</div>
                     </div>
                 </div>
             </td>
@@ -655,5 +735,29 @@ document.getElementById('deleteModal').addEventListener('click', function(e) {
         closeDeleteModal();
     }
 });
+
+function copyCredentials() {
+    var copyText = document.getElementById("credentialText");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(copyText.value).then(function() {
+        Swal.fire({
+            title: 'Tersalin!',
+            text: 'Kredensial admin berhasil disalin ke clipboard.',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    }).catch(function() {
+        document.execCommand("copy");
+        Swal.fire({
+            title: 'Tersalin!',
+            text: 'Kredensial admin berhasil disalin.',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    });
+}
 </script>
 @endpush

@@ -17,6 +17,38 @@
     {{-- Additional Page Styles --}}
     @stack('styles')
 
+    {{-- Select2 CSS --}}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    {{-- SweetAlert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .swal2-popup {
+            font-family: 'Montserrat', sans-serif !important;
+            border-radius: 12px !important;
+        }
+        .swal2-title {
+            color: #0a2540 !important;
+            font-size: 1.25rem !important;
+        }
+        .swal2-confirm {
+            background-color: #dc2626 !important;
+            border-radius: 8px !important;
+            padding: 0.625rem 1.5rem !important;
+            font-weight: 600 !important;
+        }
+        .swal2-cancel {
+            background-color: #f3f4f6 !important;
+            color: #374151 !important;
+            border-radius: 8px !important;
+            padding: 0.625rem 1.5rem !important;
+            font-weight: 600 !important;
+        }
+        .swal2-confirm.btn-restore {
+            background-color: #10b981 !important;
+        }
+    </style>
+
     <style>
         /* Logout Confirmation Modal */
         .logout-modal {
@@ -195,6 +227,71 @@
                 display: none;
             }
         }
+
+        /* Select2 Customization for SIKTN */
+        .select2-container--default .select2-selection--single {
+            height: 46px;
+            padding: 0.35rem 0.75rem;
+            font-size: 0.875rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            color: #0a2540;
+            background-color: #f9fafb;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+        }
+        .select2-container--default .select2-selection--single:focus,
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #ffd700;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+            background-color: #ffffff;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #0a2540;
+            padding-left: 0;
+            line-height: normal;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #6b7280;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 44px;
+            right: 10px;
+        }
+        .select2-dropdown {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.875rem;
+            z-index: 9999;
+        }
+        .select2-search--dropdown .select2-search__field {
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 0.5rem;
+            font-family: 'Montserrat', sans-serif;
+            outline: none;
+        }
+        .select2-search--dropdown .select2-search__field:focus {
+            border-color: #ffd700;
+        }
+        .select2-container--default .select2-results__option--highlighted[aria-selected],
+        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+            background-color: #0a2540;
+            color: white;
+        }
+        .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #f3f4f6;
+            color: #0a2540;
+            font-weight: 600;
+        }
+        .select2-results__option {
+            padding: 8px 12px;
+        }
     </style>
 </head>
 
@@ -224,16 +321,7 @@
                     <div class="topbar-user-details">
                         <div class="topbar-user-name">{{ auth()->guard('admin')->user()->name ?? 'Admin' }}</div>
                         <div class="topbar-user-role">
-                            @php
-                                $category = auth()->guard('admin')->user()->category;
-                                $roleDisplay = match($category) {
-                                    'super_admin' => 'Super Admin',
-                                    'bpd' => 'BPD',
-                                    'bpc' => 'BPC',
-                                    default => 'Admin'
-                                };
-                            @endphp
-                            {{ $roleDisplay }}
+                            {{ auth()->guard('admin')->user()->role_display_name }}
                         </div>
                     </div>
                 </a>
@@ -304,6 +392,54 @@
             }
         });
     </script>
+    
+    {{-- Flash Messages Notification --}}
+    @if(session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: "{{ session('success') }}",
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#10b981'
+                });
+            });
+        </script>
+    @endif
+    
+    @if(session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Error!',
+                    text: "{{ session('error') }}",
+                    icon: 'error',
+                    confirmButtonText: 'Tutup',
+                    confirmButtonColor: '#dc2626'
+                });
+            });
+        </script>
+    @endif
+    
+    @if($errors->any())
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Validasi Gagal!',
+                    text: 'Mohon periksa kembali form isian Anda. Ada beberapa data yang belum sesuai (seperti username yang sudah terpakai).',
+                    icon: 'warning',
+                    confirmButtonText: 'Periksa Form',
+                    confirmButtonColor: '#dc2626'
+                });
+            });
+        </script>
+    @endif
+    
+    {{-- jQuery (Required for Select2) --}}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    {{-- Select2 JS --}}
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     @stack('scripts')
 </body>

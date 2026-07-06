@@ -18,8 +18,8 @@ class AdminDashboardController extends Controller
     {
         $admin = Auth::guard('admin')->user();
         
-        // Dashboard untuk BPC - hanya lihat statistik anggota di domisilinya
-        if ($admin->category === 'bpc') {
+        // Dashboard untuk PKKT/BPC - hanya lihat statistik anggota di domisilinya
+        if ($admin->isPKKT()) {
             $totalAnggota = Anggota::where('domisili', $admin->domisili)->count();
             $pendingAnggota = Anggota::where('domisili', $admin->domisili)->where('status', 'pending')->count();
             $approvedAnggota = Anggota::where('domisili', $admin->domisili)->where('status', 'approved')->count();
@@ -103,7 +103,7 @@ class AdminDashboardController extends Controller
         ));
     }
     
-    public function infoAdmin(): View
+    public function infoAdmin(Request $request): View
     {
         $admin = Auth::guard('admin')->user();
         
@@ -112,7 +112,24 @@ class AdminDashboardController extends Controller
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
         
-        $admins = Admin::latest()->paginate(10);
+        $query = Admin::query();
+
+        // Filter by category
+        if ($request->has('role') && $request->role != '') {
+            $query->where('category', $request->role);
+        }
+
+        // Search by name, email, username
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%");
+            });
+        }
+        
+        $admins = $query->latest()->paginate(10)->appends($request->query());
         
         return view('admin.info-admin', compact('admin', 'admins'));
     }
@@ -126,38 +143,7 @@ class AdminDashboardController extends Controller
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
         
-        // List domisili Jawa Barat
-        $domisiliList = [
-            'Bandung',
-            'Bandung Barat',
-            'Bekasi',
-            'Bogor',
-            'Ciamis',
-            'Cianjur',
-            'Cirebon',
-            'Garut',
-            'Indramayu',
-            'Karawang',
-            'Kuningan',
-            'Majalengka',
-            'Pangandaran',
-            'Purwakarta',
-            'Subang',
-            'Sukabumi',
-            'Sumedang',
-            'Tasikmalaya',
-            'Kota Bandung',
-            'Kota Banjar',
-            'Kota Bekasi',
-            'Kota Bogor',
-            'Kota Cimahi',
-            'Kota Cirebon',
-            'Kota Depok',
-            'Kota Sukabumi',
-            'Kota Tasikmalaya',
-        ];
-        
-        return view('admin.create-admin', compact('admin', 'domisiliList'));
+        return view('admin.create-admin', compact('admin'));
     }
     
     public function storeAdmin(Request $request)
@@ -172,23 +158,35 @@ class AdminDashboardController extends Controller
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:admins',
             'email' => 'required|string|email|max:255|unique:admins',
+            'no_hp' => 'nullable|string|max:20',
             'password' => 'required|string|min:8|confirmed',
-            'category' => 'required|in:bpc,bpd,super_admin',
-            'domisili' => 'required_if:category,bpc|nullable|string|max:255',
+            'category' => 'required|in:super_admin,pimpinan,pnkt,ppkt,pkkt',
+            'domisili' => 'required_if:category,ppkt,pkkt|nullable|string|max:255',
         ], [
-            'domisili.required_if' => 'Domisili wajib diisi untuk BPC.',
+            'domisili.required_if' => 'Domisili wajib diisi untuk wilayah PPKT / PKKT.',
         ]);
 
-        Admin::create([
+        $newAdmin = Admin::create([
             'name' => $validated['name'],
             'username' => $validated['username'],
             'email' => $validated['email'],
+            'no_hp' => $validated['no_hp'] ?? null,
+            'is_active' => true,
             'password' => Hash::make($validated['password']),
             'category' => $validated['category'],
-            'domisili' => $validated['category'] === 'bpc' ? $validated['domisili'] : null,
+            'domisili' => in_array($validated['category'], ['ppkt', 'pkkt']) ? $validated['domisili'] : null,
         ]);
+        
+        $newAdmin->assignRole($validated['category']);
 
-        return redirect()->route('admin.info-admin')->with('success', 'Admin berhasil ditambahkan!');
+        return redirect()->route('admin.info-admin')
+            ->with('success', 'Admin berhasil ditambahkan!')
+            ->with('created_credentials', [
+                'username' => $validated['username'],
+                'password' => $validated['password'],
+                'name' => $validated['name'],
+                'role' => $newAdmin->role_display_name
+            ]);
     }
     
     public function editAdmin(Admin $admin): View
@@ -200,37 +198,7 @@ class AdminDashboardController extends Controller
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
         
-        $domisiliList = [
-            'Bandung',
-            'Bandung Barat',
-            'Bekasi',
-            'Bogor',
-            'Ciamis',
-            'Cianjur',
-            'Cirebon',
-            'Garut',
-            'Indramayu',
-            'Karawang',
-            'Kuningan',
-            'Majalengka',
-            'Pangandaran',
-            'Purwakarta',
-            'Subang',
-            'Sukabumi',
-            'Sumedang',
-            'Tasikmalaya',
-            'Kota Bandung',
-            'Kota Banjar',
-            'Kota Bekasi',
-            'Kota Bogor',
-            'Kota Cimahi',
-            'Kota Cirebon',
-            'Kota Depok',
-            'Kota Sukabumi',
-            'Kota Tasikmalaya',
-        ];
-        
-        return view('admin.edit-admin', compact('admin', 'currentAdmin', 'domisiliList'));
+        return view('admin.edit-admin', compact('admin', 'currentAdmin'));
     }
     
     public function updateAdmin(Request $request, Admin $admin)
@@ -245,24 +213,28 @@ class AdminDashboardController extends Controller
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:admins,username,' . $admin->id,
             'email' => 'required|string|email|max:255|unique:admins,email,' . $admin->id,
+            'no_hp' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:8|confirmed',
-            'category' => 'required|in:bpc,bpd,super_admin',
-            'domisili' => 'required_if:category,bpc|nullable|string|max:255',
+            'category' => 'required|in:super_admin,pimpinan,pnkt,ppkt,pkkt',
+            'domisili' => 'required_if:category,ppkt,pkkt|nullable|string|max:255',
         ], [
-            'domisili.required_if' => 'Domisili wajib diisi untuk BPC.',
+            'domisili.required_if' => 'Domisili wajib diisi untuk wilayah PPKT / PKKT.',
         ]);
 
         $admin->update([
             'name' => $validated['name'],
             'username' => $validated['username'],
             'email' => $validated['email'],
+            'no_hp' => $validated['no_hp'] ?? null,
             'category' => $validated['category'],
-            'domisili' => $validated['category'] === 'bpc' ? $validated['domisili'] : null,
+            'domisili' => in_array($validated['category'], ['ppkt', 'pkkt']) ? $validated['domisili'] : null,
         ]);
 
         if ($request->filled('password')) {
             $admin->update(['password' => Hash::make($validated['password'])]);
         }
+        
+        $admin->syncRoles([$validated['category']]);
 
         return redirect()->route('admin.info-admin')->with('success', 'Admin berhasil diupdate!');
     }

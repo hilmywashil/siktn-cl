@@ -398,6 +398,21 @@
                             <span class="form-error">{{ $message }}</span>
                         @enderror
                     </div>
+
+                    <div class="form-group full-width" style="margin-top: 1rem;">
+                        <label class="form-label">No. WhatsApp / HP</label>
+                        <input 
+                            type="text" 
+                            name="no_hp" 
+                            class="form-input @error('no_hp') error @enderror" 
+                            value="{{ old('no_hp') }}"
+                            placeholder="Contoh: 081234567890"
+                        >
+                        <span class="form-help">Digunakan untuk notifikasi WhatsApp (opsional)</span>
+                        @error('no_hp')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
                 </div>
             </div>
 
@@ -423,79 +438,80 @@
 
                     <div class="form-group full-width">
     <label class="form-label required">Kategori Admin</label>
-    <div class="category-options" style="grid-template-columns: 1fr;">
+    <div class="category-options" style="grid-template-columns: repeat(3, 1fr);">
         <div class="category-option">
-            <input 
-                type="radio" 
-                id="category-super-admin" 
-                name="category" 
-                value="super_admin" 
-                class="category-radio" 
-                checked
-                required
-            >
+            <input type="radio" id="category-super-admin" name="category" value="super_admin" class="category-radio" onchange="toggleDomisili()" required>
             <label for="category-super-admin" class="category-label">
-                <span class="category-name">Admin</span>
-                <span class="category-desc">Admin Baru</span>
+                <span class="category-name">Super Admin</span>
+                <span class="category-desc">Akses penuh ke semua sistem</span>
+            </label>
+        </div>
+        <div class="category-option">
+            <input type="radio" id="category-pimpinan" name="category" value="pimpinan" class="category-radio" onchange="toggleDomisili()" required>
+            <label for="category-pimpinan" class="category-label">
+                <span class="category-name">Pimpinan</span>
+                <span class="category-desc">Laporan tingkat pimpinan</span>
+            </label>
+        </div>
+        <div class="category-option">
+            <input type="radio" id="category-pnkt" name="category" value="pnkt" class="category-radio" onchange="toggleDomisili()" required>
+            <label for="category-pnkt" class="category-label">
+                <span class="category-name">Sekretariat Nasional</span>
+                <span class="category-desc">Admin Tingkat Pusat (PNKT)</span>
+            </label>
+        </div>
+        <div class="category-option">
+            <input type="radio" id="category-ppkt" name="category" value="ppkt" class="category-radio" onchange="toggleDomisili()" required>
+            <label for="category-ppkt" class="category-label">
+                <span class="category-name">Sekretariat Provinsi</span>
+                <span class="category-desc">Admin Tingkat Provinsi (PPKT)</span>
+            </label>
+        </div>
+        <div class="category-option">
+            <input type="radio" id="category-pkkt" name="category" value="pkkt" class="category-radio" onchange="toggleDomisili()" required>
+            <label for="category-pkkt" class="category-label">
+                <span class="category-name">Sekretariat Kab/Kota</span>
+                <span class="category-desc">Admin Tingkat Daerah (PKKT)</span>
             </label>
         </div>
     </div>
     @error('category')
         <span class="form-error">{{ $message }}</span>
     @enderror
-    
-    {{-- Hidden input untuk memastikan value super_admin terkirim --}}
-    <input type="hidden" name="category" value="super_admin">
 </div>
 
-{{-- HAPUS/HIDE BAGIAN DOMISILI KARENA TIDAK DIPAKAI --}}
-                   <!-- ========================================== -->
+<!-- ========================================== -->
 <!-- FORM CREATE ADMIN - Domisili Field -->
 <!-- ========================================== -->
-<div class="form-group full-width" id="domisiliField">
-    <label class="form-label required">Domisili</label>
+<div class="form-group full-width" id="provinsiField" style="display: none;">
+    <label class="form-label required">Pilih Provinsi *</label>
     <select 
         name="domisili" 
+        id="provinsiSelect"
         class="form-select @error('domisili') error @enderror"
+        style="width: 100%;"
+        data-old-value="{{ old('domisili') }}"
     >
-        <option value="">Pilih Domisili</option>
-        
-        {{-- KABUPATEN (18) --}}
-        <optgroup label="Kabupaten">
-            <option value="Bandung" {{ old('domisili') == 'Bandung' ? 'selected' : '' }}>Kabupaten Bandung</option>
-            <option value="Bandung Barat" {{ old('domisili') == 'Bandung Barat' ? 'selected' : '' }}>Kabupaten Bandung Barat</option>
-            <option value="Bekasi" {{ old('domisili') == 'Bekasi' ? 'selected' : '' }}>Kabupaten Bekasi</option>
-            <option value="Bogor" {{ old('domisili') == 'Bogor' ? 'selected' : '' }}>Kabupaten Bogor</option>
-            <option value="Ciamis" {{ old('domisili') == 'Ciamis' ? 'selected' : '' }}>Kabupaten Ciamis</option>
-            <option value="Cianjur" {{ old('domisili') == 'Cianjur' ? 'selected' : '' }}>Kabupaten Cianjur</option>
-            <option value="Cirebon" {{ old('domisili') == 'Cirebon' ? 'selected' : '' }}>Kabupaten Cirebon</option>
-            <option value="Garut" {{ old('domisili') == 'Garut' ? 'selected' : '' }}>Kabupaten Garut</option>
-            <option value="Indramayu" {{ old('domisili') == 'Indramayu' ? 'selected' : '' }}>Kabupaten Indramayu</option>
-            <option value="Karawang" {{ old('domisili') == 'Karawang' ? 'selected' : '' }}>Kabupaten Karawang</option>
-            <option value="Kuningan" {{ old('domisili') == 'Kuningan' ? 'selected' : '' }}>Kabupaten Kuningan</option>
-            <option value="Majalengka" {{ old('domisili') == 'Majalengka' ? 'selected' : '' }}>Kabupaten Majalengka</option>
-            <option value="Pangandaran" {{ old('domisili') == 'Pangandaran' ? 'selected' : '' }}>Kabupaten Pangandaran</option>
-            <option value="Purwakarta" {{ old('domisili') == 'Purwakarta' ? 'selected' : '' }}>Kabupaten Purwakarta</option>
-            <option value="Subang" {{ old('domisili') == 'Subang' ? 'selected' : '' }}>Kabupaten Subang</option>
-            <option value="Sukabumi" {{ old('domisili') == 'Sukabumi' ? 'selected' : '' }}>Kabupaten Sukabumi</option>
-            <option value="Sumedang" {{ old('domisili') == 'Sumedang' ? 'selected' : '' }}>Kabupaten Sumedang</option>
-            <option value="Tasikmalaya" {{ old('domisili') == 'Tasikmalaya' ? 'selected' : '' }}>Kabupaten Tasikmalaya</option>
-        </optgroup>
-        
-        {{-- KOTA (9) --}}
-        <optgroup label="Kota">
-            <option value="Kota Bandung" {{ old('domisili') == 'Kota Bandung' ? 'selected' : '' }}>Kota Bandung</option>
-            <option value="Kota Banjar" {{ old('domisili') == 'Kota Banjar' ? 'selected' : '' }}>Kota Banjar</option>
-            <option value="Kota Bekasi" {{ old('domisili') == 'Kota Bekasi' ? 'selected' : '' }}>Kota Bekasi</option>
-            <option value="Kota Bogor" {{ old('domisili') == 'Kota Bogor' ? 'selected' : '' }}>Kota Bogor</option>
-            <option value="Kota Cimahi" {{ old('domisili') == 'Kota Cimahi' ? 'selected' : '' }}>Kota Cimahi</option>
-            <option value="Kota Cirebon" {{ old('domisili') == 'Kota Cirebon' ? 'selected' : '' }}>Kota Cirebon</option>
-            <option value="Kota Depok" {{ old('domisili') == 'Kota Depok' ? 'selected' : '' }}>Kota Depok</option>
-            <option value="Kota Sukabumi" {{ old('domisili') == 'Kota Sukabumi' ? 'selected' : '' }}>Kota Sukabumi</option>
-            <option value="Kota Tasikmalaya" {{ old('domisili') == 'Kota Tasikmalaya' ? 'selected' : '' }}>Kota Tasikmalaya</option>
-        </optgroup>
+        <option value="">-- Pilih Provinsi --</option>
     </select>
-    <span class="form-help">Pilih domisili untuk admin BPC</span>
+    <span class="form-help">Pilih wilayah untuk admin Sekretariat Provinsi</span>
+    @error('domisili')
+        <span class="form-error">{{ $message }}</span>
+    @enderror
+</div>
+
+<div class="form-group full-width" id="kabKotaField" style="display: none;">
+    <label class="form-label required">Pilih Kabupaten/Kota *</label>
+    <select 
+        name="domisili" 
+        id="kabKotaSelect"
+        class="form-select @error('domisili') error @enderror"
+        style="width: 100%;"
+        data-old-value="{{ old('domisili') }}"
+    >
+        <option value="">-- Pilih Kabupaten/Kota --</option>
+    </select>
+    <span class="form-help">Pilih wilayah untuk admin Sekretariat Kab/Kota</span>
     @error('domisili')
         <span class="form-error">{{ $message }}</span>
     @enderror
@@ -589,22 +605,80 @@
     }
 
     function toggleDomisili() {
-        const categoryBPC = document.getElementById('category-bpc');
-        const domisiliField = document.getElementById('domisiliField');
+        const categoryPPKT = document.getElementById('category-ppkt');
+        const categoryPKKT = document.getElementById('category-pkkt');
+        const provinsiField = document.getElementById('provinsiField');
+        const kabKotaField = document.getElementById('kabKotaField');
+        const provinsiSelect = document.getElementById('provinsiSelect');
+        const kabKotaSelect = document.getElementById('kabKotaSelect');
         
-        if (categoryBPC && categoryBPC.checked) {
-            domisiliField.style.display = 'flex';
-            domisiliField.querySelector('select').required = true;
+        if (categoryPPKT && categoryPPKT.checked) {
+            provinsiField.style.display = 'flex';
+            provinsiSelect.required = true;
+            provinsiSelect.name = 'domisili';
+            
+            kabKotaField.style.display = 'none';
+            kabKotaSelect.required = false;
+            kabKotaSelect.name = ''; // prevent validation error & submission
+            // don't clear value here so old() works if it was set
+        } else if (categoryPKKT && categoryPKKT.checked) {
+            kabKotaField.style.display = 'flex';
+            kabKotaSelect.required = true;
+            kabKotaSelect.name = 'domisili';
+            
+            provinsiField.style.display = 'none';
+            provinsiSelect.required = false;
+            provinsiSelect.name = ''; // prevent validation error & submission
+            // don't clear value here so old() works if it was set
         } else {
-            domisiliField.style.display = 'none';
-            domisiliField.querySelector('select').required = false;
-            domisiliField.querySelector('select').value = '';
+            provinsiField.style.display = 'none';
+            provinsiSelect.required = false;
+            provinsiSelect.name = '';
+            
+            kabKotaField.style.display = 'none';
+            kabKotaSelect.required = false;
+            kabKotaSelect.name = '';
         }
     }
 
     // Jalankan saat halaman load untuk handle old() values
     document.addEventListener('DOMContentLoaded', function() {
         toggleDomisili();
+        
+        // Initialize Select2
+        $('#provinsiSelect').select2({
+            placeholder: '-- Pilih Provinsi --',
+            allowClear: true,
+            width: '100%'
+        });
+        
+        $('#kabKotaSelect').select2({
+            placeholder: '-- Pilih Kabupaten/Kota --',
+            allowClear: true,
+            width: '100%'
+        });
+
+        // Load Wilayah dari JSON
+        const oldProv = $('#provinsiSelect').data('old-value');
+        const oldKabKota = $('#kabKotaSelect').data('old-value');
+
+        fetch("{{ asset('provinces.json') }}")
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(prov => {
+                    const selected = (prov === oldProv && $('#category-ppkt').is(':checked')) ? 'selected' : '';
+                    $('#provinsiSelect').append(`<option value="${prov}" ${selected}>${prov}</option>`);
+                });
+            });
+
+        fetch("{{ asset('regencies.json') }}")
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(reg => {
+                    const selected = (reg === oldKabKota && $('#category-pkkt').is(':checked')) ? 'selected' : '';
+                    $('#kabKotaSelect').append(`<option value="${reg}" ${selected}>${reg}</option>`);
+                });
+            });
     });
 </script>
 @endpush

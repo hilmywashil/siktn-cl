@@ -887,7 +887,7 @@
                         @endif
                     </div>
                     <h4 class="user-name">{{ $anggota->nama_lengkap }}</h4>
-                    <div class="user-nrp">NRP: {{ $anggota->nrp }}</div>
+                    <div class="user-nrp">{{ $anggota->jabatan ?? 'Anggota' }}</div>
                     
                     @if($anggota->status == 'pending')
                         <span class="status-badge status-pending"><i class="fas fa-clock"></i> PENDING ACC</span>
@@ -906,7 +906,7 @@
                         <i class="fas fa-id-card"></i> KTA Digital
                     </button>
                     <button class="sidebar-menu-btn" onclick="switchTab('profil-perusahaan', this)">
-                        <i class="fas fa-building"></i> Profil Perusahaan
+                        <i class="fas fa-user-edit"></i> Lengkapi Profil
                     </button>
                     <a href="{{ route('anggota.katalog.index') }}" class="sidebar-menu-btn">
                         <i class="fas fa-store"></i> Katalog Saya
@@ -936,6 +936,16 @@
                     <div class="info-grid">
                         <div class="info-card">
                             <div class="info-card-icon">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <div class="info-card-content">
+                                <span class="info-card-label">NIK</span>
+                                <span class="info-card-value">{{ $anggota->nik ?? '-' }}</span>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-card-icon">
                                 <i class="fas fa-user-tie"></i>
                             </div>
                             <div class="info-card-content">
@@ -946,11 +956,31 @@
 
                         <div class="info-card">
                             <div class="info-card-icon">
-                                <i class="fas fa-id-card-alt"></i>
+                                <i class="fas fa-birthday-cake"></i>
                             </div>
                             <div class="info-card-content">
-                                <span class="info-card-label">Nomor Registrasi Pokok (NRP)</span>
-                                <span class="info-card-value">{{ $anggota->nrp }}</span>
+                                <span class="info-card-label">Tempat & Tanggal Lahir</span>
+                                <span class="info-card-value">{{ $anggota->tempat_lahir ?? '-' }}, {{ $anggota->tanggal_lahir ? $anggota->tanggal_lahir->format('d F Y') : '-' }}</span>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-card-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="info-card-content">
+                                <span class="info-card-label">Domisili</span>
+                                <span class="info-card-value">{{ $anggota->domisili ?? '-' }}</span>
+                            </div>
+                        </div>
+
+                        <div class="info-card" style="grid-column: span 2;">
+                            <div class="info-card-icon">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="info-card-content">
+                                <span class="info-card-label">Alamat Lengkap</span>
+                                <span class="info-card-value">{{ $anggota->alamat_lengkap ?? '-' }}</span>
                             </div>
                         </div>
 
@@ -959,38 +989,18 @@
                                 <i class="fas fa-graduation-cap"></i>
                             </div>
                             <div class="info-card-content">
-                                <span class="info-card-label">Angkatan</span>
-                                <span class="info-card-value">Angkatan {{ $anggota->angkatan }}</span>
+                                <span class="info-card-label">Pendidikan Terakhir</span>
+                                <span class="info-card-value">{{ $anggota->pendidikan_terakhir ?? '-' }}</span>
                             </div>
                         </div>
 
                         <div class="info-card">
                             <div class="info-card-icon">
-                                <i class="fas fa-venus-mars"></i>
+                                <i class="fas fa-briefcase"></i>
                             </div>
                             <div class="info-card-content">
-                                <span class="info-card-label">Jenis Kelamin</span>
-                                <span class="info-card-value" style="text-transform: capitalize;">{{ $anggota->gender }}</span>
-                            </div>
-                        </div>
-
-                        <div class="info-card">
-                            <div class="info-card-icon">
-                                <i class="fas fa-birthday-cake"></i>
-                            </div>
-                            <div class="info-card-content">
-                                <span class="info-card-label">Tempat & Tanggal Lahir</span>
-                                <span class="info-card-value">{{ $anggota->tempat_lahir_personal }}, {{ $anggota->tanggal_lahir ? $anggota->tanggal_lahir->format('d F Y') : '-' }}</span>
-                            </div>
-                        </div>
-
-                        <div class="info-card">
-                            <div class="info-card-icon">
-                                <i class="fas fa-praying-hands"></i>
-                            </div>
-                            <div class="info-card-content">
-                                <span class="info-card-label">Agama</span>
-                                <span class="info-card-value">{{ $anggota->agama }}</span>
+                                <span class="info-card-label">Pekerjaan</span>
+                                <span class="info-card-value">{{ $anggota->pekerjaan ?? '-' }}</span>
                             </div>
                         </div>
 
@@ -1000,7 +1010,7 @@
                             </div>
                             <div class="info-card-content">
                                 <span class="info-card-label">No. Telepon / WhatsApp</span>
-                                <span class="info-card-value">{{ $anggota->no_telp }}</span>
+                                <span class="info-card-value">{{ $anggota->no_hp ?? '-' }}</span>
                             </div>
                         </div>
 
@@ -1011,36 +1021,6 @@
                             <div class="info-card-content">
                                 <span class="info-card-label">Email</span>
                                 <span class="info-card-value">{{ $anggota->email }}</span>
-                            </div>
-                        </div>
-
-                        <div class="info-card" style="grid-column: span 2;">
-                            <div class="info-card-icon">
-                                <i class="fas fa-map-marked-alt"></i>
-                            </div>
-                            <div class="info-card-content">
-                                <span class="info-card-label">Alamat Domisili</span>
-                                <span class="info-card-value">{{ $anggota->alamat_domisili }} (Kode Pos: {{ $anggota->kode_pos }})</span>
-                            </div>
-                        </div>
-                        
-                        <div class="info-card">
-                            <div class="info-card-icon">
-                                <i class="fas fa-fingerprint"></i>
-                            </div>
-                            <div class="info-card-content">
-                                <span class="info-card-label">Nomor KTP</span>
-                                <span class="info-card-value">{{ $anggota->no_ktp }}</span>
-                            </div>
-                        </div>
-
-                        <div class="info-card">
-                            <div class="info-card-icon">
-                                <i class="fas fa-award"></i>
-                            </div>
-                            <div class="info-card-content">
-                                <span class="info-card-label">Referensi Anggota Karang Taruna</span>
-                                <span class="info-card-value">{{ $anggota->ref_hipmi }}</span>
                             </div>
                         </div>
                     </div>
@@ -1060,8 +1040,8 @@
                         <!-- Front Side KTA -->
                         <div class="kta-card" id="ktaCardFront">
                             <div class="kta-header-front">
-                                <h2>CORPS ALUMNI</h2>
-                                <p>AKADEMI ILMU PELAYARAN</p>
+                                <h2>KARANG TARUNA</h2>
+                                <p>PENGURUS NASIONAL</p>
                             </div>
                             <div class="kta-gold-bar"></div>
                             
@@ -1072,7 +1052,7 @@
                             </div>
 
                             <div class="kta-member-name">{{ $anggota->nama_lengkap }}</div>
-                            <div class="kta-member-nrp">{{ $anggota->nrp }}</div>
+                            <div class="kta-member-nrp">{{ $anggota->nik ?? 'NIK: -' }}</div>
                             
                             <div class="kta-anchor-divider">
                                 <i class="fas fa-anchor"></i>
@@ -1093,16 +1073,16 @@
                                         <div class="kta-detail-value">: {{ $anggota->tanggal_lahir ? $anggota->tanggal_lahir->format('d F Y') : '-' }}</div>
                                     </div>
                                     <div class="kta-detail-row">
-                                        <div class="kta-detail-label">ANGKATAN</div>
-                                        <div class="kta-detail-value">: {{ $anggota->angkatan }}</div>
+                                        <div class="kta-detail-label">JABATAN</div>
+                                        <div class="kta-detail-value">: {{ $anggota->jabatan ?? '-' }}</div>
                                     </div>
                                     <div class="kta-detail-row">
-                                        <div class="kta-detail-label">NRP</div>
-                                        <div class="kta-detail-value">: {{ $anggota->nrp }}</div>
+                                        <div class="kta-detail-label">DOMISILI</div>
+                                        <div class="kta-detail-value">: {{ $anggota->domisili ?? '-' }}</div>
                                     </div>
                                     <div class="kta-detail-row">
                                         <div class="kta-detail-label">STATUS</div>
-                                        <div class="kta-detail-value">: ALUMNI AKTIF</div>
+                                        <div class="kta-detail-value">: ANGGOTA AKTIF</div>
                                     </div>
                                 </div>
                             </div>
@@ -1113,8 +1093,8 @@
                                 </div>
                                 <div class="kta-signature">
                                     <img src="{{ asset('assets-front/images/signature_dummy.png') }}" alt="Signature" class="kta-signature-img" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/f/f6/Signature_of_John_Hancock.svg'; this.style.opacity='0.5';">
-                                    <p class="kta-signature-text">CORPS ALUMNI AIP</p>
-                                    <p class="kta-signature-subtext">SEKRETARIS JENDERAL</p>
+                                    <p class="kta-signature-text">PENGURUS NASIONAL KARANG TARUNA</p>
+                                    <p class="kta-signature-subtext">KETUA UMUM</p>
                                 </div>
                             </div>
                             <div class="kta-bottom-bar"></div>
@@ -1123,7 +1103,7 @@
                         <!-- Back Side KTA -->
                         <div class="kta-card kta-card-back" id="ktaCardBack">
                             <div class="kta-header-front">
-                                <h2>KARTU ANGGOTA ALUMNI</h2>
+                                <h2>KARTU TANDA ANGGOTA</h2>
                             </div>
                             <div class="kta-gold-bar"></div>
 
@@ -1132,7 +1112,7 @@
                                 
                                 <div class="kta-back-ketentuan-title">Ketentuan:</div>
                                 <ol class="kta-back-ketentuan-list">
-                                    <li>Kartu ini merupakan tanda pengenal resmi anggota Corps Alumni Akademi Ilmu Pelayaran.</li>
+                                    <li>Kartu ini merupakan tanda pengenal resmi anggota Karang Taruna.</li>
                                     <li>Kartu ini tidak dapat dipindahtangankan.</li>
                                     <li>Harap membawa kartu ini saat menghadiri kegiatan alumni.</li>
                                     <li>Apabila kartu ini hilang, segera laporkan ke sekretariat alumni.</li>
@@ -1142,20 +1122,20 @@
                             <div class="kta-back-footer">
                                 <div class="kta-back-footer-curve"></div>
                                 <div class="kta-back-footer-content">
-                                    <h3 class="kta-back-footer-title">CORPS ALUMNI</h3>
-                                    <h4 class="kta-back-footer-subtitle">AKADEMI ILMU PELAYARAN</h4>
+                                    <h3 class="kta-back-footer-title">KARANG TARUNA</h3>
+                                    <h4 class="kta-back-footer-subtitle">PENGURUS NASIONAL</h4>
                                     
                                     <div class="kta-back-address">
                                         Jl. Raya Boulevard Barat No. 1, Kelapa<br>Gading, Jakarta Utara 14240
                                     </div>
                                     
                                     <div class="kta-back-contact">
-                                        <span><i class="fas fa-globe"></i> www.caaip.or.id</span>
-                                        <span><i class="fas fa-envelope"></i> sekretariat@caaip.or.id</span>
+                                        <span><i class="fas fa-globe"></i> www.karangtaruna.or.id</span>
+                                        <span><i class="fas fa-envelope"></i> sekretariat@karangtaruna.or.id</span>
                                     </div>
                                     
                                     <div class="kta-back-validity">
-                                        KARTU INI BERLAKU SELAMA ANGGOTA<br>TERDAFTAR SEBAGAI ALUMNI AKTIF
+                                        KARTU INI BERLAKU SELAMA ANGGOTA<br>TERDAFTAR SEBAGAI PENGURUS AKTIF
                                     </div>
                                 </div>
                             </div>
@@ -1172,163 +1152,141 @@
                 <!-- ==============================================
                 TAB: PROFIL PERUSAHAAN (LOCKED IF PENDING)
                 ============================================== -->
+                <!-- ==============================================
+                TAB: LENGKAPI PROFIL (SIKTN)
+                ============================================== -->
                 <div id="profil-perusahaan" class="content-section">
-                    <h2 class="section-title"><i class="fas fa-building"></i> Profil & Dokumen Perusahaan</h2>
+                    <h2 class="section-title"><i class="fas fa-user-edit"></i> Lengkapi Profil Anggota</h2>
 
-                    @if($anggota->status !== 'approved')
-                        <!-- LOCKED STATE -->
-                        <div class="locked-state-box">
-                            <div class="locked-icon">
-                                <i class="fas fa-lock"></i>
+                    @if($anggota->status === 'approved')
+                        <div class="locked-state-box" style="background-color: #F0FDF4; border-color: #22C55E; margin-bottom: 25px;">
+                            <div class="locked-icon" style="color: #16A34A;">
+                                <i class="fas fa-check-circle"></i>
                             </div>
-                            <h3 class="locked-title">Fitur Belum Terbuka</h3>
-                            <p class="locked-desc">
-                                Sesuai ketentuan, penginputan profil perusahaan dan dokumen legalitas usaha hanya dapat dilakukan **setelah pendaftaran keanggotaan Anda disetujui (di-ACC)** oleh pihak administrator.
+                            <h3 class="locked-title" style="color: #15803D;">Profil Disetujui</h3>
+                            <p class="locked-desc" style="color: #166534;">
+                                Profil Anda telah disetujui oleh Sekretariat. Anda dapat memperbarui data jika ada perubahan.
                             </p>
-                            <div style="margin-top: 20px; font-size: 0.85rem; color: var(--text-grey);">
-                                Status Pendaftaran Saat Ini: <strong style="color: #D97706; text-transform: uppercase;">{{ $anggota->status }}</strong>
+                        </div>
+                    @elseif($anggota->status === 'pending_verification')
+                        <div class="locked-state-box" style="background-color: #FEFCE8; border-color: #EAB308; margin-bottom: 25px;">
+                            <div class="locked-icon" style="color: #CA8A04;">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <h3 class="locked-title" style="color: #A16207;">Menunggu Verifikasi</h3>
+                            <p class="locked-desc" style="color: #854D0E;">
+                                Profil Anda sedang direview oleh Sekretariat. Anda masih dapat mengubah data selama belum disetujui.
+                            </p>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('profile-anggota.update-profile') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        
+                        <div class="form-grid">
+                            <div class="form-section-divider" style="margin-top: 0;">1. Data Pribadi</div>
+                            
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label for="foto_diri">Foto Profil (Kamera / Pilih File) <span style="color:red;">*</span></label>
+                                @if($anggota->foto_diri)
+                                    <div style="margin-bottom: 10px;">
+                                        <img src="{{ Storage::url($anggota->foto_diri) }}" alt="Foto Diri" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
+                                    </div>
+                                @endif
+                                <input type="file" name="foto_diri" id="foto_diri" class="form-control" accept="image/jpeg,image/png,image/jpg" {{ !$anggota->foto_diri ? 'required' : '' }}>
+                                <span style="font-size: 0.8rem; color: #6b7280; margin-top: 4px;">Format: JPG/PNG. Maks 5MB.</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="nik">NIK (Nomor Induk Kependudukan) <span style="color:red;">*</span></label>
+                                <input type="text" name="nik" id="nik" class="form-control" value="{{ old('nik', $anggota->nik) }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="nama_lengkap">Nama Lengkap <span style="color:red;">*</span></label>
+                                <input type="text" name="nama_lengkap" id="nama_lengkap" class="form-control" value="{{ old('nama_lengkap', $anggota->nama_lengkap) }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tempat_lahir">Tempat Lahir <span style="color:red;">*</span></label>
+                                <input type="text" name="tempat_lahir" id="tempat_lahir" class="form-control" value="{{ old('tempat_lahir', $anggota->tempat_lahir) }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tanggal_lahir">Tanggal Lahir <span style="color:red;">*</span></label>
+                                <input type="date" name="tanggal_lahir" id="tanggal_lahir" class="form-control" value="{{ old('tanggal_lahir', $anggota->tanggal_lahir ? $anggota->tanggal_lahir->format('Y-m-d') : '') }}" required>
+                            </div>
+
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label for="alamat_lengkap">Alamat Lengkap <span style="color:red;">*</span></label>
+                                <textarea name="alamat_lengkap" id="alamat_lengkap" class="form-control" rows="3" required>{{ old('alamat_lengkap', $anggota->alamat_lengkap ?? $anggota->alamat_domisili) }}</textarea>
+                            </div>
+
+                            <div class="form-section-divider">2. Informasi Organisasi & Profesi</div>
+
+                            <div class="form-group">
+                                <label>Jabatan (Diisi Sekretariat)</label>
+                                <input type="text" class="form-control" value="{{ $anggota->jabatan ?? '-' }}" readonly style="background-color: #f3f4f6; cursor: not-allowed;">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Domisili (Diisi Sekretariat)</label>
+                                <input type="text" class="form-control" value="{{ $anggota->domisili ?? '-' }}" readonly style="background-color: #f3f4f6; cursor: not-allowed;">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="pendidikan_terakhir">Pendidikan Terakhir <span style="color:red;">*</span></label>
+                                <input type="text" name="pendidikan_terakhir" id="pendidikan_terakhir" class="form-control" value="{{ old('pendidikan_terakhir', $anggota->pendidikan_terakhir) }}" placeholder="Contoh: S1 Teknik Informatika" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="pekerjaan">Pekerjaan <span style="color:red;">*</span></label>
+                                <input type="text" name="pekerjaan" id="pekerjaan" class="form-control" value="{{ old('pekerjaan', $anggota->pekerjaan) }}" required>
+                            </div>
+
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label for="riwayat_organisasi">Riwayat Organisasi <span style="color:red;">*</span></label>
+                                <textarea name="riwayat_organisasi" id="riwayat_organisasi" class="form-control" rows="2" required>{{ old('riwayat_organisasi', $anggota->riwayat_organisasi) }}</textarea>
+                            </div>
+
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label for="kompetensi">Kompetensi / Keahlian <span style="color:red;">*</span></label>
+                                <textarea name="kompetensi" id="kompetensi" class="form-control" rows="2" placeholder="Contoh: Desain Grafis, Manajemen Proyek" required>{{ old('kompetensi', $anggota->kompetensi) }}</textarea>
+                            </div>
+
+                            <div class="form-section-divider">3. Kontak & Sosial Media</div>
+
+                            <div class="form-group">
+                                <label for="no_hp">Nomor HP / WhatsApp <span style="color:red;">*</span></label>
+                                <input type="text" name="no_hp" id="no_hp" class="form-control" value="{{ old('no_hp', $anggota->no_hp ?? $anggota->no_telp) }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email <span style="color:red;">*</span></label>
+                                <input type="email" name="email" id="email" class="form-control" value="{{ old('email', $anggota->email) }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="instagram">Instagram (Opsional)</label>
+                                <input type="text" name="instagram" id="instagram" class="form-control" value="{{ old('instagram', $anggota->instagram) }}" placeholder="Username tanpa @">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tiktok">TikTok (Opsional)</label>
+                                <input type="text" name="tiktok" id="tiktok" class="form-control" value="{{ old('tiktok', $anggota->tiktok) }}" placeholder="Username tanpa @">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="twitter">X / Twitter (Opsional)</label>
+                                <input type="text" name="twitter" id="twitter" class="form-control" value="{{ old('twitter', $anggota->twitter) }}" placeholder="Username tanpa @">
                             </div>
                         </div>
-                    @else
-                        <!-- UNLOCKED FORM STATE -->
-                        <form action="{{ route('profile-anggota.update-profile') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            
-                            <div class="form-grid">
-                                <div class="form-section-divider" style="margin-top: 0;">1. Profil Usaha / Perusahaan</div>
-                                
-                                <div class="form-group">
-                                    <label for="nama_perusahaan">Nama Perusahaan / Bisnis <span style="color:red;">*</span></label>
-                                    <input type="text" name="nama_perusahaan" id="nama_perusahaan" class="form-control" value="{{ old('nama_perusahaan', $anggota->nama_perusahaan) }}" required>
-                                </div>
 
-                                <div class="form-group">
-                                    <label for="trade_mark">Trade Mark / Merek Usaha <span style="color:red;">*</span></label>
-                                    <input type="text" name="trade_mark" id="trade_mark" class="form-control" value="{{ old('trade_mark', $anggota->trade_mark) }}" required>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="tanggal_lahir">Tanggal Berdiri Perusahaan</label>
-                                    <input type="date" name="tanggal_lahir" id="tanggal_lahir" class="form-control" value="{{ old('tanggal_lahir', $anggota->tanggal_lahir ? $anggota->tanggal_lahir->format('Y-m-d') : '') }}">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="telepon_wa_perusahaan">Nomor Telepon Perusahaan <span style="color:red;">*</span></label>
-                                    <input type="text" name="telepon_wa_perusahaan" id="telepon_wa_perusahaan" class="form-control" value="{{ old('telepon_wa_perusahaan', $anggota->telepon_wa_perusahaan) }}" required>
-                                </div>
-
-                                <div class="form-group" style="grid-column: span 2;">
-                                    <label for="alamat_kantor">Alamat Lengkap Kantor <span style="color:red;">*</span></label>
-                                    <textarea name="alamat_kantor" id="alamat_kantor" class="form-control" rows="3" required>{{ old('alamat_kantor', $anggota->alamat_kantor) }}</textarea>
-                                </div>
-
-                                <div class="form-section-divider">2. Profil Pimpinan Perusahaan</div>
-
-                                <div class="form-group">
-                                    <label for="nama_pimpinan">Nama Pimpinan <span style="color:red;">*</span></label>
-                                    <input type="text" name="nama_pimpinan" id="nama_pimpinan" class="form-control" value="{{ old('nama_pimpinan', $anggota->nama_pimpinan) }}" required>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="email_pimpinan">Email Pimpinan</label>
-                                    <input type="email" name="email_pimpinan" id="email_pimpinan" class="form-control" value="{{ old('email_pimpinan', $anggota->email_pimpinan) }}">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="telepon_wa_pimpinan">WhatsApp Pimpinan <span style="color:red;">*</span></label>
-                                    <input type="text" name="telepon_wa_pimpinan" id="telepon_wa_pimpinan" class="form-control" value="{{ old('telepon_wa_pimpinan', $anggota->telepon_wa_pimpinan) }}" required>
-                                </div>
-
-                                <div class="form-group" style="grid-column: span 2;">
-                                    <label for="alamat_pimpinan">Alamat Pimpinan <span style="color:red;">*</span></label>
-                                    <textarea name="alamat_pimpinan" id="alamat_pimpinan" class="form-control" rows="2" required>{{ old('alamat_pimpinan', $anggota->alamat_pimpinan) }}</textarea>
-                                </div>
-
-                                <div class="form-section-divider">3. Dokumen Legalitas Usaha</div>
-
-                                <div class="form-group">
-                                    <label for="akte_notaris">Nomor Akte Notaris</label>
-                                    <input type="text" name="akte_notaris" id="akte_notaris" class="form-control" value="{{ old('akte_notaris', $anggota->akte_notaris) }}">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="nomor_induk_berusaha_tdup">Nomor NIB / TDUP</label>
-                                    <input type="text" name="nomor_induk_berusaha_tdup" id="nomor_induk_berusaha_tdup" class="form-control" value="{{ old('nomor_induk_berusaha_tdup', $anggota->nomor_induk_berusaha_tdup) }}">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="npwp_perusahaan">Nomor NPWP Perusahaan</label>
-                                    <input type="text" name="npwp_perusahaan" id="npwp_perusahaan" class="form-control" value="{{ old('npwp_perusahaan', $anggota->npwp_perusahaan) }}">
-                                </div>
-                            </div>
-
-                            <div style="margin-top: 25px;">
-                                <h4 style="font-family:'Montserrat',sans-serif; font-size: 0.95rem; font-weight:700; color:var(--text-dark); margin-bottom: 12px;">Upload File Legalitas (Opsional / Perbarui)</h4>
-                                
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <label for="surat_permohonan">Surat Permohonan (.PDF, maks 5MB)</label>
-                                        <input type="file" name="surat_permohonan" id="surat_permohonan" class="form-control">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="akte_pendirian_perusahaan">Akte Pendirian (.PDF, maks 5MB)</label>
-                                        <input type="file" name="akte_pendirian_perusahaan" id="akte_pendirian_perusahaan" class="form-control">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="nib_atau_tdup">NIB / TDUP (.PDF, maks 5MB)</label>
-                                        <input type="file" name="nib_atau_tdup" id="nib_atau_tdup" class="form-control">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="ktp_pimpinan">KTP Pimpinan (.JPG/.PNG, maks 5MB)</label>
-                                        <input type="file" name="ktp_pimpinan" id="ktp_pimpinan" class="form-control">
-                                    </div>
-                                    <div class="form-group" style="grid-column: span 2;">
-                                        <label for="npwp_perusahaan_file">NPWP Perusahaan (.PDF, maks 5MB)</label>
-                                        <input type="file" name="npwp_perusahaan_file" id="npwp_perusahaan_file" class="form-control">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Display Existing Documents -->
-                            <div style="margin-top: 30px; margin-bottom: 30px;">
-                                <h4 style="font-family:'Montserrat',sans-serif; font-size: 0.95rem; font-weight:700; color:var(--text-dark); margin-bottom: 15px;">Dokumen Terunggah Saat Ini:</h4>
-                                
-                                <div class="file-list">
-                                    @php
-                                        $docs = [
-                                            ['label' => 'Surat Permohonan', 'field' => 'surat_permohonan'],
-                                            ['label' => 'Akte Pendirian Perusahaan', 'field' => 'akte_pendirian_perusahaan'],
-                                            ['label' => 'NIB / TDUP', 'field' => 'nib_atau_tdup'],
-                                            ['label' => 'KTP Pimpinan', 'field' => 'ktp_pimpinan'],
-                                            ['label' => 'NPWP Perusahaan', 'field' => 'npwp_perusahaan_file'],
-                                        ];
-                                    @endphp
-
-                                    @foreach($docs as $doc)
-                                        <div class="file-upload-item">
-                                            <div class="file-upload-info">
-                                                <h5>{{ $doc['label'] }}</h5>
-                                                @if($anggota->{$doc['field']})
-                                                    <p style="color: #059669; font-weight:600;"><i class="fas fa-check-circle"></i> File sudah terunggah</p>
-                                                @else
-                                                    <p style="color: #9CA3AF; font-style:italic;"><i class="fas fa-times-circle"></i> Belum ada file</p>
-                                                @endif
-                                            </div>
-                                            @if($anggota->{$doc['field']})
-                                                <a href="{{ Storage::url($anggota->{$doc['field']}) }}" class="file-upload-link" target="_blank">
-                                                    <i class="fas fa-external-link-alt"></i> Lihat File
-                                                </a>
-                                            @endif
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn-submit">
-                                <i class="fas fa-save"></i> Simpan Perubahan Profil Perusahaan
-                            </button>
-                        </form>
-                    @endif
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-save"></i> 
+                            {{ $anggota->status === 'pending_profile' ? 'Simpan & Ajukan Verifikasi' : 'Simpan Perubahan Profil' }}
+                        </button>
+                    </form>
                 </div>
 
                 <!-- ==============================================

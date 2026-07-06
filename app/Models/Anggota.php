@@ -4,58 +4,46 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Traits\HasRoles;
 
 class Anggota extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, HasRoles, SoftDeletes, Prunable;
 
     protected $table = 'anggota';
 
     protected $fillable = [
-        'email_website_perusahaan',
+        'username',
+        'email',
         'password',
         'initial_password',
-        'nama_perusahaan',
-        'trade_mark',
-        'tanggal_lahir',
-        'alamat_kantor',
-        'telepon_wa_perusahaan',
-        'nama_pimpinan',
-        'alamat_pimpinan',
-        'telepon_wa_pimpinan',
-        'email_pimpinan',
-        'akte_notaris',
-        'nomor_induk_berusaha_tdup',
-        'npwp_perusahaan',
-        'produk_usaha_yang_akan_dijual',
-        'surat_permohonan',
-        'akte_pendirian_perusahaan',
-        'nib_atau_tdup',
-        'ktp_pimpinan',
-        'npwp_perusahaan_file',
         'status',
         'rejection_reason',
         'approved_at',
         'approved_by',
         
-        // Personal Fields
-        'nrp',
-        'angkatan',
+        // Biodata Lengkap
         'nama_lengkap',
-        'gender',
-        'tempat_lahir_personal',
-        'agama',
-        'no_telp',
-        'alamat_domisili',
-        'kode_pos',
-        'email',
-        'no_ktp',
-        'foto_ktp',
+        'nik',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'alamat_lengkap',
+        'domisili',
+        'jabatan',
+        'pendidikan_terakhir',
+        'pekerjaan',
+        'riwayat_organisasi',
+        'kompetensi',
+        'no_hp',
         'foto_diri',
-        'sfc_hipmi',
-        'ref_hipmi',
-        'aktif_org_lain',
+        
+        // Sosial Media
+        'instagram',
+        'tiktok',
+        'twitter',
     ];
 
     protected $hidden = [
@@ -66,7 +54,6 @@ class Anggota extends Authenticatable
 
     protected $casts = [
         'id' => 'integer',
-        'produk_usaha_yang_akan_dijual' => 'array',
         'tanggal_lahir' => 'date',
         'approved_at' => 'datetime',
     ];
@@ -76,29 +63,9 @@ class Anggota extends Authenticatable
         return $this->hasOne(Katalog::class, 'anggota_id');
     }
 
-    public function getSuratPermohonanUrlAttribute()
+    public function getFotoDiriUrlAttribute()
     {
-        return $this->surat_permohonan ? Storage::url($this->surat_permohonan) : null;
-    }
-
-    public function getAktePendirianPerusahaanUrlAttribute()
-    {
-        return $this->akte_pendirian_perusahaan ? Storage::url($this->akte_pendirian_perusahaan) : null;
-    }
-
-    public function getNibAtauTdupUrlAttribute()
-    {
-        return $this->nib_atau_tdup ? Storage::url($this->nib_atau_tdup) : null;
-    }
-
-    public function getKtpPimpinanUrlAttribute()
-    {
-        return $this->ktp_pimpinan ? Storage::url($this->ktp_pimpinan) : null;
-    }
-
-    public function getNpwpPerusahaanFileUrlAttribute()
-    {
-        return $this->npwp_perusahaan_file ? Storage::url($this->npwp_perusahaan_file) : null;
+        return $this->foto_diri ? Storage::url($this->foto_diri) : null;
     }
 
     public function scopePending($query)
@@ -142,5 +109,13 @@ class Anggota extends Authenticatable
     public function hasActiveKatalog()
     {
         return $this->katalog()->where('is_active', true)->exists();
+    }
+
+    /**
+     * Tentukan model mana yang dapat dihapus permanen secara otomatis.
+     */
+    public function prunable()
+    {
+        return static::where('deleted_at', '<=', now()->subDays(30));
     }
 }

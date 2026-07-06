@@ -11,9 +11,9 @@
 @php
   $isAdmin = Request::is('admin/login');
   $loginAction = $isAdmin ? route('admin.login.post') : route('anggota.login.post');
-  $inputLabel = $isAdmin ? 'Nama Pengguna atau Alamat Email' : 'Email';
-  $inputType = $isAdmin ? 'text' : 'email';
-  $inputName = $isAdmin ? 'login' : 'email';
+  $inputLabel = 'Username atau Email';
+  $inputType = 'text';
+  $inputName = 'login';
 @endphp
 
 <body style="margin:0;font-family:'Google Sans',sans-serif;">

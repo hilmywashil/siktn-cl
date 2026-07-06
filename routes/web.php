@@ -99,7 +99,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Anggota Management
         Route::prefix('anggota')->name('anggota.')->group(function () {
             Route::get('/', [AnggotaManagementController::class, 'index'])->name('index');
+            Route::get('/create', [AnggotaManagementController::class, 'create'])->name('create');
+            Route::post('/', [AnggotaManagementController::class, 'store'])->name('store');
             Route::get('/list', [AnggotaManagementController::class, 'index'])->name('list');
+            
+            Route::post('/bulk-destroy', [AnggotaManagementController::class, 'bulkDestroy'])->name('bulk-destroy');
+
             Route::get('/{anggota}', [AnggotaManagementController::class, 'show'])->name('show');
 
             // Update data anggota
@@ -112,8 +117,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/{anggota}/approve', [AnggotaManagementController::class, 'approve'])->name('approve');
             Route::post('/{anggota}/reject', [AnggotaManagementController::class, 'reject'])->name('reject');
 
-            // Delete
+            // Delete & Restore
             Route::delete('/{anggota}', [AnggotaManagementController::class, 'destroy'])->name('destroy');
+            Route::put('/{anggota}/restore', [AnggotaManagementController::class, 'restore'])->name('restore');
+            Route::delete('/{anggota}/force-delete', [AnggotaManagementController::class, 'forceDelete'])->name('force-delete');
+        });
+
+        // =====================================================
+        // TRASH MANAGEMENT (SUPER ADMIN ONLY)
+        // =====================================================
+        Route::prefix('trash')->name('trash.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\TrashController::class, 'index'])->name('index');
+            Route::post('/anggota/bulk-restore', [\App\Http\Controllers\Admin\TrashController::class, 'bulkRestoreAnggota'])->name('anggota.bulk-restore');
+            Route::delete('/anggota/bulk-force-delete', [\App\Http\Controllers\Admin\TrashController::class, 'bulkForceDeleteAnggota'])->name('anggota.bulk-force-delete');
         });
     });
 });

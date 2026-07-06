@@ -249,70 +249,54 @@ class AnggotaController extends Controller
     {
         $anggota = Auth::guard('anggota')->user();
 
-        // Pastikan hanya anggota yang sudah disetujui (approved) yang bisa mengisi profil perusahaan
-        if ($anggota->status !== 'approved') {
-            return back()->with('error', 'Profil Perusahaan hanya dapat diisi setelah status keanggotaan disetujui.');
-        }
-
         $validated = $request->validate([
-            // DATA PERUSAHAAN
-            'nama_perusahaan' => 'required|string|max:255',
-            'trade_mark' => 'required|string|max:255',
-            'alamat_kantor' => 'required|string|max:1000',
-            'telepon_wa_perusahaan' => 'required|string|max:20',
-            'tanggal_lahir' => 'nullable|date|before_or_equal:today',
-            
-            // DATA PIMPINAN
-            'nama_pimpinan' => 'required|string|max:255',
-            'alamat_pimpinan' => 'required|string|max:1000',
-            'telepon_wa_pimpinan' => 'required|string|max:20',
-            'email_pimpinan' => 'nullable|email|max:255',
-
-            // LEGALITAS
-            'akte_notaris' => 'nullable|string|max:255',
-            'nomor_induk_berusaha_tdup' => 'nullable|string|max:255',
-            'npwp_perusahaan' => 'nullable|string|max:255',
-
-            // DOKUMEN (Nullable saat update)
-            'surat_permohonan' => 'nullable|file|mimes:pdf|max:5120',
-            'akte_pendirian_perusahaan' => 'nullable|file|mimes:pdf|max:5120',
-            'nib_atau_tdup' => 'nullable|file|mimes:pdf|max:5120',
-            'ktp_pimpinan' => 'nullable|file|mimes:jpeg,jpg,png|max:5120',
-            'npwp_perusahaan_file' => 'nullable|file|mimes:pdf|max:5120',
+            'nik' => 'required|string|max:255',
+            'nama_lengkap' => 'required|string|max:255',
+            'tempat_lahir' => 'required|string|max:255',
+            'tanggal_lahir' => 'required|date|before_or_equal:today',
+            'alamat_lengkap' => 'required|string|max:1000',
+            'pendidikan_terakhir' => 'required|string|max:255',
+            'pekerjaan' => 'required|string|max:255',
+            'riwayat_organisasi' => 'required|string',
+            'kompetensi' => 'required|string',
+            'no_hp' => 'required|string|max:20',
+            'email' => 'required|email|max:255|unique:anggota,email,' . $anggota->id,
+            'instagram' => 'nullable|string|max:255',
+            'tiktok' => 'nullable|string|max:255',
+            'twitter' => 'nullable|string|max:255',
+            'foto_diri' => 'nullable|file|mimes:jpeg,jpg,png|max:5120',
         ], [
-            '*.mimes' => 'Format file tidak sesuai (PDF untuk dokumen, JPG/PNG untuk KTP)',
+            '*.mimes' => 'Format foto harus JPG atau PNG',
             '*.max' => 'Ukuran file maksimal adalah 5MB',
+            'email.unique' => 'Email sudah terdaftar, silakan gunakan email lain',
         ]);
 
-        // Upload files jika ada
+        // Upload foto jika ada
         $filePaths = [];
-        $fileFields = [
-            'surat_permohonan' => 'anggota/surat_permohonan',
-            'akte_pendirian_perusahaan' => 'anggota/akte_pendirian',
-            'nib_atau_tdup' => 'anggota/nib_tdup',
-            'ktp_pimpinan' => 'anggota/ktp',
-            'npwp_perusahaan_file' => 'anggota/npwp',
-        ];
-
-        foreach ($fileFields as $field => $path) {
-            if ($request->hasFile($field)) {
-                $file = $request->file($field);
-                if ($file->isValid()) {
-                    // Hapus file lama jika ada
-                    if ($anggota->$field && Storage::disk('public')->exists($anggota->$field)) {
-                        Storage::disk('public')->delete($anggota->$field);
-                    }
-                    $filePaths[$field] = $file->store($path, 'public');
+        if ($request->hasFile('foto_diri')) {
+            $file = $request->file('foto_diri');
+            if ($file->isValid()) {
+                if ($anggota->foto_diri && Storage::disk('public')->exists($anggota->foto_diri)) {
+                    Storage::disk('public')->delete($anggota->foto_diri);
                 }
+                $filePaths['foto_diri'] = $file->store('anggota/foto_diri', 'public');
             }
         }
 
-        // Gabungkan data update
         $updateData = array_merge($validated, $filePaths);
+        
+        // Update status ke pending_verification jika masih pending_profile
+        if ($anggota->status === 'pending_profile') {
+            $updateData['status'] = 'pending_verification';
+        }
 
         $anggota->update($updateData);
 
-        return back()->with('success', 'Profil Perusahaan berhasil diperbarui.');
+        $message = $anggota->status === 'pending_profile' 
+            ? 'Profil berhasil disimpan dan diajukan untuk verifikasi.'
+            : 'Profil berhasil diperbarui.';
+
+        return back()->with('success', $message);
     }
 
     /**

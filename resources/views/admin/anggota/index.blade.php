@@ -10,6 +10,26 @@
 
 @push('styles')
     <style>
+        .btn-bulk {
+            font-family: 'Montserrat', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #ef4444;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-bulk:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
         .page-header {
             background: white;
             padding: 2rem;
@@ -179,9 +199,14 @@
             white-space: nowrap;
         }
 
-        .status-badge.pending {
+        .status-badge.pending_verification {
             background: #fef3c7;
             color: #d97706;
+        }
+
+        .status-badge.pending_profile {
+            background: #f3f4f6;
+            color: #4b5563;
         }
 
         .status-badge.approved {
@@ -377,9 +402,17 @@
 @endpush
 
 @section('content')
-    <div class="page-header">
-        <h1>Kelola Anggota</h1>
-        <p>Kelola dan verifikasi pendaftaran anggota Karang Taruna</p>
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1>Kelola Anggota</h1>
+            <p>Kelola dan verifikasi pendaftaran anggota Karang Taruna</p>
+        </div>
+        <div>
+            <a href="{{ route('admin.anggota.create') }}" class="btn btn-primary" style="background: #0a2540; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Tambah Anggota
+            </a>
+        </div>
     </div>
 
     {{-- Success Message --}}
@@ -408,7 +441,20 @@
 
         <div class="stat-card">
             <div class="stat-header">
-                <span class="stat-title">Menunggu Verifikasi</span>
+                <span class="stat-title">Belum Lengkapi Profil</span>
+                <div class="stat-icon pending_profile" style="background: #f3f4f6; color: #4b5563;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                </div>
+            </div>
+            <div class="stat-value">{{ $stats['pending_profile'] }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Menunggu Approve</span>
                 <div class="stat-icon pending">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <circle cx="12" cy="12" r="10" />
@@ -416,7 +462,7 @@
                     </svg>
                 </div>
             </div>
-            <div class="stat-value">{{ $stats['pending'] }}</div>
+            <div class="stat-value">{{ $stats['pending_verification'] }}</div>
         </div>
 
         <div class="stat-card">
@@ -453,9 +499,13 @@
             class="filter-tab {{ $status === 'all' ? 'active' : '' }}">
             Semua ({{ $stats['total'] }})
         </a>
-        <a href="{{ route('admin.anggota.index', ['status' => 'pending']) }}"
-            class="filter-tab {{ $status === 'pending' ? 'active' : '' }}">
-            Pending ({{ $stats['pending'] }})
+        <a href="{{ route('admin.anggota.index', ['status' => 'pending_profile']) }}"
+            class="filter-tab {{ $status === 'pending_profile' ? 'active' : '' }}">
+            Belum Lengkapi Profil ({{ $stats['pending_profile'] }})
+        </a>
+        <a href="{{ route('admin.anggota.index', ['status' => 'pending_verification']) }}"
+            class="filter-tab {{ $status === 'pending_verification' ? 'active' : '' }}">
+            Menunggu Approve ({{ $stats['pending_verification'] }})
         </a>
         <a href="{{ route('admin.anggota.index', ['status' => 'approved']) }}"
             class="filter-tab {{ $status === 'approved' ? 'active' : '' }}">
@@ -467,17 +517,29 @@
         </a>
     </div>
 
-    {{-- Table --}}
+    {{-- Bulk Action & Table --}}
     <div class="table-container">
         @if($anggota->count() > 0)
+            <div style="padding: 1rem 1.5rem; border-bottom: 1px solid #e5e7eb; display: none;" id="bulk-action-container">
+                <button type="button" onclick="bulkDestroy()" class="btn-bulk">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Hapus Terpilih (<span id="selected-count">0</span>)
+                </button>
+            </div>
             <div class="table-wrapper">
-                <table class="table">
+                <table class="table" id="anggota-table">
                     <thead>
                         <tr>
+                            <th style="width: 40px; text-align: center;">
+                                <input type="checkbox" id="select-all" style="cursor: pointer;">
+                            </th>
                             <th>No</th>
-                            <th>Nama Pimpinan</th>
-                            <th>Email</th>
-                            <th>Perusahaan</th>
+                            <th>Nama Lengkap</th>
+                            <th>Username</th>
+                            <th>Jabatan</th>
+                            <th>Domisili</th>
                             <th>Status</th>
                             <th>Tanggal Daftar</th>
                             <th>Aksi</th>
@@ -486,19 +548,28 @@
                     <tbody>
                         @foreach($anggota as $index => $item)
                             <tr>
+                                <td style="text-align: center;">
+                                    <input type="checkbox" class="row-checkbox" value="{{ $item->id }}" style="cursor: pointer;">
+                                </td>
                                 <td>{{ $anggota->firstItem() + $index }}</td>
                                 <td>
-                                    <strong>{{ $item->nama_pimpinan }}</strong>
+                                    <strong>{{ $item->nama_lengkap ?? '-' }}</strong>
                                 </td>
-                                <td>{{ $item->email_website_perusahaan }}</td>
-                                <td>{{ $item->nama_perusahaan }}</td>
+                                <td>{{ $item->username }}</td>
+                                <td>{{ $item->jabatan ?? '-' }}</td>
+                                <td>{{ $item->domisili ?? '-' }}</td>
                                 <td>
                                     <span class="status-badge {{ $item->status }}">
-                                        @if($item->status === 'pending')
+                                        @if($item->status === 'pending_verification')
                                             <svg viewBox="0 0 8 8" width="8" height="8" fill="currentColor">
                                                 <circle cx="4" cy="4" r="3" />
                                             </svg>
-                                            Menunggu
+                                            Menunggu Approve
+                                        @elseif($item->status === 'pending_profile')
+                                            <svg viewBox="0 0 8 8" width="8" height="8" fill="currentColor">
+                                                <circle cx="4" cy="4" r="3" />
+                                            </svg>
+                                            Belum Lengkapi Profil
                                         @elseif($item->status === 'approved')
                                             <svg viewBox="0 0 8 8" width="8" height="8" fill="currentColor">
                                                 <circle cx="4" cy="4" r="3" />
@@ -523,6 +594,15 @@
                                                 <circle cx="12" cy="12" r="3" />
                                             </svg>
                                         </a>
+                                        <button type="button" onclick="confirmDelete({{ $item->id }})" class="btn-icon" style="color: #ef4444; background: #fef2f2;" title="Hapus Data">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                            </svg>
+                                        </button>
+                                        <form id="delete-form-{{ $item->id }}" action="{{ route('admin.anggota.destroy', $item) }}" method="POST" style="display:none;">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
@@ -577,4 +657,101 @@
             </div>
         @endif
     </div>
+
+
 @endsection
+
+@push('scripts')
+<script>
+    // Bulk Select Logic
+    const selectAllBtn = document.getElementById('select-all');
+    const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+    const bulkActionContainer = document.getElementById('bulk-action-container');
+    const selectedCountSpan = document.getElementById('selected-count');
+
+    function updateBulkActionUI() {
+        if(!bulkActionContainer) return;
+        const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
+        selectedCountSpan.textContent = checkedCount;
+        if (checkedCount > 0) {
+            bulkActionContainer.style.display = 'block';
+        } else {
+            bulkActionContainer.style.display = 'none';
+        }
+    }
+
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('change', function() {
+            rowCheckboxes.forEach(cb => {
+                cb.checked = this.checked;
+            });
+            updateBulkActionUI();
+        });
+
+        rowCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                const allChecked = document.querySelectorAll('.row-checkbox:checked').length === rowCheckboxes.length;
+                selectAllBtn.checked = allChecked;
+                updateBulkActionUI();
+            });
+        });
+    }
+
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Hapus Data Anggota?',
+            text: "Data akan dipindahkan ke daftar Data Terhapus.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#f3f4f6',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + id).submit();
+            }
+        });
+    }
+
+    function bulkDestroy() {
+        const checked = document.querySelectorAll('.row-checkbox:checked');
+        if (checked.length === 0) return;
+
+        Swal.fire({
+            title: 'Hapus Massal?',
+            text: `Yakin ingin memindahkan ${checked.length} data anggota ini ke Data Terhapus?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#f3f4f6',
+            confirmButtonText: 'Ya, Hapus Semua',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const ids = Array.from(checked).map(cb => cb.value);
+                
+                fetch("{{ route('admin.anggota.bulk-destroy') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({ ids: ids })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire('Terhapus!', data.message, 'success').then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error!', 'Terjadi kesalahan.', 'error');
+                    }
+                })
+                .catch(err => Swal.fire('Error!', 'Terjadi kesalahan sistem.', 'error'));
+            }
+        });
+    }
+</script>
+@endpush

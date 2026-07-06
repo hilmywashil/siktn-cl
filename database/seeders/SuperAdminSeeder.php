@@ -10,7 +10,7 @@ class SuperAdminSeeder extends Seeder
 {
     public function run(): void
     {
-        Admin::create([
+        $admin = Admin::create([
             'name' => 'Super Admin',
             'username' => 'superadmin',
             'email' => 'superadmin@karangtaruna.org',
@@ -18,5 +18,8 @@ class SuperAdminSeeder extends Seeder
             'category' => 'super_admin',
             'domisili' => null,
         ]);
+
+        // Assign Role Spatie
+        $admin->assignRole('super_admin');
     }
 }

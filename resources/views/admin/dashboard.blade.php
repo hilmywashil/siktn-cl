@@ -22,7 +22,7 @@ $activeMenu = 'dashboard';
             <h1>Selamat Datang, {{ auth()->guard('admin')->user()->name }}</h1>
             <p>Dashboard Admin Karang Taruna</p>
             <span class="category-badge badge-{{ auth()->guard('admin')->user()->category }}">
-                {{ strtoupper(auth()->guard('admin')->user()->category) }}
+                {{ auth()->guard('admin')->user()->role_display_name }}
             </span>
         </div>
     </div>
@@ -408,13 +408,23 @@ $activeMenu = 'dashboard';
         letter-spacing: 0.5px;
     }
 
-    .badge-bpc {
+    .badge-bpc, .badge-pkkt {
         background: #ffd700;
         color: #0a2540;
     }
 
-    .badge-bpd {
+    .badge-bpd, .badge-ppkt {
         background: #3b82f6;
+        color: white;
+    }
+    
+    .badge-pnkt {
+        background: #10b981;
+        color: white;
+    }
+    
+    .badge-pimpinan {
+        background: #ef4444;
         color: white;
     }
 

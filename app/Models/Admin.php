@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Traits\HasRoles;
 
 class Admin extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     protected $fillable = [
         'name',
@@ -18,13 +19,25 @@ class Admin extends Authenticatable
         'photo',
         'password',
         'category',
-        'domisili', 
+        'domisili',
+        'is_active',
+        'no_hp',
+        'foto_profil',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'username', 'email', 'category', 'domisili'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn(string $eventName) => "Admin {$eventName}");
+    }
 
     protected function casts(): array
     {
@@ -35,17 +48,38 @@ class Admin extends Authenticatable
 
     public function isSuperAdmin(): bool
     {
-        return $this->category === 'super_admin';
+        return $this->category === 'super_admin' || $this->hasRole('super_admin');
     }
 
+    public function isPimpinan(): bool
+    {
+        return $this->category === 'pimpinan' || $this->hasRole('pimpinan');
+    }
+
+    public function isPNKT(): bool
+    {
+        return $this->category === 'pnkt' || $this->hasRole('pnkt');
+    }
+
+    public function isPPKT(): bool
+    {
+        return $this->category === 'ppkt' || $this->hasRole('ppkt') || $this->category === 'bpd';
+    }
+
+    public function isPKKT(): bool
+    {
+        return $this->category === 'pkkt' || $this->hasRole('pkkt') || $this->category === 'bpc';
+    }
+
+    // Fallback legacy (agar view lama tidak error sebelum direfactor)
     public function isBPC(): bool
     {
-        return $this->category === 'bpc';
+        return $this->isPKKT();
     }
 
     public function isBPD(): bool
     {
-        return $this->category === 'bpd';
+        return $this->isPPKT();
     }
 
     public function canManageAdmins(): bool
@@ -55,18 +89,22 @@ class Admin extends Authenticatable
 
     public function canManageContent(): bool
     {
-        return $this->isSuperAdmin() || $this->isBPD();
+        // Pimpinan, PNKT, dan PPKT(BPD) bisa kelola konten (surat, berita, dsb)
+        return $this->isSuperAdmin() || $this->isPimpinan() || $this->isPNKT() || $this->isPPKT();
     }
 
     public function canApproveAnggota(): bool
     {
-        return $this->category === 'bpc';
+        // Sekretariat (PNKT, PPKT, PKKT) punya wewenang approval
+        return $this->isPNKT() || $this->isPPKT() || $this->isPKKT();
     }
 
     public function canApproveAnggotaByDomisili($domisili): bool
     {
-        if ($this->category === 'bpd' || $this->category === 'super_admin') {
-            return false; 
+        // Jika PNKT atau Super Admin, bisa saja punya hak, tapi sesuai brief "berdasarkan tingkatan"
+        // Untuk sekarang, kita kembalikan cek domisili untuk PPKT dan PKKT
+        if ($this->isSuperAdmin() || $this->isPNKT()) {
+            return true; 
         }
         
         return $this->domisili === $domisili;
@@ -84,6 +122,30 @@ class Admin extends Authenticatable
     public function getInitialsAttribute(): string
     {
         return strtoupper(substr($this->name, 0, 2));
+    }
+
+    public function getRoleDisplayNameAttribute(): string
+    {
+        $role = $this->getRoleNames()->first() ?? $this->category;
+        
+        $roleNames = [
+            'super_admin' => 'Super Admin',
+            'pimpinan' => 'Pimpinan',
+            'pnkt' => 'PNKT (Sekretariat Nasional)',
+            'ppkt' => 'PPKT (Sekretariat Provinsi)',
+            'pkkt' => 'PKKT (Sekretariat Kab/Kota)',
+            'bpc' => 'BPC',
+            'bpd' => 'BPD',
+        ];
+
+        $baseName = $roleNames[$role] ?? strtoupper(str_replace('_', ' ', $role));
+        
+        // Tambahkan info domisili jika ada dan rolenya berkaitan dengan wilayah
+        if (in_array($role, ['ppkt', 'pkkt', 'bpc', 'bpd']) && !empty($this->domisili)) {
+            return $baseName . ' - ' . $this->domisili;
+        }
+        
+        return $baseName;
     }
 
     public function approvedAnggotas()

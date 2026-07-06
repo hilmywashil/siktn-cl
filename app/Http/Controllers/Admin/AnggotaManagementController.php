@@ -10,6 +10,31 @@ use Illuminate\Support\Facades\Hash;
 class AnggotaManagementController extends Controller
 {
     /**
+     * Terapkan filter domisili jika user adalah PPKT atau PKKT
+     */
+    private function applyDomisiliFilter($query)
+    {
+        $admin = auth()->guard('admin')->user();
+        if (in_array($admin->category, ['ppkt', 'pkkt']) && !empty($admin->domisili)) {
+            $query->where('domisili', $admin->domisili);
+        }
+        return $query;
+    }
+
+    /**
+     * Cek apakah admin punya hak akses ke data anggota ini
+     */
+    private function checkAnggotaAccess(Anggota $anggota)
+    {
+        $admin = auth()->guard('admin')->user();
+        if (in_array($admin->category, ['ppkt', 'pkkt']) && !empty($admin->domisili)) {
+            if ($anggota->domisili !== $admin->domisili) {
+                abort(403, 'Akses Ditolak: Anda hanya dapat mengelola data anggota dari wilayah Anda sendiri (' . $admin->domisili . ').');
+            }
+        }
+    }
+
+    /**
      * Display a listing of anggota
      */
     public function index(Request $request)
@@ -17,6 +42,7 @@ class AnggotaManagementController extends Controller
         $status = $request->get('status', 'all');
         
         $query = Anggota::query();
+        $query = $this->applyDomisiliFilter($query);
         
         if ($status !== 'all') {
             $query->where('status', $status);
@@ -24,14 +50,70 @@ class AnggotaManagementController extends Controller
         
         $anggota = $query->latest()->paginate(15);
         
+        // Stats
+        $statsQuery = Anggota::query();
+        $statsQuery = $this->applyDomisiliFilter($statsQuery);
+        
         $stats = [
-            'total' => Anggota::count(),
-            'pending' => Anggota::where('status', 'pending')->count(),
-            'approved' => Anggota::where('status', 'approved')->count(),
-            'rejected' => Anggota::where('status', 'rejected')->count(),
+            'total' => (clone $statsQuery)->count(),
+            'pending_profile' => (clone $statsQuery)->where('status', 'pending_profile')->count(),
+            'pending_verification' => (clone $statsQuery)->where('status', 'pending_verification')->count(),
+            'approved' => (clone $statsQuery)->where('status', 'approved')->count(),
+            'rejected' => (clone $statsQuery)->where('status', 'rejected')->count(),
         ];
         
         return view('admin.anggota.index', compact('anggota', 'stats', 'status'));
+    }
+
+    /**
+     * Show the form for creating a new anggota
+     */
+    public function create()
+    {
+        return view('admin.anggota.create');
+    }
+
+    /**
+     * Store a newly created anggota (Akun Awal by Sekretariat)
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string|max:255|unique:anggota,username',
+            'nama_lengkap' => 'nullable|string|max:255',
+            'email' => 'required|email|max:255|unique:anggota,email',
+            'password' => 'required|string',
+            'jabatan' => 'nullable|string|max:255',
+            'domisili' => 'nullable|string|max:255',
+        ], [
+            'username.unique' => 'Username ini sudah digunakan, silakan pilih yang lain.',
+            'email.unique' => 'Email yang di-generate sudah terdaftar, coba modifikasi username.',
+        ]);
+
+        $admin = auth()->guard('admin')->user();
+        
+        // Kunci domisili jika yang membuat adalah PPKT/PKKT
+        $domisili = $request->domisili;
+        if (in_array($admin->category, ['ppkt', 'pkkt']) && !empty($admin->domisili)) {
+            $domisili = $admin->domisili;
+        }
+
+        Anggota::create([
+            'username' => $request->username,
+            'nama_lengkap' => $request->nama_lengkap,
+            'email' => $request->email,
+            'jabatan' => $request->jabatan,
+            'domisili' => $domisili,
+            'password' => Hash::make($request->password),
+            'initial_password' => $request->password,
+            'status' => 'pending_profile',
+        ]);
+
+        return redirect()->back()->with('created_credentials', [
+            'username' => $request->username,
+            'password' => $request->password,
+            'login_url' => url('/login')
+        ])->with('success', "Akun anggota berhasil dibuat!");
     }
 
     /**
@@ -39,6 +121,7 @@ class AnggotaManagementController extends Controller
      */
     public function show(Anggota $anggota)
     {
+        $this->checkAnggotaAccess($anggota);
         return view('admin.anggota.show', compact('anggota'));
     }
 
@@ -47,6 +130,8 @@ class AnggotaManagementController extends Controller
      */
     public function update(Request $request, Anggota $anggota)
     {
+        $this->checkAnggotaAccess($anggota);
+        
         $validated = $request->validate([
             // Data Perusahaan
             'nama_perusahaan' => 'required|string|max:255',
@@ -80,6 +165,8 @@ class AnggotaManagementController extends Controller
      */
     public function updatePassword(Request $request, Anggota $anggota)
     {
+        $this->checkAnggotaAccess($anggota);
+        
         $request->validate([
             'new_password' => 'required|min:8|confirmed',
         ], [
@@ -104,6 +191,8 @@ class AnggotaManagementController extends Controller
      */
     public function approve(Anggota $anggota)
     {
+        $this->checkAnggotaAccess($anggota);
+        
         $admin = auth()->guard('admin')->user();
 
         $anggota->update([
@@ -122,6 +211,8 @@ class AnggotaManagementController extends Controller
      */
     public function reject(Request $request, Anggota $anggota)
     {
+        $this->checkAnggotaAccess($anggota);
+        
         $request->validate([
             'rejection_reason' => 'required|string|max:500',
         ]);
@@ -140,10 +231,72 @@ class AnggotaManagementController extends Controller
     }
 
     /**
-     * Delete anggota
+     * Soft delete anggota
      */
     public function destroy(Anggota $anggota)
     {
+        $this->checkAnggotaAccess($anggota);
+        
+        $anggota->delete();
+
+        return redirect()
+            ->route('admin.anggota.list')
+            ->with('success', 'Data anggota berhasil dihapus (masuk tong sampah).');
+    }
+
+    /**
+     * Tampilkan data anggota yang terhapus
+     * (Route ini dipindah ke TrashController, tapi saya biarkan kosong untuk keamanan jika masih dipanggil)
+     */
+    public function trash()
+    {
+        return redirect()->route('admin.trash.index');
+    }
+
+    /**
+     * Bulk Soft delete anggota
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer'
+        ]);
+
+        $query = Anggota::whereIn('id', $request->ids);
+        
+        // Cegah penghapusan data beda wilayah melalui request bulk
+        $admin = auth()->guard('admin')->user();
+        if (in_array($admin->category, ['ppkt', 'pkkt']) && !empty($admin->domisili)) {
+            $query->where('domisili', $admin->domisili);
+        }
+        
+        $deletedCount = $query->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => $deletedCount . ' data anggota berhasil dihapus (masuk tong sampah).'
+        ]);
+    }
+
+    /**
+     * Kembalikan anggota dari tong sampah
+     */
+    public function restore($id)
+    {
+        $anggota = Anggota::onlyTrashed()->findOrFail($id);
+        $anggota->restore();
+
+        return redirect()->back()->with('success', 'Akun anggota berhasil dikembalikan.');
+    }
+
+    /**
+     * Hapus permanen anggota
+     */
+    public function forceDelete($id)
+    {
+        $anggota = Anggota::onlyTrashed()->findOrFail($id);
+
         // Hapus file-file yang terkait
         $files = [
             $anggota->surat_permohonan,
@@ -151,6 +304,8 @@ class AnggotaManagementController extends Controller
             $anggota->nib_atau_tdup,
             $anggota->ktp_pimpinan,
             $anggota->npwp_perusahaan_file,
+            $anggota->foto_diri,
+            $anggota->foto_ktp,
         ];
 
         foreach ($files as $file) {
@@ -159,10 +314,8 @@ class AnggotaManagementController extends Controller
             }
         }
 
-        $anggota->delete();
+        $anggota->forceDelete();
 
-        return redirect()
-            ->route('admin.anggota.index')
-            ->with('success', 'Data anggota berhasil dihapus!');
+        return redirect()->back()->with('success', 'Data anggota dihapus permanen.');
     }
 }

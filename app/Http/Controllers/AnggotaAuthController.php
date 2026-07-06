@@ -23,16 +23,18 @@ class AnggotaAuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'login' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        // Cari anggota berdasarkan email_website_perusahaan
-        $anggota = Anggota::where('email_website_perusahaan', $request->email)->first();
+        $loginType = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        // Cari anggota berdasarkan username atau email
+        $anggota = Anggota::where($loginType, $request->login)->first();
 
         if (!$anggota) {
             return back()->withErrors([
-                'email' => 'Email tidak terdaftar.'
+                'login' => 'Username atau Email tidak terdaftar.'
             ])->withInput();
         }
 
@@ -50,7 +52,7 @@ class AnggotaAuthController extends Controller
         $request->session()->regenerate();
 
         return redirect()->intended(route('profile-anggota'))
-            ->with('success', 'Selamat datang, ' . $anggota->nama_perusahaan);
+            ->with('success', 'Selamat datang, ' . ($anggota->nama_lengkap ?? $anggota->username));
     }
 
     public function logout(Request $request)
