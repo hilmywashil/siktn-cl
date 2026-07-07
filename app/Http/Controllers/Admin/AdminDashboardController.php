@@ -22,41 +22,35 @@ class AdminDashboardController extends Controller
         $today = \Carbon\Carbon::now();
         $upcomingBirthdays = collect();
         
-        if (!session('birthday_popup_shown')) {
-            $anggotaAktifQuery = Anggota::where('status', 'approved')->whereNotNull('tanggal_lahir');
+        $anggotaAktifQuery = Anggota::where('status', 'approved')->whereNotNull('tanggal_lahir');
+        
+        // Filter domisili jika admin level wilayah (PKKT / PPKT)
+        if (in_array($admin->category, ['pkkt', 'ppkt'])) {
+            $anggotaAktifQuery->where('domisili', $admin->domisili);
+        }
+        
+        $anggotaAktif = $anggotaAktifQuery->get();
+        
+        foreach ($anggotaAktif as $member) {
+            $birthdayThisYear = $member->tanggal_lahir->copy()->year($today->year);
+            $diffDays = $today->copy()->startOfDay()->diffInDays($birthdayThisYear->copy()->startOfDay(), false);
             
-            // Filter domisili jika admin level wilayah (PKKT / PPKT)
-            if (in_array($admin->category, ['pkkt', 'ppkt'])) {
-                $anggotaAktifQuery->where('domisili', $admin->domisili);
-            }
-            
-            $anggotaAktif = $anggotaAktifQuery->get();
-            
-            foreach ($anggotaAktif as $member) {
-                $birthdayThisYear = $member->tanggal_lahir->copy()->year($today->year);
-                $diffDays = $today->copy()->startOfDay()->diffInDays($birthdayThisYear->copy()->startOfDay(), false);
-                
-                if ($diffDays >= 0 && $diffDays <= 7) {
-                    if ($diffDays == 0) {
-                        $hariText = 'Hari ini!';
-                    } elseif ($diffDays == 1) {
-                        $hariText = 'Besok';
-                    } elseif ($diffDays == 7) {
-                        $hariText = '1 Minggu lagi';
-                    } else {
-                        $hariText = $diffDays . ' Hari lagi';
-                    }
-                    
-                    $upcomingBirthdays->push([
-                        'nama' => $member->nama_lengkap,
-                        'hari' => $hariText,
-                        'tanggal' => $birthdayThisYear->format('d M Y')
-                    ]);
+            if ($diffDays >= 0 && $diffDays <= 7) {
+                if ($diffDays == 0) {
+                    $hariText = 'Hari ini!';
+                } elseif ($diffDays == 1) {
+                    $hariText = 'Besok';
+                } elseif ($diffDays == 7) {
+                    $hariText = '1 Minggu lagi';
+                } else {
+                    $hariText = $diffDays . ' Hari lagi';
                 }
-            }
-            
-            if ($upcomingBirthdays->isNotEmpty()) {
-                session(['birthday_popup_shown' => true]);
+                
+                $upcomingBirthdays->push([
+                    'nama' => $member->nama_lengkap,
+                    'hari' => $hariText,
+                    'tanggal' => $birthdayThisYear->format('d M Y')
+                ]);
             }
         }
         // ----------------------------------------------------
