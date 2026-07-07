@@ -842,7 +842,79 @@
                 aspect-ratio: 480 / 280;
             }
         }
+
+        /* Modal Cropper Styles */
+        .cropper-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .cropper-modal.active {
+            display: flex;
+        }
+        .cropper-modal-content {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .cropper-modal-title {
+            font-family: 'Google Sans', sans-serif;
+            font-size: 1.2rem;
+            color: var(--primary-blue);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        .img-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            margin-bottom: 20px;
+            background-color: #f3f4f6;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        .img-container img {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            margin: 0 auto;
+        }
+        .cropper-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        .btn-cancel {
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-crop-save {
+            background: var(--primary-blue);
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
 @endpush
 
 @section('content')
@@ -889,12 +961,14 @@
                     <h4 class="user-name">{{ $anggota->nama_lengkap }}</h4>
                     <div class="user-nrp">{{ $anggota->jabatan ?? 'Anggota' }}</div>
                     
-                    @if($anggota->status == 'pending')
-                        <span class="status-badge status-pending"><i class="fas fa-clock"></i> PENDING ACC</span>
+                    @if($anggota->status == 'pending_profile')
+                        <span class="status-badge status-pending"><i class="fas fa-exclamation-triangle"></i> LENGKAPI PROFIL</span>
+                    @elseif($anggota->status == 'pending_verification' || $anggota->status == 'pending')
+                        <span class="status-badge status-pending"><i class="fas fa-clock"></i> MENUNGGU VERIFIKASI</span>
                     @elseif($anggota->status == 'approved')
-                        <span class="status-badge status-approved"><i class="fas fa-check-circle"></i> VERIFIED MEMBER</span>
+                        <span class="status-badge status-approved"><i class="fas fa-check-circle"></i> ANGGOTA AKTIF</span>
                     @else
-                        <span class="status-badge status-rejected"><i class="fas fa-times-circle"></i> REJECTED</span>
+                        <span class="status-badge status-rejected"><i class="fas fa-times-circle"></i> DITOLAK</span>
                     @endif
                 </div>
 
@@ -1032,11 +1106,22 @@
                 <div id="kta-digital" class="content-section">
                     <h2 class="section-title"><i class="fas fa-id-card"></i> Kartu Tanda Anggota Digital</h2>
                     
-                    <p style="color: var(--text-grey); font-size: 0.95rem; margin-bottom: 20px;">
-                        Berikut adalah Kartu Tanda Anggota Digital resmi Anda. Silakan unduh atau cetak KTA untuk digunakan sebagai bukti tanda keanggotaan.
-                    </p>
+                    @if($anggota->status !== 'approved')
+                        <div class="locked-state-box" style="background-color: #FEFCE8; border-color: #EAB308; margin-top: 20px;">
+                            <div class="locked-icon" style="color: #CA8A04;">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <h3 class="locked-title" style="color: #A16207;">KTA Belum Tersedia</h3>
+                            <p class="locked-desc" style="color: #854D0E;">
+                                Kartu Tanda Anggota (KTA) baru akan diterbitkan secara otomatis setelah Anda melengkapi profil dan <strong>divalidasi oleh Sekretariat (PNKT)</strong>.
+                            </p>
+                        </div>
+                    @else
+                        <p style="color: var(--text-grey); font-size: 0.95rem; margin-bottom: 20px;">
+                            Berikut adalah Kartu Tanda Anggota Digital resmi Anda. Silakan unduh atau cetak KTA untuk digunakan sebagai bukti tanda keanggotaan.
+                        </p>
 
-                    <div class="kta-card-wrapper">
+                        <div class="kta-card-wrapper">
                         <!-- Front Side KTA -->
                         <div class="kta-card" id="ktaCardFront">
                             <div class="kta-header-front">
@@ -1055,7 +1140,7 @@
                             <div class="kta-member-nrp">{{ $anggota->nik ?? 'NIK: -' }}</div>
                             
                             <div class="kta-anchor-divider">
-                                <i class="fas fa-anchor"></i>
+                                <i class="fas fa-star"></i>
                             </div>
 
                             <div class="kta-details-container">
@@ -1142,11 +1227,12 @@
                         </div>
                     </div>
 
-                    <div style="text-align: center; margin-top: 25px;">
-                        <button type="button" class="btn-submit" onclick="printKTA()" style="background-color: var(--primary-blue);">
-                            <i class="fas fa-print"></i> Cetak Kartu Anggota (Print / PDF)
-                        </button>
-                    </div>
+                        <div style="text-align: center; margin-top: 25px;">
+                            <button type="button" class="btn-submit" onclick="printKTA()" style="background-color: var(--primary-blue);">
+                                <i class="fas fa-print"></i> Cetak Kartu Anggota (Print / PDF)
+                            </button>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- ==============================================
@@ -1189,12 +1275,18 @@
                             <div class="form-group" style="grid-column: span 2;">
                                 <label for="foto_diri">Foto Profil (Kamera / Pilih File) <span style="color:red;">*</span></label>
                                 @if($anggota->foto_diri)
-                                    <div style="margin-bottom: 10px;">
-                                        <img src="{{ Storage::url($anggota->foto_diri) }}" alt="Foto Diri" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
+                                    <div id="current_foto_container" style="margin-bottom: 10px;">
+                                        <img src="{{ Storage::url($anggota->foto_diri) }}" alt="Foto Diri Saat Ini" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e7eb;">
                                     </div>
                                 @endif
+                                
+                                <div id="preview_container" style="display: none; margin-bottom: 15px;">
+                                    <p style="font-size: 0.8rem; margin: 0 0 6px 0; color: #10B981; font-weight: 700;"><i class="fas fa-check-circle"></i> Preview Foto Baru:</p>
+                                    <img id="preview_image" src="" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 3px solid #10B981; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);">
+                                </div>
+
                                 <input type="file" name="foto_diri" id="foto_diri" class="form-control" accept="image/jpeg,image/png,image/jpg" {{ !$anggota->foto_diri ? 'required' : '' }}>
-                                <span style="font-size: 0.8rem; color: #6b7280; margin-top: 4px;">Format: JPG/PNG. Maks 5MB.</span>
+                                <span style="font-size: 0.8rem; color: #6b7280; margin-top: 4px;">Pilih foto. Setelah dipilih, Anda dapat menyesuaikan potongan (crop) menjadi persegi.</span>
                             </div>
 
                             <div class="form-group">
@@ -1326,6 +1418,20 @@
             </main>
         </div>
     </div>
+
+    <!-- Modal Cropper (Dipindah ke luar agar position:fixed bekerja maksimal dan tidak transparan/tembus pandang) -->
+    <div id="cropperModal" class="cropper-modal">
+        <div class="cropper-modal-content">
+            <h3 class="cropper-modal-title"><i class="fas fa-crop-alt"></i> Sesuaikan Foto Profil</h3>
+            <div class="img-container">
+                <img id="image_to_crop" src="" alt="Picture">
+            </div>
+            <div class="cropper-modal-actions">
+                <button type="button" class="btn-cancel" id="btnCancelCrop">Batal</button>
+                <button type="button" class="btn-crop-save" id="btnCrop">Crop & Simpan Preview</button>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -1405,5 +1511,83 @@
             `);
             printWindow.document.close();
         }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let cropper;
+            const image = document.getElementById('image_to_crop');
+            const fileInput = document.getElementById('foto_diri');
+            const cropperModal = document.getElementById('cropperModal');
+            const currentFotoContainer = document.getElementById('current_foto_container');
+
+            fileInput.addEventListener('change', function(e) {
+                const files = e.target.files;
+                if (files && files.length > 0) {
+                    const file = files[0];
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        image.src = event.target.result;
+                        cropperModal.classList.add('active');
+                        
+                        if (cropper) {
+                            cropper.destroy();
+                        }
+                        cropper = new Cropper(image, {
+                            aspectRatio: 1, // 1:1 Square
+                            viewMode: 1,
+                            autoCropArea: 1,
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            document.getElementById('btnCancelCrop').addEventListener('click', function() {
+                cropperModal.classList.remove('active');
+                if(cropper) cropper.destroy();
+                fileInput.value = ''; // clear input
+            });
+
+            document.getElementById('btnCrop').addEventListener('click', function() {
+                if (cropper) {
+                    const btn = this;
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+                    btn.disabled = true;
+
+                    cropper.getCroppedCanvas({
+                        width: 600,
+                        height: 600
+                    }).toBlob(function(blob) {
+                        const file = new File([blob], 'cropped_profile.jpg', { type: 'image/jpeg' });
+                        
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        
+                        fileInput.files = dataTransfer.files;
+                        
+                        const previewContainer = document.getElementById('preview_container');
+                        const previewImage = document.getElementById('preview_image');
+                        if(previewContainer && previewImage) {
+                            previewImage.src = URL.createObjectURL(blob);
+                            previewContainer.style.display = 'block';
+                        }
+
+                        // Hide old foto if exists
+                        if (currentFotoContainer) {
+                            currentFotoContainer.style.display = 'none';
+                        }
+                        
+                        cropperModal.classList.remove('active');
+                        cropper.destroy();
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }, 'image/jpeg', 0.9);
+                }
+            });
+        });
     </script>
 @endpush

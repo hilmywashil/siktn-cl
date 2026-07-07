@@ -415,12 +415,7 @@
         </div>
     </div>
 
-    {{-- Success Message --}}
-    @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
+
 
     {{-- Statistics --}}
     <div class="stats-grid">
@@ -553,7 +548,16 @@
                                 </td>
                                 <td>{{ $anggota->firstItem() + $index }}</td>
                                 <td>
-                                    <strong>{{ $item->nama_lengkap ?? '-' }}</strong>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div style="width: 38px; height: 38px; border-radius: 50%; background: #C59217; display: flex; align-items: center; justify-content: center; color: #022648; font-weight: 700; font-size: 0.875rem; flex-shrink: 0; overflow: hidden; border: 2px solid #e5e7eb;">
+                                            @if($item->foto_diri)
+                                                <img src="{{ Storage::url($item->foto_diri) }}" alt="{{ $item->nama_lengkap }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                            @else
+                                                {{ strtoupper(substr($item->nama_lengkap ?? 'A', 0, 2)) }}
+                                            @endif
+                                        </div>
+                                        <strong>{{ $item->nama_lengkap ?? '-' }}</strong>
+                                    </div>
                                 </td>
                                 <td>{{ $item->username }}</td>
                                 <td>{{ $item->jabatan ?? '-' }}</td>
@@ -741,15 +745,19 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.status === 'success') {
-                        Swal.fire('Terhapus!', data.message, 'success').then(() => {
-                            window.location.reload();
+                    if (data.status === 'deleted') {
+                        Toast.fire({ 
+                            icon: 'success', 
+                            iconColor: '#dc2626',
+                            title: data.message,
+                            customClass: { popup: 'swal2-toast-deleted' }
                         });
+                        setTimeout(() => window.location.reload(), 1500);
                     } else {
-                        Swal.fire('Error!', 'Terjadi kesalahan.', 'error');
+                        Toast.fire({ icon: 'error', title: 'Terjadi kesalahan.' });
                     }
                 })
-                .catch(err => Swal.fire('Error!', 'Terjadi kesalahan sistem.', 'error'));
+                .catch(err => Toast.fire({ icon: 'error', title: 'Terjadi kesalahan sistem.' }));
             }
         });
     }

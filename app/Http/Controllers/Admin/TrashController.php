@@ -85,7 +85,7 @@ class TrashController extends Controller
         }
 
         return response()->json([
-            'status' => 'success',
+            'status' => 'deleted',
             'message' => count($request->ids) . ' data anggota berhasil dihapus permanen.'
         ]);
     }

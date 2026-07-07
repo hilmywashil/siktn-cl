@@ -241,7 +241,7 @@ class AnggotaManagementController extends Controller
 
         return redirect()
             ->route('admin.anggota.list')
-            ->with('success', 'Data anggota berhasil dihapus (masuk tong sampah).');
+            ->with('deleted', 'Data anggota berhasil dihapus.');
     }
 
     /**
@@ -274,8 +274,8 @@ class AnggotaManagementController extends Controller
         $deletedCount = $query->delete();
 
         return response()->json([
-            'status' => 'success',
-            'message' => $deletedCount . ' data anggota berhasil dihapus (masuk tong sampah).'
+            'status' => 'deleted',
+            'message' => $deletedCount . ' data anggota berhasil dihapus.'
         ]);
     }
 

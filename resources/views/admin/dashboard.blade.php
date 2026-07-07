@@ -419,13 +419,31 @@ $activeMenu = 'dashboard';
     }
     
     .badge-pnkt {
-        background: #10b981;
-        color: white;
+        background: #022648;
+        color: #34d399;
+        border: 1px solid #34d399;
+        font-weight: 700;
+    }
+
+    .badge-ppkt {
+        background: #022648;
+        color: #60a5fa;
+        border: 1px solid #60a5fa;
+        font-weight: 700;
+    }
+
+    .badge-pkkt {
+        background: #022648;
+        color: #fbbf24;
+        border: 1px solid #fbbf24;
+        font-weight: 700;
     }
     
     .badge-pimpinan {
-        background: #ef4444;
-        color: white;
+        background: #022648;
+        color: #f87171;
+        border: 1px solid #f87171;
+        font-weight: 700;
     }
 
     .badge-super_admin {
@@ -917,5 +935,54 @@ $activeMenu = 'dashboard';
         });
     });
 </script>
+
+@if(isset($upcomingBirthdays) && $upcomingBirthdays->isNotEmpty())
+    {{-- Custom Birthday Modal --}}
+    <div class="logout-modal" id="birthdayModal">
+        <div class="logout-modal-content" style="max-width: 450px;">
+            <div class="logout-modal-header">
+                <div class="logout-modal-icon" style="background: #fef3c7;">
+                    <svg viewBox="0 0 24 24" style="stroke: #d97706;">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                </div>
+                <h3 class="logout-modal-title">Pemberitahuan Ulang Tahun</h3>
+            </div>
+            <p class="logout-modal-text" style="margin-bottom: 0.5rem;">
+                Terdapat anggota yang berulang tahun dalam waktu dekat:
+            </p>
+            
+            <div style="text-align: left; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem; max-height: 250px; overflow-y: auto; padding-right: 5px;">
+                @foreach($upcomingBirthdays as $bd)
+                    <div style="padding: 10px; background: #f8fafc; border-left: 4px solid #C59217; margin-bottom: 8px; border-radius: 4px;">
+                        <strong style="color: #0f172a;">{{ $bd["nama"] }}</strong><br>
+                        <span style="color: #64748b; font-size: 0.85rem;">Tanggal: {{ $bd["tanggal"] }}</span> 
+                        <span style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; margin-left: 8px; vertical-align: middle;">{{ $bd["hari"] }}</span>
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="logout-modal-actions">
+                <button type="button" class="modal-btn modal-btn-confirm" style="background: #022648;" onclick="document.getElementById('birthdayModal').classList.remove('active')">Baik, Mengerti</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.getElementById('birthdayModal').classList.add('active');
+            }, 500); // Tunda sedikit agar animasi halaman selesai dulu
+            
+            // Close modal when clicking outside
+            document.getElementById('birthdayModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+    </script>
+@endif
 @endpush
 @endsection

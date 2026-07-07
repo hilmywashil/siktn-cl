@@ -12,7 +12,7 @@
         rel="stylesheet">
 
     {{-- Admin Styles --}}
-    <link rel="stylesheet" href="{{ asset('asita-assets/css/admin-layout.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets-front/css/admin-layout.css') }}">
 
     {{-- Additional Page Styles --}}
     @stack('styles')
@@ -23,30 +23,79 @@
     {{-- SweetAlert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        /* SweetAlert2 Global Customization for SIKTN */
         .swal2-popup {
             font-family: 'Montserrat', sans-serif !important;
             border-radius: 12px !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
         }
+        
         .swal2-title {
             color: #0a2540 !important;
             font-size: 1.25rem !important;
+            font-weight: 700 !important;
         }
+        
+        .swal2-html-container {
+            color: #6b7280 !important;
+            font-size: 0.95rem !important;
+        }
+        
+        .swal2-actions {
+            gap: 0.75rem !important;
+        }
+        
         .swal2-confirm {
-            background-color: #dc2626 !important;
+            background-color: #022648 !important; /* Navy Blue SIKTN */
+            color: white !important;
             border-radius: 8px !important;
             padding: 0.625rem 1.5rem !important;
             font-weight: 600 !important;
+            transition: all 0.2s !important;
         }
+        
+        .swal2-confirm:hover {
+            background-color: #1c2780 !important;
+            box-shadow: 0 4px 12px rgba(11, 19, 84, 0.3) !important;
+        }
+        
         .swal2-cancel {
             background-color: #f3f4f6 !important;
             color: #374151 !important;
             border-radius: 8px !important;
             padding: 0.625rem 1.5rem !important;
             font-weight: 600 !important;
+            transition: all 0.2s !important;
         }
+        
+        .swal2-cancel:hover {
+            background-color: #e5e7eb !important;
+        }
+        
         .swal2-confirm.btn-restore {
             background-color: #10b981 !important;
         }
+        
+        .swal2-confirm.btn-danger {
+            background-color: #dc2626 !important; /* Red for Delete */
+        }
+        
+        .swal2-confirm.btn-danger:hover {
+            background-color: #b91c1c !important; 
+        }
+        
+        /* SweetAlert2 TOAST Customization (for flash messages) */
+        .swal2-toast {
+            background: #ffffff !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+            border-left: 4px solid #C59217 !important;
+            padding: 12px 20px !important;
+            border-radius: 8px !important;
+        }
+        .swal2-toast.swal2-icon-success { border-left-color: #10b981 !important; }
+        .swal2-toast.swal2-icon-error { border-left-color: #dc2626 !important; }
+        .swal2-toast.swal2-toast-deleted { border-left-color: #dc2626 !important; }
+        .swal2-toast .swal2-title { font-size: 0.95rem !important; margin-left: 10px !important; font-weight: 600 !important; }
     </style>
 
     <style>
@@ -393,16 +442,28 @@
         });
     </script>
     
+    {{-- Global Toast Setup --}}
+    <script>
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+    </script>
+
     {{-- Flash Messages Notification --}}
     @if(session('success'))
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire({
-                    title: 'Berhasil!',
-                    text: "{{ session('success') }}",
+                Toast.fire({
                     icon: 'success',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#10b981'
+                    title: "{{ session('success') }}"
                 });
             });
         </script>
@@ -411,12 +472,24 @@
     @if(session('error'))
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire({
-                    title: 'Error!',
-                    text: "{{ session('error') }}",
+                Toast.fire({
                     icon: 'error',
-                    confirmButtonText: 'Tutup',
-                    confirmButtonColor: '#dc2626'
+                    title: "{{ session('error') }}"
+                });
+            });
+        </script>
+    @endif
+    
+    @if(session('deleted'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Toast.fire({
+                    icon: 'success',
+                    iconColor: '#dc2626',
+                    title: "{{ session('deleted') }}",
+                    customClass: {
+                        popup: 'swal2-toast-deleted'
+                    }
                 });
             });
         </script>
@@ -427,10 +500,12 @@
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
                     title: 'Validasi Gagal!',
-                    text: 'Mohon periksa kembali form isian Anda. Ada beberapa data yang belum sesuai (seperti username yang sudah terpakai).',
+                    text: 'Mohon periksa kembali form isian Anda. Ada beberapa data yang belum sesuai.',
                     icon: 'warning',
                     confirmButtonText: 'Periksa Form',
-                    confirmButtonColor: '#dc2626'
+                    customClass: {
+                        confirmButton: 'swal2-confirm btn-danger'
+                    }
                 });
             });
         </script>

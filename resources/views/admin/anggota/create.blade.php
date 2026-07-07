@@ -421,6 +421,47 @@ Password: {{ session('created_credentials')['password'] }}</textarea>
                     </div>
                 </div>
             </div>
+            
+            {{-- 
+            @if(in_array(auth()->guard('admin')->user()->category, ['super_admin', 'pnkt', 'pimpinan']))
+            <!-- Pemilihan Wilayah (Hanya untuk Super Admin/Pusat) -->
+            <div class="form-section">
+                <h4 class="section-title">Pemilihan Wilayah (Khusus Pusat)</h4>
+                <div class="form-grid">
+                    <div class="form-group full-width" style="margin-bottom: 1rem;">
+                        <label class="form-label required">Tingkat Wilayah Anggota</label>
+                        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="radio" name="tingkat_wilayah" value="provinsi" id="tingkat_provinsi">
+                                <span>Tingkat Provinsi</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="radio" name="tingkat_wilayah" value="kabkota" id="tingkat_kabkota">
+                                <span>Tingkat Kabupaten/Kota</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width" id="anggotaProvinsiField" style="display: none;">
+                        <label class="form-label required">Pilih Provinsi</label>
+                        <select name="domisili_provinsi" id="anggotaProvinsiSelect" class="form-select" style="width: 100%;">
+                            <option value="">-- Pilih Provinsi --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width" id="anggotaKabKotaField" style="display: none;">
+                        <label class="form-label required">Pilih Kabupaten/Kota</label>
+                        <select name="domisili_kabkota" id="anggotaKabKotaSelect" class="form-select" style="width: 100%;">
+                            <option value="">-- Pilih Kabupaten/Kota --</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Hidden input to store the actual selected domisili to submit -->
+                    <input type="hidden" name="domisili" id="finalDomisili" value="">
+                </div>
+            </div>
+            @endif
+            --}}
         </div>
 
         <div class="form-actions">
@@ -462,6 +503,49 @@ Password: {{ session('created_credentials')['password'] }}</textarea>
                 passwordInput.value = '';
             }
         });
+        
+        /*
+        @if(in_array(auth()->guard('admin')->user()->category, ['super_admin', 'pnkt', 'pimpinan']))
+            // Initialize Select2
+            $('#anggotaProvinsiSelect, #anggotaKabKotaSelect').select2({
+                allowClear: true,
+                width: '100%'
+            });
+            
+            // Load Data
+            fetch("{{ asset('provinces.json') }}").then(res => res.json()).then(data => {
+                data.forEach(prov => $('#anggotaProvinsiSelect').append(`<option value="${prov}">${prov}</option>`));
+            });
+            fetch("{{ asset('regencies.json') }}").then(res => res.json()).then(data => {
+                data.forEach(reg => $('#anggotaKabKotaSelect').append(`<option value="${reg}">${reg}</option>`));
+            });
+            
+            // Toggle Logic
+            $('input[name="tingkat_wilayah"]').change(function() {
+                if (this.value === 'provinsi') {
+                    $('#anggotaProvinsiField').show();
+                    $('#anggotaKabKotaField').hide();
+                    $('#anggotaKabKotaSelect').val('').trigger('change');
+                } else {
+                    $('#anggotaProvinsiField').hide();
+                    $('#anggotaKabKotaField').show();
+                    $('#anggotaProvinsiSelect').val('').trigger('change');
+                }
+            });
+            
+            // Set Final Domisili Input before submit
+            $('#anggotaProvinsiSelect').change(function() {
+                if($('input[name="tingkat_wilayah"]:checked').val() === 'provinsi') {
+                    $('#finalDomisili').val($(this).val());
+                }
+            });
+            $('#anggotaKabKotaSelect').change(function() {
+                if($('input[name="tingkat_wilayah"]:checked').val() === 'kabkota') {
+                    $('#finalDomisili').val($(this).val());
+                }
+            });
+        @endif
+        */
     });
 
     function copyCredentials() {

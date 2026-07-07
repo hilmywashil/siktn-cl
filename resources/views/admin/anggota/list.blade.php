@@ -585,7 +585,16 @@
                             <tr>
                                 <td>{{ $anggota->firstItem() + $index }}</td>
                                 <td>
-                                    <strong>{{ $item->nama_pimpinan }}</strong>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div style="width: 38px; height: 38px; border-radius: 50%; background: #C59217; display: flex; align-items: center; justify-content: center; color: #022648; font-weight: 700; font-size: 0.875rem; flex-shrink: 0; overflow: hidden; border: 2px solid #e5e7eb;">
+                                            @if($item->foto_diri)
+                                                <img src="{{ Storage::url($item->foto_diri) }}" alt="{{ $item->nama_pimpinan }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                            @else
+                                                {{ strtoupper(substr($item->nama_pimpinan ?? 'A', 0, 2)) }}
+                                            @endif
+                                        </div>
+                                        <strong>{{ $item->nama_pimpinan }}</strong>
+                                    </div>
                                 </td>
                                 <td>{{ $item->email_website_perusahaan }}</td>
                                 <td>{{ $item->nama_perusahaan }}</td>

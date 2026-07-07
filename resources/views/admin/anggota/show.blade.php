@@ -140,7 +140,9 @@
             border: 1px solid transparent;
         }
 
-        .status-badge-large.pending {
+        .status-badge-large.pending,
+        .status-badge-large.pending_verification,
+        .status-badge-large.pending_profile {
             background: rgba(197, 146, 23, 0.1);
             color: #C59217;
             border-color: rgba(197, 146, 23, 0.2);
@@ -230,122 +232,39 @@
         }
 
         .field-group {
-            margin-bottom: 1.25rem;
-        }
-
-        .field-group:last-child {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.25rem;
             margin-bottom: 0;
+            transition: all 0.2s;
+        }
+        
+        .field-group:hover {
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-color: #cbd5e1;
         }
 
         .field-label {
             font-size: 0.75rem;
-            font-weight: 600;
-            color: #6b7280;
+            font-weight: 700;
+            color: #64748b;
             text-transform: uppercase;
-            letter-spacing: 0.025em;
+            letter-spacing: 0.05em;
             margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .field-value {
-            font-size: 0.9375rem;
-            color: #0a2540;
+            font-size: 1rem;
             font-weight: 500;
+            color: #0f172a;
+            line-height: 1.6;
             word-wrap: break-word;
             word-break: break-word;
-            line-height: 1.5;
-        }
-
-        .doc-box {
-            border: 1px solid #e5e7eb;
-            border-radius: 4px;
-            overflow: hidden;
-            background: #f8fafc;
-            margin-bottom: 1rem;
-        }
-
-        .doc-box label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #64748b;
-            display: block;
-            padding: 12px 14px;
-            background: #fff;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .doc-box img {
-            width: 100%;
-            height: 260px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .pdf-preview {
-            width: 100%;
-            height: 400px;
-            border: none;
-            display: block;
-        }
-
-        .pdf-container {
-            position: relative;
-            background: #525659;
-        }
-
-        .pdf-actions {
-            padding: 14px;
-            background: #f9fafb;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .btn-download,
-        .btn-view {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            color: #fff;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            transition: background 0.2s;
-        }
-
-        .btn-download {
-            background: #022648;
-        }
-
-        .btn-download:hover {
-            background: #1c2780;
-        }
-
-        .btn-view {
-            background: #64748b;
-        }
-
-        .btn-view:hover {
-            background: #475569;
-        }
-
-        .produk-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .produk-item {
-            padding: 6px 12px;
-            background: rgba(197, 146, 23, 0.1);
-            color: #C59217;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: 500;
-            border: 1px solid rgba(197, 146, 23, 0.2);
         }
 
         .info-box {
@@ -481,35 +400,16 @@
                 grid-template-columns: 1fr;
             }
         }
-        .modal-lg {
-    max-width: 800px;
-}
+        
+        .btn-password {
+            background: #022648;
+            color: white;
+        }
 
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.25rem;
-}
-
-.btn-edit {
-    background: #C59217;
-    color: white;
-}
-
-.btn-edit:hover {
-    background: #a3750d;
-    box-shadow: 0 4px 12px rgba(197, 146, 23, 0.3);
-}
-
-.btn-password {
-    background: #022648;
-    color: white;
-}
-
-.btn-password:hover {
-    background: #1c2780;
-    box-shadow: 0 4px 12px rgba(11, 19, 84, 0.3);
-}
+        .btn-password:hover {
+            background: #1c2780;
+            box-shadow: 0 4px 12px rgba(11, 19, 84, 0.3);
+        }
     </style>
 @endpush
 
@@ -517,19 +417,19 @@
     <div class="detail-container">
     {{-- Success Message --}}
     @if(session('success'))
-        <div class="alert alert-success" style="margin-bottom: 1.5rem;">
+        <div class="alert alert-success" style="margin-bottom: 1.5rem; padding: 1rem; background-color: #d1fae5; color: #059669; border-radius: 4px;">
             {{ session('success') }}
         </div>
     @endif
-        {{-- Header --}}
-       {{-- Header dengan tombol Edit --}}
+    
     <div class="detail-header">
         <div class="detail-header-content">
             <div class="detail-info">
-                <h2>{{ $anggota->nama_pimpinan }}</h2>
+                <h2>{{ $anggota->nama_lengkap ?? $anggota->username }}</h2>
                 <div class="detail-meta">
-                    <span><b>Perusahaan:</b> {{ $anggota->nama_perusahaan }}</span>
-                    <span><b>Email:</b> {{ $anggota->email_website_perusahaan }}</span>
+                    <span><b>Username:</b> {{ $anggota->username }}</span>
+                    <span><b>Email:</b> {{ $anggota->email ?? '-' }}</span>
+                    <span><b>Domisili:</b> {{ $anggota->domisili ?? '-' }}</span>
                     <span><b>Daftar:</b> {{ $anggota->created_at->format('d M Y') }}</span>
                 </div>
             </div>
@@ -541,15 +441,6 @@
                     Kembali
                 </a>
 
-                {{-- Tombol Edit Data --}}
-                <button onclick="showEditModal()" class="btn btn-edit">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                    </svg>
-                    Edit Data
-                </button>
-
                 {{-- Tombol Ganti Password --}}
                 <button onclick="showPasswordModal()" class="btn btn-password">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -559,112 +450,22 @@
                     Ganti Password
                 </button>
 
-                @if($anggota->status === 'pending')
+                @if($anggota->status === 'pending_verification' || $anggota->status === 'pending')
                     <button onclick="showApproveModal()" class="btn btn-approve">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <polyline points="20 6 9 17 4 12" />
                         </svg>
-                        Setujui
+                        Verifikasi & Terima
                     </button>
                     <button onclick="showRejectModal()" class="btn btn-reject">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <line x1="18" y1="6" x2="6" y2="18" />
                             <line x1="6" y1="6" x2="18" y2="18" />
                         </svg>
-                        Tolak
+                        Tolak Data
                     </button>
                 @endif
             </div>
-        </div>
-    </div>
-    {{-- Modal Edit Data Anggota --}}
-    <div class="modal" id="editModal">
-        <div class="modal-content modal-lg">
-            <h3 class="modal-title">Edit Data Anggota</h3>
-            <form action="{{ route('admin.anggota.update', $anggota) }}" method="POST">
-                @csrf
-                @method('PUT')
-                
-                <h4 style="margin: 1.5rem 0 1rem; font-size: 1rem; font-weight: 600; color: #0a2540;">Data Perusahaan</h4>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Nama Perusahaan *</label>
-                        <input type="text" name="nama_perusahaan" class="form-control" 
-                               value="{{ old('nama_perusahaan', $anggota->nama_perusahaan) }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Trade Mark *</label>
-                        <input type="text" name="trade_mark" class="form-control" 
-                               value="{{ old('trade_mark', $anggota->trade_mark) }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Tanggal Lahir Perusahaan *</label>
-                        <input type="date" name="tanggal_lahir" class="form-control" 
-                               value="{{ old('tanggal_lahir', $anggota->tanggal_lahir?->format('Y-m-d')) }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Email Perusahaan *</label>
-                        <input type="email" name="email_website_perusahaan" class="form-control" 
-                               value="{{ old('email_website_perusahaan', $anggota->email_website_perusahaan) }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Telepon/WA Perusahaan *</label>
-                        <input type="text" name="telepon_wa_perusahaan" class="form-control" 
-                               value="{{ old('telepon_wa_perusahaan', $anggota->telepon_wa_perusahaan) }}" required>
-                    </div>
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label">Alamat Kantor *</label>
-                        <textarea name="alamat_kantor" class="form-control" rows="2" required>{{ old('alamat_kantor', $anggota->alamat_kantor) }}</textarea>
-                    </div>
-                </div>
-
-                <h4 style="margin: 1.5rem 0 1rem; font-size: 1rem; font-weight: 600; color: #0a2540;">Data Pimpinan</h4>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Nama Pimpinan *</label>
-                        <input type="text" name="nama_pimpinan" class="form-control" 
-                               value="{{ old('nama_pimpinan', $anggota->nama_pimpinan) }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Email Pimpinan *</label>
-                        <input type="email" name="email_pimpinan" class="form-control" 
-                               value="{{ old('email_pimpinan', $anggota->email_pimpinan) }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Telepon/WA Pimpinan *</label>
-                        <input type="text" name="telepon_wa_pimpinan" class="form-control" 
-                               value="{{ old('telepon_wa_pimpinan', $anggota->telepon_wa_pimpinan) }}" required>
-                    </div>
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label">Alamat Pimpinan *</label>
-                        <textarea name="alamat_pimpinan" class="form-control" rows="2" required>{{ old('alamat_pimpinan', $anggota->alamat_pimpinan) }}</textarea>
-                    </div>
-                </div>
-
-                <h4 style="margin: 1.5rem 0 1rem; font-size: 1rem; font-weight: 600; color: #0a2540;">Legalitas</h4>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Akte Notaris *</label>
-                        <input type="text" name="akte_notaris" class="form-control" 
-                               value="{{ old('akte_notaris', $anggota->akte_notaris) }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">NIB / TDUP *</label>
-                        <input type="text" name="nomor_induk_berusaha_tdup" class="form-control" 
-                               value="{{ old('nomor_induk_berusaha_tdup', $anggota->nomor_induk_berusaha_tdup) }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">NPWP Perusahaan *</label>
-                        <input type="text" name="npwp_perusahaan" class="form-control" 
-                               value="{{ old('npwp_perusahaan', $anggota->npwp_perusahaan) }}" required>
-                    </div>
-                </div>
-
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-back" onclick="closeModal('editModal')">Batal</button>
-                    <button type="submit" class="btn btn-edit">Simpan Perubahan</button>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -693,238 +494,157 @@
         </div>
     </div>
 
-        {{-- Status Card --}}
-        <div class="status-card">
-            <div class="card-title">Status Pendaftaran</div>
-            <span class="status-badge-large {{ $anggota->status }}">
-                @if($anggota->status === 'pending')
-                    ⏳ Menunggu Verifikasi
-                @elseif($anggota->status === 'approved')
-                    ✓ Disetujui
-                @else
-                    ✗ Ditolak
-                @endif
-            </span>
-
-            @if($anggota->status === 'approved')
-                <div class="info-box success">
-                    <strong>Disetujui pada:</strong> {{ $anggota->approved_at ? $anggota->approved_at->format('d M Y H:i') : '-' }}
-                </div>
+    {{-- Status Card --}}
+    <div class="status-card">
+        <div class="card-title">Status Pendaftaran</div>
+        <span class="status-badge-large {{ $anggota->status }}">
+            @if($anggota->status === 'pending_profile')
+                📝 Belum Melengkapi Profil
+            @elseif($anggota->status === 'pending_verification' || $anggota->status === 'pending')
+                ⏳ Menunggu Verifikasi
+            @elseif($anggota->status === 'approved')
+                ✓ Disetujui
+            @else
+                ✗ Ditolak
             @endif
+        </span>
 
-            @if($anggota->status === 'rejected' && $anggota->rejection_reason)
-                <div class="info-box danger">
-                    <strong>Alasan Penolakan:</strong><br>
-                    {{ $anggota->rejection_reason }}
-                </div>
-            @endif
+        @if($anggota->status === 'approved')
+            <div class="info-box success">
+                <strong>Disetujui pada:</strong> {{ $anggota->approved_at ? $anggota->approved_at->format('d M Y H:i') : '-' }}
+            </div>
+        @endif
+
+        @if($anggota->status === 'rejected' && $anggota->rejection_reason)
+            <div class="info-box danger">
+                <strong>Alasan Penolakan:</strong><br>
+                {{ $anggota->rejection_reason }}
+            </div>
+        @endif
+    </div>
+
+    {{-- Tabs Container --}}
+    <div class="tabs-container">
+        <div class="tabs-header">
+            <button class="tab-button active" onclick="switchTab('pribadi')">
+                Biodata Pribadi
+            </button>
+            <button class="tab-button" onclick="switchTab('organisasi')">
+                Organisasi & Pekerjaan
+            </button>
+            <button class="tab-button" onclick="switchTab('kontak')">
+                Kontak & Sosmed
+            </button>
         </div>
 
-        {{-- Tabs Container --}}
-        <div class="tabs-container">
-            <div class="tabs-header">
-                <button class="tab-button active" onclick="switchTab('pimpinan')">
-                    Data Pimpinan
-                </button>
-                <button class="tab-button" onclick="switchTab('perusahaan')">
-                    Data Perusahaan
-                </button>
-                <button class="tab-button" onclick="switchTab('legalitas')">
-                    Legalitas
-                </button>
-                <button class="tab-button" onclick="switchTab('produk')">
-                    Produk Usaha
-                </button>
-                <button class="tab-button" onclick="switchTab('dokumen')">
-                    Dokumen
-                </button>
+        <div class="tabs-content">
+            {{-- Tab Biodata Pribadi --}}
+            <div class="tab-panel active" id="tab-pribadi">
+                <div class="detail-grid">
+                    <div class="field-group" style="grid-column: 1 / -1; margin-bottom: 2rem;">
+                        <div class="field-label">Foto Diri</div>
+                        @if($anggota->foto_diri)
+                            <img src="{{ Storage::url($anggota->foto_diri) }}" alt="Foto Diri" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e7eb;">
+                        @else
+                            <div style="width: 150px; height: 150px; background: #f3f4f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #9ca3af; border: 1px solid #e5e7eb;">
+                                Belum ada foto
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="field-group">
+                        <div class="field-label">NIK</div>
+                        <div class="field-value">{{ $anggota->nik ?? '-' }}</div>
+                    </div>
+
+                    <div class="field-group">
+                        <div class="field-label">Nama Lengkap</div>
+                        <div class="field-value">{{ $anggota->nama_lengkap ?? '-' }}</div>
+                    </div>
+
+                    <div class="field-group">
+                        <div class="field-label">Tempat & Tanggal Lahir</div>
+                        <div class="field-value">
+                            {{ $anggota->tempat_lahir ?? '-' }}, 
+                            {{ $anggota->tanggal_lahir ? $anggota->tanggal_lahir->format('d F Y') : '-' }}
+                        </div>
+                    </div>
+
+                    <div class="field-group" style="grid-column: 1 / -1;">
+                        <div class="field-label">Alamat Lengkap</div>
+                        <div class="field-value">{{ $anggota->alamat_lengkap ?? '-' }}</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="tabs-content">
-                {{-- Tab Data Pimpinan --}}
-                <div class="tab-panel active" id="tab-pimpinan">
-                    <div class="detail-grid">
-                        <div class="field-group">
-                            <div class="field-label">Nama Pimpinan</div>
-                            <div class="field-value">{{ $anggota->nama_pimpinan }}</div>
-                        </div>
+            {{-- Tab Organisasi --}}
+            <div class="tab-panel" id="tab-organisasi">
+                <div class="detail-grid">
+                    <div class="field-group">
+                        <div class="field-label">Jabatan</div>
+                        <div class="field-value">{{ $anggota->jabatan ?? '-' }}</div>
+                    </div>
 
-                        <div class="field-group">
-                            <div class="field-label">Email Pimpinan</div>
-                            <div class="field-value">{{ $anggota->email_pimpinan }}</div>
-                        </div>
+                    <div class="field-group">
+                        <div class="field-label">Pendidikan Terakhir</div>
+                        <div class="field-value">{{ $anggota->pendidikan_terakhir ?? '-' }}</div>
+                    </div>
 
-                        <div class="field-group">
-                            <div class="field-label">Telepon / WhatsApp</div>
-                            <div class="field-value">{{ $anggota->telepon_wa_pimpinan }}</div>
-                        </div>
+                    <div class="field-group">
+                        <div class="field-label">Pekerjaan</div>
+                        <div class="field-value">{{ $anggota->pekerjaan ?? '-' }}</div>
+                    </div>
 
-                        <div class="field-group">
-                            <div class="field-label">Alamat Pimpinan</div>
-                            <div class="field-value">{{ $anggota->alamat_pimpinan }}</div>
-                        </div>
+                    <div class="field-group" style="grid-column: 1 / -1;">
+                        <div class="field-label">Riwayat Organisasi</div>
+                        <div class="field-value">{!! nl2br(e($anggota->riwayat_organisasi ?? '-')) !!}</div>
+                    </div>
+
+                    <div class="field-group" style="grid-column: 1 / -1;">
+                        <div class="field-label">Kompetensi</div>
+                        <div class="field-value">{!! nl2br(e($anggota->kompetensi ?? '-')) !!}</div>
                     </div>
                 </div>
+            </div>
 
-                {{-- Tab Data Perusahaan --}}
-                <div class="tab-panel" id="tab-perusahaan">
-                    <div class="detail-grid">
-                        <div class="field-group">
-                            <div class="field-label">Nama Perusahaan</div>
-                            <div class="field-value">{{ $anggota->nama_perusahaan }}</div>
-                        </div>
-
-                        <div class="field-group">
-                            <div class="field-label">Trade Mark</div>
-                            <div class="field-value">{{ $anggota->trade_mark }}</div>
-                        </div>
-
-                        <div class="field-group">
-                            <div class="field-label">Tanggal Lahir Perusahaan</div>
-                            <div class="field-value">{{ $anggota->tanggal_lahir ? $anggota->tanggal_lahir->format('d F Y') : '-' }}</div>
-                        </div>
-
-                        <div class="field-group">
-                            <div class="field-label">Email Perusahaan</div>
-                            <div class="field-value">{{ $anggota->email_website_perusahaan }}</div>
-                        </div>
-
-                        <div class="field-group">
-                            <div class="field-label">Telepon Perusahaan</div>
-                            <div class="field-value">{{ $anggota->telepon_wa_perusahaan }}</div>
-                        </div>
-
-                        <div class="field-group">
-                            <div class="field-label">Alamat Kantor</div>
-                            <div class="field-value">{{ $anggota->alamat_kantor }}</div>
-                        </div>
+            {{-- Tab Kontak --}}
+            <div class="tab-panel" id="tab-kontak">
+                <div class="detail-grid">
+                    <div class="field-group">
+                        <div class="field-label">Nomor HP / WhatsApp</div>
+                        <div class="field-value">{{ $anggota->no_hp ?? '-' }}</div>
                     </div>
-                </div>
 
-                {{-- Tab Legalitas --}}
-                <div class="tab-panel" id="tab-legalitas">
-                    <div class="detail-grid">
-                        <div class="field-group">
-                            <div class="field-label">Akte Notaris</div>
-                            <div class="field-value">{{ $anggota->akte_notaris }}</div>
-                        </div>
-
-                        <div class="field-group">
-                            <div class="field-label">NIB / TDUP</div>
-                            <div class="field-value">{{ $anggota->nomor_induk_berusaha_tdup }}</div>
-                        </div>
-
-                        <div class="field-group">
-                            <div class="field-label">NPWP Perusahaan</div>
-                            <div class="field-value">{{ $anggota->npwp_perusahaan }}</div>
-                        </div>
+                    <div class="field-group">
+                        <div class="field-label">Email</div>
+                        <div class="field-value">{{ $anggota->email ?? '-' }}</div>
                     </div>
-                </div>
 
-                {{-- Tab Produk Usaha --}}
-                <div class="tab-panel" id="tab-produk">
-                    @if($anggota->produk_usaha_yang_akan_dijual && count($anggota->produk_usaha_yang_akan_dijual) > 0)
-                        <div class="produk-list">
-                            @foreach($anggota->produk_usaha_yang_akan_dijual as $produk)
-                                <span class="produk-item">{{ $produk }}</span>
-                            @endforeach
-                        </div>
-                    @else
-                        <p style="color: #64748b;">Belum ada produk yang dipilih</p>
-                    @endif
-                </div>
+                    <div class="field-group">
+                        <div class="field-label">Instagram</div>
+                        <div class="field-value">{{ $anggota->instagram ?? '-' }}</div>
+                    </div>
 
-                {{-- Tab Dokumen --}}
-                <div class="tab-panel" id="tab-dokumen">
-                    <div class="detail-grid">
-                        {{-- Surat Permohonan --}}
-                        <div class="doc-box">
-                            <label>Surat Permohonan</label>
-                            <div class="pdf-container">
-                                <iframe src="{{ Storage::url($anggota->surat_permohonan) }}" class="pdf-preview"></iframe>
-                            </div>
-                            <div class="pdf-actions">
-                                <a href="{{ Storage::url($anggota->surat_permohonan) }}" target="_blank" class="btn-view">
-                                    <i class="fa fa-eye"></i> Lihat PDF
-                                </a>
-                                <a href="{{ Storage::url($anggota->surat_permohonan) }}" download class="btn-download">
-                                    <i class="fa fa-download"></i> Download
-                                </a>
-                            </div>
-                        </div>
-
-                        {{-- Akte Pendirian --}}
-                        <div class="doc-box">
-                            <label>Akte Pendirian Perusahaan</label>
-                            <div class="pdf-container">
-                                <iframe src="{{ Storage::url($anggota->akte_pendirian_perusahaan) }}" class="pdf-preview"></iframe>
-                            </div>
-                            <div class="pdf-actions">
-                                <a href="{{ Storage::url($anggota->akte_pendirian_perusahaan) }}" target="_blank" class="btn-view">
-                                    <i class="fa fa-eye"></i> Lihat PDF
-                                </a>
-                                <a href="{{ Storage::url($anggota->akte_pendirian_perusahaan) }}" download class="btn-download">
-                                    <i class="fa fa-download"></i> Download
-                                </a>
-                            </div>
-                        </div>
-
-                        {{-- NIB/TDUP --}}
-                        <div class="doc-box">
-                            <label>NIB / TDUP</label>
-                            <div class="pdf-container">
-                                <iframe src="{{ Storage::url($anggota->nib_atau_tdup) }}" class="pdf-preview"></iframe>
-                            </div>
-                            <div class="pdf-actions">
-                                <a href="{{ Storage::url($anggota->nib_atau_tdup) }}" target="_blank" class="btn-view">
-                                    <i class="fa fa-eye"></i> Lihat PDF
-                                </a>
-                                <a href="{{ Storage::url($anggota->nib_atau_tdup) }}" download class="btn-download">
-                                    <i class="fa fa-download"></i> Download
-                                </a>
-                            </div>
-                        </div>
-
-                        {{-- KTP Pimpinan --}}
-                        <div class="doc-box">
-                            <label>KTP Pimpinan</label>
-                            <img src="{{ Storage::url($anggota->ktp_pimpinan) }}" alt="KTP">
-                            <div class="pdf-actions">
-                                <a href="{{ Storage::url($anggota->ktp_pimpinan) }}" target="_blank" class="btn-view">
-                                    <i class="fa fa-eye"></i> Lihat Gambar
-                                </a>
-                                <a href="{{ Storage::url($anggota->ktp_pimpinan) }}" download class="btn-download">
-                                    <i class="fa fa-download"></i> Download
-                                </a>
-                            </div>
-                        </div>
-
-                        {{-- NPWP Perusahaan --}}
-                        <div class="doc-box">
-                            <label>NPWP Perusahaan</label>
-                            <div class="pdf-container">
-                                <iframe src="{{ Storage::url($anggota->npwp_perusahaan_file) }}" class="pdf-preview"></iframe>
-                            </div>
-                            <div class="pdf-actions">
-                                <a href="{{ Storage::url($anggota->npwp_perusahaan_file) }}" target="_blank" class="btn-view">
-                                    <i class="fa fa-eye"></i> Lihat PDF
-                                </a>
-                                <a href="{{ Storage::url($anggota->npwp_perusahaan_file) }}" download class="btn-download">
-                                    <i class="fa fa-download"></i> Download
-                                </a>
-                            </div>
-                        </div>
+                    <div class="field-group">
+                        <div class="field-label">TikTok</div>
+                        <div class="field-value">{{ $anggota->tiktok ?? '-' }}</div>
+                    </div>
+                    
+                    <div class="field-group">
+                        <div class="field-label">Twitter / X</div>
+                        <div class="field-value">{{ $anggota->twitter ?? '-' }}</div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     {{-- Approve Modal --}}
     <div class="modal" id="approveModal">
         <div class="modal-content">
             <h3 class="modal-title">Konfirmasi Persetujuan</h3>
-            <p>Apakah Anda yakin ingin menyetujui pendaftaran <strong>{{ $anggota->nama_pimpinan }}</strong>?</p>
+            <p>Apakah Anda yakin ingin menyetujui pendaftaran <strong>{{ $anggota->nama_lengkap ?? $anggota->username }}</strong>?</p>
             <form action="{{ route('admin.anggota.approve', $anggota) }}" method="POST">
                 @csrf
                 <div class="modal-actions">
@@ -967,10 +687,6 @@
 
             event.target.classList.add('active');
             document.getElementById('tab-' + tabName).classList.add('active');
-        }
-
-        function showEditModal() {
-            document.getElementById('editModal').classList.add('active');
         }
 
         function showPasswordModal() {

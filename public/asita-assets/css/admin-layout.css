@@ -508,7 +508,11 @@ body {
 .admin-badge,
 .badge-super_admin,
 .badge-bpd,
-.badge-bpc {
+.badge-bpc,
+.badge-pnkt,
+.badge-ppkt,
+.badge-pkkt,
+.badge-pimpinan {
     background-image: none !important;
     text-shadow: none !important;
     box-shadow: none !important;
@@ -533,6 +537,42 @@ body {
 .badge-bpc {
     background: #C59217 !important;
     color: #ffffff !important;
+    font-weight: 700 !important;
+    border-radius: 4px !important;
+}
+
+/* PNKT (Pusat) - Teal/Emerald */
+.badge-pnkt {
+    background: #022648 !important;
+    color: #34d399 !important;
+    border: 1px solid #34d399 !important;
+    font-weight: 700 !important;
+    border-radius: 4px !important;
+}
+
+/* PPKT (Provinsi) - Sky Blue */
+.badge-ppkt {
+    background: #022648 !important;
+    color: #60a5fa !important;
+    border: 1px solid #60a5fa !important;
+    font-weight: 700 !important;
+    border-radius: 4px !important;
+}
+
+/* PKKT (Kab/Kota) - Amber */
+.badge-pkkt {
+    background: #022648 !important;
+    color: #fbbf24 !important;
+    border: 1px solid #fbbf24 !important;
+    font-weight: 700 !important;
+    border-radius: 4px !important;
+}
+
+/* Pimpinan - Rose Red */
+.badge-pimpinan {
+    background: #022648 !important;
+    color: #f87171 !important;
+    border: 1px solid #f87171 !important;
     font-weight: 700 !important;
     border-radius: 4px !important;
 }

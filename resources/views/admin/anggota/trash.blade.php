@@ -188,16 +188,7 @@
         <p class="page-desc">Data anggota yang dihapus akan tersimpan di sini selama 30 hari sebelum dihapus permanen secara otomatis.</p>
     </div>
 
-    @if (session('success'))
-        <div class="alert alert-success" style="padding: 1rem; margin-bottom: 1rem; background-color: #d1fae5; color: #065f46; border-radius: 8px;">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if (session('error'))
-        <div class="alert alert-danger" style="padding: 1rem; margin-bottom: 1rem; background-color: #fee2e2; color: #991b1b; border-radius: 8px;">
-            {{ session('error') }}
-        </div>
-    @endif
+
 
     <div class="table-container">
         @if($anggotas->count() > 0)
@@ -418,14 +409,21 @@
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
-                Swal.fire(successTitle, data.message, 'success').then(() => {
-                    window.location.reload();
+                Toast.fire({ icon: 'success', title: data.message });
+                setTimeout(() => window.location.reload(), 1500);
+            } else if (data.status === 'deleted') {
+                Toast.fire({ 
+                    icon: 'success', 
+                    iconColor: '#dc2626',
+                    title: data.message,
+                    customClass: { popup: 'swal2-toast-deleted' }
                 });
+                setTimeout(() => window.location.reload(), 1500);
             } else {
-                Swal.fire('Error!', 'Terjadi kesalahan.', 'error');
+                Toast.fire({ icon: 'error', title: 'Terjadi kesalahan.' });
             }
         })
-        .catch(err => Swal.fire('Error!', 'Terjadi kesalahan sistem.', 'error'));
+        .catch(err => Toast.fire({ icon: 'error', title: 'Terjadi kesalahan sistem.' }));
     }
 </script>
 @endpush
