@@ -255,6 +255,8 @@ class AnggotaController extends Controller
             'tempat_lahir' => 'required|string|max:255',
             'tanggal_lahir' => 'required|date|before_or_equal:today',
             'alamat_lengkap' => 'required|string|max:1000',
+            'jabatan' => 'required|string|max:255',
+            'domisili' => 'required|string|max:255',
             'pendidikan_terakhir' => 'required|string|max:255',
             'pekerjaan' => 'required|string|max:255',
             'riwayat_organisasi' => 'required|string',
@@ -281,20 +283,57 @@ class AnggotaController extends Controller
                 }
                 $filePaths['foto_diri'] = $file->store('anggota/foto_diri', 'public');
             }
+        } elseif ($request->filled('foto_diri_base64')) {
+            $base64 = $request->input('foto_diri_base64');
+            $imageParts = explode(";base64,", $base64);
+            $imageTypeAux = explode("image/", $imageParts[0]);
+            $imageType = $imageTypeAux[1] ?? 'jpeg';
+            $imageBase64 = base64_decode($imageParts[1]);
+            
+            $fileName = 'anggota/foto_diri/' . uniqid() . '.' . $imageType;
+            
+            if ($anggota->foto_diri && Storage::disk('public')->exists($anggota->foto_diri)) {
+                Storage::disk('public')->delete($anggota->foto_diri);
+            }
+            Storage::disk('public')->put($fileName, $imageBase64);
+            $filePaths['foto_diri'] = $fileName;
         }
 
         $updateData = array_merge($validated, $filePaths);
         
-        // Update status ke pending_verification jika masih pending_profile
-        if ($anggota->status === 'pending_profile') {
-            $updateData['status'] = 'pending_verification';
+        // Isi model dengan data baru untuk dicek perubahannya (belum disave)
+        $anggota->fill($updateData);
+
+        // Field sensitif yang butuh verifikasi ulang
+        $sensitiveFields = [
+            'nik', 'nama_lengkap', 'tempat_lahir', 'tanggal_lahir',
+            'alamat_lengkap', 'jabatan', 'domisili', 'pendidikan_terakhir',
+            'pekerjaan', 'riwayat_organisasi', 'kompetensi'
+        ];
+
+        $needsVerification = false;
+        foreach ($sensitiveFields as $field) {
+            if ($anggota->isDirty($field)) {
+                $needsVerification = true;
+                break;
+            }
         }
 
-        $anggota->update($updateData);
+        // Jika ada perubahan di field sensitif dan status saat ini aktif, turunkan statusnya
+        if ($needsVerification && $anggota->status === 'approved') {
+            $anggota->status = 'pending_verification';
+            $message = 'Profil berhasil disimpan dan diajukan untuk verifikasi ulang karena ada perubahan data penting.';
+        } else {
+            // Jika user baru pertama kali mengisi (pending/pending_profile), harus tetap masuk verifikasi
+            if (in_array($anggota->getOriginal('status'), ['pending', 'pending_profile'])) {
+                $anggota->status = 'pending_verification';
+                $message = 'Profil berhasil dilengkapi dan diajukan untuk verifikasi.';
+            } else {
+                $message = 'Profil berhasil diperbarui.';
+            }
+        }
 
-        $message = $anggota->status === 'pending_profile' 
-            ? 'Profil berhasil disimpan dan diajukan untuk verifikasi.'
-            : 'Profil berhasil diperbarui.';
+        $anggota->save();
 
         return back()->with('success', $message);
     }
@@ -327,7 +366,7 @@ class AnggotaController extends Controller
             'initial_password' => null,
         ]);
 
-        return back()->with('success', 'Password berhasil diubah.');
+        return back()->with('password_success', $request->new_password);
     }
 
     /**
