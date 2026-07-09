@@ -6,6 +6,7 @@
     <style>
         :root {
             --primary-blue: #022648;
+            --primary-gradient: linear-gradient(135deg, #022648 0%, #305478 100%); /* Biru dongker gradasi putih/terang */
             --secondary-blue: #18227C;
             --accent-yellow: #C59217;
             --accent-red: #D60B1C;
@@ -160,7 +161,7 @@
         }
 
         .sidebar-menu-btn.active {
-            background-color: var(--primary-blue);
+            background: var(--primary-gradient);
             color: #ffffff;
             border-left: 4px solid var(--accent-yellow);
             border-top-left-radius: 0;
@@ -582,7 +583,7 @@
         }
 
         .kta-back-footer {
-            background: var(--primary-blue);
+            background: var(--primary-gradient);
             color: white;
             text-align: center;
             padding: 25px 20px 20px;
@@ -596,7 +597,7 @@
             left: -10%;
             width: 120%;
             height: 60px;
-            background: var(--primary-blue);
+            background: var(--primary-gradient);
             border-radius: 50%;
             z-index: 1;
         }
@@ -728,7 +729,7 @@
         }
 
         .btn-submit {
-            background-color: var(--primary-blue);
+            background: var(--primary-gradient);
             color: #ffffff;
             border: none;
             padding: 12px 24px;

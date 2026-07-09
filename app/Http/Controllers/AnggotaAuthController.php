@@ -15,8 +15,7 @@ class AnggotaAuthController extends Controller
             return redirect()->route('profile-anggota');
         }
 
-        // Ubah dari 'auth.login-anggota' menjadi 'auth.login'
-        // karena view tersebut sudah handle keduanya (admin dan anggota)
+       
         return view('auth.login');
     }
 
@@ -29,7 +28,7 @@ class AnggotaAuthController extends Controller
 
         $loginType = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        // Cari anggota berdasarkan username atau email
+     
         $anggota = Anggota::where($loginType, $request->login)->first();
 
         if (!$anggota) {
@@ -38,17 +37,17 @@ class AnggotaAuthController extends Controller
             ])->withInput();
         }
 
-        // Cek password
+     
         if (!Hash::check($request->password, $anggota->password)) {
             return back()->withErrors([
                 'password' => 'Password salah.'
             ])->withInput();
         }
 
-        // Login menggunakan guard anggota
+      
         Auth::guard('anggota')->login($anggota, $request->filled('remember'));
         
-        // Regenerate session untuk security
+     
         $request->session()->regenerate();
 
         return redirect()->intended(route('profile-anggota'))
