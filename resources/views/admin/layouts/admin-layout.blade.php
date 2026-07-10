@@ -342,6 +342,99 @@
             padding: 8px 12px;
         }
     </style>
+    <style>
+        /* Birthday Sidebar Styles */
+        .birthday-fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #C59217;
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(197, 146, 23, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 99;
+            transition: all 0.3s;
+        }
+        
+        .birthday-fab:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 6px 16px rgba(197, 146, 23, 0.5);
+        }
+        
+        .birthday-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+        
+        .birthday-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .birthday-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .birthday-sidebar {
+            position: fixed;
+            top: 0; right: -400px;
+            width: 400px; max-width: 100%;
+            height: 100vh;
+            background: white;
+            z-index: 101;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .birthday-sidebar.active {
+            right: 0;
+        }
+        
+        .birthday-sidebar-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.5rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        
+        .birthday-close-btn {
+            background: transparent; border: none; color: #6b7280;
+            cursor: pointer; padding: 0.5rem; border-radius: 8px; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        .birthday-close-btn:hover { background: #f3f4f6; color: #ef4444; }
+        
+        .birthday-sidebar-body {
+            padding: 1.5rem; overflow-y: auto; flex: 1;
+        }
+    </style>
 </head>
 
 <body>
@@ -382,6 +475,97 @@
         {{-- Main Content --}}
         <div class="content">
             @yield('content')
+        </div>
+    </div>
+
+    <!-- Floating Action Button for Birthdays -->
+    <button type="button" class="birthday-fab" onclick="toggleBirthdaySidebar()">
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"></path>
+            <path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2 1 2 1"></path>
+            <path d="M2 21h20"></path>
+            <path d="M7 8v3"></path>
+            <path d="M12 8v3"></path>
+            <path d="M17 8v3"></path>
+            <path d="M7 4h.01"></path>
+            <path d="M12 4h.01"></path>
+            <path d="M17 4h.01"></path>
+        </svg>
+        @if(isset($upcomingBirthdays) && $upcomingBirthdays->isNotEmpty())
+            <span class="birthday-badge">{{ $upcomingBirthdays->count() }}</span>
+        @endif
+    </button>
+
+    <!-- Slide-in Sidebar (Offcanvas) for Birthdays -->
+    <div class="birthday-overlay" id="birthdaySidebarOverlay" onclick="toggleBirthdaySidebar()"></div>
+    <div class="birthday-sidebar" id="birthdaySidebar">
+        <div class="birthday-sidebar-header">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="background: rgba(197, 146, 23, 0.1); color: #C59217; padding: 0.5rem; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"></path>
+                        <path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2 1 2 1"></path>
+                        <path d="M2 21h20"></path>
+                        <path d="M7 8v3"></path>
+                        <path d="M12 8v3"></path>
+                        <path d="M17 8v3"></path>
+                        <path d="M7 4h.01"></path>
+                        <path d="M12 4h.01"></path>
+                        <path d="M17 4h.01"></path>
+                    </svg>
+                </div>
+                <h3 style="font-size: 1.125rem; font-weight: 700; color: #0a2540; margin: 0;">Ulang Tahun Anggota Terdekat</h3>
+            </div>
+            <button type="button" class="birthday-close-btn" onclick="toggleBirthdaySidebar()">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="birthday-sidebar-body">
+            <div class="birthday-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                @if(isset($upcomingBirthdays) && $upcomingBirthdays->isNotEmpty())
+                    @foreach($upcomingBirthdays as $bd)
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #f3f4f6;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                @if(isset($bd['foto']) && $bd['foto'])
+                                    <div style="width: 42px; height: 42px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 2px solid #C59217;">
+                                        <img src="{{ $bd['foto'] }}" alt="{{ $bd['nama'] }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
+                                @else
+                                    <div style="width: 42px; height: 42px; border-radius: 50%; background: #C59217; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9375rem; flex-shrink: 0;">
+                                        {{ strtoupper(substr($bd['nama'], 0, 2)) }}
+                                    </div>
+                                @endif
+                                <div>
+                                    <div style="font-weight: 700; color: #0a2540; font-size: 0.9375rem; margin-bottom: 0.125rem;">{{ $bd['nama'] }}</div>
+                                    <div style="color: #6b7280; font-size: 0.8125rem;">Anggota</div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: 700; color: #374151; font-size: 0.875rem;">{{ date('d M', strtotime($bd['tanggal'])) }}</div>
+                                <div style="color: #C59217; font-size: 0.75rem; font-weight: 700; background: rgba(197, 146, 23, 0.1); padding: 0.15rem 0.5rem; border-radius: 4px; display: inline-block; margin-top: 0.25rem;">{{ $bd['hari'] }}</div>
+                            </div>
+                        </div>
+                    @endforeach
+                @else
+                    <div style="text-align: center; color: #6b7280; padding: 2rem 0; font-size: 0.875rem;">
+                        <svg viewBox="0 0 24 24" width="48" height="48" stroke="#d1d5db" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 1rem;">
+                            <path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"></path>
+                            <path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2 1 2 1"></path>
+                            <path d="M2 21h20"></path>
+                            <path d="M7 8v3"></path>
+                            <path d="M12 8v3"></path>
+                            <path d="M17 8v3"></path>
+                            <path d="M7 4h.01"></path>
+                            <path d="M12 4h.01"></path>
+                            <path d="M17 4h.01"></path>
+                        </svg>
+                        <p>Belum ada anggota yang berulang tahun dalam waktu dekat.</p>
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 
@@ -440,6 +624,11 @@
                 hideLogoutModal();
             }
         });
+
+        function toggleBirthdaySidebar() {
+            document.getElementById('birthdaySidebar').classList.toggle('active');
+            document.getElementById('birthdaySidebarOverlay').classList.toggle('active');
+        }
     </script>
     
     {{-- Global Toast Setup --}}
