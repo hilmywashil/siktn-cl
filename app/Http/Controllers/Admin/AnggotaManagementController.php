@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Anggota;
+use App\Models\Organisasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -199,11 +200,30 @@ class AnggotaManagementController extends Controller
             'status' => 'approved',
             'approved_at' => now(),
             'approved_by' => $admin->id,
+            'updated_fields' => null,
         ]);
+
+        // Otomatis masukkan ke struktur organisasi
+        if ($anggota->jabatan) {
+            $masterJabatan = \App\Models\Jabatan::where('nama_jabatan', $anggota->jabatan)->first();
+            $urutan = $masterJabatan ? $masterJabatan->urutan : 999;
+            
+            Organisasi::updateOrCreate(
+                ['anggota_id' => $anggota->id],
+                [
+                    'nama' => $anggota->nama_lengkap ?? $anggota->username,
+                    'jabatan' => $anggota->jabatan,
+                    'kategori' => $anggota->jabatan, // Default kategori dari nama jabatan
+                    'foto' => $anggota->foto_diri ?? null,
+                    'aktif' => true,
+                    'urutan' => $urutan,
+                ]
+            );
+        }
 
         return redirect()
             ->route('admin.anggota.show', $anggota)
-            ->with('success', 'Anggota berhasil disetujui!');
+            ->with('success', 'Anggota berhasil disetujui dan ditambahkan ke struktur organisasi!');
     }
 
     /**
@@ -223,6 +243,7 @@ class AnggotaManagementController extends Controller
             'status' => 'rejected',
             'rejection_reason' => $request->rejection_reason,
             'approved_by' => $admin->id,
+            'updated_fields' => null,
         ]);
 
         return redirect()

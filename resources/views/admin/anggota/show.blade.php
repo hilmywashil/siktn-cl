@@ -509,6 +509,17 @@
             @endif
         </span>
 
+        @if(!empty($anggota->updated_fields) && is_array($anggota->updated_fields) && ($anggota->status === 'pending_verification' || $anggota->status === 'pending'))
+            <div class="info-box" style="background: #eff6ff; color: #1e3a8a; border: 1px solid #bfdbfe; margin-top: 1rem;">
+                <strong><i class="fa fa-info-circle" style="margin-right: 0.5rem;"></i>Data yang diperbarui:</strong>
+                <ul style="margin-top: 0.5rem; margin-bottom: 0; padding-left: 1.5rem; font-size: 0.875rem;">
+                    @foreach($anggota->updated_fields as $field)
+                        <li>{{ ucwords(str_replace('_', ' ', $field)) }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         @if($anggota->status === 'approved')
             <div class="info-box success">
                 <strong>Disetujui pada:</strong> {{ $anggota->approved_at ? $anggota->approved_at->format('d M Y H:i') : '-' }}

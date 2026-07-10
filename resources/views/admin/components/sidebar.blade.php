@@ -20,7 +20,7 @@
 
             {{-- Dashboard Dropdown --}}
             <div class="menu-dropdown">
-                <div class="menu-item has-dropdown {{ in_array($activeMenu, ['dashboard', 'info-admin', 'editor', 'anggota', 'list-anggota']) ? 'active' : '' }}" onclick="toggleDropdown(this)">
+                <div class="menu-item has-dropdown {{ in_array($activeMenu, ['dashboard', 'info-admin', 'editor', 'anggota', 'list-anggota', 'jabatan']) ? 'active' : '' }}" onclick="toggleDropdown(this)">
                     <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
                         <svg viewBox="0 0 24 24">
                             <rect x="3" y="3" width="7" height="7" rx="1" />
@@ -34,7 +34,7 @@
                         <polyline points="6 9 12 15 18 9" />
                     </svg>
                 </div>
-                <div class="submenu {{ in_array($activeMenu, ['dashboard', 'info-admin', 'editor', 'anggota', 'list-anggota']) ? 'active' : '' }}">
+                <div class="submenu {{ in_array($activeMenu, ['dashboard', 'info-admin', 'editor', 'anggota', 'list-anggota', 'jabatan']) ? 'active' : '' }}">
                     <a href="{{ route('admin.dashboard') }}" class="submenu-item {{ $activeMenu === 'dashboard' ? 'active' : '' }}">
                         <svg viewBox="0 0 24 24">
                             <polyline points="9 11 12 14 22 4" />
@@ -68,6 +68,7 @@
                         <span>Kelola Admin</span>
                     </a>
                     @endif
+                    {{-- Menu Kelola Jabatan (Dipindah ke bawah Organisasi) --}}
                 </div>
             </div>
         </div>
@@ -123,7 +124,7 @@
 
             {{-- Organisasi Dropdown --}}
             <div class="menu-dropdown">
-                <div class="menu-item has-dropdown {{ $activeMenu === 'organisasi' ? 'active' : '' }}" onclick="toggleDropdown(this)">
+                <div class="menu-item has-dropdown {{ in_array($activeMenu, ['organisasi', 'jabatan']) ? 'active' : '' }}" onclick="toggleDropdown(this)">
                     <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
                         <svg viewBox="0 0 24 24">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -137,7 +138,7 @@
                         <polyline points="6 9 12 15 18 9" />
                     </svg>
                 </div>
-                <div class="submenu {{ $activeMenu === 'organisasi' ? 'active' : '' }}">
+                <div class="submenu {{ in_array($activeMenu, ['organisasi', 'jabatan']) ? 'active' : '' }}">
                     <a href="{{ route('organisasi') }}" class="submenu-item" target="_blank">
                         <svg viewBox="0 0 24 24">
                             <circle cx="12" cy="12" r="10" />
@@ -146,13 +147,26 @@
                         </svg>
                         <span>Lihat Halaman</span>
                     </a>
-                    @if($admin->canManageContent())
+                    @if($admin->isSuperAdmin() || $admin->isPNKT())
                     <a href="{{ route('admin.organisasi.index') }}" class="submenu-item {{ $activeMenu === 'organisasi' ? 'active' : '' }}">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
                         </svg>
-                        <span>Kelola Data</span>
+                        <span>Kelola Organisasi</span>
+                    </a>
+                    
+                    {{-- Menu Kelola Jabatan --}}
+                    <a href="{{ route('admin.jabatan.index') }}" class="submenu-item {{ $activeMenu === 'jabatan' ? 'active' : '' }}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="8" y1="6" x2="21" y2="6"></line>
+                            <line x1="8" y1="12" x2="21" y2="12"></line>
+                            <line x1="8" y1="18" x2="21" y2="18"></line>
+                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                        </svg>
+                        <span>Kelola Jabatan</span>
                     </a>
                     @endif
                 </div>

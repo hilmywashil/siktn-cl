@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Organisasi;
+use App\Models\Jabatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,17 +14,21 @@ class OrganisasiController extends Controller
     public function index()
     {
         $organisasi = Organisasi::ordered()->get();
+        $organisasiByUrutan = $organisasi->groupBy('urutan');
         
         return view('admin.organisasi.index', [
             'activeMenu' => 'organisasi',
-            'organisasi' => $organisasi
+            'organisasi' => $organisasi,
+            'organisasiByUrutan' => $organisasiByUrutan
         ]);
     }
 
     public function create()
     {
+        $jabatans = Jabatan::all();
         return view('admin.organisasi.create', [
-            'activeMenu' => 'organisasi'
+            'activeMenu' => 'organisasi',
+            'jabatans' => $jabatans
         ]);
     }
 
@@ -32,15 +37,17 @@ class OrganisasiController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'jabatan' => 'required|string|max:255',
-            'kategori' => 'required|in:ketua_umum,wakil_ketua_umum,ketua_bidang,sekretaris_umum,wakil_sekretaris_umum',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'urutan' => 'nullable|integer|min:0',
             'aktif' => 'boolean'
         ]);
 
         if ($request->hasFile('foto')) {
             $validated['foto'] = $request->file('foto')->store('organisasi', 'public');
         }
+
+        $masterJabatan = Jabatan::where('nama_jabatan', $validated['jabatan'])->first();
+        $validated['urutan'] = $masterJabatan ? $masterJabatan->urutan : 999;
+        $validated['kategori'] = $validated['jabatan']; // Backward compatibility
 
         Organisasi::create($validated);
 
@@ -50,9 +57,11 @@ class OrganisasiController extends Controller
 
     public function edit(Organisasi $organisasi)
     {
+        $jabatans = Jabatan::all();
         return view('admin.organisasi.edit', [
             'activeMenu' => 'organisasi',
-            'organisasi' => $organisasi
+            'organisasi' => $organisasi,
+            'jabatans' => $jabatans
         ]);
     }
 
@@ -61,9 +70,7 @@ class OrganisasiController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'jabatan' => 'required|string|max:255',
-            'kategori' => 'required|in:ketua_umum,wakil_ketua_umum,ketua_bidang,sekretaris_umum,wakil_sekretaris_umum',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'urutan' => 'nullable|integer|min:0',
             'aktif' => 'boolean'
         ]);
 
@@ -74,6 +81,10 @@ class OrganisasiController extends Controller
             }
             $validated['foto'] = $request->file('foto')->store('organisasi', 'public');
         }
+
+        $masterJabatan = Jabatan::where('nama_jabatan', $validated['jabatan'])->first();
+        $validated['urutan'] = $masterJabatan ? $masterJabatan->urutan : 999;
+        $validated['kategori'] = $validated['jabatan']; // Backward compatibility
 
         $organisasi->update($validated);
 

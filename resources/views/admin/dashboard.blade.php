@@ -105,15 +105,20 @@ $activeMenu = 'dashboard';
                 @forelse($recentAnggota as $anggota)
                 <div class="admin-item">
                     <div class="admin-avatar">
-                        {{ strtoupper(substr($anggota->nama_perusahaan, 0, 2)) }}
+                        @if($anggota->foto_diri)
+                            <img src="{{ $anggota->foto_diri_url }}" alt="{{ $anggota->nama_lengkap ?? $anggota->username }}">
+                        @else
+                            {{ strtoupper(substr($anggota->nama_lengkap ?? $anggota->username, 0, 2)) }}
+                        @endif
                     </div>
                     <div class="admin-info">
-                        <div class="admin-name">{{ $anggota->nama_perusahaan }}</div>
-                        <div class="admin-email">{{ $anggota->email_website_perusahaan }} - {{ $anggota->trade_mark }}</div>
+                        <div class="admin-name">{{ $anggota->nama_lengkap ?? $anggota->username }}</div>
+                        <div class="admin-email">{{ $anggota->email }} - {{ $anggota->jabatan ?? 'Anggota' }}</div>
                     </div>
                     <span class="admin-badge badge-{{ $anggota->status }}">
-                        @if($anggota->status === 'pending') MENUNGGU
+                        @if($anggota->status === 'pending_verification') MENUNGGU
                         @elseif($anggota->status === 'approved') DISETUJUI
+                        @elseif($anggota->status === 'pending_profile') BELUM LENGKAP
                         @else DITOLAK @endif
                     </span>
                 </div>
@@ -161,18 +166,23 @@ $activeMenu = 'dashboard';
                 @forelse($recentAnggota as $anggota)
                 <div class="admin-item">
                     <div class="admin-avatar">
-                        {{ strtoupper(substr($anggota->nama_perusahaan, 0, 2)) }}
+                        @if($anggota->foto_diri)
+                            <img src="{{ $anggota->foto_diri_url }}" alt="{{ $anggota->nama_lengkap ?? $anggota->username }}">
+                        @else
+                            {{ strtoupper(substr($anggota->nama_lengkap ?? $anggota->username, 0, 2)) }}
+                        @endif
                     </div>
                     <div class="admin-info">
                         <div class="admin-name">
-                            {{ $anggota->nama_perusahaan }}
+                            {{ $anggota->nama_lengkap ?? $anggota->username }}
                             @if($anggota->domisili) - {{ $anggota->domisili }} @endif
                         </div>
-                        <div class="admin-email">{{ $anggota->email_website_perusahaan }} - {{ $anggota->trade_mark }}</div>
+                        <div class="admin-email">{{ $anggota->email }} - {{ $anggota->jabatan ?? 'Anggota' }}</div>
                     </div>
                     <span class="admin-badge badge-{{ $anggota->status }}">
-                        @if($anggota->status === 'pending') MENUNGGU
+                        @if($anggota->status === 'pending_verification') MENUNGGU
                         @elseif($anggota->status === 'approved') DISETUJUI
+                        @elseif($anggota->status === 'pending_profile') BELUM LENGKAP
                         @else DITOLAK @endif
                     </span>
                 </div>
@@ -376,9 +386,15 @@ $activeMenu = 'dashboard';
                 @foreach($upcomingBirthdays as $bd)
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #f3f4f6;">
                         <div style="display: flex; align-items: center; gap: 1rem;">
-                            <div style="width: 42px; height: 42px; border-radius: 50%; background: #C59217; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9375rem; flex-shrink: 0;">
-                                {{ strtoupper(substr($bd['nama'], 0, 2)) }}
-                            </div>
+                            @if(isset($bd['foto']) && $bd['foto'])
+                                <div style="width: 42px; height: 42px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 2px solid #C59217;">
+                                    <img src="{{ $bd['foto'] }}" alt="{{ $bd['nama'] }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                </div>
+                            @else
+                                <div style="width: 42px; height: 42px; border-radius: 50%; background: #C59217; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9375rem; flex-shrink: 0;">
+                                    {{ strtoupper(substr($bd['nama'], 0, 2)) }}
+                                </div>
+                            @endif
                             <div>
                                 <div style="font-weight: 700; color: #0a2540; font-size: 0.9375rem; margin-bottom: 0.125rem;">{{ $bd['nama'] }}</div>
                                 <div style="color: #6b7280; font-size: 0.8125rem;">Anggota</div>

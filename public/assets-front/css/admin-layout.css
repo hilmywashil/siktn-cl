@@ -580,7 +580,10 @@ body {
 /* 4. Correct Colors for Menunggu / Disetujui / Ditolak Status Badges */
 .status-badge.pending,
 .admin-badge.badge-pending,
-.badge-pending {
+.badge-pending,
+.status-badge.pending_verification,
+.admin-badge.badge-pending_verification,
+.badge-pending_verification {
     background: rgba(197, 146, 23, 0.1) !important;
     color: #C59217 !important;
     border: 1px solid rgba(197, 146, 23, 0.2) !important;
@@ -602,6 +605,17 @@ body {
     background: rgba(214, 11, 28, 0.1) !important;
     color: #D60B1C !important;
     border: 1px solid rgba(214, 11, 28, 0.2) !important;
+}
+
+.status-badge.incomplete,
+.admin-badge.badge-incomplete,
+.badge-incomplete,
+.status-badge.pending_profile,
+.admin-badge.badge-pending_profile,
+.badge-pending_profile {
+    background: rgba(107, 114, 128, 0.1) !important;
+    color: #6b7280 !important;
+    border: 1px solid rgba(107, 114, 128, 0.2) !important;
 }
 
 /* 5. Fix Stats Card wrapping (BPD/Super Admin 5 columns) */

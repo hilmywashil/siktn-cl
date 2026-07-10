@@ -1529,9 +1529,23 @@
                                 <label for="jabatan">Jabatan <span style="color:red;">*</span></label>
                                 <select name="jabatan" id="jabatanSelect" class="form-control" required style="width: 100%;">
                                     <option value="">-- Pilih Jabatan --</option>
-                                    @php $currentJabatan = old('jabatan', $anggota->jabatan ?? ''); @endphp
-                                    <option value="Anggota Pengurus" {{ $currentJabatan == 'Anggota Pengurus' ? 'selected' : '' }}>Anggota Pengurus</option>
-                                    @if($currentJabatan && $currentJabatan != 'Anggota Pengurus')
+                                    @php 
+                                        $currentJabatan = old('jabatan', $anggota->jabatan ?? ''); 
+                                        $jabatanFound = false;
+                                    @endphp
+                                    @if(isset($jabatans))
+                                        @foreach($jabatans as $jab)
+                                            @php 
+                                                if($currentJabatan == $jab->nama_jabatan) $jabatanFound = true;
+                                            @endphp
+                                            <option value="{{ $jab->nama_jabatan }}" {{ $currentJabatan == $jab->nama_jabatan ? 'selected' : '' }}>
+                                                {{ $jab->nama_jabatan }}
+                                            </option>
+                                        @endforeach
+                                    @endif
+                                    
+                                    {{-- Fallback jika jabatan lama anggota tidak ada di master jabatan --}}
+                                    @if($currentJabatan && !$jabatanFound)
                                         <option value="{{ $currentJabatan }}" selected>{{ $currentJabatan }}</option>
                                     @endif
                                 </select>

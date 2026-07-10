@@ -230,21 +230,106 @@
         color: #065f46;
         border: 1px solid #6ee7b7;
     }
+
+    /* Hierarchy Visualization Styles */
+    .hierarchy-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+        padding: 2rem 0;
+    }
+
+    .hierarchy-level {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        position: relative;
+        width: 100%;
+    }
+
+    .hierarchy-level:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        bottom: -2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2px;
+        height: 2rem;
+        background-color: #cbd5e1;
+    }
+
+    .hierarchy-card {
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-top: 4px solid #0a2540;
+        border-radius: 8px;
+        padding: 1.5rem 1.5rem 1rem 1.5rem;
+        text-align: center;
+        min-width: 220px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .hierarchy-card::before {
+        content: attr(data-urutan);
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #0a2540;
+        color: white;
+        font-size: 0.75rem;
+        font-weight: bold;
+        padding: 2px 8px;
+        border-radius: 12px;
+    }
+
+    .hierarchy-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 2px solid #e2e8f0;
+    }
+    
+    .hierarchy-avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        background: #C59217;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.5rem;
+        border: 2px solid #e2e8f0;
+    }
+
+    .hierarchy-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+    
+    .hierarchy-name {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #6b7280;
+        margin: 0;
+    }
 </style>
 @endpush
 
 @section('content')
-    @if(session('success'))
-        <div class="alert alert-success">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-            {{ session('success') }}
-        </div>
-    @endif
-
-    <div class="stats-grid">
+    <div class="stats-grid" style="margin-bottom: 2rem;">
         <div class="stat-item">
             <div class="stat-label">Total Anggota</div>
             <div class="stat-value">{{ $organisasi->count() }}</div>
@@ -253,11 +338,45 @@
             <div class="stat-label">Aktif</div>
             <div class="stat-value">{{ $organisasi->where('aktif', true)->count() }}</div>
         </div>
-        <div class="stat-item">
-            <div class="stat-label">Ketua Bidang</div>
-            <div class="stat-value">{{ $organisasi->where('kategori', 'ketua_bidang')->count() }}</div>
+    </div>
+    <div class="content-card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <div>
+                <h3 class="card-title">Struktur Organisasi</h3>
+                <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem;">Bagan organisasi yang aktif saat ini.</p>
+            </div>
+        </div>
+        
+        <div class="hierarchy-container">
+            @if($organisasiByUrutan->count() > 0)
+                @foreach($organisasiByUrutan as $urutan => $orgsInLevel)
+                    <div class="hierarchy-level">
+                        @foreach($orgsInLevel as $org)
+                            <div class="hierarchy-card" data-urutan="Urutan {{ $urutan }}">
+                                @if($org->foto)
+                                    <img src="{{ Storage::url($org->foto) }}" alt="{{ $org->nama }}" class="hierarchy-avatar">
+                                @else
+                                    <div class="hierarchy-avatar-placeholder">
+                                        {{ strtoupper(substr($org->nama, 0, 2)) }}
+                                    </div>
+                                @endif
+                                <div>
+                                    <h4 class="hierarchy-title">{{ $org->nama }}</h4>
+                                    <p class="hierarchy-name">{{ $org->jabatan }}</p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endforeach
+            @else
+                <div class="empty-state" style="padding: 1rem;">
+                    <p>Belum ada anggota organisasi untuk divisualisasikan.</p>
+                </div>
+            @endif
         </div>
     </div>
+
+
 
     <div class="content-card">
         <div class="card-header">

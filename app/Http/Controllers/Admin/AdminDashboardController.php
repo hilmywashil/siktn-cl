@@ -49,7 +49,8 @@ class AdminDashboardController extends Controller
                 $upcomingBirthdays->push([
                     'nama' => $member->nama_lengkap,
                     'hari' => $hariText,
-                    'tanggal' => $birthdayThisYear->format('d M Y')
+                    'tanggal' => $birthdayThisYear->format('d M Y'),
+                    'foto' => $member->foto_diri_url
                 ]);
             }
         }

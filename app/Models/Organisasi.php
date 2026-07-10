@@ -14,6 +14,7 @@ class Organisasi extends Model
     protected $table = 'organisasi';
 
     protected $fillable = [
+        'anggota_id',
         'nama',
         'jabatan',
         'foto',
@@ -47,6 +48,11 @@ class Organisasi extends Model
         ];
 
         return $labels[$this->kategori] ?? $this->kategori;
+    }
+
+    public function anggota()
+    {
+        return $this->belongsTo(Anggota::class, 'anggota_id');
     }
 
     // Scope untuk kategori

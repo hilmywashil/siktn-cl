@@ -206,44 +206,18 @@
 
             <div class="form-group">
                 <label for="jabatan" class="form-label required">Jabatan</label>
-                <input type="text" id="jabatan" name="jabatan" class="form-input @error('jabatan') error @enderror" 
-                       value="{{ old('jabatan', $organisasi->jabatan) }}" placeholder="Contoh: Ketua Bidang Kewirausahaan">
+                <select id="jabatan" name="jabatan" class="form-select select2 @error('jabatan') error @enderror">
+                    <option value="">Pilih Jabatan</option>
+                    @foreach($jabatans as $jab)
+                        <option value="{{ $jab->nama_jabatan }}" {{ old('jabatan', $organisasi->jabatan) == $jab->nama_jabatan ? 'selected' : '' }}>
+                            {{ $jab->nama_jabatan }}
+                        </option>
+                    @endforeach
+                </select>
                 @error('jabatan')
                     <div class="error-message">{{ $message }}</div>
                 @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="kategori" class="form-label required">Kategori Jabatan</label>
-                <select id="kategori" name="kategori" class="form-select @error('kategori') error @enderror" onchange="showKategoriInfo(this.value)">
-                    <option value="">Pilih Kategori</option>
-                    <option value="ketua_umum" {{ old('kategori', $organisasi->kategori) == 'ketua_umum' ? 'selected' : '' }}>Ketua Umum</option>
-                    <option value="wakil_ketua_umum" {{ old('kategori', $organisasi->kategori) == 'wakil_ketua_umum' ? 'selected' : '' }}>Wakil Ketua Umum</option>
-                    <option value="ketua_bidang" {{ old('kategori', $organisasi->kategori) == 'ketua_bidang' ? 'selected' : '' }}>Ketua Bidang</option>
-                    <option value="sekretaris_umum" {{ old('kategori', $organisasi->kategori) == 'sekretaris_umum' ? 'selected' : '' }}>Sekretaris Umum</option>
-                    <option value="wakil_sekretaris_umum" {{ old('kategori', $organisasi->kategori) == 'wakil_sekretaris_umum' ? 'selected' : '' }}>Wakil Sekretaris Umum</option>
-                </select>
-                @error('kategori')
-                    <div class="error-message">{{ $message }}</div>
-                @enderror
-                
-                {{-- Info Box untuk setiap kategori --}}
-                <div id="kategoriInfo" style="display: none; margin-top: 1rem; padding: 1rem; background: #f0f9ff; border-left: 4px solid #0284c7; border-radius: 6px;">
-                    <div style="display: flex; align-items: start; gap: 0.75rem;">
-                        <svg style="width: 20px; height: 20px; color: #0284c7; flex-shrink: 0; margin-top: 2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="16" x2="12" y2="12"></line>
-                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                        </svg>
-                        <div>
-                            <div style="font-weight: 600; color: #075985; margin-bottom: 0.25rem;" id="kategoriTitle"></div>
-                            <div style="font-size: 0.875rem; color: #0c4a6e; line-height: 1.5;" id="kategoriDesc"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Hidden input untuk urutan (auto-generated) --}}
+            </div>            {{-- Hidden input untuk urutan (auto-generated) --}}
             <input type="hidden" id="urutan" name="urutan" value="{{ old('urutan', $organisasi->urutan) }}">
 
             <div class="form-group">
@@ -309,6 +283,16 @@
 
 @push('scripts')
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Select2
+        $('.select2').select2({
+            placeholder: "Pilih Jabatan...",
+            allowClear: true,
+            theme: 'default',
+            width: '100%'
+        });
+    });
+
     function previewImage(event) {
         const preview = document.getElementById('preview');
         const previewContainer = document.getElementById('imagePreview');
@@ -324,49 +308,6 @@
         }
     }
 
-    function showKategoriInfo(kategori) {
-        const infoBox = document.getElementById('kategoriInfo');
-        const title = document.getElementById('kategoriTitle');
-        const desc = document.getElementById('kategoriDesc');
-        
-        const infoData = {
-            'ketua_umum': {
-                title: 'Posisi: Bagian Paling Atas (Tunggal)',
-                desc: 'Data akan ditampilkan di bagian paling atas halaman organisasi dengan accent hijau. Hanya ada 1 Ketua Umum yang tampil.'
-            },
-            'wakil_ketua_umum': {
-                title: 'Posisi: Di Bawah Ketua Umum',
-                desc: 'Data akan ditampilkan di bawah Ketua Umum dengan accent biru. Bisa menampilkan beberapa Wakil Ketua Umum secara vertikal.'
-            },
-            'ketua_bidang': {
-                title: 'Posisi: Bagian Tengah (Grid 4 Kolom)',
-                desc: 'Data akan ditampilkan dalam bentuk grid 4 kolom dengan accent merah. Untuk menampilkan beberapa Ketua Bidang sekaligus.'
-            },
-            'sekretaris_umum': {
-                title: 'Posisi: Setelah Ketua Bidang (Tunggal)',
-                desc: 'Data akan ditampilkan setelah bagian Ketua Bidang dengan accent hijau. Hanya ada 1 Sekretaris Umum yang tampil.'
-            },
-            'wakil_sekretaris_umum': {
-                title: 'Posisi: Bagian Paling Bawah (Grid 4 Kolom)',
-                desc: 'Data akan ditampilkan di bagian paling bawah dalam bentuk grid 4 kolom dengan accent biru. Untuk menampilkan beberapa Wakil Sekretaris Umum.'
-            }
-        };
-        
-        if (kategori && infoData[kategori]) {
-            title.textContent = infoData[kategori].title;
-            desc.textContent = infoData[kategori].desc;
-            infoBox.style.display = 'block';
-        } else {
-            infoBox.style.display = 'none';
-        }
-    }
 
-    // Show info on page load if kategori already selected
-    document.addEventListener('DOMContentLoaded', function() {
-        const kategoriSelect = document.getElementById('kategori');
-        if (kategoriSelect.value) {
-            showKategoriInfo(kategoriSelect.value);
-        }
-    });
 </script>
 @endpush

@@ -44,6 +44,8 @@ class Anggota extends Authenticatable
         'instagram',
         'tiktok',
         'twitter',
+        
+        'updated_fields',
     ];
 
     protected $hidden = [
@@ -56,6 +58,7 @@ class Anggota extends Authenticatable
         'id' => 'integer',
         'tanggal_lahir' => 'date',
         'approved_at' => 'datetime',
+        'updated_fields' => 'array',
     ];
 
     public function katalog()

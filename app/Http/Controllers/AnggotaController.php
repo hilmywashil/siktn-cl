@@ -220,7 +220,8 @@ class AnggotaController extends Controller
         }
 
         $anggota = Auth::guard('anggota')->user();
-        return view('pages.registration-success', compact('anggota'));
+        $jabatans = \App\Models\Jabatan::orderBy('nama_jabatan', 'asc')->get();
+        return view('pages.registration-success', compact('anggota', 'jabatans'));
     }
 
     /**
@@ -237,7 +238,9 @@ class AnggotaController extends Controller
                 ->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        return view('pages.profile-anggota', compact('anggota'));
+        $jabatans = \App\Models\Jabatan::orderBy('nama_jabatan', 'asc')->get();
+
+        return view('pages.profile-anggota', compact('anggota', 'jabatans'));
     }
 
     /**
@@ -312,10 +315,14 @@ class AnggotaController extends Controller
         ];
 
         $needsVerification = false;
+        $updatedFields = is_array($anggota->updated_fields) ? $anggota->updated_fields : [];
+        
         foreach ($sensitiveFields as $field) {
             if ($anggota->isDirty($field)) {
                 $needsVerification = true;
-                break;
+                if (!in_array($field, $updatedFields)) {
+                    $updatedFields[] = $field;
+                }
             }
         }
 
@@ -331,6 +338,10 @@ class AnggotaController extends Controller
             } else {
                 $message = 'Profil berhasil diperbarui.';
             }
+        }
+        
+        if ($needsVerification || in_array($anggota->getOriginal('status'), ['pending', 'pending_profile'])) {
+            $anggota->updated_fields = $updatedFields;
         }
 
         $anggota->save();

@@ -61,6 +61,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Organisasi CRUD (BPD only)
         Route::resource('organisasi', OrganisasiController::class);
 
+        // Master Jabatan CRUD (Super Admin & PNKT only, logic handled in controller)
+        Route::resource('jabatan', \App\Http\Controllers\Admin\JabatanController::class);
+
         // E-Katalog CRUD dengan Approval System (BPD only)
         Route::prefix('katalog')->name('katalog.')->group(function () {
             // List semua katalog
@@ -171,16 +174,12 @@ Route::get('/berita/{slug}', [BeritaController::class, 'show'])->name('berita-de
 
 // Other Public Pages
 Route::get('/organisasi', function () {
-    $ketuaUmum = \App\Models\Organisasi::aktif()->kategori('ketua_umum')->ordered()->get();
-    $wakilKetua = \App\Models\Organisasi::aktif()->kategori('wakil_ketua_umum')->ordered()->get();
-    $ketuaBidang = \App\Models\Organisasi::aktif()->kategori('ketua_bidang')->ordered()->get();
-    $sekretarisUmum = \App\Models\Organisasi::aktif()->kategori('sekretaris_umum')->ordered()->get();
-    $pengurusLainnya = \App\Models\Organisasi::aktif()
-        ->whereNotIn('kategori', ['ketua_umum', 'ketua_bidang', 'sekretaris_umum', 'wakil_ketua_umum'])
-        ->ordered()
-        ->get();
+    $organisasiByUrutan = \App\Models\Organisasi::aktif()
+        ->orderBy('urutan', 'asc')
+        ->get()
+        ->groupBy('urutan');
 
-    return view('pages.organisasi', compact('ketuaUmum', 'ketuaBidang', 'sekretarisUmum', 'pengurusLainnya', 'wakilKetua'));
+    return view('pages.organisasi', compact('organisasiByUrutan'));
 })->name('organisasi');
 Route::get('/organisasi/{nama}', [PublicOrganisasiController::class, 'show'])
     ->name('organisasi.show');
