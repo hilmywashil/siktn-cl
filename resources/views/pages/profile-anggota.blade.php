@@ -1395,7 +1395,7 @@
                             <div class="kta-gold-bar"></div>
 
                             <div class="kta-back-content">
-                                <img src="{{ asset('assets/img/logo.png') }}" class="kta-watermark" alt="Watermark" onerror="this.src=''">
+                                <img src="{{ asset('assets-front/images/logo_karang_taruna.png') }}" class="kta-watermark" alt="Watermark" onerror="this.src=''">
 
                                 <div class="kta-back-ketentuan-title">Ketentuan:</div>
                                 <ol class="kta-back-ketentuan-list">
