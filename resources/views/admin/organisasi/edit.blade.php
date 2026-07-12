@@ -208,7 +208,7 @@
                 <label for="jabatan" class="form-label required">Jabatan</label>
                 <select id="jabatan" name="jabatan" class="form-select select2 @error('jabatan') error @enderror">
                     <option value="">Pilih Jabatan</option>
-                    @foreach($jabatans as $jab)
+                    @foreach($jabatans->unique('nama_jabatan') as $jab)
                         <option value="{{ $jab->nama_jabatan }}" {{ old('jabatan', $organisasi->jabatan) == $jab->nama_jabatan ? 'selected' : '' }}>
                             {{ $jab->nama_jabatan }}
                         </option>

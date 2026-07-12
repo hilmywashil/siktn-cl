@@ -231,99 +231,173 @@
         border: 1px solid #6ee7b7;
     }
 
-    /* Hierarchy Visualization Styles */
-    .hierarchy-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2rem;
-        padding: 2rem 0;
+    /* Org Tree - sama persis kayak Master Jabatan */
+    .org-tree {
+        text-align: center;
+        display: block;
+        margin: 0 auto;
+        width: max-content;
+        min-width: max-content;
+        padding: 1.5rem 3rem 1rem 3rem;
     }
-
-    .hierarchy-level {
+    .org-tree ul {
+        padding-top: 20px;
+        position: relative;
+        transition: all 0.5s;
+        padding-left: 0;
         display: flex;
         justify-content: center;
-        flex-wrap: wrap;
-        gap: 1.5rem;
+        margin: 0;
+    }
+    .org-tree li {
+        text-align: center;
+        list-style-type: none;
         position: relative;
-        width: 100%;
+        padding: 30px 20px 0 20px;
+        transition: all 0.5s;
     }
-
-    .hierarchy-level:not(:last-child)::after {
+    .org-tree li::before, .org-tree li::after {
         content: '';
-        position: absolute;
-        bottom: -2rem;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 2px;
-        height: 2rem;
-        background-color: #cbd5e1;
+        position: absolute; top: 0; right: 50%;
+        border-top: 2px solid #cbd5e1;
+        width: 50%; height: 30px;
+    }
+    .org-tree li::after { right: auto; left: 50%; border-left: 2px solid #cbd5e1; }
+    .org-tree li:only-child::after, .org-tree li:only-child::before { display: none; }
+    .org-tree li:only-child { padding-top: 0; }
+    .org-tree li:first-child::before, .org-tree li:last-child::after { border: 0 none; }
+    .org-tree li:last-child::before { border-right: 2px solid #cbd5e1; border-radius: 0 5px 0 0; }
+    .org-tree li:first-child::after { border-radius: 5px 0 0 0; }
+    .org-tree ul ul::before {
+        content: '';
+        position: absolute; top: 0; left: 50%;
+        border-left: 2px solid #cbd5e1;
+        width: 0; height: 30px;
     }
 
-    .hierarchy-card {
-        background: white;
+    .org-tree-node {
         border: 2px solid #e2e8f0;
         border-top: 4px solid #0a2540;
+        padding: 0.75rem 1rem 0.75rem 1rem;
+        display: inline-block;
         border-radius: 8px;
-        padding: 1.5rem 1.5rem 1rem 1.5rem;
-        text-align: center;
-        min-width: 220px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        background: white;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        min-width: 160px;
+        max-width: 220px;
         position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
+        z-index: 1;
+        margin-bottom: 20px;
+        text-align: center;
+        vertical-align: top;
     }
-
-    .hierarchy-card::before {
-        content: attr(data-urutan);
+    .org-tree-node.empty-node {
+        border-top-color: #cbd5e1;
+        opacity: 0.7;
+    }
+    .org-node-urutan {
         position: absolute;
-        top: -12px;
+        top: -10px;
         left: 50%;
         transform: translateX(-50%);
         background: #0a2540;
         color: white;
-        font-size: 0.75rem;
-        font-weight: bold;
+        font-size: 0.65rem;
         padding: 2px 8px;
         border-radius: 12px;
+        white-space: nowrap;
+        z-index: 2;
     }
-
-    .hierarchy-avatar {
-        width: 80px;
-        height: 80px;
-        border-radius: 8px;
+    .org-node-jabatan {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #0a2540;
+        margin-top: 0.5rem;
+        margin-bottom: 0.2rem;
+    }
+    .org-member-mini-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.3rem;
+        padding-top: 0.2rem;
+    }
+    .org-avatar-mini {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
         object-fit: cover;
         border: 2px solid #e2e8f0;
     }
-    
-    .hierarchy-avatar-placeholder {
-        width: 80px;
-        height: 80px;
-        border-radius: 8px;
-        background: #C59217;
+    .org-avatar-placeholder-mini {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #0a2540;
         color: white;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 700;
-        font-size: 1.5rem;
-        border: 2px solid #e2e8f0;
+        font-size: 1.1rem;
     }
-
-    .hierarchy-title {
-        font-size: 0.95rem;
+    .org-name-mini {
+        font-size: 0.85rem;
         font-weight: 700;
-        color: #1e293b;
+        color: #0a2540;
         margin: 0;
     }
-    
-    .hierarchy-name {
-        font-size: 0.85rem;
-        font-weight: 500;
+    .org-jabatan-mini {
+        font-size: 0.7rem;
         color: #6b7280;
         margin: 0;
+    }
+    .org-add-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 2px solid #cbd5e1;
+    }
+    .org-add-btn:hover { background: #0a2540; color: white; border-color: #0a2540; }
+
+    .sibling-btn {
+        position: absolute;
+        right: -12px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .sibling-btn:hover { background: #0ea5e9; border-color: #0ea5e9; color: white; }
+
+    .child-btn {
+        position: absolute;
+        bottom: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .child-btn:hover { background: #10b981; border-color: #10b981; color: white; }
+
+    .org-tree-wrapper {
+        overflow: auto;
+        max-height: 550px;
+        width: 100%;
+        display: block;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #fafbfc;
+        padding-bottom: 0.5rem;
     }
 </style>
 @endpush
@@ -343,34 +417,22 @@
         <div class="card-header">
             <div>
                 <h3 class="card-title">Struktur Organisasi</h3>
-                <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem;">Bagan organisasi yang aktif saat ini.</p>
+                <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem;">Bagan organisasi berdasarkan jabatan. Klik <strong>+</strong> pada node untuk menambah anggota.</p>
             </div>
         </div>
         
-        <div class="hierarchy-container">
-            @if($organisasiByUrutan->count() > 0)
-                @foreach($organisasiByUrutan as $urutan => $orgsInLevel)
-                    <div class="hierarchy-level">
-                        @foreach($orgsInLevel as $org)
-                            <div class="hierarchy-card" data-urutan="Urutan {{ $urutan }}">
-                                @if($org->foto)
-                                    <img src="{{ Storage::url($org->foto) }}" alt="{{ $org->nama }}" class="hierarchy-avatar">
-                                @else
-                                    <div class="hierarchy-avatar-placeholder">
-                                        {{ strtoupper(substr($org->nama, 0, 2)) }}
-                                    </div>
-                                @endif
-                                <div>
-                                    <h4 class="hierarchy-title">{{ $org->nama }}</h4>
-                                    <p class="hierarchy-name">{{ $org->jabatan }}</p>
-                                </div>
-                            </div>
+        <div class="org-tree-wrapper">
+            @if(isset($jabatanTree) && $jabatanTree->count() > 0)
+                <div class="org-tree">
+                    <ul>
+                        @foreach($jabatanTree as $root)
+                            @include('admin.organisasi.partials.tree-node', ['node' => $root])
                         @endforeach
-                    </div>
-                @endforeach
+                    </ul>
+                </div>
             @else
-                <div class="empty-state" style="padding: 1rem;">
-                    <p>Belum ada anggota organisasi untuk divisualisasikan.</p>
+                <div class="empty-state" style="padding: 2rem;">
+                    <p>Belum ada jabatan. <a href="{{ route('admin.jabatan.index') }}">Tambah Jabatan</a> terlebih dahulu.</p>
                 </div>
             @endif
         </div>
@@ -432,10 +494,10 @@
                                             </svg>
                                             Edit
                                         </a>
-                                        <form action="{{ route('admin.organisasi.destroy', $item) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                        <form action="{{ route('admin.organisasi.destroy', $item) }}" method="POST" class="delete-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn-delete">
+                                            <button type="button" class="btn-delete delete-btn">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14">
                                                     <polyline points="3 6 5 6 21 6"></polyline>
                                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -464,3 +526,36 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = this.closest('.delete-form');
+                
+                Swal.fire({
+                    title: 'Hapus Data?',
+                    text: "Data yang dihapus tidak dapat dikembalikan!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal',
+                    customClass: {
+                        confirmButton: 'swal2-confirm-btn',
+                        cancelButton: 'swal2-cancel-btn'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
+@endpush

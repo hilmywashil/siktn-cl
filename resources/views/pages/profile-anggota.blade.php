@@ -1534,7 +1534,7 @@
                                         $jabatanFound = false;
                                     @endphp
                                     @if(isset($jabatans))
-                                        @foreach($jabatans as $jab)
+                                        @foreach($jabatans->unique('nama_jabatan') as $jab)
                                             @php 
                                                 if($currentJabatan == $jab->nama_jabatan) $jabatanFound = true;
                                             @endphp

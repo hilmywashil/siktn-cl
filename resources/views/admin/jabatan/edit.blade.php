@@ -129,15 +129,14 @@
 
         <div class="form-group">
             <label for="urutan" class="form-label required">Urutan (Hierarki)</label>
-            <input type="number" 
+            <input type="text" 
                    id="urutan" 
                    name="urutan" 
                    class="form-input @error('urutan') error @enderror" 
                    value="{{ old('urutan', $jabatan->urutan) }}" 
-                   placeholder="1 untuk posisi tertinggi" 
-                   min="1"
+                   placeholder="Contoh: 1.2.1 atau 2.a" 
                    required>
-            <p class="text-muted" style="margin-top: 5px; font-size: 0.75rem; color: #6b7280;">Semakin kecil angkanya, semakin tinggi posisinya di struktur organisasi.</p>
+            <p class="text-muted" style="margin-top: 5px; font-size: 0.75rem; color: #6b7280;">Gunakan format angka bertitik (contoh: 1, 1.1, 1.1.2) untuk menentukan posisi di struktur organisasi.</p>
             @error('urutan')
                 <div class="error-message">{{ $message }}</div>
             @enderror

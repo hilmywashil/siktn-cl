@@ -9,118 +9,82 @@
 
 @section('content')
     @include('layouts.components.hero')
-    <section class="wrapper-white-1">
-        <div class="organisasi-section" data-aos="fade-up">
-            @if($ketuaUmum->count() > 0)
-                <div class="grid-section">
-                    <div class="grid-title">
-                        <h2>Ketua Umum</h2>
-                    </div>
-                    <div class="grid-1">
-                        @foreach($ketuaUmum as $org)
-                            <a href="{{ route('organisasi.show', $org->nama) }}">
-                                <div class="card">
-                                    <img src="{{ $org->foto_url }}" alt="{{ $org->nama }}">
-                                    <div>
-                                        <h3>{{ Str::words($org->nama, 2, '') }}</h3>
-                                        <p>{{ $org->jabatan }}</p>
-                                    </div>
-                                </div>
-                            </a>
+    <style>
+        .public-tree {
+            text-align: center;
+            display: block;
+            margin: 0 auto;
+            width: max-content;
+            min-width: max-content;
+            padding: 2rem 2rem 5rem 2rem;
+            overflow-x: auto;
+        }
+        .public-tree ul {
+            padding-top: 30px;
+            position: relative;
+            transition: all 0.5s;
+            padding-left: 0;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+        }
+        .public-tree li {
+            text-align: center;
+            list-style-type: none;
+            position: relative;
+            padding: 30px 15px 0 15px;
+            transition: all 0.5s;
+        }
+        /* Garis horizontal atas */
+        .public-tree li::before, .public-tree li::after {
+            content: '';
+            position: absolute; top: 0; right: 50%;
+            border-top: 3px solid #022648;
+            width: 50%; height: 30px;
+        }
+        .public-tree li::after {
+            right: auto; left: 50%;
+            border-left: 3px solid #022648;
+        }
+        .public-tree li:only-child::after, .public-tree li:only-child::before {
+            display: none;
+        }
+        .public-tree li:only-child { padding-top: 0; }
+        .public-tree li:first-child::before, .public-tree li:last-child::after {
+            border: 0 none;
+        }
+        .public-tree li:last-child::before {
+            border-right: 3px solid #022648;
+            border-radius: 0 8px 0 0;
+        }
+        .public-tree li:first-child::after {
+            border-radius: 8px 0 0 0;
+        }
+        /* Garis vertikal ke anak */
+        .public-tree ul ul::before {
+            content: '';
+            position: absolute; top: 0; left: 50%;
+            border-left: 3px solid #022648;
+            width: 0; height: 30px;
+            transform: translateX(-50%);
+        }
+        .card { transition: all 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px rgba(0,0,0,0.1) !important; }
+    </style>
+    <section class="wrapper-white-1" style="overflow-x: auto;">
+        <div class="organisasi-section" data-aos="fade-up" style="max-width: 100%;">
+            @if(isset($organisasiTree) && $organisasiTree->count() > 0)
+                <div class="public-tree">
+                    <ul>
+                        @foreach($organisasiTree as $root)
+                            @include('pages.partials.org-tree-node', ['node' => $root])
                         @endforeach
-                    </div>
+                    </ul>
                 </div>
-            @endif
-            
-            @if($wakilKetua->count() > 0)
-                <div class="grid-section">
-                    <div class="grid-title">
-                        <h2>Ketua Umum</h2>
-                    </div>
-                    <div class="grid-1">
-                        @foreach($wakilKetua as $org)
-                            <a href="{{ route('organisasi.show', $org->nama) }}">
-                                <div class="card">
-                                    <img src="{{ $org->foto_url }}" alt="{{ $org->nama }}">
-                                    <div>
-                                        <h3>{{ Str::words($org->nama, 2, '') }}</h3>
-                                        <p>{{ $org->jabatan }}</p>
-                                    </div>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
-            @if($ketuaBidang->count() > 0)
-                <div class="grid-section">
-                    <div class="grid-title">
-                        <h2>Ketua Bidang</h2>
-                    </div>
-                    <div class="grid-4">
-                        @foreach($ketuaBidang as $org)
-                            <a href="{{ route('organisasi.show', $org->nama) }}">
-                                <div class="card">
-                                    <img src="{{ $org->foto_url }}" alt="{{ $org->nama }}">
-                                    <div>
-                                        <h3>{{ Str::words($org->nama, 2, '') }}</h3>
-                                        <p>{{ $org->jabatan }}</p>
-                                    </div>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
-            @if($sekretarisUmum->count() > 0)
-                <div class="grid-section">
-                    <div class="grid-title">
-                        <h2>Sekretaris Umum</h2>
-                    </div>
-                    <div class="grid-1">
-                        @foreach($sekretarisUmum as $org)
-                            <a href="{{ route('organisasi.show', $org->nama) }}">
-                                <div class="card">
-                                    <img src="{{ $org->foto_url }}" alt="{{ $org->nama }}">
-                                    <div>
-                                        <h3>{{ Str::words($org->nama, 2, '') }}</h3>
-                                        <p>{{ $org->jabatan }}</p>
-                                    </div>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
-            @if($pengurusLainnya->count() > 0)
-                <div class="grid-section">
-                    <div class="grid-title">
-                        <h2>PENGURUS LAINNYA</h2>
-                    </div>
-                    <div class="grid-4">
-                        @foreach($pengurusLainnya as $org)
-                            <a href="{{ route('organisasi.show', $org->nama) }}">
-                                <div class="card">
-                                    <img src="{{ $org->foto_url }}" alt="{{ $org->nama }}">
-                                    <div>
-                                        <h3>{{ Str::words($org->nama, 2, '') }}</h3>
-                                        <p>{{ $org->jabatan }}</p>
-                                    </div>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
-            @if($ketuaUmum->isEmpty() && $ketuaBidang->isEmpty() && $sekretarisUmum->isEmpty() && $pengurusLainnya->isEmpty())
+            @else
                 <div style="text-align: center; padding: 50px 0; color: #6b7280;">
                     <p>Belum ada data struktur organisasi yang aktif.</p>
                 </div>
-
             @endif
         </div>
     </section>

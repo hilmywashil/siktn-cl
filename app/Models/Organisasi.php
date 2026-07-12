@@ -6,10 +6,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Builder;
 
 class Organisasi extends Model
 {
     use HasFactory;
+
+    protected static function booted()
+    {
+        static::addGlobalScope('valid_anggota', function (Builder $builder) {
+            $builder->where(function ($query) {
+                $query->whereNull('anggota_id')
+                      ->orWhereHas('anggota'); // Hanya tampilkan jika anggotanya belum dihapus (soft delete)
+            });
+        });
+    }
 
     protected $table = 'organisasi';
 

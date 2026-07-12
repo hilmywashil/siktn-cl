@@ -185,20 +185,34 @@
             </div>
 
             <div class="form-group">
-                <label for="jabatan" class="form-label required">Jabatan</label>
-                <select id="jabatan" name="jabatan" class="form-select select2 @error('jabatan') error @enderror">
-                    <option value="">Pilih Jabatan</option>
-                    @foreach($jabatans as $jab)
-                        <option value="{{ $jab->nama_jabatan }}" {{ old('jabatan') == $jab->nama_jabatan ? 'selected' : '' }}>
-                            {{ $jab->nama_jabatan }}
-                        </option>
+                <label for="jabatan" class="form-label required">Nama Jabatan</label>
+                <input type="text" id="jabatan" name="jabatan" class="form-input @error('jabatan') error @enderror" 
+                       value="{{ old('jabatan', request('jabatan')) }}" list="jabatan-list" placeholder="Pilih atau Ketik Jabatan Baru" required>
+                <datalist id="jabatan-list">
+                    @foreach($jabatans->unique('nama_jabatan') as $jab)
+                        <option value="{{ $jab->nama_jabatan }}"></option>
                     @endforeach
-                </select>
+                </datalist>
                 @error('jabatan')
                     <div class="error-message">{{ $message }}</div>
                 @enderror
-            </div>            {{-- Hidden input untuk urutan (auto-generated) --}}
-            <input type="hidden" id="urutan" name="urutan" value="{{ old('urutan', 0) }}">
+            </div>
+            
+            <div class="form-group" id="atasan-group">
+                <label for="atasan_id" class="form-label required">Pilih Atasan (Induk)</label>
+                <select id="atasan_id" name="atasan_id" class="form-select select2 @error('atasan_id') error @enderror">
+                    <option value="">-- Tidak Ada (Jadi Pimpinan Tertinggi) --</option>
+                    @foreach($jabatans as $jab)
+                        <option value="{{ $jab->id }}" {{ old('atasan_id', request('atasan_id')) == $jab->id ? 'selected' : '' }}>
+                            {{ $jab->urutan }} - {{ $jab->nama_jabatan }}
+                        </option>
+                    @endforeach
+                </select>
+                <div class="form-helper">Pilih jabatan induk untuk menentukan urutan secara otomatis.</div>
+                @error('atasan_id')
+                    <div class="error-message">{{ $message }}</div>
+                @enderror
+            </div>
 
             <div class="form-group">
                 <label for="foto" class="form-label">Foto</label>
@@ -256,10 +270,8 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Select2
+        // Initialize Select2 tanpa placeholder agar opsi pertama (kosong) tetap muncul di list
         $('.select2').select2({
-            placeholder: "Pilih Jabatan...",
-            allowClear: true,
             theme: 'default',
             width: '100%'
         });

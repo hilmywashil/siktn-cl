@@ -123,7 +123,8 @@ class AnggotaManagementController extends Controller
     public function show(Anggota $anggota)
     {
         $this->checkAnggotaAccess($anggota);
-        return view('admin.anggota.show', compact('anggota'));
+        $jabatans = \App\Models\Jabatan::orderBy('urutan')->get();
+        return view('admin.anggota.show', compact('anggota', 'jabatans'));
     }
 
     /**
@@ -190,12 +191,13 @@ class AnggotaManagementController extends Controller
     /**
      * Approve anggota
      */
-    public function approve(Anggota $anggota)
+    public function approve(Request $request, Anggota $anggota)
     {
         $this->checkAnggotaAccess($anggota);
         
         $admin = auth()->guard('admin')->user();
 
+        // 1. Update status anggota
         $anggota->update([
             'status' => 'approved',
             'approved_at' => now(),
@@ -203,20 +205,99 @@ class AnggotaManagementController extends Controller
             'updated_fields' => null,
         ]);
 
-        // Otomatis masukkan ke struktur organisasi
-        if ($anggota->jabatan) {
-            $masterJabatan = \App\Models\Jabatan::where('nama_jabatan', $anggota->jabatan)->first();
-            $urutan = $masterJabatan ? $masterJabatan->urutan : 999;
-            
+        // 2. Handle Jabatan dan Organisasi secara Otomatis
+        $jabatanNama = $anggota->jabatan;
+
+        if ($jabatanNama) {
+            $newUrutan = '1';
+
+            // Cari apakah jabatan ini sudah ada di struktur
+            $existingJabatan = \App\Models\Jabatan::where('nama_jabatan', $jabatanNama)->first();
+
+            if ($existingJabatan) {
+                $existingUrutan = $existingJabatan->urutan;
+                $parts = explode('.', $existingUrutan);
+                
+                if (count($parts) > 1) {
+                    // Ambil urutan parent-nya
+                    array_pop($parts);
+                    $parentUrutan = implode('.', $parts);
+                    
+                    // Cari semua child dari parent ini
+                    $children = \App\Models\Jabatan::where('urutan', 'like', $parentUrutan . '.%')->get()
+                        ->filter(function($j) use ($parentUrutan) {
+                            $p = explode('.', $j->urutan);
+                            $parentP = explode('.', $parentUrutan);
+                            return count($p) === count($parentP) + 1;
+                        });
+
+                    if ($children->count() > 0) {
+                        $maxChild = $children->sortByDesc(function($j) {
+                            $p = explode('.', $j->urutan);
+                            return end($p);
+                        })->first();
+
+                        $p = explode('.', $maxChild->urutan);
+                        $last = array_pop($p);
+                        
+                        if (is_numeric($last)) {
+                            $nextLast = (int)$last + 1;
+                        } else {
+                            $nextLast = ++$last;
+                        }
+                        $newUrutan = implode('.', $p) . '.' . $nextLast;
+                    } else {
+                        $newUrutan = $parentUrutan . '.a';
+                    }
+                } else {
+                    // Jika yang existing adalah root (tidak ada titik), tambahkan sebagai root baru
+                    $roots = \App\Models\Jabatan::all()->filter(function($j) {
+                        return !str_contains($j->urutan, '.');
+                    });
+                    $maxRoot = 0;
+                    foreach ($roots as $r) {
+                        if (is_numeric($r->urutan) && (int)$r->urutan > $maxRoot) {
+                            $maxRoot = (int)$r->urutan;
+                        }
+                    }
+                    $newUrutan = (string)($maxRoot + 1);
+                }
+            } else {
+                // Jabatan sama sekali baru, jadikan Root default
+                $roots = \App\Models\Jabatan::all()->filter(function($j) {
+                    return !str_contains($j->urutan, '.');
+                });
+                
+                $maxRoot = 0;
+                if ($roots->count() > 0) {
+                    foreach ($roots as $r) {
+                        if (is_numeric($r->urutan) && (int)$r->urutan > $maxRoot) {
+                            $maxRoot = (int)$r->urutan;
+                        }
+                    }
+                }
+                $newUrutan = (string)($maxRoot + 1);
+            }
+
+            // Simpan Jabatan Baru khusus untuk orang ini
+            $masterJabatan = \App\Models\Jabatan::create([
+                'nama_jabatan' => $jabatanNama,
+                'urutan' => $newUrutan
+            ]);
+
+            // Update field jabatan di Anggota
+            $anggota->update(['jabatan' => $jabatanNama]);
+
+            // Masukkan ke Struktur Organisasi
             Organisasi::updateOrCreate(
                 ['anggota_id' => $anggota->id],
                 [
                     'nama' => $anggota->nama_lengkap ?? $anggota->username,
-                    'jabatan' => $anggota->jabatan,
-                    'kategori' => $anggota->jabatan, // Default kategori dari nama jabatan
+                    'jabatan' => $masterJabatan->nama_jabatan,
+                    'kategori' => $masterJabatan->nama_jabatan, // Default kategori dari nama jabatan
                     'foto' => $anggota->foto_diri ?? null,
                     'aktif' => true,
-                    'urutan' => $urutan,
+                    'urutan' => $masterJabatan->urutan,
                 ]
             );
         }

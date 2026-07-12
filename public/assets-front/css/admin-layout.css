@@ -235,6 +235,8 @@ body {
     display: flex;
     flex-direction: column;
     transition: margin-left 0.3s ease;
+    overflow-x: hidden; /* Kunci lebar agar tidak melar ke kanan */
+    min-width: 0;       /* Fix for flex children stretching */
 }
 
 .topbar {
@@ -309,6 +311,8 @@ body {
 .content {
     padding: 2rem;
     flex: 1;
+    overflow-x: hidden; /* Blokir konten melebar keluar */
+    min-width: 0;       /* Fix for flex children stretching */
 }
 
 /* ============ MOBILE ============ */

@@ -62,6 +62,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('organisasi', OrganisasiController::class);
 
         // Master Jabatan CRUD (Super Admin & PNKT only, logic handled in controller)
+        Route::delete('jabatan/bulk-delete', [\App\Http\Controllers\Admin\JabatanController::class, 'bulkDestroy'])->name('jabatan.bulk-delete');
         Route::resource('jabatan', \App\Http\Controllers\Admin\JabatanController::class);
 
         // E-Katalog CRUD dengan Approval System (BPD only)
@@ -174,12 +175,36 @@ Route::get('/berita/{slug}', [BeritaController::class, 'show'])->name('berita-de
 
 // Other Public Pages
 Route::get('/organisasi', function () {
-    $organisasiByUrutan = \App\Models\Organisasi::aktif()
+    $organisasi = \App\Models\Organisasi::aktif()
         ->orderBy('urutan', 'asc')
-        ->get()
-        ->groupBy('urutan');
+        ->get();
 
-    return view('pages.organisasi', compact('organisasiByUrutan'));
+    $nodesByUrutan = [];
+    foreach ($organisasi as $org) {
+        $org->children = collect();
+        if (!isset($nodesByUrutan[$org->urutan])) {
+            $nodesByUrutan[$org->urutan] = [];
+        }
+        $nodesByUrutan[$org->urutan][] = $org;
+    }
+
+    $organisasiTree = collect();
+    foreach ($organisasi as $org) {
+        $parts = explode('.', $org->urutan);
+        if (count($parts) > 1) {
+            array_pop($parts);
+            $parentUrutan = implode('.', $parts);
+            if (isset($nodesByUrutan[$parentUrutan])) {
+                $nodesByUrutan[$parentUrutan][0]->children->push($org);
+            } else {
+                $organisasiTree->push($org);
+            }
+        } else {
+            $organisasiTree->push($org);
+        }
+    }
+
+    return view('pages.organisasi', compact('organisasiTree'));
 })->name('organisasi');
 Route::get('/organisasi/{nama}', [PublicOrganisasiController::class, 'show'])
     ->name('organisasi.show');

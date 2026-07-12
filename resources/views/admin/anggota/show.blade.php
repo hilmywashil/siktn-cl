@@ -654,13 +654,22 @@
     {{-- Approve Modal --}}
     <div class="modal" id="approveModal">
         <div class="modal-content">
-            <h3 class="modal-title">Konfirmasi Persetujuan</h3>
+            <h3 class="modal-title">Konfirmasi Persetujuan & Penempatan Jabatan</h3>
             <p>Apakah Anda yakin ingin menyetujui pendaftaran <strong>{{ $anggota->nama_lengkap ?? $anggota->username }}</strong>?</p>
             <form action="{{ route('admin.anggota.approve', $anggota) }}" method="POST">
                 @csrf
+                <input type="hidden" name="jabatan_nama" value="{{ $anggota->jabatan }}">
+                
+                {{-- Logic is fully automated, no inputs needed --}}
+                <div style="margin: 1.5rem 0; padding: 1rem; background-color: #f8fafc; border-left: 4px solid #10b981; border-radius: 4px;">
+                    <p style="margin: 0; font-size: 0.85rem; color: #475569;">
+                        <strong>Info:</strong> Posisi jabatan dan urutan struktur (Bagan Organisasi) akan ditentukan secara otomatis berdasarkan profil jabatan yang telah diisi.
+                    </p>
+                </div>
+
                 <div class="modal-actions">
                     <button type="button" class="btn btn-back" onclick="closeModal('approveModal')">Batal</button>
-                    <button type="submit" class="btn btn-approve">Ya, Setujui</button>
+                    <button type="submit" class="btn btn-approve">Ya, Setujui & Simpan</button>
                 </div>
             </form>
         </div>
@@ -723,6 +732,8 @@
                 }
             });
         });
+
+        // Logika Atasan dihapus (selalu tampil) karena 1 Anggota = 1 Node yang butuh atasan spesifik
 
         setTimeout(() => {
             const alert = document.querySelector('.alert-success');
