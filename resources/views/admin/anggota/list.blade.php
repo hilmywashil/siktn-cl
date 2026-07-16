@@ -626,7 +626,7 @@
                                 <td>{{ $item->created_at->format('d M Y') }}</td>
                                 <td>
                                     <div class="action-buttons">
-                                        <a href="{{ route('admin.anggota.show-readonly', $item) }}" 
+                                        <a href="{{ route('admin.anggota.show', $item) }}" 
                                            class="btn-icon" 
                                            title="Lihat Detail">
                                             <svg viewBox="0 0 24 24">

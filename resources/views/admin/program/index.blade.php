@@ -220,6 +220,7 @@
         <h1 class="page-title">Manajemen Program</h1>
         <p class="page-desc">Kelola data program kerja CSR dan program internal Bidang Karang Taruna.</p>
     </div>
+    @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPNKT())
     <a href="{{ route('admin.program.create') }}" class="btn-primary">
         <svg viewBox="0 0 24 24">
             <line x1="12" y1="5" x2="12" y2="19"/>
@@ -227,6 +228,7 @@
         </svg>
         Tambah Program Baru
     </a>
+    @endif
 </div>
 
 <div class="admin-table-container">
@@ -234,39 +236,47 @@
         <h3 class="table-title">Daftar Program ({{ $programs->count() }})</h3>
     </div>
 
-    @if($programs->count() > 0)
-        <div style="padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: flex-start; background-color: #f8fafc;">
-            <form id="bulk-delete-form" action="{{ route('admin.program.bulk-delete') }}" method="POST">
-                @csrf
-                @method('DELETE')
-                <button type="button" id="btn-bulk-delete" class="btn-delete" style="display: none; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
-                        <path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                    </svg>
-                    Hapus Terpilih (<span id="selected-count">0</span>)
-                </button>
-            </form>
-        </div>
+    @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPNKT())
+        @if($programs->count() > 0)
+            <div style="padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: flex-start; background-color: #f8fafc;">
+                <form id="bulk-delete-form" action="{{ route('admin.program.bulk-delete') }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="button" id="btn-bulk-delete" class="btn-delete" style="display: none; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
+                            <path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                        Hapus Terpilih (<span id="selected-count">0</span>)
+                    </button>
+                </form>
+            </div>
+        @endif
     @endif
 
     <table class="admin-table">
         <thead>
             <tr>
+                @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPNKT())
                 <th width="5%" style="text-align: center;"><input type="checkbox" id="check-all" class="form-checkbox"></th>
+                @endif
                 <th>Nama Program</th>
                 <th>Kategori</th>
                 <th>Status</th>
                 <th>Periode</th>
                 <th>PIC</th>
+                @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPNKT())
                 <th>Aksi</th>
+                @endif
             </tr>
         </thead>
         <tbody>
             @forelse($programs as $program)
             <tr>
+                @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPNKT())
                 <td style="text-align: center;">
                     <input type="checkbox" name="ids[]" value="{{ $program->id }}" class="check-item form-checkbox" form="bulk-delete-form">
                 </td>
+                @endif
                 <td>
                     <div class="program-title">{{ $program->nama_program }}</div>
                     @if($program->kategori == 'CSR' && $program->mitra)
@@ -290,6 +300,7 @@
                     {{ \Carbon\Carbon::parse($program->periode_selesai)->format('d M Y') }}
                 </td>
                 <td><strong>{{ $program->pic }}</strong></td>
+                @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPNKT())
                 <td>
                     <div class="action-buttons">
                         @if($program->kategori == 'Bidang')
@@ -317,6 +328,7 @@
                         </form>
                     </div>
                 </td>
+                @endif
             </tr>
             @empty
             <tr>

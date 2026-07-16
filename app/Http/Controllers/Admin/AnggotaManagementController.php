@@ -35,11 +35,24 @@ class AnggotaManagementController extends Controller
         }
     }
 
+    private function checkRoleAuthorization($viewOnly = false)
+    {
+        $admin = auth()->guard('admin')->user();
+        if (!$admin->isSuperAdmin() && !$admin->canApproveAnggota()) {
+            if ($viewOnly && $admin->isPimpinan()) {
+                return; // Pimpinan allowed to view
+            }
+            abort(403, 'Akses ditolak: Anda tidak memiliki hak akses ke fitur ini.');
+        }
+    }
+
     /**
      * Display a listing of anggota
      */
     public function index(Request $request)
     {
+        $this->checkRoleAuthorization(true);
+
         $status = $request->get('status', 'all');
         
         $query = Anggota::query();
@@ -71,6 +84,8 @@ class AnggotaManagementController extends Controller
      */
     public function create()
     {
+        $this->checkRoleAuthorization();
+
         return view('admin.anggota.create');
     }
 
@@ -79,6 +94,8 @@ class AnggotaManagementController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkRoleAuthorization();
+
         $request->validate([
             'username' => 'required|string|max:255|unique:anggota,username',
             'nama_lengkap' => 'nullable|string|max:255',
@@ -122,6 +139,7 @@ class AnggotaManagementController extends Controller
      */
     public function show(Anggota $anggota)
     {
+        $this->checkRoleAuthorization(true);
         $this->checkAnggotaAccess($anggota);
         $jabatans = \App\Models\Jabatan::orderBy('urutan')->get();
         return view('admin.anggota.show', compact('anggota', 'jabatans'));
@@ -132,6 +150,7 @@ class AnggotaManagementController extends Controller
      */
     public function update(Request $request, Anggota $anggota)
     {
+        $this->checkRoleAuthorization();
         $this->checkAnggotaAccess($anggota);
         
         $validated = $request->validate([
@@ -167,6 +186,7 @@ class AnggotaManagementController extends Controller
      */
     public function updatePassword(Request $request, Anggota $anggota)
     {
+        $this->checkRoleAuthorization();
         $this->checkAnggotaAccess($anggota);
         
         $request->validate([
@@ -193,6 +213,7 @@ class AnggotaManagementController extends Controller
      */
     public function approve(Request $request, Anggota $anggota)
     {
+        $this->checkRoleAuthorization();
         $this->checkAnggotaAccess($anggota);
         
         $admin = auth()->guard('admin')->user();
@@ -312,6 +333,7 @@ class AnggotaManagementController extends Controller
      */
     public function reject(Request $request, Anggota $anggota)
     {
+        $this->checkRoleAuthorization();
         $this->checkAnggotaAccess($anggota);
         
         $request->validate([
@@ -337,6 +359,7 @@ class AnggotaManagementController extends Controller
      */
     public function destroy(Anggota $anggota)
     {
+        $this->checkRoleAuthorization();
         $this->checkAnggotaAccess($anggota);
         
         $anggota->delete();
@@ -360,6 +383,8 @@ class AnggotaManagementController extends Controller
      */
     public function bulkDestroy(Request $request)
     {
+        $this->checkRoleAuthorization();
+
         $request->validate([
             'ids' => 'required|array',
             'ids.*' => 'integer'
@@ -386,6 +411,8 @@ class AnggotaManagementController extends Controller
      */
     public function restore($id)
     {
+        $this->checkRoleAuthorization();
+
         $anggota = Anggota::onlyTrashed()->findOrFail($id);
         $anggota->restore();
 
@@ -397,6 +424,8 @@ class AnggotaManagementController extends Controller
      */
     public function forceDelete($id)
     {
+        $this->checkRoleAuthorization();
+
         $anggota = Anggota::onlyTrashed()->findOrFail($id);
 
         // Hapus file-file yang terkait

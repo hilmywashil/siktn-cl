@@ -443,6 +443,7 @@
     <div class="content-card">
         <div class="card-header">
             <h3 class="card-title">Daftar Struktur Organisasi</h3>
+            @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPNKT())
             <a href="{{ route('admin.organisasi.create') }}" class="btn-primary">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -450,6 +451,7 @@
                 </svg>
                 Tambah Anggota
             </a>
+            @endif
         </div>
 
         <div class="table-container">
@@ -461,7 +463,9 @@
                             <th>Nama & Jabatan</th>
                             <th>Kategori</th>
                             <th>Status</th>
+                            @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPNKT())
                             <th>Aksi</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -485,6 +489,7 @@
                                         {{ $item->aktif ? 'Aktif' : 'Tidak Aktif' }}
                                     </span>
                                 </td>
+                                @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPNKT())
                                 <td>
                                     <div class="action-buttons">
                                         <a href="{{ route('admin.organisasi.edit', $item) }}" class="btn-edit">
@@ -507,6 +512,7 @@
                                         </form>
                                     </div>
                                 </td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>

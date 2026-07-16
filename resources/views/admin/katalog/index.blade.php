@@ -376,6 +376,7 @@
         <h3>Daftar E-Katalog Perusahaan</h3>
         
         <div class="filter-group">
+            @if(auth()->guard('admin')->user()->canManageContent())
             <a href="{{ route('admin.katalog.create') }}" class="btn-add">
                 <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -383,6 +384,7 @@
                 </svg>
                 Tambah Katalog
             </a>
+            @endif
             
             <form method="GET" action="{{ route('admin.katalog.index') }}" style="display: contents;">
                 <select name="status" class="filter-select" onchange="this.form.submit()">
@@ -462,37 +464,39 @@
                                 Lihat
                             </a>
                             
-                            @if($katalog->isPending())
-                                <form action="{{ route('admin.katalog.approve', $katalog) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    <button type="submit" class="btn-approve" onclick="return confirm('Setujui katalog ini?')">
+                            @if(auth()->guard('admin')->user()->canManageContent())
+                                @if($katalog->isPending())
+                                    <form action="{{ route('admin.katalog.approve', $katalog) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        <button type="submit" class="btn-approve" onclick="return confirm('Setujui katalog ini?')">
+                                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2">
+                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                            </svg>
+                                            Approve
+                                        </button>
+                                    </form>
+                                    
+                                    <button type="button" class="btn-reject" onclick="openRejectModal({{ $katalog->id }}, '{{ $katalog->company_name }}')">
                                         <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
                                         </svg>
-                                        Approve
+                                        Reject
+                                    </button>
+                                @endif
+                                
+                                <form action="{{ route('admin.katalog.destroy', $katalog) }}" method="POST" style="display: inline;" onsubmit="return confirm('Hapus katalog ini? Tindakan tidak dapat dibatalkan!')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-delete">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                        Hapus
                                     </button>
                                 </form>
-                                
-                                <button type="button" class="btn-reject" onclick="openRejectModal({{ $katalog->id }}, '{{ $katalog->company_name }}')">
-                                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2">
-                                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                                    </svg>
-                                    Reject
-                                </button>
                             @endif
-                            
-                            <form action="{{ route('admin.katalog.destroy', $katalog) }}" method="POST" style="display: inline;" onsubmit="return confirm('Hapus katalog ini? Tindakan tidak dapat dibatalkan!')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-delete">
-                                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    </svg>
-                                    Hapus
-                                </button>
-                            </form>
                         </div>
                     </td>
                 </tr>

@@ -285,6 +285,7 @@ $activeMenu = 'berita';
         <h3 style="font-size: 1.5rem; font-weight: 700; color: #022648; margin-bottom: 0.5rem;">Daftar Berita</h3>
         <p style="color: #6b7280;">Kelola semua berita dan artikel Karang Taruna</p>
     </div>
+    @if(auth()->guard('admin')->user()->canManageContent())
     <a href="{{ route('admin.berita.create') }}" class="add-btn">
         <svg viewBox="0 0 24 24" width="20" height="20" style="stroke: currentColor; fill: none; stroke-width: 2;">
             <line x1="12" y1="5" x2="12" y2="19" />
@@ -292,6 +293,7 @@ $activeMenu = 'berita';
         </svg>
         Tambah Berita
     </a>
+    @endif
 </div>
 
 <div class="table-container">
@@ -303,7 +305,9 @@ $activeMenu = 'berita';
                 <th>Judul & Tanggal</th>
                 <th>Status</th>
                 <th>Views</th>
+                @if(auth()->guard('admin')->user()->canManageContent())
                 <th>Aksi</th>
+                @endif
             </tr>
         </thead>
         <tbody>
@@ -329,6 +333,7 @@ $activeMenu = 'berita';
                 <td>
                     <strong>{{ number_format($berita->views) }}</strong> views
                 </td>
+                @if(auth()->guard('admin')->user()->canManageContent())
                 <td>
                     <div class="action-buttons">
                         <a href="{{ route('admin.berita.edit', $berita->id) }}" class="btn-edit">Edit</a>
@@ -340,6 +345,7 @@ $activeMenu = 'berita';
                         </form>
                     </div>
                 </td>
+                @endif
             </tr>
             @endforeach
         </tbody>

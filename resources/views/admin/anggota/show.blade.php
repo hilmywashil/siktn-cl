@@ -441,29 +441,31 @@
                     Kembali
                 </a>
 
-                {{-- Tombol Ganti Password --}}
-                <button onclick="showPasswordModal()" class="btn btn-password">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                    Ganti Password
-                </button>
+                @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->canApproveAnggota())
+                    {{-- Tombol Ganti Password --}}
+                    <button onclick="showPasswordModal()" class="btn btn-password">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                        Ganti Password
+                    </button>
 
-                @if($anggota->status === 'pending_verification' || $anggota->status === 'pending')
-                    <button onclick="showApproveModal()" class="btn btn-approve">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                        Verifikasi & Terima
-                    </button>
-                    <button onclick="showRejectModal()" class="btn btn-reject">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <line x1="18" y1="6" x2="6" y2="18" />
-                            <line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
-                        Tolak Data
-                    </button>
+                    @if($anggota->status === 'pending_verification' || $anggota->status === 'pending')
+                        <button onclick="showApproveModal()" class="btn btn-approve">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Verifikasi & Terima
+                        </button>
+                        <button onclick="showRejectModal()" class="btn btn-reject">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                            Tolak Data
+                        </button>
+                    @endif
                 @endif
             </div>
         </div>

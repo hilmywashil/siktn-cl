@@ -89,8 +89,8 @@ class Admin extends Authenticatable
 
     public function canManageContent(): bool
     {
-        // Pimpinan, PNKT, dan PPKT(BPD) bisa kelola konten (surat, berita, dsb)
-        return $this->isSuperAdmin() || $this->isPimpinan() || $this->isPNKT() || $this->isPPKT();
+        // PNKT dan PPKT(BPD) bisa kelola konten (berita, katalog, dsb)
+        return $this->isSuperAdmin() || $this->isPNKT() || $this->isPPKT();
     }
 
     public function canApproveAnggota(): bool

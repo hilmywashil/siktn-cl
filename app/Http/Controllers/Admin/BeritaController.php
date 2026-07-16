@@ -14,7 +14,7 @@ class BeritaController extends Controller
     {
         $admin = auth()->guard('admin')->user();
         
-        if (!$admin->canManageContent()) {
+        if (!$admin->canManageContent() && !$admin->isPimpinan()) {
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
 

@@ -15,14 +15,28 @@ class ProgramController extends Controller
 {
     /**
      * Check if the authenticated admin has authorization.
-     * Hanya Super Admin dan PNKT yang berhak mengelola Program.
+     * Pimpinan hanya bisa melihat (viewOnly), sedangkan PNKT bisa mengelola (CRUD).
      */
-    private function checkAuthorization()
+    private function checkAuthorization($viewOnly = false)
     {
         $admin = Auth::guard('admin')->user();
-        if (!$admin->isSuperAdmin() && !$admin->isPNKT()) {
-            abort(403, 'Akses ditolak. Hanya Super Admin dan Sekretariat Nasional (PNKT) yang berhak mengelola Program Kerja.');
+        
+        // Super Admin selalu bisa akses semua
+        if ($admin->isSuperAdmin()) {
+            return;
         }
+
+        // PNKT bisa akses semua
+        if ($admin->isPNKT()) {
+            return;
+        }
+
+        // Pimpinan hanya bisa view (index)
+        if ($viewOnly && $admin->isPimpinan()) {
+            return;
+        }
+
+        abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk halaman ini.');
     }
 
     /**
@@ -30,7 +44,7 @@ class ProgramController extends Controller
      */
     public function index()
     {
-        $this->checkAuthorization();
+        $this->checkAuthorization(true); // true means viewOnly is allowed
         $programs = Program::with('jabatan')->orderBy('created_at', 'desc')->get();
         $activeMenu = 'program';
         return view('admin.program.index', compact('programs', 'activeMenu'));

@@ -12,8 +12,20 @@ use Illuminate\Support\Facades\Log;
 
 class KatalogController extends Controller
 {
+    private function checkAuthorization($viewOnly = false)
+    {
+        $admin = auth()->guard('admin')->user();
+        if (!$admin->canManageContent()) {
+            if ($viewOnly && $admin->isPimpinan()) {
+                return; // Pimpinan allowed for view only
+            }
+            abort(403, 'Akses ditolak: Anda tidak memiliki hak akses ke fitur ini.');
+        }
+    }
     public function index(Request $request)
     {
+        $this->checkAuthorization(true);
+
         // FIXED: Hapus with('anggota') karena bikin error
         $query = Katalog::query();
 
@@ -47,6 +59,8 @@ class KatalogController extends Controller
 
     public function create()
     {
+        $this->checkAuthorization();
+
         // Safe: Hanya ambil anggota yang approved
         try {
             $anggotas = Anggota::where('status', 'approved')
@@ -62,6 +76,8 @@ class KatalogController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkAuthorization();
+
         // FIXED: Hapus validasi exists karena tabel anggotas belum ada
         $validated = $request->validate([
             'anggota_id' => 'nullable|integer',
@@ -140,6 +156,8 @@ class KatalogController extends Controller
 
     public function show(Katalog $katalog)
     {
+        $this->checkAuthorization(true);
+
         // FIXED: Load anggota secara opsional dengan try-catch
         try {
             $katalog->load('anggota');
@@ -156,6 +174,8 @@ class KatalogController extends Controller
 
     public function edit(Katalog $katalog)
     {
+        $this->checkAuthorization();
+
         // Safe: Ambil anggota dengan error handling
         try {
             $anggotas = Anggota::where('status', 'approved')
@@ -170,6 +190,8 @@ class KatalogController extends Controller
 
     public function update(Request $request, Katalog $katalog)
     {
+        $this->checkAuthorization();
+
         // FIXED: Hapus validasi exists
         $validated = $request->validate([
             'anggota_id' => 'nullable|integer',
@@ -255,6 +277,8 @@ class KatalogController extends Controller
 
     public function destroy(Katalog $katalog)
     {
+        $this->checkAuthorization();
+
         // Delete associated files
         if ($katalog->logo && Storage::disk('public')->exists($katalog->logo)) {
             Storage::disk('public')->delete($katalog->logo);
@@ -283,6 +307,8 @@ class KatalogController extends Controller
 
     public function approve(Katalog $katalog)
     {
+        $this->checkAuthorization();
+
         if ($katalog->status === 'approved') {
             return back()->with('info', 'Katalog sudah disetujui sebelumnya.');
         }
@@ -308,6 +334,8 @@ class KatalogController extends Controller
 
     public function reject(Request $request, Katalog $katalog)
     {
+        $this->checkAuthorization();
+
         $request->validate([
             'rejection_reason' => 'required|string|max:500',
         ]);
@@ -338,6 +366,8 @@ class KatalogController extends Controller
 
     public function toggleStatus(Katalog $katalog)
     {
+        $this->checkAuthorization();
+
         $newStatus = !$katalog->is_active;
         
         $katalog->update(['is_active' => $newStatus]);

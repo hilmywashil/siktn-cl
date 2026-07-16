@@ -44,7 +44,7 @@
                     </a>
 
                     {{-- Menu Manajemen Anggota --}}
-                    @if($admin->canApproveAnggota() || $admin->isSuperAdmin())
+                    @if($admin->canApproveAnggota() || $admin->isSuperAdmin() || $admin->isPimpinan())
                     <a href="{{ route('admin.anggota.list') }}" class="submenu-item {{ in_array($activeMenu, ['anggota', 'list-anggota']) ? 'active' : '' }}">
                         <svg viewBox="0 0 24 24">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -147,7 +147,7 @@
                         </svg>
                         <span>Lihat Halaman</span>
                     </a>
-                    @if($admin->isSuperAdmin() || $admin->isPNKT())
+                    @if($admin->isSuperAdmin() || $admin->isPNKT() || $admin->isPimpinan())
                     <a href="{{ route('admin.organisasi.index') }}" class="submenu-item {{ $activeMenu === 'organisasi' ? 'active' : '' }}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
@@ -205,7 +205,7 @@
                         </svg>
                         <span>Lihat Bidang</span>
                     </a>
-                    @if($admin->isSuperAdmin() || $admin->isPNKT())
+                    @if($admin->isSuperAdmin() || $admin->isPNKT() || $admin->isPimpinan())
                     <a href="{{ route('admin.program.index') }}" class="submenu-item {{ $activeMenu === 'program' ? 'active' : '' }}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -247,7 +247,7 @@
                         </svg>
                         <span>Lihat Halaman</span>
                     </a>
-                    @if($admin->canManageContent())
+                    @if($admin->canManageContent() || $admin->isPimpinan())
                     <a href="{{ route('admin.katalog.index') }}" class="submenu-item {{ $activeMenu === 'katalog' ? 'active' : '' }}">
                         <svg viewBox="0 0 24 24">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -282,7 +282,7 @@
                         </svg>
                         <span>Lihat Halaman</span>
                     </a>
-                    @if($admin->canManageContent())
+                    @if($admin->canManageContent() || $admin->isPimpinan())
                     <a href="{{ route('admin.berita.index') }}" class="submenu-item {{ $activeMenu === 'berita' ? 'active' : '' }}">
                         <svg viewBox="0 0 24 24">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
