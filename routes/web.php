@@ -61,6 +61,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Organisasi CRUD (BPD only)
         Route::resource('organisasi', OrganisasiController::class);
 
+        // Program CRUD (Khusus PNKT / Sesuai Brief)
+        Route::resource('program', \App\Http\Controllers\Admin\ProgramController::class);
+
         // Master Jabatan CRUD (Super Admin & PNKT only, logic handled in controller)
         Route::delete('jabatan/bulk-delete', [\App\Http\Controllers\Admin\JabatanController::class, 'bulkDestroy'])->name('jabatan.bulk-delete');
         Route::resource('jabatan', \App\Http\Controllers\Admin\JabatanController::class);
