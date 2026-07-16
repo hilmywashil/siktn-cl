@@ -23,6 +23,10 @@
     {{-- Select2 CSS --}}
     <link href="{{ asset('vendor/select2/select2.min.css') }}" rel="stylesheet" />
 
+    {{-- Flatpickr CSS --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+
     {{-- SweetAlert2 --}}
     <script src="{{ asset('vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
     <style>
@@ -99,6 +103,23 @@
         .swal2-toast.swal2-icon-error { border-left-color: #dc2626 !important; }
         .swal2-toast.swal2-toast-deleted { border-left-color: #dc2626 !important; }
         .swal2-toast .swal2-title { font-size: 0.95rem !important; margin-left: 10px !important; font-weight: 600 !important; }
+
+        /* Global Flatpickr Customization to match form styles */
+        .flatpickr-calendar {
+            font-family: 'Montserrat', sans-serif;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange, .flatpickr-day.selected.inRange, .flatpickr-day.startRange.inRange, .flatpickr-day.endRange.inRange, .flatpickr-day.selected:focus, .flatpickr-day.startRange:focus, .flatpickr-day.endRange:focus, .flatpickr-day.selected:hover, .flatpickr-day.startRange:hover, .flatpickr-day.endRange:hover, .flatpickr-day.selected.prevMonthDay, .flatpickr-day.startRange.prevMonthDay, .flatpickr-day.endRange.prevMonthDay, .flatpickr-day.selected.nextMonthDay, .flatpickr-day.startRange.nextMonthDay, .flatpickr-day.endRange.nextMonthDay {
+            background: #0a2540;
+            border-color: #0a2540;
+        }
+        .flatpickr-day.selected:hover {
+            background: #ffd700;
+            border-color: #ffd700;
+            color: #0a2540;
+        }
     </style>
 
     <style>
@@ -226,6 +247,49 @@
             transition: all 0.2s ease;
             cursor: pointer;
             text-decoration: none;
+        }
+
+        /* Scroll to Top Button */
+        #scrollTop {
+            position: fixed;
+            bottom: 2rem;
+            right: 6.5rem; /* Pindah ke kiri agar tidak nabrak tombol ulang tahun */
+            width: 50px;
+            height: 50px;
+            background-color: #0a2540;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        #scrollTop.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        #scrollTop:hover {
+            background-color: #ffd700;
+            color: #0a2540;
+        }
+
+        #scrollTop svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
 
         .topbar-user-profile:hover {
@@ -601,6 +665,13 @@
         @csrf
     </form>
 
+    <!-- Scroll to Top Button -->
+    <div id="scrollTop" title="Ke Atas">
+        <svg viewBox="0 0 24 24">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </div>
+
     <script>
         function showLogoutModal() {
             document.getElementById('logoutModal').classList.add('active');
@@ -632,6 +703,23 @@
             document.getElementById('birthdaySidebar').classList.toggle('active');
             document.getElementById('birthdaySidebarOverlay').classList.toggle('active');
         }
+
+        // Scroll to Top Logic
+        const scrollTopBtn = document.getElementById('scrollTop');
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 300) {
+                scrollTopBtn.classList.add('show');
+            } else {
+                scrollTopBtn.classList.remove('show');
+            }
+        });
+
+        scrollTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
     </script>
     
     {{-- Global Toast Setup --}}
@@ -707,6 +795,23 @@
     <script src="{{ asset('vendor/jquery/jquery-3.7.1.min.js') }}"></script>
     {{-- Select2 JS --}}
     <script src="{{ asset('vendor/select2/select2.min.js') }}"></script>
+
+    {{-- Flatpickr JS --}}
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Global Flatpickr initialization
+            flatpickr(".datepicker", {
+                locale: "id",
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d M Y",
+                allowInput: true
+            });
+        });
+    </script>
 
     @stack('scripts')
 </body>

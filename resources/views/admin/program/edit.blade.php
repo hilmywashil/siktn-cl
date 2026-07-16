@@ -1,7 +1,7 @@
 @extends('admin.layouts.admin-layout')
 
-@section('title', 'Tambah Program')
-@section('page-title', 'Tambah Program')
+@section('title', 'Edit Program')
+@section('page-title', 'Edit Program')
 
 @push('styles')
 <style>
@@ -275,14 +275,15 @@
         <span class="breadcrumb-separator">›</span>
         <a href="{{ route('admin.program.index') }}">Program</a>
         <span class="breadcrumb-separator">›</span>
-        <span class="breadcrumb-current">Tambah Program</span>
+        <span class="breadcrumb-current">Edit Program</span>
     </div>
-    <h1 class="page-title">Tambah Program Baru</h1>
-    <p class="page-desc">Lengkapi formulir di bawah untuk menambahkan data program kerja CSR atau Bidang Karang Taruna.</p>
+    <h1 class="page-title">Edit Program: {{ $program->nama_program }}</h1>
+    <p class="page-desc">Ubah detail program kerja CSR atau Bidang Karang Taruna.</p>
 </div>
 
-<form action="{{ route('admin.program.store') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('admin.program.update', $program->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
+    @method('PUT')
     
     <div class="form-container">
         <div class="form-header">
@@ -296,7 +297,7 @@
                 <div class="form-grid">
                     <div class="form-group full-width">
                         <label class="form-label required">Nama Program</label>
-                        <input type="text" name="nama_program" class="form-input @error('nama_program') error @enderror" value="{{ old('nama_program') }}" placeholder="Contoh: Khitanan Massal" required>
+                        <input type="text" name="nama_program" class="form-input @error('nama_program') error @enderror" value="{{ old('nama_program', $program->nama_program) }}" placeholder="Contoh: Khitanan Massal" required>
                         @error('nama_program')
                             <span class="form-error">{{ $message }}</span>
                         @enderror
@@ -306,8 +307,8 @@
                         <label class="form-label required">Kategori</label>
                         <select name="kategori" id="kategori" class="form-select select2-basic @error('kategori') error @enderror" required>
                             <option value="">-- Pilih Kategori --</option>
-                            <option value="CSR" {{ old('kategori') == 'CSR' ? 'selected' : '' }}>Program CSR (Eksternal)</option>
-                            <option value="Bidang" {{ old('kategori') == 'Bidang' ? 'selected' : '' }}>Program Bidang (Internal)</option>
+                            <option value="CSR" {{ old('kategori', $program->kategori) == 'CSR' ? 'selected' : '' }}>Program CSR (Eksternal)</option>
+                            <option value="Bidang" {{ old('kategori', $program->kategori) == 'Bidang' ? 'selected' : '' }}>Program Bidang (Internal)</option>
                         </select>
                         @error('kategori')
                             <span class="form-error">{{ $message }}</span>
@@ -320,7 +321,7 @@
                     <div id="csr-section" class="dynamic-section" style="display: none;">
                         <div class="form-group">
                             <label class="form-label required">Nama Mitra / Sponsor</label>
-                            <input type="text" name="mitra" id="mitra" class="form-input @error('mitra') error @enderror" value="{{ old('mitra') }}" placeholder="Contoh: PT. Pertamina (Persero)">
+                            <input type="text" name="mitra" id="mitra" class="form-input @error('mitra') error @enderror" value="{{ old('mitra', $program->mitra) }}" placeholder="Contoh: PT. Pertamina (Persero)">
                             <span class="form-help">Ketik manual nama pihak luar/donor yang bekerjasama.</span>
                             @error('mitra')
                                 <span class="form-error">{{ $message }}</span>
@@ -334,7 +335,7 @@
                             <select name="jabatan_id" id="jabatan_id" class="form-select select2-basic @error('jabatan_id') error @enderror" style="width: 100%;">
                                 <option value="">-- Pilih Jabatan/Bidang --</option>
                                 @foreach($jabatans as $jabatan)
-                                    <option value="{{ $jabatan->id }}" {{ old('jabatan_id') == $jabatan->id ? 'selected' : '' }}>{{ $jabatan->nama_jabatan }}</option>
+                                    <option value="{{ $jabatan->id }}" {{ old('jabatan_id', $program->jabatan_id) == $jabatan->id ? 'selected' : '' }}>{{ $jabatan->nama_jabatan }}</option>
                                 @endforeach
                             </select>
                             <span class="form-help">Pilih dari daftar struktur organisasi yang sudah ada.</span>
@@ -345,9 +346,9 @@
                         <div class="form-group" style="margin-top: 1.5rem;">
                             <label class="form-label required">Status Pelaksanaan</label>
                             <select name="status" id="status" class="form-select select2-basic @error('status') error @enderror">
-                                <option value="Perencanaan" {{ old('status') == 'Perencanaan' ? 'selected' : '' }}>Perencanaan</option>
-                                <option value="Berjalan" {{ old('status') == 'Berjalan' ? 'selected' : '' }}>Berjalan</option>
-                                <option value="Selesai" {{ old('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                                <option value="Perencanaan" {{ old('status', $program->status) == 'Perencanaan' ? 'selected' : '' }}>Perencanaan</option>
+                                <option value="Berjalan" {{ old('status', $program->status) == 'Berjalan' ? 'selected' : '' }}>Berjalan</option>
+                                <option value="Selesai" {{ old('status', $program->status) == 'Selesai' ? 'selected' : '' }}>Selesai</option>
                             </select>
                             @error('status')
                                 <span class="form-error">{{ $message }}</span>
@@ -355,7 +356,7 @@
                         </div>
                         <div class="form-group" style="margin-top: 1.5rem;">
                             <label class="form-label">Anggaran (Opsional)</label>
-                            <input type="number" name="anggaran" class="form-input @error('anggaran') error @enderror" value="{{ old('anggaran') }}" min="0" step="1000" placeholder="Contoh: 10000000">
+                            <input type="number" name="anggaran" class="form-input @error('anggaran') error @enderror" value="{{ old('anggaran', $program->anggaran > 0 ? (int)$program->anggaran : '') }}" min="0" step="1000" placeholder="Contoh: 10000000">
                             <span class="form-help">Masukkan angka saja tanpa titik/koma (Contoh: 10000000 untuk 10 Juta).</span>
                             @error('anggaran')
                                 <span class="form-error">{{ $message }}</span>
@@ -370,7 +371,7 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label required">Periode Mulai</label>
-                        <input type="text" name="periode_mulai" class="form-input datepicker @error('periode_mulai') error @enderror" value="{{ old('periode_mulai') }}" required placeholder="Pilih tanggal">
+                        <input type="text" name="periode_mulai" class="form-input datepicker @error('periode_mulai') error @enderror" value="{{ old('periode_mulai', \Carbon\Carbon::parse($program->periode_mulai)->format('Y-m-d')) }}" required placeholder="Pilih tanggal">
                         @error('periode_mulai')
                             <span class="form-error">{{ $message }}</span>
                         @enderror
@@ -378,7 +379,7 @@
 
                     <div class="form-group">
                         <label class="form-label required">Periode Selesai</label>
-                        <input type="text" name="periode_selesai" class="form-input datepicker @error('periode_selesai') error @enderror" value="{{ old('periode_selesai') }}" required placeholder="Pilih tanggal">
+                        <input type="text" name="periode_selesai" class="form-input datepicker @error('periode_selesai') error @enderror" value="{{ old('periode_selesai', \Carbon\Carbon::parse($program->periode_selesai)->format('Y-m-d')) }}" required placeholder="Pilih tanggal">
                         @error('periode_selesai')
                             <span class="form-error">{{ $message }}</span>
                         @enderror
@@ -389,10 +390,10 @@
                         <select name="pic" id="pic-select" class="form-select select2-tags @error('pic') error @enderror" style="width: 100%;" required>
                             <option value="">-- Pilih atau Ketik Nama PIC --</option>
                             @foreach($picOptions as $pic)
-                                <option value="{{ $pic }}" {{ old('pic') == $pic ? 'selected' : '' }}>{{ $pic }}</option>
+                                <option value="{{ $pic }}" {{ old('pic', $program->pic) == $pic ? 'selected' : '' }}>{{ $pic }}</option>
                             @endforeach
-                            @if(old('pic') && !$picOptions->contains(old('pic')))
-                                <option value="{{ old('pic') }}" selected>{{ old('pic') }}</option>
+                            @if(old('pic', $program->pic) && !$picOptions->contains(old('pic', $program->pic)))
+                                <option value="{{ old('pic', $program->pic) }}" selected>{{ old('pic', $program->pic) }}</option>
                             @endif
                         </select>
                         <span class="form-help">Pilih dari daftar anggota, ATAU ketik nama baru lalu tekan Enter (jika PIC orang luar).</span>
@@ -403,7 +404,7 @@
 
                     <div class="form-group full-width">
                         <label class="form-label required">Target Output / Deskripsi</label>
-                        <textarea name="target_output" rows="4" class="form-input @error('target_output') error @enderror" required placeholder="Jelaskan tujuan dan output yang diharapkan...">{{ old('target_output') }}</textarea>
+                        <textarea name="target_output" rows="4" class="form-input @error('target_output') error @enderror" required placeholder="Jelaskan tujuan dan output yang diharapkan...">{{ old('target_output', $program->target_output) }}</textarea>
                         @error('target_output')
                             <span class="form-error">{{ $message }}</span>
                         @enderror
@@ -411,12 +412,21 @@
 
                     <div class="form-group full-width">
                         <label class="form-label">Thumbnail / Gambar Kegiatan</label>
+                        
+                        @if($program->gambar)
+                        <div style="margin-bottom: 1rem;">
+                            <p style="font-size: 0.8125rem; color: #6b7280; margin-bottom: 0.5rem;">Gambar saat ini:</p>
+                            <img src="{{ $program->gambar_url }}" alt="Current Image" style="max-width: 300px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                        </div>
+                        @endif
+
                         <input type="file" name="gambar" class="form-input" accept="image/jpeg,image/jpg,image/png,image/webp" onchange="previewImage(event)">
                         @error('gambar')
                             <span class="form-error">{{ $message }}</span>
                         @enderror
-                        <div class="form-help">Format: JPG, JPEG, PNG, WEBP. Maksimal 5MB. Kosongkan jika belum ada gambar.</div>
+                        <div class="form-help">Format: JPG, JPEG, PNG, WEBP. Maksimal 5MB. Kosongkan jika tidak ingin mengubah gambar.</div>
                         <div class="image-preview" id="imagePreview" style="display: none; margin-top: 1rem;">
+                            <p style="font-size: 0.8125rem; color: #6b7280; margin-bottom: 0.5rem;">Preview gambar baru:</p>
                             <img src="" alt="Preview" id="previewImg" style="max-width: 300px; border-radius: 8px; border: 2px solid #e5e7eb;">
                         </div>
                     </div>
@@ -430,7 +440,7 @@
                 <svg viewBox="0 0 24 24">
                     <polyline points="20 6 9 17 4 12"/>
                 </svg>
-                Simpan Program
+                Perbarui Program
             </button>
         </div>
     </div>
@@ -497,7 +507,7 @@
         }
 
         const picSelect = $('#pic-select');
-        let currentPic = "{{ old('pic') }}"; // untuk retain state
+        let currentPic = "{{ old('pic', $program->pic) }}";
 
         function fetchPics(jabatanId = '') {
             $.ajax({
@@ -515,7 +525,6 @@
                         picSelect.append('<option value="'+name+'" '+selected+'>'+name+'</option>');
                     });
                     
-                    // Kalau ada ketikan manual lama, masukin lagi
                     if(currentPic && !found) {
                         picSelect.append('<option value="'+currentPic+'" selected>'+currentPic+'</option>');
                     }
@@ -532,7 +541,7 @@
         $('#kategori').on('change', function() {
             toggleSections();
             if($(this).val() === 'CSR') {
-                fetchPics(''); // fetch all
+                fetchPics(''); 
             } else if ($(this).val() === 'Bidang') {
                 fetchPics($('#jabatan_id').val());
             }

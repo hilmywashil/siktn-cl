@@ -1514,8 +1514,9 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="tanggal_lahir">Tanggal Lahir <span style="color:red;">*</span></label>
-                                <input type="date" name="tanggal_lahir" id="tanggal_lahir" class="form-control" value="{{ old('tanggal_lahir', $anggota->tanggal_lahir ? $anggota->tanggal_lahir->format('Y-m-d') : '') }}" required>
+                                <label for="tanggal_lahir" class="form-label">Tanggal Lahir <span class="text-danger">*</span></label>
+                                <input type="text" name="tanggal_lahir" id="tanggal_lahir" class="form-control datepicker" value="{{ old('tanggal_lahir', $anggota->tanggal_lahir ? $anggota->tanggal_lahir->format('Y-m-d') : '') }}" required placeholder="Pilih tanggal">
+                                <div class="invalid-feedback"></div>
                             </div>
 
                             <div class="form-group" style="grid-column: span 2;">

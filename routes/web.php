@@ -20,6 +20,7 @@ use App\Http\Controllers\BukuAnggotaController;
 use App\Http\Controllers\BeritaController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\PublicOrganisasiController;
+use App\Http\Controllers\PublicProgramController;
 
 // =====================================================
 // ADMIN ROUTES
@@ -62,7 +63,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('organisasi', OrganisasiController::class);
 
         // Program CRUD (Khusus PNKT / Sesuai Brief)
+        Route::get('program/get-pics', [\App\Http\Controllers\Admin\ProgramController::class, 'getPicsByJabatan'])->name('program.get-pics');
+        Route::patch('program/{program}/update-status', [\App\Http\Controllers\Admin\ProgramController::class, 'updateStatus'])->name('program.update-status');
+        Route::delete('program/bulk-delete', [\App\Http\Controllers\Admin\ProgramController::class, 'bulkDestroy'])->name('program.bulk-delete');
         Route::resource('program', \App\Http\Controllers\Admin\ProgramController::class);
+        
+        // Pengaturan Halaman Program
+        Route::get('program-settings', [\App\Http\Controllers\Admin\PageSettingController::class, 'edit'])->name('program.settings');
+        Route::post('program-settings', [\App\Http\Controllers\Admin\PageSettingController::class, 'update'])->name('program.settings.update');
 
         // Master Jabatan CRUD (Super Admin & PNKT only, logic handled in controller)
         Route::delete('jabatan/bulk-delete', [\App\Http\Controllers\Admin\JabatanController::class, 'bulkDestroy'])->name('jabatan.bulk-delete');
@@ -217,8 +225,8 @@ Route::view('/about', 'pages.about')->name('about');
 Route::view('/vision-mission', 'pages.visi-misi')->name('vision-mission');
 Route::view('/how-to-join', 'pages.how-to-join')->name('how-to-join');
 Route::view('/contact', 'pages.contact')->name('contact');
-Route::view('/program/csr', 'pages.program.csr')->name('program.csr');
-Route::view('/program/bidang', 'pages.program.bidang')->name('program.bidang');
+Route::get('/program/csr', [PublicProgramController::class, 'csr'])->name('program.csr');
+Route::get('/program/bidang', [PublicProgramController::class, 'bidang'])->name('program.bidang');
 
 
 

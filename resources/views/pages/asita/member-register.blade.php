@@ -184,7 +184,6 @@
 
         .form-group input[type="text"],
         .form-group input[type="email"],
-        .form-group input[type="date"],
         .form-group textarea {
             width: 100%;
             padding: 12px 16px;
@@ -350,7 +349,7 @@
 
                         <div class="form-group">
                             <label>Tanggal Berdiri Perusahaan <span class="required">*</span></label>
-                            <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}" required max="{{ date('Y-m-d') }}">
+                            <input type="text" class="datepicker" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}" required max="{{ date('Y-m-d') }}" placeholder="Pilih tanggal">
                         </div>
 
                         <div class="form-group">

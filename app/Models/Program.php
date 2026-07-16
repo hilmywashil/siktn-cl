@@ -19,9 +19,21 @@ class Program extends Model
         'pic',
         'target_output',
         'anggaran',
+        'gambar',
         'mitra',
         'jabatan_id'
     ];
+
+    /**
+     * Get the full URL for the image.
+     */
+    public function getGambarUrlAttribute()
+    {
+        if ($this->gambar && \Illuminate\Support\Facades\Storage::disk('public')->exists('programs/' . $this->gambar)) {
+            return asset('storage/programs/' . $this->gambar);
+        }
+        return asset('assets-front/images/logo_karang_taruna.png'); // Add a default placeholder if needed
+    }
 
     protected $casts = [
         'periode_mulai' => 'date',

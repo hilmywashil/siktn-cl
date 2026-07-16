@@ -257,8 +257,8 @@ $activeMenu = 'berita';
             <label class="form-label">
                 Tanggal Publish <span class="required">*</span>
             </label>
-            <input type="date" name="tanggal_publish" class="form-input"
-                value="{{ old('tanggal_publish', $berita->tanggal_publish->format('Y-m-d')) }}" required>
+            <input type="text" name="tanggal_publish" class="form-input datepicker"
+                value="{{ old('tanggal_publish', $berita->tanggal_publish->format('Y-m-d')) }}" required placeholder="Pilih tanggal">
             @error('tanggal_publish')
             <div class="error-message">{{ $message }}</div>
             @enderror

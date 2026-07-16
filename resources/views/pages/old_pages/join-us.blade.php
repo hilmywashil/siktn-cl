@@ -650,9 +650,9 @@
                         <input type="text" name="tempat_lahir" class="form-control" placeholder="" required>
                     </div>
 
-                    <div class="form-group">
-                        <label>Tanggal Lahir<span>*</span></label>
-                        <input type="date" name="tanggal_lahir" class="form-control" required>
+                    <div class="col-md-6 form-group">
+                        <label for="">Tanggal Lahir</label>
+                        <input type="text" name="tanggal_lahir" class="form-control datepicker" required placeholder="Pilih tanggal">
                     </div>
 
                     <div class="form-group">
