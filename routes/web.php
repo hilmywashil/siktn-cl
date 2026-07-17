@@ -220,7 +220,7 @@ Route::get('/organisasi', function () {
 Route::get('/organisasi/{nama}', [PublicOrganisasiController::class, 'show'])
     ->name('organisasi.show');
 Route::view('/informasi-kegiatan', 'pages.informasi-kegiatan')->name('informasi-kegiatan');
-Route::view('/detail-kegiatan', 'pages.details.kegiatan-detail')->name('detail-kegiatan');
+
 Route::view('/about', 'pages.about')->name('about');
 Route::view('/vision-mission', 'pages.visi-misi')->name('vision-mission');
 Route::view('/how-to-join', 'pages.how-to-join')->name('how-to-join');
@@ -228,7 +228,9 @@ Route::view('/contact', 'pages.contact')->name('contact');
 Route::get('/program/csr', [PublicProgramController::class, 'csr'])->name('program.csr');
 Route::get('/program/bidang', [PublicProgramController::class, 'bidang'])->name('program.bidang');
 
-
+// Agenda Public Route
+Route::view('/agenda', 'pages.agenda')->name('agenda.public');
+Route::view('/agenda/detail/{slug}', 'pages.agenda-detail')->name('agenda.detail');
 
 // Active Member & Outline
 Route::get('/active-member-asita', [KatalogController::class, 'letter'])->name('active-member');

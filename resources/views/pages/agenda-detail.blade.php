@@ -1,17 +1,52 @@
-{{-- resources/views/pages/details/kegiatan-detail.blade.php --}}
+{{-- resources/views/pages/agenda-detail.blade.php --}}
 @extends ('layouts.app')
 
-@section('title', $kegiatan->judul . ' - Kegiatan HIPMI Jawa Barat')
+@php
+    // Dummy Data untuk render layout detail sementara
+    $kegiatan = (object)[
+        'judul' => 'Rapat Kerja Nasional Karang Taruna',
+        'bidang_name' => 'Organisasi',
+        'tanggal_publish' => now()->addDays(10),
+        'gambar' => 'dummy',
+        'konten' => '<p>Pembahasan program kerja strategis Pengurus Nasional Karang Taruna (PNKT) untuk periode mendatang. Kegiatan ini akan dihadiri oleh seluruh pengurus tingkat nasional dari 34 provinsi.</p><p>Rapat ini bertujuan untuk menyelaraskan visi misi organisasi.</p>',
+        'gambar_dokumentasi' => ['dummy1', 'dummy2', 'dummy3'],
+        'gambar_dokumentasi_url' => [asset('assets-front/images/hero_bg.jpg'), asset('assets-front/images/hero_bg.jpg'), asset('assets-front/images/hero_bg.jpg')]
+    ];
+
+    $kegiatanPopuler = collect([
+        (object)[
+            'slug' => 'temu-karya',
+            'judul' => 'Temu Karya Nasional',
+            'bidang_name' => 'Kaderisasi',
+            'tanggal_publish' => now()->addDays(20),
+            'gambar' => 'dummy',
+            'konten' => 'Kegiatan Temu Karya Karang Taruna Nasional.'
+        ]
+    ]);
+
+    $kegiatanLainnya = collect([
+        (object)[
+            'slug' => 'bakti-sosial',
+            'judul' => 'Bakti Sosial Serentak',
+            'bidang_name' => 'Sosial',
+            'tanggal_publish' => now()->addDays(30),
+            'gambar' => 'dummy',
+            'konten' => 'Bakti sosial di seluruh wilayah Indonesia.'
+        ]
+    ]);
+@endphp
+
+@section('title', $kegiatan->judul . ' - Agenda PNKT')
+
+@section('hero-background', asset('assets-front/images/hero_bg.jpg'))
+@section('page-title', Str::upper($kegiatan->judul))
+@section('page-description', 'Detail Agenda Resmi Pengurus Nasional Karang Taruna.')
+@section('hero-buttons', 'hide')
 
 @section('content')
+    @include('layouts.components.hero')
 
-    <section class="page-banners">
-        <div class="page-banner">
-            <h1>{{ $kegiatan->judul }}</h1>
-        </div>
-    </section>
-
-    <section class="detail-berita">
+    <section class="detail-berita" style="margin-top: 60px;">
         <div class="detail-berita-content">
             {{-- Info Metadata --}}
             <div class="kegiatan-meta">
@@ -38,7 +73,7 @@
             </div>
 
             <div class="thumbnail-wrapper">
-                <img src="{{ asset('storage/' . $kegiatan->gambar) }}" alt="{{ $kegiatan->judul }}">
+                <img src="{{ asset('assets-front/images/hero_bg.jpg') }}" alt="{{ $kegiatan->judul }}">
             </div>
 
             {{-- Tampilkan konten dengan HTML formatting --}}
@@ -55,7 +90,7 @@
                         <div class="carousel-wrapper">
                             @foreach($kegiatan->gambar_dokumentasi as $index => $gambar)
                                 <div class="carousel-slide {{ $index === 0 ? 'active' : '' }}">
-                                    <img src="{{ asset('storage/' . $gambar) }}" alt="Dokumentasi {{ $index + 1 }}"
+                                    <img src="{{ asset('assets-front/images/hero_bg.jpg') }}" alt="Dokumentasi {{ $index + 1 }}"
                                         onclick="openLightbox({{ $index }})">
                                 </div>
                             @endforeach
@@ -100,9 +135,9 @@
 
                 @forelse($kegiatanPopuler as $item)
                     <div class="berita-detail-right-item" style="margin-bottom: 2rem;">
-                        <a href="{{ route('detail-kegiatan', $item->slug) }}" class="berita-detail-right-item-image"
+                        <a href="{{ route('agenda.detail', $item->slug) }}" class="berita-detail-right-item-image"
                             style="position: relative;">
-                            <img src="{{ asset('storage/' . $item->gambar) }}" alt="{{ $item->judul }}">
+                        <img src="{{ asset('assets-front/images/hero_bg.jpg') }}" alt="{{ $item->judul }}">
 
                             {{-- Badge Bidang di pojok kanan atas --}}
                             <span class="bidang-badge"
@@ -138,9 +173,9 @@
 
                 @forelse($kegiatanLainnya as $item)
                     <div class="berita-detail-right-item" style="margin-bottom: 2rem;">
-                        <a href="{{ route('detail-kegiatan', $item->slug) }}" class="berita-detail-right-item-image"
+                        <a href="{{ route('agenda.detail', $item->slug) }}" class="berita-detail-right-item-image"
                             style="position: relative;">
-                            <img src="{{ asset('storage/' . $item->gambar) }}" alt="{{ $item->judul }}">
+                            <img src="{{ asset('assets-front/images/hero_bg.jpg') }}" alt="{{ $item->judul }}">
 
                             {{-- Badge Bidang di pojok kanan atas --}}
                             <span class="bidang-badge"

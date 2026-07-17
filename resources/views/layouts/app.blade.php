@@ -49,6 +49,7 @@
                         <a href="{{ route('program.bidang') }}">Bidang</a>
                     </div>
                 </div>
+                {{-- <a href="{{ url('/agenda') }}" @if(request()->is('agenda*')) class="active" @endif>Agenda</a> --}}
                 <a href="{{ route('e-katalog') }}" @if(Route::currentRouteName() == 'e-katalog') class="active" @endif>E-Katalog</a>
                 <a href="{{ route('berita') }}" @if(Route::currentRouteName() == 'berita') class="active" @endif>Berita</a>
             </div>

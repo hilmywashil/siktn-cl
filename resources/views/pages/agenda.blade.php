@@ -1,19 +1,62 @@
 @extends ('layouts.app')
 
-@section('title', 'Informasi Kegiatan - HIPMI Jawa Barat')
+@section('title', 'Agenda Kegiatan - Karang Taruna')
+
+@section('hero-background', asset('assets-front/images/hero_bg.jpg'))
+@section('page-title', 'AGENDA KEGIATAN PNKT')
+@section('page-description', 'Jadwal & Agenda Resmi Pengurus Nasional Karang Taruna.')
+@section('hero-buttons', 'hide')
+
+@php
+    // Dummy Data untuk render layout sementara
+    $dummy_data = collect([
+        (object)[
+            'slug' => 'rapat-kerja-nasional',
+            'gambar' => 'dummy', 
+            'bidang_name' => 'Organisasi',
+            'is_populer' => true,
+            'judul' => 'Rapat Kerja Nasional Karang Taruna',
+            'tanggal_publish' => now()->addDays(10),
+            'konten' => 'Pembahasan program kerja strategis Pengurus Nasional Karang Taruna (PNKT) untuk periode mendatang. Kegiatan ini akan dihadiri oleh seluruh pengurus tingkat nasional.'
+        ],
+        (object)[
+            'slug' => 'temu-karya',
+            'gambar' => 'dummy',
+            'bidang_name' => 'Kaderisasi',
+            'is_populer' => false,
+            'judul' => 'Temu Karya Karang Taruna',
+            'tanggal_publish' => now()->addDays(20),
+            'konten' => 'Kegiatan Temu Karya untuk mengevaluasi program kerja serta memilih kepengurusan baru di tingkat wilayah.'
+        ],
+        (object)[
+            'slug' => 'bakti-sosial',
+            'gambar' => 'dummy',
+            'bidang_name' => 'Sosial',
+            'is_populer' => true,
+            'judul' => 'Bakti Sosial & Penghijauan',
+            'tanggal_publish' => now()->addDays(30),
+            'konten' => 'Kegiatan sosial dan penanaman pohon serentak di berbagai wilayah binaan Karang Taruna sebagai bentuk kepedulian lingkungan.'
+        ],
+        (object)[
+            'slug' => 'webinar-kewirausahaan',
+            'gambar' => 'dummy',
+            'bidang_name' => 'Ekonomi',
+            'is_populer' => false,
+            'judul' => 'Webinar Kewirausahaan Pemuda',
+            'tanggal_publish' => now()->addDays(40),
+            'konten' => 'Pelatihan online untuk meningkatkan kapasitas kewirausahaan pemuda di tingkat nasional.'
+        ]
+    ]);
+    $kegiatan = new \Illuminate\Pagination\LengthAwarePaginator($dummy_data, 4, 10);
+@endphp
 
 @section('content')
-    <section class="page-banners">
-        <div class="page-banner">
-            <h1>Informasi Kegiatan BPD</h1>
-            <p>Anggota & Pengurus HIPMI Jawa Barat</p>
-        </div>
-    </section>
+    @include('layouts.components.hero')
 
-    <section class="search-katalog">
+    <section class="search-katalog" style="margin-top: 60px;">
         <!-- Search Box - UPDATED -->
         <div class="search-wrapper">
-            <form action="{{ route('informasi-kegiatan') }}" method="GET" class="search-box-enhanced">
+            <form action="{{ route('agenda.public') }}" method="GET" class="search-box-enhanced">
                 <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2">
                     <circle cx="11" cy="11" r="8"></circle>
@@ -29,7 +72,7 @@
 
         <!-- Filter Section - UPDATED -->
         <div class="filter-section">
-            <form action="{{ route('informasi-kegiatan') }}" method="GET" class="filter-form">
+            <form action="{{ route('agenda.public') }}" method="GET" class="filter-form">
                 <input type="hidden" name="search" value="{{ request('search') }}">
 
                 <div class="filter-grid">
@@ -71,7 +114,7 @@
                     <!-- Reset Button -->
                     @if(request('bidang') || request('tanggal') || request('search'))
                         <div class="filter-item filter-reset">
-                            <a href="{{ route('informasi-kegiatan') }}" class="reset-btn">
+                            <a href="{{ route('agenda.public') }}" class="reset-btn">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2">
                                     <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
@@ -111,9 +154,9 @@
         <div class="informasi-kegiatan-cards">
             @forelse($kegiatan as $item)
                 <div class="informasi-kegiatan-card">
-                    <a href="{{ route('detail-kegiatan', $item->slug) }}" class="informasi-kegiatan-card-image"
+                    <a href="{{ route('agenda.detail', $item->slug) }}" class="informasi-kegiatan-card-image"
                         style="position: relative;">
-                        <img src="{{ asset('storage/' . $item->gambar) }}" alt="{{ $item->judul }}">
+                        <img src="{{ asset('assets-front/images/hero_bg.jpg') }}" alt="{{ $item->judul }}">
                         <div style="position: absolute; top: 0.75rem; right: 0.75rem; display: flex; gap: 0.5rem;">
                             <span
                                 style="background: #0a2540; color: white; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -133,7 +176,7 @@
                             {{ $item->tanggal_publish->format('d F Y') }}</p>
                         <p style="color: #374151; line-height: 1.6;">{{ Str::limit(strip_tags($item->konten), 80, '...') }}</p>
                     </div>
-                    <a href="{{ route('detail-kegiatan', $item->slug) }}" class="info-kegiatan-btn-more">Baca Selengkapnya</a>
+                    <a href="{{ route('agenda.detail', $item->slug) }}" class="info-kegiatan-btn-more">Baca Selengkapnya</a>
                 </div>
             @empty
                 <div style="text-align: center; padding: 3rem; width: 100%; color: #6b7280;">
@@ -381,6 +424,46 @@
         }
 
         /* ========== ORIGINAL STYLES - CARDS & OTHERS ========== */
+
+        /* Base Grid Layout (Dipindah dari CSS lama) */
+        .informasi-kegiatan-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto 4rem;
+            padding: 0 2rem;
+        }
+
+        .informasi-kegiatan-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .informasi-kegiatan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .info-kegiatan-btn-more {
+            display: inline-block;
+            margin: 0 1.25rem 1.25rem;
+            color: #0a2540;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            margin-top: auto;
+        }
+
+        .info-kegiatan-btn-more:hover {
+            color: #ffd700;
+        }
 
         /* Fix thumbnail landscape aspect ratio */
         .informasi-kegiatan-card-image {
