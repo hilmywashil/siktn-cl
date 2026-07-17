@@ -117,6 +117,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/create', [AnggotaManagementController::class, 'create'])->name('create');
             Route::post('/', [AnggotaManagementController::class, 'store'])->name('store');
             Route::get('/list', [AnggotaManagementController::class, 'index'])->name('list');
+            Route::get('/export', [AnggotaManagementController::class, 'export'])->name('export');
             
             Route::post('/bulk-destroy', [AnggotaManagementController::class, 'bulkDestroy'])->name('bulk-destroy');
 

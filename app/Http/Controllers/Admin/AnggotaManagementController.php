@@ -7,6 +7,7 @@ use App\Models\Anggota;
 use App\Models\Organisasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AnggotaManagementController extends Controller
 {
@@ -132,6 +133,138 @@ class AnggotaManagementController extends Controller
             'password' => $request->password,
             'login_url' => url('/login')
         ])->with('success', "Akun anggota berhasil dibuat!");
+    }
+
+    /**
+     * Export data anggota ke CSV
+     */
+    public function export(Request $request)
+    {
+        $admin = auth()->guard('admin')->user();
+        
+        // Pengecekan hak akses sesuai request user: Pimpinan, PNKT, Super Admin
+        if (!in_array($admin->category, ['super_admin', 'pimpinan', 'pnkt'])) {
+            abort(403, 'Akses Ditolak: Anda tidak memiliki hak akses untuk mengekspor data.');
+        }
+
+        $query = Anggota::query()->latest();
+
+        // Terapkan filter domisili
+        $query = $this->applyDomisiliFilter($query);
+
+        // Terapkan pencarian dan filter jika ada (sama seperti di index)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama_lengkap', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%")
+                  ->orWhere('domisili', 'like', "%{$search}%");
+            });
+        }
+        
+        // Handle filter status_approval (same mapping as index method)
+        if ($request->filled('status') && $request->status !== 'Semua') {
+            $statusMap = [
+                'Belum Lengkapi Profil' => 'pending_profile',
+                'Menunggu Approve' => 'pending_approval',
+                'Disetujui' => 'approved',
+                'Ditolak' => 'rejected',
+            ];
+            
+            if (isset($statusMap[$request->status])) {
+                $query->where('status', $statusMap[$request->status]);
+            }
+        }
+
+        $anggotas = $query->get();
+
+        $fileName = 'Data_Anggota_Karang_Taruna_' . date('Ymd_His') . '.xls';
+
+        $html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+        $html .= '<head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Data Anggota</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
+        $html .= '<body>';
+        
+        // Header Judul Laporan (Mulai di baris 3, kolom C)
+        $html .= '<table style="font-family: Arial, sans-serif; border-collapse: collapse;">';
+        
+        // Baris 1 & 2 Kosong
+        $html .= '<tr><td colspan="10" style="border: none;"></td></tr>';
+        $html .= '<tr><td colspan="10" style="border: none;"></td></tr>';
+
+        // Baris 3: Judul
+        $html .= '<tr>';
+        $html .= '<td style="border: none; width: 20px;"></td>'; // Kolom A
+        $html .= '<td style="border: none; width: 20px;"></td>'; // Kolom B
+        $html .= '<td colspan="8" style="text-align: center; font-size: 16pt; font-weight: bold; padding: 10px;">LAPORAN DATA ANGGOTA KARANG TARUNA</td>';
+        $html .= '</tr>';
+        
+        // Baris 4: Waktu Ekspor
+        $html .= '<tr>';
+        $html .= '<td style="border: none;"></td>';
+        $html .= '<td style="border: none;"></td>';
+        $html .= '<td colspan="8" style="text-align: center; font-size: 11pt; color: #666; padding-bottom: 20px;">Diekspor pada: ' . date('d M Y H:i:s') . '</td>';
+        $html .= '</tr>';
+        
+        // Baris 5: Header Tabel
+        $html .= '<tr>';
+        $html .= '<td style="border: none;"></td>'; // Kolom A
+        $html .= '<td style="border: none;"></td>'; // Kolom B
+        
+        $headersList = [
+            ['label' => 'No', 'width' => '50'],
+            ['label' => 'Nama Lengkap', 'width' => '250'],
+            ['label' => 'Username', 'width' => '150'],
+            ['label' => 'Email', 'width' => '250'],
+            ['label' => 'Jabatan', 'width' => '180'],
+            ['label' => 'Domisili', 'width' => '150'],
+            ['label' => 'Status Approval', 'width' => '180'],
+            ['label' => 'Tanggal Daftar', 'width' => '180']
+        ];
+
+        foreach ($headersList as $head) {
+            $html .= '<th width="' . $head['width'] . '" style="background-color: #0a2540; color: #ffd700; border: 1px solid #000000; padding: 12px; text-align: center; font-weight: bold; height: 30px; vertical-align: middle;">' . $head['label'] . '</th>';
+        }
+        $html .= '</tr>';
+
+        // Isi Tabel
+        $no = 1;
+        foreach ($anggotas as $anggota) {
+            $statusText = match($anggota->status) {
+                'pending_profile' => 'Belum Lengkapi Profil',
+                'pending_approval' => 'Menunggu Approve',
+                'approved' => 'Disetujui',
+                'rejected' => 'Ditolak',
+                default => $anggota->status
+            };
+
+            // Beri warna khusus untuk status Disetujui / Ditolak biar lebih rapih
+            $statusColor = match($anggota->status) {
+                'approved' => 'color: #059669; font-weight: bold;',
+                'rejected' => 'color: #dc2626; font-weight: bold;',
+                'pending_approval' => 'color: #d97706; font-weight: bold;',
+                default => 'color: #4b5563;'
+            };
+
+            $html .= '<tr>';
+            $html .= '<td style="border: none;"></td>'; // Kolom A
+            $html .= '<td style="border: none;"></td>'; // Kolom B
+            $html .= '<td style="border: 1px solid #000000; padding: 10px; text-align: center; vertical-align: middle; height: 25px;">' . $no++ . '</td>';
+            $html .= '<td style="border: 1px solid #000000; padding: 10px; vertical-align: middle; height: 25px;">' . $anggota->nama_lengkap . '</td>';
+            $html .= '<td style="border: 1px solid #000000; padding: 10px; vertical-align: middle; height: 25px;">' . $anggota->username . '</td>';
+            $html .= '<td style="border: 1px solid #000000; padding: 10px; vertical-align: middle; height: 25px;">' . $anggota->email . '</td>';
+            $html .= '<td style="border: 1px solid #000000; padding: 10px; vertical-align: middle; height: 25px;">' . ($anggota->jabatan ?? '-') . '</td>';
+            $html .= '<td style="border: 1px solid #000000; padding: 10px; vertical-align: middle; height: 25px;">' . ($anggota->domisili ?? '-') . '</td>';
+            $html .= '<td style="border: 1px solid #000000; padding: 10px; text-align: center; vertical-align: middle; height: 25px; ' . $statusColor . '">' . $statusText . '</td>';
+            $html .= '<td style="border: 1px solid #000000; padding: 10px; text-align: center; vertical-align: middle; height: 25px;">' . ($anggota->created_at ? $anggota->created_at->format('d/m/Y H:i') : '-') . '</td>';
+            $html .= '</tr>';
+        }
+
+        $html .= '</table>';
+        $html .= '</body></html>';
+
+        return response($html)
+            ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
     }
 
     /**
