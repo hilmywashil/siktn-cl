@@ -113,7 +113,7 @@ class AdminDashboardController extends Controller
         
         // Statistik Berita
         $totalBerita = \App\Models\Berita::count();
-        $totalBeritaAktif = \App\Models\Berita::where('is_active', true)->count();
+        $totalBeritaAktif = \App\Models\Berita::where('status', 'Published')->count();
         $totalBeritaPopuler = \App\Models\Berita::where('is_populer', true)->count();
         $recentBerita = \App\Models\Berita::latest()->take(5)->get();
         

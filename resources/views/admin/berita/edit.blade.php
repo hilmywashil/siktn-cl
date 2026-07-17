@@ -220,6 +220,27 @@ $activeMenu = 'berita';
         </div>
 
         <div class="form-group">
+            <label class="form-label">Kategori <span class="required">*</span></label>
+            <select name="kategori" id="kategoriSelect" class="form-select" required>
+                <option value="">-- Pilih Kategori --</option>
+                @foreach($kategoris as $kat)
+                    <option value="{{ $kat }}" {{ old('kategori', $berita->kategori) == $kat ? 'selected' : '' }}>{{ $kat }}</option>
+                @endforeach
+            </select>
+            @error('kategori')
+            <div class="error-message">{{ $message }}</div>
+            @enderror
+            <div class="form-help">Pilih kategori yang ada atau ketik langsung kategori baru lalu tekan Enter</div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Tags (Opsional)</label>
+            <input type="text" name="tags" class="form-input" value="{{ old('tags', is_array($berita->tags) ? implode(', ', $berita->tags) : '') }}"
+                placeholder="Misal: karang taruna, pemuda, kegiatan">
+            <div class="form-help">Pisahkan dengan koma (,)</div>
+        </div>
+
+        <div class="form-group">
             <label class="form-label">
                 Konten Berita <span class="required">*</span>
             </label>
@@ -255,23 +276,29 @@ $activeMenu = 'berita';
 
         <div class="form-group">
             <label class="form-label">
-                Tanggal Publish <span class="required">*</span>
+                Jadwal Tayang <span class="required">*</span>
             </label>
-            <input type="text" name="tanggal_publish" class="form-input datepicker"
-                value="{{ old('tanggal_publish', $berita->tanggal_publish->format('Y-m-d')) }}" required placeholder="Pilih tanggal">
+            <input type="text" name="tanggal_publish" class="form-input datetimepicker"
+                value="{{ old('tanggal_publish', $berita->tanggal_publish ? $berita->tanggal_publish->format('Y-m-d H:i') : '') }}" required placeholder="Pilih tanggal">
             @error('tanggal_publish')
             <div class="error-message">{{ $message }}</div>
             @enderror
         </div>
 
         <div class="form-group">
-            <label class="form-label">Pengaturan Berita</label>
+            <label class="form-label">Status Post <span class="required">*</span></label>
+            <select name="status" id="statusSelect" class="form-select" required>
+                <option value="Draft" {{ old('status', $berita->status) == 'Draft' ? 'selected' : '' }}>Draft (Simpan sementara)</option>
+                <option value="Published" {{ old('status', $berita->status) == 'Published' ? 'selected' : '' }}>Published (Publikasikan sesuai jadwal)</option>
+                <option value="Archived" {{ old('status', $berita->status) == 'Archived' ? 'selected' : '' }}>Archived (Arsipkan)</option>
+            </select>
+            @error('status')
+            <div class="error-message">{{ $message }}</div>
+            @enderror
+        </div>
 
-            <div class="checkbox-group">
-                <input type="checkbox" name="is_active" id="is_active" value="1"
-                    {{ old('is_active', $berita->is_active) ? 'checked' : '' }}>
-                <label for="is_active">Aktifkan Berita (tampil di halaman publik)</label>
-            </div>
+        <div class="form-group">
+            <label class="form-label">Pengaturan Berita</label>
 
             <div class="checkbox-group">
                 <input type="checkbox" name="is_populer" id="is_populer" value="1"
@@ -312,6 +339,47 @@ $activeMenu = 'berita';
             preview.style.display = 'none';
         }
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if(typeof flatpickr !== 'undefined') {
+            flatpickr(".datetimepicker", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                time_24hr: true
+            });
+        }
+        
+        if (typeof jQuery !== 'undefined' && typeof jQuery.fn.select2 !== 'undefined') {
+            $('#kategoriSelect').select2({
+                tags: true,
+                placeholder: 'Pilih atau ketik kategori baru...',
+                width: '100%',
+                createTag: function (params) {
+                    var term = $.trim(params.term);
+                    if (term === '') {
+                        return null;
+                    }
+                    return {
+                        id: term,
+                        text: term,
+                        newTag: true
+                    }
+                }
+            });
+            
+            // Trigger select2 update to ensure the current category is visible if it's new
+            var currentKat = "{{ old('kategori', $berita->kategori) }}";
+            if(currentKat && !$('#kategoriSelect').find("option[value='" + currentKat + "']").length) {
+                var newOption = new Option(currentKat, currentKat, true, true);
+                $('#kategoriSelect').append(newOption).trigger('change');
+            }
+
+            $('#statusSelect').select2({
+                minimumResultsForSearch: Infinity,
+                width: '100%'
+            });
+        }
+    });
 </script>
 @endpush
 @endsection

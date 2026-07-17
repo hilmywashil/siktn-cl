@@ -12,20 +12,23 @@ class Berita extends Model
     use HasFactory;
 
     protected $fillable = [
+        'admin_id',
         'judul',
         'slug',
         'konten',
         'gambar',
+        'kategori',
+        'tags',
+        'status',
         'is_populer',
-        'is_active',
         'views',
         'tanggal_publish',
     ];
 
     protected $casts = [
         'is_populer' => 'boolean',
-        'is_active' => 'boolean',
-        'tanggal_publish' => 'date',
+        'tags' => 'array',
+        'tanggal_publish' => 'datetime',
     ];
 
     // Auto generate slug dari judul
@@ -78,10 +81,16 @@ class Berita extends Model
         return asset('images/missions/mission-1.png'); // Default image
     }
 
-    // Scope untuk berita aktif
+    // Scope untuk berita aktif / published
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('status', 'Published')->where('tanggal_publish', '<=', now());
+    }
+
+    // Relasi ke author (Admin)
+    public function author()
+    {
+        return $this->belongsTo(Admin::class, 'admin_id');
     }
 
     // Scope untuk berita populer

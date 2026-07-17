@@ -10,88 +10,108 @@ use Illuminate\Support\Str;
 
 class BeritaController extends Controller
 {
-    public function index()
+    private function checkAccess($admin)
+    {
+        if (!$admin || !$admin->canManageContent()) {
+            abort(403, 'Anda tidak memiliki akses untuk kelola berita.');
+        }
+    }
+
+    public function index(Request $request)
     {
         $admin = auth()->guard('admin')->user();
+        $this->checkAccess($admin);
         
-        if (!$admin->canManageContent() && !$admin->isPimpinan()) {
-            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
+        $query = Berita::with('author')->latest();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
         }
 
-        $beritas = Berita::latest()->paginate(10);
+        if ($request->filled('kategori')) {
+            $query->where('kategori', $request->kategori);
+        }
+
+        $beritas = $query->paginate(10);
+        $kategorisDb = Berita::whereNotNull('kategori')->distinct()->pluck('kategori')->toArray();
+        $kategoris = array_unique(array_merge(['Pengumuman', 'Kegiatan', 'Regulasi'], $kategorisDb));
         
-        return view('admin.berita.index', compact('admin', 'beritas'));
+        return view('admin.berita.index', compact('admin', 'beritas', 'kategoris'));
     }
 
     public function create()
     {
         $admin = auth()->guard('admin')->user();
-        
-        if (!$admin->canManageContent()) {
-            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
-        }
+        $this->checkAccess($admin);
 
-        return view('admin.berita.create', compact('admin'));
+        $kategorisDb = Berita::whereNotNull('kategori')->distinct()->pluck('kategori')->toArray();
+        $kategoris = array_unique(array_merge(['Pengumuman', 'Kegiatan', 'Regulasi'], $kategorisDb));
+
+        return view('admin.berita.create', compact('admin', 'kategoris'));
     }
 
     public function store(Request $request)
     {
         $admin = auth()->guard('admin')->user();
-        
-        if (!$admin->canManageContent()) {
-            abort(403, 'Anda tidak memiliki akses untuk melakukan aksi ini.');
-        }
+        $this->checkAccess($admin);
 
         $validated = $request->validate([
             'judul' => 'required|string|max:255',
             'konten' => 'required|string',
             'gambar' => 'required|image|mimes:jpeg,jpg,png,webp|max:2048',
-            'is_populer' => 'boolean',
-            'is_active' => 'boolean',
+            'kategori' => 'required|string',
+            'tags' => 'nullable|string',
+            'status' => 'required|in:Draft,Published,Archived',
             'tanggal_publish' => 'required|date',
+            'is_populer' => 'nullable|boolean',
         ]);
 
+        // Parse tags to array if provided as comma separated
+        $tagsArray = [];
+        if (!empty($validated['tags'])) {
+            $tagsArray = array_map('trim', explode(',', $validated['tags']));
+        }
+
         // Upload gambar
+        $path = null;
         if ($request->hasFile('gambar')) {
             $gambar = $request->file('gambar');
             $filename = time() . '_' . Str::slug($request->judul) . '.' . $gambar->getClientOriginalExtension();
             $path = $gambar->storeAs('berita', $filename, 'public');
-            $validated['gambar'] = $path;
         }
 
-        $validated['is_populer'] = $request->has('is_populer');
-        $validated['is_active'] = $request->has('is_active');
-
-        Berita::create($validated);
+        Berita::create([
+            'admin_id' => $admin->id,
+            'judul' => $validated['judul'],
+            'konten' => $validated['konten'],
+            'gambar' => $path,
+            'kategori' => $validated['kategori'],
+            'tags' => $tagsArray,
+            'status' => $validated['status'],
+            'tanggal_publish' => $validated['tanggal_publish'],
+            'is_populer' => $request->has('is_populer'),
+        ]);
 
         return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil ditambahkan!');
-    }
-
-    public function show(Berita $berita)
-    {
-        // Not used
     }
 
     public function edit($id)
     {
         $admin = auth()->guard('admin')->user();
-        
-        if (!$admin->canManageContent()) {
-            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
-        }
+        $this->checkAccess($admin);
 
         $berita = Berita::findOrFail($id);
+        
+        $kategorisDb = Berita::whereNotNull('kategori')->distinct()->pluck('kategori')->toArray();
+        $kategoris = array_unique(array_merge(['Pengumuman', 'Kegiatan', 'Regulasi'], $kategorisDb));
 
-        return view('admin.berita.edit', compact('admin', 'berita'));
+        return view('admin.berita.edit', compact('admin', 'berita', 'kategoris'));
     }
 
     public function update(Request $request, $id)
     {
         $admin = auth()->guard('admin')->user();
-        
-        if (!$admin->canManageContent()) {
-            abort(403, 'Anda tidak memiliki akses untuk melakukan aksi ini.');
-        }
+        $this->checkAccess($admin);
 
         $berita = Berita::findOrFail($id);
 
@@ -99,28 +119,39 @@ class BeritaController extends Controller
             'judul' => 'required|string|max:255',
             'konten' => 'required|string',
             'gambar' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
-            'is_populer' => 'boolean',
-            'is_active' => 'boolean',
+            'kategori' => 'required|string',
+            'tags' => 'nullable|string',
+            'status' => 'required|in:Draft,Published,Archived',
             'tanggal_publish' => 'required|date',
+            'is_populer' => 'nullable|boolean',
         ]);
 
-        // Upload gambar baru jika ada
+        // Parse tags to array
+        $tagsArray = [];
+        if (!empty($validated['tags'])) {
+            $tagsArray = array_map('trim', explode(',', $validated['tags']));
+        }
+
+        $path = $berita->gambar;
         if ($request->hasFile('gambar')) {
-            // Hapus gambar lama
             if ($berita->gambar && Storage::disk('public')->exists($berita->gambar)) {
                 Storage::disk('public')->delete($berita->gambar);
             }
-
             $gambar = $request->file('gambar');
             $filename = time() . '_' . Str::slug($request->judul) . '.' . $gambar->getClientOriginalExtension();
             $path = $gambar->storeAs('berita', $filename, 'public');
-            $validated['gambar'] = $path;
         }
 
-        $validated['is_populer'] = $request->has('is_populer');
-        $validated['is_active'] = $request->has('is_active');
-
-        $berita->update($validated);
+        $berita->update([
+            'judul' => $validated['judul'],
+            'konten' => $validated['konten'],
+            'gambar' => $path,
+            'kategori' => $validated['kategori'],
+            'tags' => $tagsArray,
+            'status' => $validated['status'],
+            'tanggal_publish' => $validated['tanggal_publish'],
+            'is_populer' => $request->has('is_populer'),
+        ]);
 
         return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil diupdate!');
     }
@@ -128,14 +159,10 @@ class BeritaController extends Controller
     public function destroy($id)
     {
         $admin = auth()->guard('admin')->user();
-        
-        if (!$admin->canManageContent()) {
-            abort(403, 'Anda tidak memiliki akses untuk melakukan aksi ini.');
-        }
+        $this->checkAccess($admin);
 
         $berita = Berita::findOrFail($id);
 
-        // Hapus gambar
         if ($berita->gambar && Storage::disk('public')->exists($berita->gambar)) {
             Storage::disk('public')->delete($berita->gambar);
         }
