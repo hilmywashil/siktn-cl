@@ -36,6 +36,7 @@
         background: white;
         border-bottom: 1px solid #e5e7eb;
         padding: 1rem;
+    }
 
     .program-img {
         width: 100%;
