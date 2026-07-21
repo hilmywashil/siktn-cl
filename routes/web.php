@@ -94,10 +94,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
             // Approval Actions
             Route::post('/{katalog}/approve', [AdminKatalogController::class, 'approve'])->name('approve');
+            Route::post('/{katalog}/revision', [AdminKatalogController::class, 'revision'])->name('revision');
             Route::post('/{katalog}/reject', [AdminKatalogController::class, 'reject'])->name('reject');
+
+            // Toggle active status
+            Route::post('/{katalog}/toggle', [AdminKatalogController::class, 'toggleStatus'])->name('toggle');
 
             // Delete
             Route::delete('/{katalog}', [AdminKatalogController::class, 'destroy'])->name('destroy');
+
+            // Kategori CRUD
+            Route::get('/kategori', [AdminKatalogController::class, 'kategoriIndex'])->name('kategori');
+            Route::post('/kategori', [AdminKatalogController::class, 'kategoriStore'])->name('kategori.store');
+            Route::put('/kategori/{kategori}', [AdminKatalogController::class, 'kategoriUpdate'])->name('kategori.update');
+            Route::delete('/kategori/{kategori}', [AdminKatalogController::class, 'kategoriDestroy'])->name('kategori.destroy');
         });
 
         // Misi CRUD (BPD only)

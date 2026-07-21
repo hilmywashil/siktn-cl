@@ -464,6 +464,7 @@
         .status-badge-pill.pending { background-color: rgba(197, 146, 23, 0.08) !important; color: var(--accent-gold) !important; border: 1px solid rgba(197, 146, 23, 0.18) !important; }
         .status-badge-pill.approved { background-color: rgba(11, 19, 84, 0.06) !important; color: var(--primary-blue) !important; border: 1px solid rgba(11, 19, 84, 0.12) !important; }
         .status-badge-pill.rejected { background-color: rgba(214, 11, 28, 0.08) !important; color: var(--accent-red) !important; border: 1px solid rgba(214, 11, 28, 0.18) !important; }
+        .status-badge-pill.revision { background-color: rgba(59, 130, 246, 0.08) !important; color: #3b82f6 !important; border: 1px solid rgba(59, 130, 246, 0.18) !important; }
         .status-badge-pill.active { background-color: rgba(11, 19, 84, 0.04) !important; color: var(--primary-blue) !important; border: 1px solid rgba(11, 19, 84, 0.08) !important; }
         .status-badge-pill.inactive { background-color: #F3F4F6 !important; color: #4B5563 !important; border: 1px solid rgba(75, 85, 99, 0.15) !important; }
 
@@ -525,6 +526,23 @@
             font-size: 0.88rem;
             color: #991B1B;
             line-height: 1.5;
+        }
+
+        .revision-box {
+            background: #EFF6FF;
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+        }
+
+        .revision-box .rejection-box-title {
+            color: #1D4ED8;
+        }
+
+        .revision-box .rejection-box-content {
+            color: #1E40AF;
+        }
             font-weight: 500;
         }
 
@@ -825,7 +843,7 @@
                         @endif
                     </div>
                     <h4 class="user-name">{{ $anggota->nama_lengkap }}</h4>
-                    <div class="user-nrp">NRP: {{ $anggota->nrp }}</div>
+                    <div class="user-nrp">Username: {{ $anggota->username }}</div>
                     
                     @if($anggota->status == 'pending')
                         <span class="status-badge status-pending"><i class="fas fa-clock"></i> PENDING ACC</span>
@@ -970,12 +988,14 @@
                                     <div class="katalog-status-badges">
                                         @if($katalog->status === 'pending')
                                             <span class="status-badge-pill pending">Menunggu Review</span>
+                                        @elseif($katalog->status === 'revision')
+                                            <span class="status-badge-pill revision">Butuh Revisi</span>
                                         @elseif($katalog->status === 'approved')
                                             <span class="status-badge-pill approved">Disetujui</span>
                                         @else
                                             <span class="status-badge-pill rejected">Ditolak</span>
                                         @endif
-                                        
+
                                         @if($katalog->status === 'approved')
                                             @if($katalog->is_active)
                                                 <span class="status-badge-pill active">Aktif</span>
@@ -988,6 +1008,18 @@
 
                                 <!-- CARD BODY (Collapsible) -->
                                 <div class="katalog-body">
+                                    <!-- Revision Notes -->
+                                    @if($katalog->status === 'revision' && $katalog->revision_notes)
+                                        <div class="revision-box">
+                                            <div class="rejection-box-title">
+                                                <i class="fas fa-edit"></i> Catatan Revisi
+                                            </div>
+                                            <div class="rejection-box-content">
+                                                {{ $katalog->revision_notes }}
+                                            </div>
+                                        </div>
+                                    @endif
+
                                     <!-- Rejection Reason -->
                                     @if($katalog->status === 'rejected' && $katalog->rejection_reason)
                                         <div class="rejection-box">

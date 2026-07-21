@@ -421,7 +421,7 @@
                         @endif
                     </div>
                     <h4 class="user-name">{{ $anggota->nama_lengkap }}</h4>
-                    <div class="user-nrp">NRP: {{ $anggota->nrp }}</div>
+                    <div class="user-nrp">Username: {{ $anggota->username }}</div>
                     
                     @if($anggota->status == 'pending')
                         <span class="status-badge status-pending"><i class="fas fa-clock"></i> PENDING ACC</span>
@@ -508,17 +508,28 @@
                     <!-- Deskripsi Perusahaan -->
                     <div class="form-group">
                         <label for="description">Deskripsi Perusahaan <span style="color: red;">*</span></label>
-                        <textarea 
-                            name="description" 
-                            id="description"
-                            class="form-control" 
-                            rows="5"
-                            placeholder="Ceritakan tentang perusahaan Anda, produk/layanan yang ditawarkan, keunggulan, dan nilai tambah..."
-                            required>{{ old('description') }}</textarea>
-                        <div class="form-hint">Deskripsi menarik yang menjelaskan bisnis Anda kepada calon pelanggan</div>
+                        <textarea name="description" id="description" class="form-control" rows="5" placeholder="Ceritakan tentang bisnis Anda..." required>{{ old('description') }}</textarea>
+                        <div class="form-hint">Deskripsi menarik tentang bisnis Anda</div>
                         @error('description')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
+                    </div>
+
+                    <!-- Kategori & Harga -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="kategori_id">Kategori Produk</label>
+                            <select name="kategori_id" id="kategori_id" class="form-control">
+                                <option value="">-- Pilih Kategori --</option>
+                                @foreach($kategoris as $kat)
+                                    <option value="{{ $kat->id }}" {{ old('kategori_id') == $kat->id ? 'selected' : '' }}>{{ $kat->nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="harga">Kisaran Harga</label>
+                            <input type="text" name="harga" id="harga" class="form-control" value="{{ old('harga') }}" placeholder="Contoh: Rp 50.000">
+                        </div>
                     </div>
 
                     <!-- Logo Perusahaan -->
@@ -561,6 +572,16 @@
                         @enderror
                     </div>
 
+                    <!-- Wilayah -->
+                    <div class="form-group">
+                        <label for="wilayah">Wilayah</label>
+                        <input type="text" name="wilayah" id="wilayah" class="form-control" value="{{ old('wilayah') }}" placeholder="Contoh: Jawa Timur, Kabupaten Nganjuk">
+                        <div class="form-hint">Provinsi atau Kabupaten/Kota lokasi perusahaan</div>
+                        @error('wilayah')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     <!-- Nomor Telepon -->
                     <div class="form-group">
                         <label for="phone">
@@ -592,13 +613,25 @@
                             name="email" 
                             id="email"
                             class="form-control" 
-                            value="{{ old('email', $anggota->email_website_perusahaan) }}" 
+                            value="{{ old('email', $anggota->email_website_perusahaan) }}"
                             placeholder="email@perusahaan.com"
                             required>
                         <div class="form-hint">Email bisnis perusahaan Anda</div>
                         @error('email')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
+                    </div>
+
+                    <!-- Website & Marketplace -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="website_url">Link Website</label>
+                            <input type="url" name="website_url" id="website_url" class="form-control" value="{{ old('website_url') }}" placeholder="https://website.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="marketplace_url">Link Marketplace</label>
+                            <input type="url" name="marketplace_url" id="marketplace_url" class="form-control" value="{{ old('marketplace_url') }}" placeholder="https://tokopedia.com/...">
+                        </div>
                     </div>
 
                     <!-- Google Maps Embed -->

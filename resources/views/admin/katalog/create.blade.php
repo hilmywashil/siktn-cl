@@ -273,7 +273,7 @@
                 <option value="">-- Tidak terhubung dengan anggota --</option>
                 @foreach($anggotas as $anggota)
                     <option value="{{ $anggota->id }}" {{ old('anggota_id') == $anggota->id ? 'selected' : '' }}>
-                        {{ $anggota->nama_perusahaan ?? $anggota->nama_pimpinan }}
+                        {{ $anggota->nama_lengkap ?? $anggota->username }}
                     </option>
                 @endforeach
             </select>
@@ -297,6 +297,29 @@
             @error('business_field')
                 <div class="form-error">{{ $message }}</div>
             @enderror
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label class="form-label">Kategori</label>
+                <select name="kategori_id" class="form-select">
+                    <option value="">-- Pilih Kategori --</option>
+                    @foreach($kategoris as $kat)
+                        <option value="{{ $kat->id }}" {{ old('kategori_id') == $kat->id ? 'selected' : '' }}>{{ $kat->nama }}</option>
+                    @endforeach
+                </select>
+                @error('kategori_id')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Harga</label>
+                <input type="text" name="harga" class="form-input" value="{{ old('harga') }}" placeholder="Contoh: Rp 50.000 - Rp 100.000">
+                @error('harga')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
+            </div>
         </div>
 
         <div class="form-group">
@@ -336,6 +359,15 @@
         </div>
 
         <div class="form-group">
+            <label class="form-label">Wilayah</label>
+            <input type="text" name="wilayah" class="form-input" value="{{ old('wilayah') }}" placeholder="Contoh: Jawa Timur, Kabupaten Nganjuk">
+            <div class="form-hint">Isi sesuai lokasi wilayah perusahaan (Provinsi/Kabupaten/Kota)</div>
+            @error('wilayah')
+                <div class="form-error">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="form-group">
             <label class="form-label required">Nomor Telepon</label>
             <input type="text" name="phone" class="form-input" value="{{ old('phone') }}" required>
             @error('phone')
@@ -349,6 +381,24 @@
             @error('email')
                 <div class="form-error">{{ $message }}</div>
             @enderror
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label class="form-label">Link Website</label>
+                <input type="url" name="website_url" class="form-input" value="{{ old('website_url') }}" placeholder="https://example.com">
+                @error('website_url')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Link Marketplace / Shop</label>
+                <input type="url" name="marketplace_url" class="form-input" value="{{ old('marketplace_url') }}" placeholder="https://tokopedia.com/...">
+                @error('marketplace_url')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
+            </div>
         </div>
 
         <div class="form-group">
@@ -418,6 +468,13 @@
 
 @push('scripts')
 <script>
+    $(document).ready(function() {
+        $('.form-select').select2({
+            width: '100%',
+            placeholder: "-- Pilih --"
+        });
+    });
+
     function previewLogo(event) {
         const preview = document.getElementById('logoPreview');
         preview.innerHTML = '';

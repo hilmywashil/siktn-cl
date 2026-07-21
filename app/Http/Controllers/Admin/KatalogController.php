@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Katalog;
+use App\Models\KategoriEatalog;
 use App\Models\Anggota;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,16 +23,26 @@ class KatalogController extends Controller
             abort(403, 'Akses ditolak: Anda tidak memiliki hak akses ke fitur ini.');
         }
     }
+
     public function index(Request $request)
     {
         $this->checkAuthorization(true);
 
-        // FIXED: Hapus with('anggota') karena bikin error
-        $query = Katalog::query();
+        $query = Katalog::with('kategori');
 
         // Filter by status
         if ($request->filled('status') && $request->status !== 'all') {
             $query->where('status', $request->status);
+        }
+
+        // Filter by kategori
+        if ($request->filled('kategori') && $request->kategori !== 'all') {
+            $query->where('kategori_id', $request->kategori);
+        }
+
+        // Filter by wilayah
+        if ($request->filled('wilayah') && $request->wilayah !== '') {
+            $query->where('wilayah', 'like', '%' . $request->wilayah . '%');
         }
 
         // Search
@@ -46,49 +57,65 @@ class KatalogController extends Controller
 
         $katalogs = $query->latest()->paginate(15);
 
+        // Get kategoris for dropdown
+        $kategoris = KategoriEatalog::active()->orderBy('nama')->get();
+
+        // Get unique wilayah for filter
+        $wilayahList = Katalog::whereNotNull('wilayah')
+            ->where('wilayah', '!=', '')
+            ->distinct()
+            ->pluck('wilayah')
+            ->sort()
+            ->values();
+
         // Statistics
         $stats = [
             'total' => Katalog::count(),
             'pending' => Katalog::where('status', 'pending')->count(),
+            'revision' => Katalog::where('status', 'revision')->count(),
             'approved' => Katalog::where('status', 'approved')->count(),
             'rejected' => Katalog::where('status', 'rejected')->count(),
         ];
 
-        return view('admin.katalog.index', compact('katalogs', 'stats'));
+        return view('admin.katalog.index', compact('katalogs', 'stats', 'kategoris', 'wilayahList'));
     }
 
     public function create()
     {
         $this->checkAuthorization();
 
-        // Safe: Hanya ambil anggota yang approved
         try {
             $anggotas = Anggota::where('status', 'approved')
-                ->orderBy('nama_perusahaan')
+                ->orderBy('nama_lengkap')
                 ->get();
         } catch (\Exception $e) {
-            // Jika tabel anggotas bermasalah, return empty collection
             $anggotas = collect([]);
         }
-            
-        return view('admin.katalog.create', compact('anggotas'));
+
+        $kategoris = KategoriEatalog::active()->orderBy('nama')->get();
+
+        return view('admin.katalog.create', compact('anggotas', 'kategoris'));
     }
 
     public function store(Request $request)
     {
         $this->checkAuthorization();
 
-        // FIXED: Hapus validasi exists karena tabel anggotas belum ada
         $validated = $request->validate([
             'anggota_id' => 'nullable|integer',
             'company_name' => 'required|string|max:255',
             'business_field' => 'required|string|max:255',
+            'kategori_id' => 'nullable|exists:kategori_ekatalog,id',
+            'harga' => 'nullable|string|max:50',
             'description' => 'required|string|max:1000',
-            'address' => 'required|string|max:500',
-            'phone' => 'required|string|max:20',
-            'email' => 'required|email|max:255',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'address' => 'required|string|max:500',
+            'wilayah' => 'nullable|string|max:100',
+            'phone' => 'required|string|max:20',
+            'email' => 'required|email|max:255',
+            'website_url' => 'nullable|url|max:255',
+            'marketplace_url' => 'nullable|url|max:255',
             'map_embed_url' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
@@ -96,19 +123,23 @@ class KatalogController extends Controller
         $data = [
             'company_name' => $request->company_name,
             'business_field' => $request->business_field,
+            'kategori_id' => $request->kategori_id,
+            'harga' => $request->harga,
             'description' => $request->description,
             'address' => $request->address,
+            'wilayah' => $request->wilayah,
             'phone' => $request->phone,
             'email' => $request->email,
+            'website_url' => $request->website_url,
+            'marketplace_url' => $request->marketplace_url,
             'is_active' => $request->has('is_active'),
             'created_by_type' => 'admin',
             'created_by_id' => Auth::guard('admin')->id(),
-            'status' => 'approved', // Admin-created katalog langsung approved
+            'status' => 'approved',
             'approved_by' => Auth::guard('admin')->id(),
             'approved_at' => now(),
         ];
 
-        // Optional: Link to anggota if selected
         if ($request->filled('anggota_id')) {
             $data['anggota_id'] = $request->anggota_id;
         }
@@ -131,14 +162,9 @@ class KatalogController extends Controller
         // Process Google Maps Embed URL
         if ($request->filled('map_embed_url')) {
             $embedUrl = $this->extractGoogleMapsEmbedUrl($request->map_embed_url);
-            
-            if ($embedUrl === null) {
-                return back()
-                    ->withInput()
-                    ->withErrors(['map_embed_url' => 'Format kode embed tidak valid. Pastikan Anda meng-copy kode iframe dari Google Maps.']);
+            if ($embedUrl !== null) {
+                $data['map_embed_url'] = $embedUrl;
             }
-            
-            $data['map_embed_url'] = $embedUrl;
         }
 
         $katalog = Katalog::create($data);
@@ -158,17 +184,15 @@ class KatalogController extends Controller
     {
         $this->checkAuthorization(true);
 
-        // FIXED: Load anggota secara opsional dengan try-catch
         try {
-            $katalog->load('anggota');
+            $katalog->load('anggota', 'kategori');
         } catch (\Exception $e) {
-            // Jika gagal load anggota, lanjut tanpa error
-            Log::warning('Failed to load anggota relationship', [
+            Log::warning('Failed to load relationships', [
                 'katalog_id' => $katalog->id,
                 'error' => $e->getMessage()
             ]);
         }
-        
+
         return view('admin.katalog.show', compact('katalog'));
     }
 
@@ -176,33 +200,38 @@ class KatalogController extends Controller
     {
         $this->checkAuthorization();
 
-        // Safe: Ambil anggota dengan error handling
         try {
             $anggotas = Anggota::where('status', 'approved')
-                ->orderBy('nama_perusahaan')
+                ->orderBy('nama_lengkap')
                 ->get();
         } catch (\Exception $e) {
             $anggotas = collect([]);
         }
-            
-        return view('admin.katalog.edit', compact('katalog', 'anggotas'));
+
+        $kategoris = KategoriEatalog::active()->orderBy('nama')->get();
+
+        return view('admin.katalog.edit', compact('katalog', 'anggotas', 'kategoris'));
     }
 
     public function update(Request $request, Katalog $katalog)
     {
         $this->checkAuthorization();
 
-        // FIXED: Hapus validasi exists
         $validated = $request->validate([
             'anggota_id' => 'nullable|integer',
             'company_name' => 'required|string|max:255',
             'business_field' => 'required|string|max:255',
+            'kategori_id' => 'nullable|exists:kategori_ekatalog,id',
+            'harga' => 'nullable|string|max:50',
             'description' => 'required|string|max:1000',
-            'address' => 'required|string|max:500',
-            'phone' => 'required|string|max:20',
-            'email' => 'required|email|max:255',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'address' => 'required|string|max:500',
+            'wilayah' => 'nullable|string|max:100',
+            'phone' => 'required|string|max:20',
+            'email' => 'required|email|max:255',
+            'website_url' => 'nullable|url|max:255',
+            'marketplace_url' => 'nullable|url|max:255',
             'map_embed_url' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
@@ -210,21 +239,24 @@ class KatalogController extends Controller
         $data = [
             'company_name' => $request->company_name,
             'business_field' => $request->business_field,
+            'kategori_id' => $request->kategori_id,
+            'harga' => $request->harga,
             'description' => $request->description,
             'address' => $request->address,
+            'wilayah' => $request->wilayah,
             'phone' => $request->phone,
             'email' => $request->email,
+            'website_url' => $request->website_url,
+            'marketplace_url' => $request->marketplace_url,
             'is_active' => $request->has('is_active'),
         ];
 
-        // Optional: Update anggota link
         if ($request->filled('anggota_id')) {
             $data['anggota_id'] = $request->anggota_id;
         }
 
         // Handle logo upload
         if ($request->hasFile('logo')) {
-            // Delete old logo
             if ($katalog->logo && Storage::disk('public')->exists($katalog->logo)) {
                 Storage::disk('public')->delete($katalog->logo);
             }
@@ -233,7 +265,6 @@ class KatalogController extends Controller
 
         // Handle multiple images upload
         if ($request->hasFile('images')) {
-            // Delete old images
             if ($katalog->images) {
                 foreach ($katalog->images as $oldImage) {
                     if (Storage::disk('public')->exists($oldImage)) {
@@ -241,7 +272,7 @@ class KatalogController extends Controller
                     }
                 }
             }
-            
+
             $imagePaths = [];
             $imageFiles = array_slice($request->file('images'), 0, 3);
             foreach ($imageFiles as $image) {
@@ -253,14 +284,9 @@ class KatalogController extends Controller
         // Process Google Maps Embed URL
         if ($request->filled('map_embed_url')) {
             $embedUrl = $this->extractGoogleMapsEmbedUrl($request->map_embed_url);
-            
-            if ($embedUrl === null) {
-                return back()
-                    ->withInput()
-                    ->withErrors(['map_embed_url' => 'Format kode embed tidak valid. Pastikan Anda meng-copy kode iframe dari Google Maps.']);
+            if ($embedUrl !== null) {
+                $data['map_embed_url'] = $embedUrl;
             }
-            
-            $data['map_embed_url'] = $embedUrl;
         }
 
         $katalog->update($data);
@@ -279,7 +305,6 @@ class KatalogController extends Controller
     {
         $this->checkAuthorization();
 
-        // Delete associated files
         if ($katalog->logo && Storage::disk('public')->exists($katalog->logo)) {
             Storage::disk('public')->delete($katalog->logo);
         }
@@ -318,7 +343,8 @@ class KatalogController extends Controller
             'approved_by' => Auth::guard('admin')->id(),
             'approved_at' => now(),
             'rejection_reason' => null,
-            'is_active' => true, // Aktifkan otomatis saat approve
+            'revision_notes' => null,
+            'is_active' => true,
         ]);
 
         Log::info('Katalog approved', [
@@ -327,9 +353,37 @@ class KatalogController extends Controller
             'admin_id' => Auth::guard('admin')->id(),
         ]);
 
-        // TODO: Send notification to anggota (optional)
-        
         return back()->with('success', "Katalog {$katalog->company_name} berhasil disetujui!");
+    }
+
+    public function revision(Request $request, Katalog $katalog)
+    {
+        $this->checkAuthorization();
+
+        $request->validate([
+            'revision_notes' => 'required|string|max:500',
+        ], [
+            'revision_notes.required' => 'Catatan revisi wajib diisi.',
+        ]);
+
+        if ($katalog->status === 'rejected') {
+            return back()->with('info', 'Katalog sudah ditolak. Tidak bisa diubah ke revisi.');
+        }
+
+        $katalog->update([
+            'status' => 'revision',
+            'revision_notes' => $request->revision_notes,
+            'is_active' => false,
+        ]);
+
+        Log::info('Katalog sent to revision', [
+            'katalog_id' => $katalog->id,
+            'company_name' => $katalog->company_name,
+            'notes' => $request->revision_notes,
+            'admin_id' => Auth::guard('admin')->id(),
+        ]);
+
+        return back()->with('success', "Katalog {$katalog->company_name} dikirim untuk direvisi.");
     }
 
     public function reject(Request $request, Katalog $katalog)
@@ -347,9 +401,10 @@ class KatalogController extends Controller
         $katalog->update([
             'status' => 'rejected',
             'rejection_reason' => $request->rejection_reason,
+            'revision_notes' => null,
             'approved_by' => null,
             'approved_at' => null,
-            'is_active' => false, // Nonaktifkan saat reject
+            'is_active' => false,
         ]);
 
         Log::info('Katalog rejected', [
@@ -359,8 +414,6 @@ class KatalogController extends Controller
             'admin_id' => Auth::guard('admin')->id(),
         ]);
 
-        // TODO: Send notification to anggota with rejection reason (optional)
-
         return back()->with('success', "Katalog {$katalog->company_name} ditolak.");
     }
 
@@ -369,7 +422,7 @@ class KatalogController extends Controller
         $this->checkAuthorization();
 
         $newStatus = !$katalog->is_active;
-        
+
         $katalog->update(['is_active' => $newStatus]);
 
         $statusText = $newStatus ? 'diaktifkan' : 'dinonaktifkan';
@@ -383,9 +436,78 @@ class KatalogController extends Controller
         return back()->with('success', "Katalog berhasil {$statusText}.");
     }
 
+    // ============================================
+    // CRUD Kategori E-Katalog
+    // ============================================
+
+    public function kategoriIndex()
+    {
+        $this->checkAuthorization();
+
+        $kategoris = KategoriEatalog::orderBy('nama')->get();
+
+        return view('admin.katalog.kategori', compact('kategoris'));
+    }
+
+    public function kategoriStore(Request $request)
+    {
+        $this->checkAuthorization();
+
+        $validated = $request->validate([
+            'nama' => 'required|string|max:100|unique:kategori_ekatalog,nama',
+            'deskripsi' => 'nullable|string|max:255',
+        ], [
+            'nama.unique' => 'Nama kategori sudah ada.',
+        ]);
+
+        KategoriEatalog::create([
+            'nama' => $request->nama,
+            'slug' => \Illuminate\Support\Str::slug($request->nama),
+            'deskripsi' => $request->deskripsi,
+            'is_active' => true,
+        ]);
+
+        return back()->with('success', 'Kategori berhasil ditambahkan!');
+    }
+
+    public function kategoriUpdate(Request $request, KategoriEatalog $kategori)
+    {
+        $this->checkAuthorization();
+
+        $validated = $request->validate([
+            'nama' => 'required|string|max:100|unique:kategori_ekatalog,nama,' . $kategori->id,
+            'deskripsi' => 'nullable|string|max:255',
+            'is_active' => 'boolean',
+        ], [
+            'nama.unique' => 'Nama kategori sudah ada.',
+        ]);
+
+        $kategori->update([
+            'nama' => $request->nama,
+            'slug' => \Illuminate\Support\Str::slug($request->nama),
+            'deskripsi' => $request->deskripsi,
+            'is_active' => $request->has('is_active'),
+        ]);
+
+        return back()->with('success', 'Kategori berhasil diperbarui!');
+    }
+
+    public function kategoriDestroy(KategoriEatalog $kategori)
+    {
+        $this->checkAuthorization();
+
+        // Check if kategori has katalogs
+        if ($kategori->katalogs()->count() > 0) {
+            return back()->with('error', 'Kategori tidak bisa dihapus karena masih terhubung dengan katalog.');
+        }
+
+        $kategori->delete();
+
+        return back()->with('success', 'Kategori berhasil dihapus!');
+    }
+
     /**
      * Extract Google Maps Embed URL - STRICT VALIDATION
-     * Hanya menerima kode iframe embed dari Google Maps
      */
     private function extractGoogleMapsEmbedUrl($input)
     {
@@ -395,29 +517,24 @@ class KatalogController extends Controller
 
         $input = trim($input);
 
-        // Validasi 1: Extract dari iframe src attribute
         if (preg_match('/src=["\']([^"\']+)["\']/', $input, $matches)) {
             $url = $matches[1];
-            
-            // Harus mengandung google.com/maps/embed atau output=embed
-            if (strpos($url, 'google.com/maps/embed') !== false || 
+            if (strpos($url, 'google.com/maps/embed') !== false ||
                 (strpos($url, 'google.com/maps') !== false && strpos($url, 'output=embed') !== false)) {
                 return $url;
             }
         }
 
-        // Validasi 2: Jika langsung URL embed (tanpa tag iframe)
-        if (strpos($input, 'google.com/maps/embed') !== false || 
+        if (strpos($input, 'google.com/maps/embed') !== false ||
             (strpos($input, 'google.com/maps') !== false && strpos($input, 'output=embed') !== false)) {
             return $input;
         }
 
-        // Jika tidak memenuhi kriteria di atas, return null (invalid)
-        Log::warning('Invalid Google Maps embed format detected by admin', [
-            'input' => substr($input, 0, 100), // Log first 100 chars only
+        Log::warning('Invalid Google Maps embed format detected', [
+            'input' => substr($input, 0, 100),
             'admin_id' => Auth::guard('admin')->id(),
         ]);
-        
+
         return null;
     }
 }

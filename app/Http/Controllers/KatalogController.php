@@ -27,7 +27,7 @@ class KatalogController extends Controller
 
     public function index(Request $request)
     {
-        $query = Katalog::active();
+        $query = Katalog::with('kategori')->active();
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
@@ -37,11 +37,31 @@ class KatalogController extends Controller
             });
         }
 
+        if ($request->has('kategori') && $request->kategori != '') {
+            $query->where('kategori_id', $request->kategori);
+        }
+
+        if ($request->has('wilayah') && $request->wilayah != '') {
+            $query->where('wilayah', 'like', '%' . $request->wilayah . '%');
+        }
+
         $katalogs = $query
             ->orderBy('company_name', 'asc')
             ->paginate(50);
 
-        return view('pages.ekatalog', compact('katalogs'));
+        // Get kategoris for filter
+        $kategoris = \App\Models\KategoriEatalog::where('is_active', true)->orderBy('nama')->get();
+
+        // Get unique wilayah for filter
+        $wilayahList = Katalog::active()
+            ->whereNotNull('wilayah')
+            ->where('wilayah', '!=', '')
+            ->distinct()
+            ->pluck('wilayah')
+            ->sort()
+            ->values();
+
+        return view('pages.ekatalog', compact('katalogs', 'kategoris', 'wilayahList'));
     }
 
     public function show(Katalog $katalog)

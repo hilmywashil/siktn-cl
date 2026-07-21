@@ -26,6 +26,7 @@
 
     .stat-card.total { border-left-color: #022648; }
     .stat-card.pending { border-left-color: #C59217; }
+    .stat-card.revision { border-left-color: #3b82f6; }
     .stat-card.approved { border-left-color: #10B981; }
     .stat-card.rejected { border-left-color: #D60B1C; }
 
@@ -170,6 +171,12 @@
         background: rgba(214, 11, 28, 0.1);
         color: #D60B1C;
         border-color: rgba(214, 11, 28, 0.2);
+    }
+
+    .status-revision {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+        border-color: rgba(59, 130, 246, 0.2);
     }
 
     .status-badge::before {
@@ -349,8 +356,12 @@
         <div class="stat-value">{{ $stats['total'] }}</div>
     </div>
     <div class="stat-card pending">
-        <div class="stat-label">Menunggu Approval</div>
+        <div class="stat-label">Menunggu</div>
         <div class="stat-value">{{ $stats['pending'] }}</div>
+    </div>
+    <div class="stat-card revision">
+        <div class="stat-label">Revisi</div>
+        <div class="stat-value">{{ $stats['revision'] }}</div>
     </div>
     <div class="stat-card approved">
         <div class="stat-label">Disetujui</div>
@@ -363,20 +374,21 @@
 </div>
 
 <div class="katalog-table-container">
-    @if(session('success'))
-        <div class="alert alert-success">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            {{ session('success') }}
-        </div>
-    @endif
 
     <div class="table-header">
         <h3>Daftar E-Katalog Perusahaan</h3>
-        
+
         <div class="filter-group">
             @if(auth()->guard('admin')->user()->canManageContent())
+            <button type="button" class="btn-add" onclick="openKategoriModal()" style="background: #6b7280;">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                Kategori
+            </button>
             <a href="{{ route('admin.katalog.create') }}" class="btn-add">
                 <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -385,21 +397,30 @@
                 Tambah Katalog
             </a>
             @endif
-            
-            <form method="GET" action="{{ route('admin.katalog.index') }}" style="display: contents;">
-                <select name="status" class="filter-select" onchange="this.form.submit()">
+
+            <form method="GET" action="{{ route('admin.katalog.index') }}" style="display: contents;" id="filterForm">
+                <select name="status" class="filter-select">
                     <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>Semua Status</option>
                     <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="revision" {{ request('status') == 'revision' ? 'selected' : '' }}>Revisi</option>
                     <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
                     <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                 </select>
-                
-                <input 
-                    type="text" 
-                    name="search" 
-                    class="search-input" 
-                    placeholder="Cari nama perusahaan, bidang..."
-                    value="{{ request('search') }}">
+
+                <select name="kategori" class="filter-select">
+                    <option value="all">Semua Kategori</option>
+                    @foreach($kategoris as $kat)
+                        <option value="{{ $kat->id }}" {{ request('kategori') == $kat->id ? 'selected' : '' }}>{{ $kat->nama }}</option>
+                    @endforeach
+                </select>
+
+                <input type="text" name="search" class="search-input" placeholder="Cari..." value="{{ request('search') }}">
+                <button type="submit" class="btn-add" style="background: #022648; padding: 0.5rem 0.875rem;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
             </form>
         </div>
     </div>
@@ -440,6 +461,8 @@
                     <td>
                         @if($katalog->status === 'pending')
                             <span class="status-badge status-pending">Pending</span>
+                        @elseif($katalog->status === 'revision')
+                            <span class="status-badge status-revision">Revisi</span>
                         @elseif($katalog->status === 'approved')
                             <span class="status-badge status-approved">Approved</span>
                         @else
@@ -463,32 +486,48 @@
                                 </svg>
                                 Lihat
                             </a>
-                            
+
                             @if(auth()->guard('admin')->user()->canManageContent())
                                 @if($katalog->isPending())
-                                    <form action="{{ route('admin.katalog.approve', $katalog) }}" method="POST" style="display: inline;">
+                                    <form action="{{ route('admin.katalog.approve', $katalog) }}" method="POST" class="approve-form" style="display: inline;">
                                         @csrf
-                                        <button type="submit" class="btn-approve" onclick="return confirm('Setujui katalog ini?')">
+                                        <button type="button" class="btn-approve btn-confirm-approve">
                                             <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2">
                                                 <polyline points="20 6 9 17 4 12"></polyline>
                                             </svg>
-                                            Approve
+                                            Setuju
                                         </button>
                                     </form>
-                                    
-                                    <button type="button" class="btn-reject" onclick="openRejectModal({{ $katalog->id }}, '{{ $katalog->company_name }}')">
+
+                                    <button type="button" class="btn-revision" onclick="openRevisionModal({{ $katalog->id }}, '{{ addslashes($katalog->company_name) }}')" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; padding: 0.5rem 0.875rem; border-radius: 4px; border: none; font-size: 0.75rem; font-weight: 600;">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                        Revisi
+                                    </button>
+
+                                    <button type="button" class="btn-reject" onclick="openRejectModal({{ $katalog->id }}, '{{ addslashes($katalog->company_name) }}')">
                                         <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2">
                                             <line x1="18" y1="6" x2="6" y2="18"></line>
                                             <line x1="6" y1="6" x2="18" y2="18"></line>
                                         </svg>
-                                        Reject
+                                        Tolak
                                     </button>
                                 @endif
-                                
-                                <form action="{{ route('admin.katalog.destroy', $katalog) }}" method="POST" style="display: inline;" onsubmit="return confirm('Hapus katalog ini? Tindakan tidak dapat dibatalkan!')">
+
+                                <a href="{{ route('admin.katalog.edit', $katalog) }}" class="btn-edit" style="background: rgba(11, 19, 84, 0.1); color: #022648; padding: 0.5rem 0.875rem; border-radius: 4px; border: none; font-size: 0.75rem; font-weight: 600; text-decoration: none;">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                    Edit
+                                </a>
+
+                                <form action="{{ route('admin.katalog.destroy', $katalog) }}" method="POST" class="delete-form" style="display: inline;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn-delete">
+                                    <button type="button" class="btn-delete btn-confirm-delete">
                                         <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2">
                                             <polyline points="3 6 5 6 21 6"></polyline>
                                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -587,24 +626,19 @@
 
 <!-- Reject Modal -->
 <div id="rejectModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; align-items: center; justify-content: center;">
-    <div style="background: white; border-radius: 6px; padding: 2rem; max-width: 500px; width: 90%;">
+    <div style="background: white; border-radius: 8px; padding: 2rem; max-width: 500px; width: 90%;">
         <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Tolak Katalog</h3>
         <p style="color: #6b7280; margin-bottom: 1.5rem;">Berikan alasan penolakan untuk <strong id="rejectCompanyName"></strong></p>
-        
+
         <form id="rejectForm" method="POST">
             @csrf
-            <textarea 
-                name="rejection_reason" 
-                rows="4" 
-                placeholder="Contoh: Logo kurang jelas, deskripsi terlalu singkat, informasi kontak tidak lengkap..."
-                style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; font-family: inherit;"
-                required></textarea>
-            
+            <textarea name="rejection_reason" rows="4" placeholder="Contoh: Logo kurang jelas..." style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit;" required></textarea>
+
             <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
-                <button type="submit" style="flex: 1; background: #D60B1C; color: white; padding: 0.75rem; border-radius: 4px; border: none; font-weight: 600; cursor: pointer;">
-                    Tolak Katalog
+                <button type="submit" style="flex: 1; background: #D60B1C; color: white; padding: 0.75rem; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">
+                    Tolak
                 </button>
-                <button type="button" onclick="closeRejectModal()" style="flex: 1; background: #f3f4f6; color: #374151; padding: 0.75rem; border-radius: 4px; border: none; font-weight: 600; cursor: pointer;">
+                <button type="button" onclick="closeRejectModal()" style="flex: 1; background: #f3f4f6; color: #374151; padding: 0.75rem; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">
                     Batal
                 </button>
             </div>
@@ -612,7 +646,151 @@
     </div>
 </div>
 
+<!-- Revision Modal -->
+<div id="revisionModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 8px; padding: 2rem; max-width: 500px; width: 90%;">
+        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Kirim untuk Revisi</h3>
+        <p style="color: #6b7280; margin-bottom: 1.5rem;">Berikan catatan revisi untuk <strong id="revisionCompanyName"></strong></p>
+
+        <form id="revisionForm" method="POST">
+            @csrf
+            <textarea name="revision_notes" rows="4" placeholder="Contoh: Mohon perbaiki deskripsi produk..." style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit;" required></textarea>
+
+            <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+                <button type="submit" style="flex: 1; background: #3b82f6; color: white; padding: 0.75rem; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">
+                    Kirim Revisi
+                </button>
+                <button type="button" onclick="closeRevisionModal()" style="flex: 1; background: #f3f4f6; color: #374151; padding: 0.75rem; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">
+                    Batal
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Kategori Modal -->
+<div id="kategoriModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 12px; max-width: 480px; width: 95%; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+        <!-- Header -->
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 style="margin: 0; font-size: 1.125rem; font-weight: 700; color: #111827;">Kelola Kategori Produk</h3>
+                <p style="margin: 0.25rem 0 0; font-size: 0.8125rem; color: #6b7280;">Tambah atau edit kategori katalog</p>
+            </div>
+            <button onclick="closeKategoriModal()" style="background: #f3f4f6; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #6b7280; transition: all 0.2s;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div style="padding: 1.5rem; overflow-y: auto; flex: 1;">
+            <!-- Form Tambah -->
+            <form action="{{ route('admin.katalog.kategori.store') }}" method="POST" style="margin-bottom: 1.5rem;">
+                @csrf
+                <div style="display: flex; gap: 0.75rem; align-items: flex-end;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 0.8125rem; font-weight: 600; color: #374151; margin-bottom: 0.375rem;">Nama Kategori</label>
+                        <input type="text" name="nama" placeholder="Contoh: Fashion" required style="width: 100%; padding: 0.625rem 0.875rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.875rem;">
+                    </div>
+                    <button type="submit" style="background: #022648; color: white; border: none; padding: 0.625rem 1.25rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Tambah
+                    </button>
+                </div>
+            </form>
+
+            <!-- List Kategori -->
+            <div style="border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden;">
+                @forelse(\App\Models\KategoriEatalog::orderBy('nama')->get() as $kat)
+                <form action="{{ route('admin.katalog.kategori.update', $kat) }}" method="POST" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem 1rem; border-bottom: 1px solid #f3f4f6;">
+                    @csrf
+                    @method('PUT')
+                    <input type="text" name="nama" value="{{ $kat->nama }}" style="flex: 1; padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 0.8125rem;">
+                    <button type="submit" title="Update" style="background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </button>
+                    <a href="{{ route('admin.katalog.kategori.destroy', $kat) }}" onclick="return confirm('Hapus?')" title="Hapus" style="background: #fee2e2; color: #dc2626; padding: 0.5rem 0.75rem; border-radius: 6px; text-decoration: none;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </a>
+                </form>
+                @empty
+                <div style="padding: 2rem; text-align: center; color: #9ca3af;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 0.75rem; opacity: 0.5;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="9"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                    <p style="margin: 0; font-size: 0.875rem;">Belum ada kategori</p>
+                </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="padding: 1rem 1.5rem; border-top: 1px solid #e5e7eb; background: #f9fafb; display: flex; justify-content: flex-end;">
+            <button onclick="closeKategoriModal()" style="background: white; color: #374151; border: 1px solid #d1d5db; padding: 0.625rem 1.25rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
+
+@push('scripts')
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // SweetAlert for Delete
+        const deleteButtons = document.querySelectorAll('.btn-confirm-delete');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const form = this.closest('form');
+                Swal.fire({
+                    title: 'Hapus Katalog?',
+                    text: "Data yang dihapus tidak dapat dikembalikan!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+
+        // SweetAlert for Approve
+        const approveButtons = document.querySelectorAll('.btn-confirm-approve');
+        approveButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const form = this.closest('form');
+                Swal.fire({
+                    title: 'Setujui Katalog?',
+                    text: "Katalog akan disetujui dan ditampilkan ke publik.",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#10B981',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Ya, Setujui',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+
+    $(document).ready(function() {
+        $('.filter-select').select2({
+            minimumResultsForSearch: -1 // Hide search box for these small filters
+        }).on('change', function() {
+            $('#filterForm').submit();
+        });
+    });
+
 function openRejectModal(katalogId, companyName) {
     document.getElementById('rejectModal').style.display = 'flex';
     document.getElementById('rejectCompanyName').textContent = companyName;
@@ -624,11 +802,36 @@ function closeRejectModal() {
     document.getElementById('rejectForm').reset();
 }
 
-// Close modal when clicking outside
+function openRevisionModal(katalogId, companyName) {
+    document.getElementById('revisionModal').style.display = 'flex';
+    document.getElementById('revisionCompanyName').textContent = companyName;
+    document.getElementById('revisionForm').action = `/admin/katalog/${katalogId}/revision`;
+}
+
+function closeRevisionModal() {
+    document.getElementById('revisionModal').style.display = 'none';
+    document.getElementById('revisionForm').reset();
+}
+
+function openKategoriModal() {
+    document.getElementById('kategoriModal').style.display = 'flex';
+}
+
+function closeKategoriModal() {
+    document.getElementById('kategoriModal').style.display = 'none';
+}
+
+// Close modals when clicking outside
 document.getElementById('rejectModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeRejectModal();
-    }
+    if (e.target === this) closeRejectModal();
 });
+document.getElementById('revisionModal').addEventListener('click', function(e) {
+    if (e.target === this) closeRevisionModal();
+});
+document.getElementById('kategoriModal').addEventListener('click', function(e) {
+    if (e.target === this) closeKategoriModal();
+});
+
 </script>
+@endpush
 @endsection

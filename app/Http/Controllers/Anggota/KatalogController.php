@@ -23,15 +23,16 @@ class KatalogController extends Controller
     public function create()
     {
         $anggota = Auth::guard('anggota')->user();
-        
+
         // VALIDASI: Hanya anggota approved yang bisa submit katalog
         if ($anggota->status !== 'approved') {
             return redirect()->route('anggota.katalog.index')
                 ->with('error', 'Hanya anggota terverifikasi yang dapat menambahkan katalog.');
         }
-        
-        // MULTIPLE KATALOG: Tidak ada lagi validasi existing katalog
-        return view('anggota.katalog.create', compact('anggota'));
+
+        $kategoris = \App\Models\KategoriEatalog::where('is_active', true)->orderBy('nama')->get();
+
+        return view('anggota.katalog.create', compact('anggota', 'kategoris'));
     }
 
     public function store(Request $request)
@@ -46,12 +47,17 @@ class KatalogController extends Controller
         $validated = $request->validate([
             'company_name' => 'required|string|max:255',
             'business_field' => 'required|string|max:255',
+            'kategori_id' => 'nullable|exists:kategori_ekatalog,id',
+            'harga' => 'nullable|string|max:50',
             'description' => 'required|string|max:1000',
-            'address' => 'required|string|max:500',
-            'phone' => 'required|string|max:20',
-            'email' => 'required|email|max:255',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'address' => 'required|string|max:500',
+            'wilayah' => 'nullable|string|max:100',
+            'phone' => 'required|string|max:20',
+            'email' => 'required|email|max:255',
+            'website_url' => 'nullable|url|max:255',
+            'marketplace_url' => 'nullable|url|max:255',
             'map_embed_url' => 'nullable|string',
         ]);
 
@@ -59,10 +65,15 @@ class KatalogController extends Controller
             'anggota_id' => $anggota->id,
             'company_name' => $request->company_name,
             'business_field' => $request->business_field,
+            'kategori_id' => $request->kategori_id,
+            'harga' => $request->harga,
             'description' => $request->description,
             'address' => $request->address,
+            'wilayah' => $request->wilayah,
             'phone' => $request->phone,
             'email' => $request->email,
+            'website_url' => $request->website_url,
+            'marketplace_url' => $request->marketplace_url,
             'is_active' => true,
             'created_by_type' => 'anggota',
             'created_by_id' => $anggota->id,
@@ -122,8 +133,10 @@ class KatalogController extends Controller
         if ((int) $katalog->anggota_id !== (int) $anggota->id) {
             abort(403, 'Anda tidak memiliki akses ke katalog ini.');
         }
-        
-        return view('anggota.katalog.edit', compact('anggota', 'katalog'));
+
+        $kategoris = \App\Models\KategoriEatalog::where('is_active', true)->orderBy('nama')->get();
+
+        return view('anggota.katalog.edit', compact('anggota', 'katalog', 'kategoris'));
     }
 
     public function update(Request $request, Katalog $katalog)
@@ -143,42 +156,56 @@ class KatalogController extends Controller
         $validated = $request->validate([
             'company_name' => 'required|string|max:255',
             'business_field' => 'required|string|max:255',
+            'kategori_id' => 'nullable|exists:kategori_ekatalog,id',
+            'harga' => 'nullable|string|max:50',
             'description' => 'required|string|max:1000',
-            'address' => 'required|string|max:500',
-            'phone' => 'required|string|max:20',
-            'email' => 'required|email|max:255',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'address' => 'required|string|max:500',
+            'wilayah' => 'nullable|string|max:100',
+            'phone' => 'required|string|max:20',
+            'email' => 'required|email|max:255',
+            'website_url' => 'nullable|url|max:255',
+            'marketplace_url' => 'nullable|url|max:255',
             'map_embed_url' => 'nullable|string',
         ]);
 
         $data = [
             'company_name' => $request->company_name,
             'business_field' => $request->business_field,
+            'kategori_id' => $request->kategori_id,
+            'harga' => $request->harga,
             'description' => $request->description,
             'address' => $request->address,
+            'wilayah' => $request->wilayah,
             'phone' => $request->phone,
             'email' => $request->email,
+            'website_url' => $request->website_url,
+            'marketplace_url' => $request->marketplace_url,
         ];
 
-        // Cek perubahan signifikan untuk reset ke pending
-        if ($katalog->status === 'approved') {
-            $significantChanges = 
+        // Cek perubahan signifikan untuk reset ke pending (termasuk revision)
+        if ($katalog->status === 'approved' || $katalog->status === 'revision') {
+            $significantChanges =
                 $katalog->company_name !== $request->company_name ||
                 $katalog->business_field !== $request->business_field ||
                 $katalog->description !== $request->description ||
+                $katalog->kategori_id !== $request->kategori_id ||
+                $katalog->harga !== $request->harga ||
                 $request->hasFile('logo') ||
                 $request->hasFile('images');
-            
+
             if ($significantChanges) {
                 $data['status'] = 'pending';
                 $data['approved_by'] = null;
                 $data['approved_at'] = null;
                 $data['rejection_reason'] = null;
+                $data['revision_notes'] = null;
             }
         } else {
             $data['status'] = 'pending';
             $data['rejection_reason'] = null;
+            $data['revision_notes'] = null;
         }
 
         // Handle logo upload

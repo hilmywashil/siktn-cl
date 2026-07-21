@@ -13,17 +13,23 @@ class Katalog extends Model
         'created_by_id',
         'company_name',
         'business_field',
+        'kategori_id',
+        'harga',
         'description',
         'logo',
         'images',
         'address',
+        'wilayah',
         'phone',
         'email',
+        'website_url',
+        'marketplace_url',
         'map_embed_url',
         'status',
         'approved_by',
         'approved_at',
         'rejection_reason',
+        'revision_notes',
         'is_active',
     ];
 
@@ -40,6 +46,13 @@ class Katalog extends Model
             'nama_perusahaan' => 'Tidak Terhubung',
             'nama_pimpinan' => '-',
             'email' => '-',
+        ]);
+    }
+
+    public function kategori()
+    {
+        return $this->belongsTo(KategoriEatalog::class)->withDefault([
+            'nama' => 'Tidak ada kategori',
         ]);
     }
 
@@ -104,6 +117,11 @@ class Katalog extends Model
         return $query->where('status', 'rejected');
     }
 
+    public function scopeRevision($query)
+    {
+        return $query->where('status', 'revision');
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true)
@@ -124,6 +142,11 @@ class Katalog extends Model
     public function isRejected()
     {
         return $this->status === 'rejected';
+    }
+
+    public function isRevision()
+    {
+        return $this->status === 'revision';
     }
 
     // Image accessors

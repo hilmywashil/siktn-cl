@@ -276,6 +276,49 @@
         </section>
     @endif
 
+    {{-- INFO LEBIH LANJUT --}}
+    @if($katalog->kategori || $katalog->harga || $katalog->wilayah || $katalog->website_url || $katalog->marketplace_url)
+    <section class="wrapper-white-1" style="padding-top: 0;">
+        <div class="detail-desc-section" data-aos="fade-up">
+            <h2>Informasi Produk & Harga</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                @if($katalog->kategori)
+                <div style="background: #f9fafb; padding: 1rem; border-radius: 8px;">
+                    <div style="font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase;">Kategori</div>
+                    <div style="font-size: 1rem; font-weight: 600; color: #022648; margin-top: 0.25rem;">{{ $katalog->kategori->nama }}</div>
+                </div>
+                @endif
+                @if($katalog->harga)
+                <div style="background: #f9fafb; padding: 1rem; border-radius: 8px;">
+                    <div style="font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase;">Harga</div>
+                    <div style="font-size: 1rem; font-weight: 600; color: #022648; margin-top: 0.25rem;">{{ $katalog->harga }}</div>
+                </div>
+                @endif
+                @if($katalog->wilayah)
+                <div style="background: #f9fafb; padding: 1rem; border-radius: 8px;">
+                    <div style="font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase;">Wilayah</div>
+                    <div style="font-size: 1rem; font-weight: 600; color: #022648; margin-top: 0.25rem;">{{ $katalog->wilayah }}</div>
+                </div>
+                @endif
+            </div>
+            @if($katalog->website_url || $katalog->marketplace_url)
+            <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;">
+                @if($katalog->website_url)
+                <a href="{{ $katalog->website_url }}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #022648; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.875rem;">
+                    <i class="fas fa-globe"></i> Kunjungi Website
+                </a>
+                @endif
+                @if($katalog->marketplace_url)
+                <a href="{{ $katalog->marketplace_url }}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #10B981; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.875rem;">
+                    <i class="fas fa-shopping-bag"></i> Beli di Marketplace
+                </a>
+                @endif
+            </div>
+            @endif
+        </div>
+    </section>
+    @endif
+
     {{-- GALERI --}}
     @if($katalog->images && count($katalog->images) > 0)
         <section class="wrapper-white-1" style="padding-top: 0;">
