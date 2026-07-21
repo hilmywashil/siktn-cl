@@ -127,6 +127,19 @@ class ProgramController extends Controller
     }
 
     /**
+     * Tampilkan detail program
+     */
+    public function show(Program $program)
+    {
+        $this->checkAuthorization(true); // true means viewOnly is allowed
+
+        $program->load('jabatan');
+        $activeMenu = 'program';
+
+        return view('admin.program.show', compact('program', 'activeMenu'));
+    }
+
+    /**
      * Tampilkan form edit
      */
     public function edit(Program $program)

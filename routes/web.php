@@ -230,7 +230,9 @@ Route::view('/vision-mission', 'pages.visi-misi')->name('vision-mission');
 Route::view('/how-to-join', 'pages.how-to-join')->name('how-to-join');
 Route::view('/contact', 'pages.contact')->name('contact');
 Route::get('/program/csr', [PublicProgramController::class, 'csr'])->name('program.csr');
+Route::get('/program/csr/{id}', [PublicProgramController::class, 'csrDetail'])->name('program.csr.detail');
 Route::get('/program/bidang', [PublicProgramController::class, 'bidang'])->name('program.bidang');
+Route::get('/program/bidang/{id}', [PublicProgramController::class, 'bidangDetail'])->name('program.bidang.detail');
 
 // Agenda Public Route
 Route::view('/agenda', 'pages.agenda')->name('agenda.public');

@@ -15,7 +15,7 @@
 
     .program-card {
         background: white;
-        border-radius: 12px;
+        border-radius: 6px;
         overflow: hidden;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         transition: all 0.3s ease;
@@ -144,9 +144,191 @@
         text-align: center;
         padding: 3rem;
         background: #f9fafb;
-        border-radius: 12px;
+        border-radius: 6px;
         color: #6b7280;
         font-weight: 500;
+    }
+
+    .btn-detail {
+        display: block;
+        width: 100%;
+        padding: 0.75rem;
+        background: #0a2540;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-top: 1rem;
+        transition: all 0.2s;
+    }
+
+    .btn-detail:hover {
+        background: #ffd700;
+        color: #0a2540;
+    }
+
+    /* Detail Program Section */
+    .detail-section {
+        background: white;
+        border-radius: 6px;
+        overflow: hidden;
+        margin-bottom: 3rem;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .detail-header {
+        background: #0a2540;
+        color: white;
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .detail-header h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    .detail-close {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .detail-close:hover {
+        background: rgba(255,255,255,0.3);
+    }
+
+    .detail-content {
+        padding: 2.5rem;
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 3rem;
+    }
+
+    .detail-image-wrapper {
+        position: relative;
+    }
+
+    .detail-image-wrapper img {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .detail-status-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    .detail-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .detail-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #0a2540;
+        margin-bottom: 1.5rem;
+        line-height: 1.3;
+    }
+
+    .detail-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .detail-meta-item {
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .detail-meta-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-meta-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #0a2540;
+    }
+
+    .detail-desc-box {
+        background: #f9fafb;
+        padding: 1.5rem;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .detail-desc-title {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #0a2540;
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .detail-desc-text {
+        font-size: 0.9375rem;
+        color: #374151;
+        line-height: 1.7;
+    }
+
+    @media (max-width: 992px) {
+        .detail-content {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .detail-image-wrapper img {
+            height: 250px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .detail-content {
+            padding: 1.5rem;
+        }
+
+        .detail-meta-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-title {
+            font-size: 1.5rem;
+        }
     }
 </style>
 @endpush
@@ -238,7 +420,7 @@
         <div class="tujuan-section" data-aos="fade-up">
             <h1>Daftar Program CSR</h1>
             <p style="text-align: center; color: #6b7280; margin-bottom: 2rem;">Inisiatif dan kontribusi nyata yang sedang atau telah dilaksanakan.</p>
-            
+
             @if($programs->count() > 0)
                 <div class="program-grid">
                     @foreach($programs as $program)
@@ -266,12 +448,6 @@
                                         <span>Mitra: <strong>{{ $program->mitra }}</strong></span>
                                     </div>
                                     @endif
-                                    @if($program->anggaran)
-                                    <div class="meta-item">
-                                        <i class="fa fa-money-bill-wave meta-icon"></i>
-                                        <span>Rp {{ number_format($program->anggaran, 0, ',', '.') }}</span>
-                                    </div>
-                                    @endif
                                 </div>
 
                                 <div class="program-desc">
@@ -282,6 +458,9 @@
                                     <div class="pic-avatar"><i class="fa fa-user"></i></div>
                                     <span>PIC: {{ $program->pic }}</span>
                                 </div>
+                                <a href="{{ route('program.csr.detail', $program->id) }}" class="btn-detail">
+                                    Lihat Detail
+                                </a>
                             </div>
                         </div>
                     @endforeach

@@ -278,7 +278,9 @@
                 </td>
                 @endif
                 <td>
-                    <div class="program-title">{{ $program->nama_program }}</div>
+                    <a href="{{ route('admin.program.show', $program->id) }}" class="program-title" style="text-decoration: none; color: #0a2540;">
+                        {{ $program->nama_program }}
+                    </a>
                     @if($program->kategori == 'CSR' && $program->mitra)
                         <div class="program-mitra">Mitra: {{ $program->mitra }}</div>
                     @elseif($program->kategori == 'Bidang' && $program->jabatan)
