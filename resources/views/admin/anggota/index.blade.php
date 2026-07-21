@@ -564,7 +564,15 @@
                                             @if($item->foto_diri)
                                                 <img src="{{ Storage::url($item->foto_diri) }}" alt="{{ $item->nama_lengkap }}" style="width: 100%; height: 100%; object-fit: cover;">
                                             @else
-                                                {{ strtoupper(substr($item->nama_lengkap ?? 'A', 0, 2)) }}
+                                                @php
+                                                    $sourceName = $item->nama_lengkap ?? $item->username;
+                                                    $words = explode(' ', $sourceName);
+                                                    $initials = '';
+                                                    foreach (array_slice($words, 0, 2) as $word) {
+                                                        $initials .= strtoupper(substr($word, 0, 1));
+                                                    }
+                                                @endphp
+                                                {{ $initials }}
                                             @endif
                                         </div>
                                         <strong>{{ $item->nama_lengkap ?? '-' }}</strong>
