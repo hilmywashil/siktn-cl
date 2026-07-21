@@ -582,4 +582,170 @@ class AnggotaManagementController extends Controller
 
         return redirect()->back()->with('success', 'Data anggota dihapus permanen.');
     }
+
+    public function downloadTemplate()
+    {
+        $this->checkRoleAuthorization();
+
+        $fileName = 'Template_Import_Anggota.xls';
+
+        $html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+        $html .= '<head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Template</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
+        $html .= '<body>';
+
+        $html .= '<table style="font-family: Arial, sans-serif; border-collapse: collapse;">';
+
+        // Baris kosong di atas
+        $html .= '<tr><td colspan="2" style="height: 30px;"></td></tr>';
+
+        // Baris: Judul
+        $html .= '<tr>';
+        $html .= '<td colspan="2" style="text-align: center; font-size: 16pt; font-weight: bold; padding: 15px; color: #0a2540;">TEMPLATE IMPORT ANGGOTA KARANG TARUNA</td>';
+        $html .= '</tr>';
+
+        // Baris: Petunjuk
+        $html .= '<tr>';
+        $html .= '<td colspan="2" style="text-align: center; font-size: 10pt; color: #666; padding-bottom: 20px;">
+            <b>Petunjuk:</b> Isi kolom Username saja. Password dibuat otomatis oleh sistem.
+        </td>';
+        $html .= '</tr>';
+
+        // Baris: Header Tabel
+        $html .= '<tr>';
+        $html .= '<th width="60" style="background-color: #0a2540; color: #ffd700; border: 1px solid #000; padding: 12px; text-align: center; font-weight: bold;">No</th>';
+        $html .= '<th width="300" style="background-color: #0a2540; color: #ffd700; border: 1px solid #000; padding: 12px; text-align: left; font-weight: bold;">Username</th>';
+        $html .= '</tr>';
+
+        // 50 baris kosong untuk diisi
+        for ($i = 1; $i <= 50; $i++) {
+            $html .= '<tr>';
+            $html .= '<td style="border: 1px solid #d1d5db; padding: 10px; text-align: center; height: 25px; background-color: #f9fafb;">' . $i . '</td>';
+            $html .= '<td style="border: 1px solid #d1d5db; padding: 10px; height: 25px;"></td>';
+            $html .= '</tr>';
+        }
+
+        $html .= '</table>';
+        $html .= '</body></html>';
+
+        return response($html)
+            ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+    }
+
+    /**
+     * Import anggota dari file Excel
+     */
+    public function import(Request $request)
+    {
+        $this->checkRoleAuthorization();
+
+        $request->validate([
+            'usernames' => 'required|string',
+        ], [
+            'usernames.required' => 'Daftar username wajib diisi (File kosong atau tidak terbaca).',
+        ]);
+
+        $admin = auth()->guard('admin')->user();
+        
+        $usernamesList = json_decode($request->usernames, true);
+        
+        if (!is_array($usernamesList) || empty($usernamesList)) {
+            return redirect()->back()
+                ->with('error', 'Format data tidak valid atau file kosong.');
+        }
+
+        $credentials = [];
+
+        foreach ($usernamesList as $username) {
+            $username = trim($username);
+            $username = preg_replace('/[^a-zA-Z0-9_]/', '', $username);
+            
+            if (empty($username)) continue;
+            if (strtolower($username) === 'no' || strtolower($username) === 'username') continue;
+
+            // Cek apakah username sudah ada
+            if (Anggota::where('username', $username)->exists()) {
+                continue;
+            }
+
+            // Generate password unik
+            $randomSuffix = str_pad(mt_rand(1000, 9999), 4, '0', STR_PAD_LEFT);
+            $password = $username . $randomSuffix;
+
+            // Buat anggota baru
+            Anggota::create([
+                'username' => $username,
+                'nama_lengkap' => null,
+                'email' => $username . '@karangtaruna.org',
+                'jabatan' => null,
+                'domisili' => null,
+                'password' => Hash::make($password),
+                'initial_password' => $password,
+                'status' => 'pending_profile',
+            ]);
+
+            $credentials[] = [
+                'username' => $username,
+                'password' => $password,
+            ];
+        }
+
+        $count = count($credentials);
+
+        if ($count === 0) {
+            return redirect()->back()
+                ->with('error', 'Tidak ada anggota baru. Semua username di file mungkin sudah terdaftar atau format tidak valid.');
+        }
+
+        // Simpan credentials ke session untuk ditampilkan
+        session()->put('exportable_credentials', $credentials);
+        return redirect()->back()
+            ->with('import_credentials', $credentials)
+            ->with('success', "Berhasil mengimport {$count} anggota baru!");
+    }
+
+    /**
+     * Export credentials hasil import ke CSV
+     */
+    public function exportCredentials(Request $request)
+    {
+        $this->checkRoleAuthorization();
+
+        $credentials = $request->session()->get('exportable_credentials', []);
+
+        if (empty($credentials)) {
+            return redirect()->back()->with('error', 'Tidak ada kredensial untuk diexport.');
+        }
+
+        $fileName = 'Kredensial_Anggota_' . date('Ymd_His') . '.xls';
+
+        $html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+        $html .= '<head><meta charset="utf-8"><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Credentials</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></head>';
+        $html .= '<body>';
+
+        $html .= '<table style="font-family: Arial, sans-serif; border-collapse: collapse;">';
+
+        // Header
+        $html .= '<tr>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #000; padding: 12px; text-align: center; font-weight: bold;">No</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #000; padding: 12px; text-align: center; font-weight: bold;">Username</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #000; padding: 12px; text-align: center; font-weight: bold;">Password</th>';
+        $html .= '</tr>';
+
+        $no = 1;
+        foreach ($credentials as $cred) {
+            $html .= '<tr>';
+            $html .= '<td style="border: 1px solid #000; padding: 10px; text-align: center;">' . $no++ . '</td>';
+            $html .= '<td style="border: 1px solid #000; padding: 10px; font-family: monospace;">' . $cred['username'] . '</td>';
+            $html .= '<td style="border: 1px solid #000; padding: 10px; font-family: monospace; font-weight: bold;">' . $cred['password'] . '</td>';
+            $html .= '</tr>';
+        }
+
+        $html .= '</table>';
+        $html .= '</body></html>';
+
+        return response($html)
+            ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+    }
 }

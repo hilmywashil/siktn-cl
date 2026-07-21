@@ -118,7 +118,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/', [AnggotaManagementController::class, 'store'])->name('store');
             Route::get('/list', [AnggotaManagementController::class, 'index'])->name('list');
             Route::get('/export', [AnggotaManagementController::class, 'export'])->name('export');
-            
+            Route::get('/download-template', [AnggotaManagementController::class, 'downloadTemplate'])->name('download-template');
+            Route::post('/import', [AnggotaManagementController::class, 'import'])->name('import');
+            Route::get('/export-credentials', [AnggotaManagementController::class, 'exportCredentials'])->name('export-credentials');
+
             Route::post('/bulk-destroy', [AnggotaManagementController::class, 'bulkDestroy'])->name('bulk-destroy');
 
             Route::get('/{anggota}', [AnggotaManagementController::class, 'show'])->name('show');
