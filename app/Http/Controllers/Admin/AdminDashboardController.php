@@ -173,6 +173,99 @@ class AdminDashboardController extends Controller
         
         return view('admin.info-admin', compact('admin', 'admins'));
     }
+
+    public function exportAdmin(Request $request)
+    {
+        $admin = Auth::guard('admin')->user();
+        if (!$admin->canManageAdmins()) {
+            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
+        $query = Admin::query();
+
+        if ($request->has('role') && $request->role != '') {
+            $query->where('category', $request->role);
+        }
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%");
+            });
+        }
+
+        $admins = $query->latest()->get();
+
+        $fileName = 'Data_Administrator_SIKTN_' . date('Ymd_His') . '.xls';
+
+        $html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+        $html .= '<head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Manajemen Admin SIKTN</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
+        $html .= '<body style="font-family: Arial, sans-serif;">';
+
+        $html .= '<table style="border-collapse: collapse; width: 100%;">';
+
+        // Title Header Banner SIKTN (Navy Blue & Gold)
+        $html .= '<tr><td colspan="7" style="height: 15px;"></td></tr>';
+        $html .= '<tr>';
+        $html .= '<td colspan="7" style="background-color: #0a2540; color: #ffd700; font-size: 16pt; font-weight: bold; text-align: center; padding: 16px; border: 2px solid #0a2540;">SISTEM INFORMASI KARANG TARUNA NASIONAL (SIKTN)</td>';
+        $html .= '</tr>';
+        $html .= '<tr>';
+        $html .= '<td colspan="7" style="background-color: #164e63; color: #ffffff; font-size: 11pt; font-weight: bold; text-align: center; padding: 10px; border: 1px solid #164e63;">LAPORAN DAFTAR AKUN ADMINISTRATOR SISTEM</td>';
+        $html .= '</tr>';
+        $html .= '<tr>';
+        $html .= '<td colspan="7" style="font-size: 9pt; color: #64748b; text-align: right; padding: 6px; font-style: italic;">Tanggal Export: ' . date('d F Y H:i:s') . ' WIB</td>';
+        $html .= '</tr>';
+        $html .= '<tr><td colspan="7" style="height: 10px;"></td></tr>';
+
+        // Header Table Columns (Navy Blue Header with Gold Text)
+        $html .= '<tr>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: center; font-weight: bold; font-size: 10pt;">NO</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">NAMA ADMINISTRATOR</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">USERNAME</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">EMAIL</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">KATEGORI / ROLE</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">DOMISILI WILAYAH</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: center; font-weight: bold; font-size: 10pt;">TANGGAL TERDAFTAR</th>';
+        $html .= '</tr>';
+
+        $no = 1;
+        foreach ($admins as $item) {
+            $bgColor = ($no % 2 === 0) ? '#f8fafc' : '#ffffff';
+            $categoryLabel = match ($item->category) {
+                'super_admin' => 'Super Admin',
+                'pimpinan' => 'Pimpinan',
+                'pnkt' => 'PNKT (Sekretariat Nasional)',
+                'ppkt' => 'PPKT (Sekretariat Provinsi)',
+                'pkkt' => 'PKKT (Sekretariat Kab/Kota)',
+                default => strtoupper($item->category ?? '-'),
+            };
+
+            $html .= '<tr style="background-color: ' . $bgColor . ';">';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center; font-size: 9.5pt;">' . $no++ . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-weight: bold; font-size: 9.5pt;">' . htmlspecialchars($item->name ?? '-') . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($item->username ?? '-') . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($item->email ?? '-') . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($categoryLabel) . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($item->domisili ?? 'Nasional') . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center; font-size: 9.5pt;">' . ($item->created_at ? $item->created_at->format('d/m/Y H:i') : '-') . '</td>';
+            $html .= '</tr>';
+        }
+
+        // Summary Row
+        $html .= '<tr><td colspan="7" style="height: 10px;"></td></tr>';
+        $html .= '<tr>';
+        $html .= '<td colspan="7" style="background-color: #0a2540; color: #ffffff; padding: 10px; font-weight: bold; font-size: 10pt; text-align: right;">Total Akun Admin: ' . count($admins) . ' Akun</td>';
+        $html .= '</tr>';
+
+        $html .= '</table>';
+        $html .= '</body></html>';
+
+        return response($html)
+            ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+    }
     
     public function createAdmin(): View
     {
@@ -295,5 +388,42 @@ class AdminDashboardController extends Controller
         
         $admin->delete();
         return redirect()->route('admin.info-admin')->with('success', 'Admin berhasil dihapus!');
+    }
+
+    public function resetPasswordAdmin(Request $request, Admin $admin)
+    {
+        $currentAdmin = Auth::guard('admin')->user();
+        if (!$currentAdmin->canManageAdmins()) {
+            abort(403, 'Anda tidak memiliki akses untuk melakukan aksi ini.');
+        }
+
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $admin->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return redirect()->back()->with('success', "Password untuk admin '{$admin->name}' berhasil di-reset!");
+    }
+
+    public function toggleActiveAdmin(Admin $admin)
+    {
+        $currentAdmin = Auth::guard('admin')->user();
+        if (!$currentAdmin->canManageAdmins()) {
+            abort(403, 'Anda tidak memiliki akses untuk melakukan aksi ini.');
+        }
+
+        if ($admin->id === $currentAdmin->id) {
+            return redirect()->back()->with('error', 'Anda tidak bisa menonaktifkan akun Anda sendiri!');
+        }
+
+        $admin->update([
+            'is_active' => !$admin->is_active,
+        ]);
+
+        $statusText = $admin->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        return redirect()->back()->with('success', "Status akun admin '{$admin->name}' berhasil {$statusText}.");
     }
 }

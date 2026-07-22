@@ -137,128 +137,110 @@ class AnggotaManagementController extends Controller
     }
 
     /**
-     * Export data anggota ke CSV
+     * Export data anggota ke file Excel (.xls) dengan Styling SIKTN Navy & Gold
      */
     public function export(Request $request)
     {
-        $admin = auth()->guard('admin')->user();
-        
-        // Pengecekan hak akses sesuai request user: Pimpinan, PNKT, Super Admin
-        if (!in_array($admin->category, ['super_admin', 'pimpinan', 'pnkt'])) {
-            abort(403, 'Akses Ditolak: Anda tidak memiliki hak akses untuk mengekspor data.');
+        $this->checkRoleAuthorization(true);
+
+        $query = Anggota::query();
+        $this->applyDomisiliFilter($query);
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
         }
 
-        $query = Anggota::query()->latest();
+        if ($request->filled('domisili')) {
+            $query->where('domisili', $request->domisili);
+        }
 
-        // Terapkan filter domisili
-        $query = $this->applyDomisiliFilter($query);
-
-        // Terapkan pencarian dan filter jika ada (sama seperti di index)
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('nama_lengkap', 'like', "%{$search}%")
                   ->orWhere('username', 'like', "%{$search}%")
-                  ->orWhere('domisili', 'like', "%{$search}%");
+                  ->orWhere('nik', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('no_hp', 'like', "%{$search}%");
             });
         }
-        
-        // Handle filter status_approval (same mapping as index method)
-        if ($request->filled('status') && $request->status !== 'Semua') {
-            $statusMap = [
-                'Belum Lengkapi Profil' => 'pending_profile',
-                'Menunggu Approve' => 'pending_approval',
-                'Disetujui' => 'approved',
-                'Ditolak' => 'rejected',
-            ];
-            
-            if (isset($statusMap[$request->status])) {
-                $query->where('status', $statusMap[$request->status]);
-            }
-        }
 
-        $anggotas = $query->get();
+        $anggotas = $query->orderBy('nama_lengkap', 'asc')->get();
 
-        $fileName = 'Data_Anggota_Karang_Taruna_' . date('Ymd_His') . '.xls';
+        $admin = auth()->guard('admin')->user();
+        $wilayahTitle = !empty($admin->domisili) ? strtoupper($admin->domisili) : 'NASIONAL';
+        $fileName = 'Data_Anggota_SIKTN_' . date('Ymd_His') . '.xls';
 
         $html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
-        $html .= '<head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Data Anggota</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
-        $html .= '<body>';
-        
-        // Header Judul Laporan (Mulai di baris 3, kolom C)
-        $html .= '<table style="font-family: Arial, sans-serif; border-collapse: collapse;">';
-        
-        // Baris 1 & 2 Kosong
-        $html .= '<tr><td colspan="10" style="border: none;"></td></tr>';
-        $html .= '<tr><td colspan="10" style="border: none;"></td></tr>';
+        $html .= '<head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Database Anggota SIKTN</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
+        $html .= '<body style="font-family: Arial, sans-serif;">';
 
-        // Baris 3: Judul
-        $html .= '<tr>';
-        $html .= '<td style="border: none; width: 20px;"></td>'; // Kolom A
-        $html .= '<td style="border: none; width: 20px;"></td>'; // Kolom B
-        $html .= '<td colspan="8" style="text-align: center; font-size: 16pt; font-weight: bold; padding: 10px;">LAPORAN DATA ANGGOTA KARANG TARUNA</td>';
-        $html .= '</tr>';
-        
-        // Baris 4: Waktu Ekspor
-        $html .= '<tr>';
-        $html .= '<td style="border: none;"></td>';
-        $html .= '<td style="border: none;"></td>';
-        $html .= '<td colspan="8" style="text-align: center; font-size: 11pt; color: #666; padding-bottom: 20px;">Diekspor pada: ' . date('d M Y H:i:s') . '</td>';
-        $html .= '</tr>';
-        
-        // Baris 5: Header Tabel
-        $html .= '<tr>';
-        $html .= '<td style="border: none;"></td>'; // Kolom A
-        $html .= '<td style="border: none;"></td>'; // Kolom B
-        
-        $headersList = [
-            ['label' => 'No', 'width' => '50'],
-            ['label' => 'Nama Lengkap', 'width' => '250'],
-            ['label' => 'Username', 'width' => '150'],
-            ['label' => 'Email', 'width' => '250'],
-            ['label' => 'Jabatan', 'width' => '180'],
-            ['label' => 'Domisili', 'width' => '150'],
-            ['label' => 'Status Approval', 'width' => '180'],
-            ['label' => 'Tanggal Daftar', 'width' => '180']
-        ];
+        $html .= '<table style="border-collapse: collapse; width: 100%;">';
 
-        foreach ($headersList as $head) {
-            $html .= '<th width="' . $head['width'] . '" style="background-color: #0a2540; color: #ffd700; border: 1px solid #000000; padding: 12px; text-align: center; font-weight: bold; height: 30px; vertical-align: middle;">' . $head['label'] . '</th>';
-        }
+        // Title Header Banner SIKTN (Navy Blue & Gold)
+        $html .= '<tr><td colspan="12" style="height: 15px;"></td></tr>';
+        $html .= '<tr>';
+        $html .= '<td colspan="12" style="background-color: #0a2540; color: #ffd700; font-size: 16pt; font-weight: bold; text-align: center; padding: 16px; border: 2px solid #0a2540;">SISTEM INFORMASI KARANG TARUNA NASIONAL (SIKTN)</td>';
+        $html .= '</tr>';
+        $html .= '<tr>';
+        $html .= '<td colspan="12" style="background-color: #164e63; color: #ffffff; font-size: 11pt; font-weight: bold; text-align: center; padding: 10px; border: 1px solid #164e63;">LAPORAN DATABASE ANGGOTA & PENGURUS - WILAYAH: ' . htmlspecialchars($wilayahTitle) . '</td>';
+        $html .= '</tr>';
+        $html .= '<tr>';
+        $html .= '<td colspan="12" style="font-size: 9pt; color: #64748b; text-align: right; padding: 6px; font-style: italic;">Tanggal Export: ' . date('d F Y H:i:s') . ' WIB</td>';
+        $html .= '</tr>';
+        $html .= '<tr><td colspan="12" style="height: 10px;"></td></tr>';
+
+        // Header Table Columns (Navy Blue Header with Gold Text)
+        $html .= '<tr>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: center; font-weight: bold; font-size: 10pt;">NO</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: center; font-weight: bold; font-size: 10pt;">NIK</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">NAMA LENGKAP</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">USERNAME</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">EMAIL</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: center; font-weight: bold; font-size: 10pt;">NO. WHATSAPP / HP</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">JABATAN</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">DOMISILI / WILAYAH</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">TEMPAT & TGL LAHIR</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">PENDIDIKAN</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">PEKERJAAN</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: center; font-weight: bold; font-size: 10pt;">STATUS AKUN</th>';
         $html .= '</tr>';
 
-        // Isi Tabel
         $no = 1;
-        foreach ($anggotas as $anggota) {
-            $statusText = match($anggota->status) {
-                'pending_profile' => 'Belum Lengkapi Profil',
-                'pending_approval' => 'Menunggu Approve',
-                'approved' => 'Disetujui',
+        foreach ($anggotas as $a) {
+            $tglLahir = $a->tanggal_lahir ? $a->tanggal_lahir->format('d/m/Y') : '-';
+            $ttl = trim(($a->tempat_lahir ?? '') . ', ' . $tglLahir, ', ');
+            $bgColor = ($no % 2 === 0) ? '#f8fafc' : '#ffffff';
+
+            $statusText = match ($a->status) {
+                'approved' => 'Terverifikasi (Approved)',
+                'pending_verification' => 'Menunggu Verifikasi',
+                'pending_profile' => 'Belum Lengkap Profil',
                 'rejected' => 'Ditolak',
-                default => $anggota->status
+                default => ucfirst($a->status ?? '-'),
             };
 
-            // Beri warna khusus untuk status Disetujui / Ditolak biar lebih rapih
-            $statusColor = match($anggota->status) {
-                'approved' => 'color: #059669; font-weight: bold;',
-                'rejected' => 'color: #dc2626; font-weight: bold;',
-                'pending_approval' => 'color: #d97706; font-weight: bold;',
-                default => 'color: #4b5563;'
-            };
-
-            $html .= '<tr>';
-            $html .= '<td style="border: none;"></td>'; // Kolom A
-            $html .= '<td style="border: none;"></td>'; // Kolom B
-            $html .= '<td style="border: 1px solid #000000; padding: 10px; text-align: center; vertical-align: middle; height: 25px;">' . $no++ . '</td>';
-            $html .= '<td style="border: 1px solid #000000; padding: 10px; vertical-align: middle; height: 25px;">' . $anggota->nama_lengkap . '</td>';
-            $html .= '<td style="border: 1px solid #000000; padding: 10px; vertical-align: middle; height: 25px;">' . $anggota->username . '</td>';
-            $html .= '<td style="border: 1px solid #000000; padding: 10px; vertical-align: middle; height: 25px;">' . $anggota->email . '</td>';
-            $html .= '<td style="border: 1px solid #000000; padding: 10px; vertical-align: middle; height: 25px;">' . ($anggota->jabatan ?? '-') . '</td>';
-            $html .= '<td style="border: 1px solid #000000; padding: 10px; vertical-align: middle; height: 25px;">' . ($anggota->domisili ?? '-') . '</td>';
-            $html .= '<td style="border: 1px solid #000000; padding: 10px; text-align: center; vertical-align: middle; height: 25px; ' . $statusColor . '">' . $statusText . '</td>';
-            $html .= '<td style="border: 1px solid #000000; padding: 10px; text-align: center; vertical-align: middle; height: 25px;">' . ($anggota->created_at ? $anggota->created_at->format('d/m/Y H:i') : '-') . '</td>';
+            $html .= '<tr style="background-color: ' . $bgColor . ';">';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center; font-size: 9.5pt;">' . $no++ . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-family: monospace; font-size: 9.5pt; mso-number-format:\'\@\';">\'' . ($a->nik ?? '-') . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-weight: bold; font-size: 9.5pt;">' . htmlspecialchars($a->nama_lengkap ?? '-') . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($a->username ?? '-') . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($a->email ?? '-') . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-family: monospace; text-align: center; font-size: 9.5pt; mso-number-format:\'\@\';">\'' . ($a->no_hp ?? '-') . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($a->jabatan ?? 'Anggota') . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($a->domisili ?? 'Nasional') . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($ttl) . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($a->pendidikan_terakhir ?? '-') . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($a->pekerjaan ?? '-') . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center; font-weight: bold; font-size: 9.5pt;">' . htmlspecialchars($statusText) . '</td>';
             $html .= '</tr>';
         }
+
+        // Summary Row at Bottom
+        $html .= '<tr><td colspan="12" style="height: 10px;"></td></tr>';
+        $html .= '<tr>';
+        $html .= '<td colspan="12" style="background-color: #0a2540; color: #ffffff; padding: 10px; font-weight: bold; font-size: 10pt; text-align: right;">Total Data Anggota: ' . count($anggotas) . ' Orang</td>';
+        $html .= '</tr>';
 
         $html .= '</table>';
         $html .= '</body></html>';
@@ -708,6 +690,8 @@ class AnggotaManagementController extends Controller
             ->with('import_credentials', $credentials)
             ->with('success', "Berhasil mengimport {$count} anggota baru!");
     }
+
+
 
     /**
      * Export credentials hasil import ke CSV

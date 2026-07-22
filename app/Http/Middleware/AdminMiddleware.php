@@ -22,6 +22,15 @@ class AdminMiddleware
                 ->with('error', 'Silakan login terlebih dahulu.');
         }
 
+        $admin = Auth::guard('admin')->user();
+        if (isset($admin->is_active) && !$admin->is_active) {
+            Auth::guard('admin')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('admin.login')
+                ->with('error', 'Akun Anda telah dinonaktifkan oleh Pimpinan / Super Admin.');
+        }
+
         return $next($request);
     }
 }

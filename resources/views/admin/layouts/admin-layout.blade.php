@@ -182,15 +182,23 @@
             width: 320px;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
             border: 1px solid rgba(0,0,0,0.05);
-            display: none;
+            display: flex;
             flex-direction: column;
             z-index: 1000;
             overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px) scale(0.98);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
         }
         .notification-dropdown.show {
-            display: flex;
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
         }
         .notification-header {
             padding: 15px 20px;
@@ -627,6 +635,14 @@
                 @php
                     $adminUser = auth()->guard('admin')->user();
                     $unreadNotifications = $adminUser->unreadNotifications;
+                    // Filter: Belum dibaca OR Sudah dibaca dalam 24 jam terakhir (H+1 hari otomatis bersih)
+                    $filteredNotifications = $adminUser->notifications()
+                        ->where(function($q) {
+                            $q->whereNull('read_at')
+                              ->orWhere('read_at', '>=', \Carbon\Carbon::now()->subDay());
+                        })
+                        ->take(10)
+                        ->get();
                 @endphp
                 <div class="notification-wrapper">
                     <button class="notification-btn" id="notificationBtn">
@@ -649,13 +665,21 @@
                             @endif
                         </div>
                         <div class="notification-body">
-                            @forelse($adminUser->notifications->take(10) as $notification)
+                            @forelse($filteredNotifications as $notification)
                                 <div class="notification-item {{ $notification->read_at ? '' : 'unread' }}">
                                     <div class="notification-item-title">
                                         @if($notification->data['type'] == 'new_anggota')
                                             <svg viewBox="0 0 24 24" width="14" height="14" stroke="#10b981" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                                         @elseif($notification->data['type'] == 'new_katalog')
                                             <svg viewBox="0 0 24 24" width="14" height="14" stroke="#3b82f6" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+                                        @elseif($notification->data['type'] == 'surat_pending')
+                                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="#d97706" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                                        @elseif($notification->data['type'] == 'surat_terbit')
+                                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="#059669" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                        @elseif($notification->data['type'] == 'surat_revisi')
+                                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="#dc2626" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                        @elseif($notification->data['type'] == 'sk_expired')
+                                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="#dc2626" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                                         @else
                                             <svg viewBox="0 0 24 24" width="14" height="14" stroke="#c59217" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                                         @endif
@@ -895,6 +919,15 @@
             notifDropdown.addEventListener('click', function(e) {
                 e.stopPropagation();
             });
+
+            @if(session('just_logged_in') && $unreadNotifications->count() > 0)
+                setTimeout(function() {
+                    notifDropdown.classList.add('show');
+                    setTimeout(function() {
+                        notifDropdown.classList.remove('show');
+                    }, 5000);
+                }, 600);
+            @endif
         }
     </script>
     

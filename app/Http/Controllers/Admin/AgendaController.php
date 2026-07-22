@@ -213,4 +213,77 @@ class AgendaController extends Controller
     private function escapeString($string) {
         return preg_replace('/([\,;])/','\\\$1', $string);
     }
+
+    /**
+     * Export data agenda ke file Excel (.xls) dengan Styling SIKTN Navy & Gold
+     */
+    public function exportExcel(Request $request)
+    {
+        $admin = Auth::guard('admin')->user();
+        
+        $agendas = Agenda::orderBy('waktu_mulai', 'desc')->get();
+
+        $wilayahTitle = !empty($admin->domisili) ? strtoupper($admin->domisili) : 'NASIONAL';
+        $fileName = 'Daftar_Agenda_SIKTN_' . date('Ymd_His') . '.xls';
+
+        $html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+        $html .= '<head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Agenda SIKTN</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
+        $html .= '<body style="font-family: Arial, sans-serif;">';
+
+        $html .= '<table style="border-collapse: collapse; width: 100%;">';
+
+        // Title Header Banner SIKTN (Navy Blue & Gold)
+        $html .= '<tr><td colspan="7" style="height: 15px;"></td></tr>';
+        $html .= '<tr>';
+        $html .= '<td colspan="7" style="background-color: #0a2540; color: #ffd700; font-size: 16pt; font-weight: bold; text-align: center; padding: 16px; border: 2px solid #0a2540;">SISTEM INFORMASI KARANG TARUNA NASIONAL (SIKTN)</td>';
+        $html .= '</tr>';
+        $html .= '<tr>';
+        $html .= '<td colspan="7" style="background-color: #164e63; color: #ffffff; font-size: 11pt; font-weight: bold; text-align: center; padding: 10px; border: 1px solid #164e63;">LAPORAN DAFTAR AGENDA & KEGIATAN ORGANISASI - WILAYAH: ' . htmlspecialchars($wilayahTitle) . '</td>';
+        $html .= '</tr>';
+        $html .= '<tr>';
+        $html .= '<td colspan="7" style="font-size: 9pt; color: #64748b; text-align: right; padding: 6px; font-style: italic;">Tanggal Export: ' . date('d F Y H:i:s') . ' WIB</td>';
+        $html .= '</tr>';
+        $html .= '<tr><td colspan="7" style="height: 10px;"></td></tr>';
+
+        // Header Table Columns (Navy Blue Header with Gold Text)
+        $html .= '<tr>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: center; font-weight: bold; font-size: 10pt;">NO</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">JUDUL KEGIATAN</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">JENIS / KATEGORI</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: center; font-weight: bold; font-size: 10pt;">WAKTU MULAI</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: center; font-weight: bold; font-size: 10pt;">WAKTU SELESAI</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">PIC / PENANGGUNG JAWAB</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">LOKASI</th>';
+        $html .= '</tr>';
+
+        $no = 1;
+        foreach ($agendas as $item) {
+            $bgColor = ($no % 2 === 0) ? '#f8fafc' : '#ffffff';
+            $waktuMulai = $item->waktu_mulai ? Carbon::parse($item->waktu_mulai)->translatedFormat('d M Y, H:i') : '-';
+            $waktuSelesai = $item->waktu_selesai ? Carbon::parse($item->waktu_selesai)->translatedFormat('d M Y, H:i') : '-';
+
+            $html .= '<tr style="background-color: ' . $bgColor . ';">';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center; font-size: 9.5pt;">' . $no++ . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-weight: bold; font-size: 9.5pt;">' . htmlspecialchars($item->judul ?? '-') . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($item->jenis_kegiatan ?? '-') . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center; font-size: 9.5pt;">' . htmlspecialchars($waktuMulai) . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center; font-size: 9.5pt;">' . htmlspecialchars($waktuSelesai) . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($item->pic_name ?? '-') . '</td>';
+            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($item->lokasi ?? '-') . '</td>';
+            $html .= '</tr>';
+        }
+
+        // Summary Row
+        $html .= '<tr><td colspan="7" style="height: 10px;"></td></tr>';
+        $html .= '<tr>';
+        $html .= '<td colspan="7" style="background-color: #0a2540; color: #ffffff; padding: 10px; font-weight: bold; font-size: 10pt; text-align: right;">Total Data Agenda: ' . count($agendas) . ' Kegiatan</td>';
+        $html .= '</tr>';
+
+        $html .= '</table>';
+        $html .= '</body></html>';
+
+        return response($html)
+            ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+    }
 }

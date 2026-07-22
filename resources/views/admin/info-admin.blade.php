@@ -1,8 +1,8 @@
 {{-- resources/views/admin/info-admin.blade.php --}}
 @extends('admin.layouts.admin-layout')
 
-@section('title', 'Info Admin')
-@section('page-title', 'Info Admin')
+@section('title', 'Manajemen User & Role - SIKTN Admin')
+@section('page-title', 'Manajemen User & Role')
 
 @php
     $activeMenu = 'info-admin';
@@ -10,351 +10,164 @@
 
 @push('styles')
 <style>
-    .page-header {
+    .card-box {
         background: white;
-        padding: 2rem;
         border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        margin-bottom: 2rem;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+    }
+
+    .action-bar {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
     }
 
-    .page-title {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #0a2540;
-        margin-bottom: 0.5rem;
+    .search-filter-group {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
     }
 
-    .page-desc {
-        color: #6b7280;
-        font-size: 0.9375rem;
+    .form-control {
+        padding: 0.5rem 0.875rem;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 0.875rem;
+        outline: none;
+        background: white;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+        text-decoration: none;
     }
 
     .btn-primary {
         background: #0a2540;
         color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.875rem;
-        font-weight: 600;
-        transition: all 0.2s;
-        font-family: 'Montserrat', sans-serif;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        text-decoration: none;
     }
 
     .btn-primary:hover {
-        background: #ffd700;
-        color: #0a2540;
+        background: #0d3154;
     }
 
-    .btn-primary svg {
-        width: 18px;
-        height: 18px;
-        stroke: currentColor;
-        fill: none;
-        stroke-width: 2;
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+        border-color: #e5e7eb;
     }
 
-    .admin-table-container {
+    .btn-secondary:hover {
+        background: #e5e7eb;
+    }
+
+    .btn-danger {
+        background: #fef2f2;
+        color: #dc2626;
+        border-color: #fecaca;
+    }
+
+    .btn-danger:hover {
+        background: #fee2e2;
+    }
+
+    .btn-warning {
+        background: #fffbeb;
+        color: #d97706;
+        border-color: #fde68a;
+    }
+
+    .btn-warning:hover {
+        background: #fef3c7;
+    }
+
+    .btn-info {
+        background: #e0f2fe;
+        color: #0369a1;
+        border-color: #bae6fd;
+    }
+
+    .btn-info:hover {
+        background: #bae6fd;
+    }
+
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8125rem;
+    }
+
+    .table-container {
         background: white;
         border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border: 1px solid #e5e7eb;
         overflow: hidden;
     }
 
-    .table-header {
-        padding: 1.5rem 2rem;
-        border-bottom: 1px solid #e5e7eb;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .table-title {
-        font-size: 1.125rem;
-        font-weight: 700;
-        color: #0a2540;
-    }
-
-    .search-form {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-    }
-
-    .search-box {
-        position: relative;
-    }
-
-    .search-input {
-        padding: 0.625rem 1rem 0.625rem 2.5rem;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        font-size: 0.875rem;
-        width: 250px;
-        font-family: 'Montserrat', sans-serif;
-    }
-
-    .search-input:focus {
-        outline: none;
-        border-color: #ffd700;
-    }
-
-    .filter-select {
-        padding: 0.625rem 1rem;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        font-size: 0.875rem;
-        font-family: 'Montserrat', sans-serif;
-        background-color: white;
-        color: #374151;
-        cursor: pointer;
-    }
-    
-    .filter-select:focus {
-        outline: none;
-        border-color: #ffd700;
-    }
-
-    .search-btn {
-        padding: 0.625rem 1.25rem;
-        background-color: #0a2540;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 0.875rem;
-        font-weight: 600;
-        cursor: pointer;
-        font-family: 'Montserrat', sans-serif;
-        transition: background 0.2s;
-    }
-    .search-btn:hover {
-        background-color: #ffd700;
-        color: #0a2540;
-    }
-
-    .search-icon {
-        position: absolute;
-        left: 0.75rem;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 18px;
-        height: 18px;
-        stroke: #6b7280;
-    }
-
-    .admin-table {
+    .table {
         width: 100%;
         border-collapse: collapse;
     }
 
-    .admin-table thead {
+    .table th {
         background: #f9fafb;
-    }
-
-    .admin-table th {
-        padding: 1rem 2rem;
+        padding: 0.875rem 1rem;
         text-align: left;
         font-size: 0.75rem;
         font-weight: 700;
-        color: #6b7280;
+        color: #4b5563;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid #e5e7eb;
     }
 
-    .admin-table td {
-        padding: 1.25rem 2rem;
-        border-top: 1px solid #e5e7eb;
+    .table td {
+        padding: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 0.875rem;
+        color: #1f2937;
     }
 
-    .admin-table tbody tr {
-        transition: background 0.2s;
-    }
-
-    .admin-table tbody tr:hover {
-        background: #f9fafb;
-    }
-
-    .admin-cell {
-        display: flex;
+    .status-badge {
+        display: inline-flex;
         align-items: center;
-        gap: 1rem;
-    }
-
-    .admin-avatar-table {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        background: #ffd700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #0a2540;
-        font-weight: 700;
-        font-size: 1rem;
-        flex-shrink: 0;
-        overflow: hidden;
-    }
-
-    .admin-details {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .admin-name-table {
-        font-weight: 600;
-        color: #0a2540;
-        font-size: 0.9375rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .admin-email-table {
-        font-size: 0.8125rem;
-        color: #6b7280;
-    }
-
-    .badge {
-        padding: 0.375rem 0.875rem;
-        border-radius: 6px;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 9999px;
         font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-    }
-
-    .badge-bpc {
-        background: #ffd700;
-        color: #0a2540;
-    }
-
-    .badge-bpd {
-        background: #3b82f6;
-        color: white;
-    }
-
-    .badge-super_admin {
-    background: linear-gradient(135deg, #0a2540 0%, #1a3a5a 100%);
-    color: #ffd700;
-    border: 2px solid #ffd700;
-    font-weight: 800;
-    letter-spacing: 1px;
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-}
-
-    .domisili-text {
-        font-size: 0.875rem;
-        color: #6b7280;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .btn-edit {
-        padding: 0.5rem 0.875rem;
-        background: #f3f4f6;
-        border: 1px solid #e5e7eb;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.8125rem;
         font-weight: 600;
-        color: #374151;
-        transition: all 0.2s;
-        font-family: 'Montserrat', sans-serif;
-        text-decoration: none;
-        display: inline-block;
     }
 
-    .btn-edit:hover {
-        background: #e5e7eb;
-    }
+    .status-badge.approved { background: #d1fae5; color: #059669; }
+    .status-badge.rejected { background: #fee2e2; color: #dc2626; }
+    .status-badge.pending { background: #fef3c7; color: #d97706; }
 
-    .btn-delete {
-        padding: 0.5rem 0.875rem;
-        background: #fef2f2;
-        border: 1px solid #fecaca;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.8125rem;
-        font-weight: 600;
-        color: #dc2626;
-        transition: all 0.2s;
-        font-family: 'Montserrat', sans-serif;
-    }
-
-    .btn-delete:hover {
-        background: #fee2e2;
-    }
-
-    .pagination {
-        padding: 1.5rem 2rem;
-        border-top: 1px solid #e5e7eb;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .pagination-info {
-        font-size: 0.875rem;
-        color: #6b7280;
-    }
-
-    .pagination-buttons {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .pagination-btn {
-        padding: 0.5rem 1rem;
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #374151;
-        transition: all 0.2s;
-        font-family: 'Montserrat', sans-serif;
-        text-decoration: none;
-    }
-
-    .pagination-btn:hover:not(:disabled) {
-        background: #f3f4f6;
-    }
-
-    .pagination-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .pagination-btn.active {
-        background: #0a2540;
-        color: white;
-        border-color: #0a2540;
-    }
-
-    /* Modal Styles */
+    /* Modal Overlay & Card */
     .modal-overlay {
-        display: none;
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 9999;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(15, 23, 42, 0.6);
+        display: none;
         align-items: center;
         justify-content: center;
+        z-index: 999;
+        padding: 1rem;
     }
-
+    
     .modal-overlay.active {
         display: flex;
     }
@@ -362,402 +175,247 @@
     .modal-content {
         background: white;
         border-radius: 12px;
-        max-width: 500px;
-        width: 90%;
-        overflow: hidden;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-    }
-
-    .modal-header {
-        padding: 1.5rem 2rem;
-        border-bottom: 1px solid #e5e7eb;
-    }
-
-    .modal-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #dc2626;
-    }
-
-    .modal-body {
-        padding: 2rem;
-    }
-
-    .modal-text {
-        color: #6b7280;
-        line-height: 1.6;
-        margin-bottom: 1rem;
-    }
-
-    .admin-info-modal {
-        background: #f9fafb;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-top: 1rem;
-    }
-
-    .admin-info-modal strong {
-        color: #0a2540;
-    }
-
-    .modal-footer {
-        padding: 1.5rem 2rem;
-        border-top: 1px solid #e5e7eb;
-        display: flex;
-        gap: 1rem;
-        justify-content: flex-end;
-    }
-
-    .btn-cancel-modal {
-        padding: 0.75rem 1.5rem;
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #374151;
-        transition: all 0.2s;
-        font-family: 'Montserrat', sans-serif;
-    }
-
-    .btn-cancel-modal:hover {
-        background: #f3f4f6;
-    }
-
-    .btn-confirm-delete {
-        padding: 0.75rem 1.5rem;
-        background: #dc2626;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: white;
-        transition: all 0.2s;
-        font-family: 'Montserrat', sans-serif;
-    }
-
-    .btn-confirm-delete:hover {
-        background: #b91c1c;
-    }
-
-    @media (max-width: 1024px) {
-        .page-header {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: flex-start;
-            padding: 1.5rem;
-        }
-
-        .page-title {
-            font-size: 1.5rem;
-        }
-
-        .page-desc {
-            font-size: 0.875rem;
-        }
-
-        .btn-primary {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .table-header {
-            flex-direction: column;
-            gap: 1rem;
-            padding: 1.25rem;
-            align-items: flex-start;
-        }
-
-        .table-title {
-            font-size: 1rem;
-        }
-
-        .search-box {
-            width: 100%;
-        }
-
-        .search-input {
-            width: 100%;
-        }
-
-        .admin-table-container {
-            overflow-x: auto;
-        }
-
-        .admin-table {
-            min-width: 900px;
-        }
-
-        .admin-table th,
-        .admin-table td {
-            padding: 0.875rem 1rem;
-        }
-
-        .admin-table th {
-            font-size: 0.6875rem;
-        }
-
-        .admin-avatar-table {
-            width: 40px;
-            height: 40px;
-            font-size: 0.875rem;
-        }
-
-        .admin-name-table {
-            font-size: 0.875rem;
-        }
-
-        .admin-email-table {
-            font-size: 0.75rem;
-        }
-
-        .badge {
-            padding: 0.3rem 0.65rem;
-            font-size: 0.6875rem;
-        }
-
-        .action-buttons {
-            flex-direction: column;
-            gap: 0.375rem;
-        }
-
-        .btn-edit,
-        .btn-delete {
-            padding: 0.4rem 0.75rem;
-            font-size: 0.75rem;
-            width: 100%;
-            text-align: center;
-        }
-
-        .pagination {
-            flex-direction: column;
-            gap: 1rem;
-            padding: 1.25rem;
-            align-items: flex-start;
-        }
-
-        .pagination-info {
-            font-size: 0.8125rem;
-        }
-
-        .pagination-buttons {
-            width: 100%;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .pagination-btn {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.8125rem;
-        }
+        max-width: 450px;
+        width: 100%;
+        padding: 1.5rem;
+        max-height: 90vh;
+        overflow-y: auto;
     }
 </style>
 @endpush
 
 @section('content')
-<div class="page-header">
-    <div>
-        <h1 class="page-title">Manajemen Admin</h1>
-        <p class="page-desc">Kelola seluruh akun administrator Karang Taruna</p>
+<div style="padding: 0.5rem 0;">
+
+    {{-- Kredensial Baru Dibuat Flash Banner --}}
+    @if(session('created_credentials'))
+    <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <h4 style="margin: 0; color: #047857; font-weight: 700;">Akun Admin Baru Berhasil Dibuat</h4>
+        </div>
+        <p style="margin: 0 0 0.75rem 0; color: #065f46; font-size: 0.875rem;">Silakan catat informasi kredensial login di bawah ini untuk diserahkan ke pengguna:</p>
+        <div style="background: white; padding: 0.875rem 1rem; border-radius: 8px; border: 1px solid #a7f3d0; font-family: monospace; font-size: 0.9rem;">
+            <div><strong>Nama:</strong> {{ session('created_credentials')['name'] }}</div>
+            <div><strong>Role:</strong> {{ session('created_credentials')['role'] }}</div>
+            <div><strong>Username:</strong> {{ session('created_credentials')['username'] }}</div>
+            <div><strong>Password:</strong> {{ session('created_credentials')['password'] }}</div>
+        </div>
     </div>
-    <a href="{{ route('admin.create-admin') }}" class="btn-primary">
-        <svg viewBox="0 0 24 24">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        Tambah Admin Baru
-    </a>
-</div>
+    @endif
 
-@if(session('success'))
-<div style="background: #d1fae5; color: #059669; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #86efac;">
-    {{ session('success') }}
-</div>
-@endif
+    <div class="card-box">
+        <div class="action-bar">
+            <form action="{{ route('admin.info-admin') }}" method="GET" class="search-filter-group">
+                <select name="role" class="form-control select2-basic" style="width: 220px;" onchange="this.form.submit()">
+                    <option value="">Semua Role / Kategori</option>
+                    <option value="super_admin" {{ request('role') == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
+                    <option value="pimpinan" {{ request('role') == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
+                    <option value="pnkt" {{ request('role') == 'pnkt' ? 'selected' : '' }}>PNKT (Sekretariat Nasional)</option>
+                    <option value="ppkt" {{ request('role') == 'ppkt' ? 'selected' : '' }}>PPKT (Sekretariat Provinsi)</option>
+                    <option value="pkkt" {{ request('role') == 'pkkt' ? 'selected' : '' }}>PKKT (Sekretariat Kab/Kota)</option>
+                </select>
 
-@if(session('created_credentials'))
-<div style="margin-bottom: 2rem; padding: 1.5rem; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-    <h3 style="color: #0a2540; margin-bottom: 0.5rem; font-weight: 700; font-size: 1.125rem;">
-        Akun Admin Berhasil Dibuat
-    </h3>
-    <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">Silakan salin detail akun di bawah ini untuk diberikan kepada pengurus yang bersangkutan.</p>
-    
-    <textarea id="credentialText" readonly style="width: 100%; height: 110px; padding: 1rem; border-radius: 8px; border: 1px solid #d1d5db; margin-bottom: 1rem; font-family: monospace; font-size: 0.875rem; background: #f9fafb; color: #111827; resize: none; line-height: 1.5;">
-Nama     : {{ session('created_credentials')['name'] }}
-Jabatan  : {{ session('created_credentials')['role'] }}
-Username : {{ session('created_credentials')['username'] }}
-Password : {{ session('created_credentials')['password'] }}</textarea>
-    
-    <button type="button" onclick="copyCredentials()" class="btn-primary" style="background: #0a2540; border: none; padding: 0.625rem 1.25rem; border-radius: 8px; color: white; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; font-size: 0.875rem; transition: background 0.2s;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-        Salin Kredensial
-    </button>
-</div>
-@endif
+                <input type="text" name="search" class="form-control" style="width: 220px;" placeholder="Cari nama / email / username..." value="{{ request('search') }}">
+                
+                <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+                @if(request()->anyFilled(['role', 'search']))
+                    <a href="{{ route('admin.info-admin') }}" class="btn btn-secondary btn-sm">Reset</a>
+                @endif
+            </form>
 
-<div class="admin-table-container">
-    <div class="table-header">
-        <h3 class="table-title">Daftar Admin ({{ $admins->total() }})</h3>
-        <form action="{{ route('admin.info-admin') }}" method="GET" class="search-form">
-            <select name="role" class="filter-select">
-                <option value="">Semua Kategori</option>
-                <option value="super_admin" {{ request('role') == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
-                <option value="pimpinan" {{ request('role') == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
-                <option value="pnkt" {{ request('role') == 'pnkt' ? 'selected' : '' }}>PNKT (Pusat)</option>
-                <option value="ppkt" {{ request('role') == 'ppkt' ? 'selected' : '' }}>PPKT (Provinsi)</option>
-                <option value="pkkt" {{ request('role') == 'pkkt' ? 'selected' : '' }}>PKKT (Kab/Kota)</option>
-            </select>
-            <div class="search-box">
-                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"/>
-                    <path d="m21 21-4.35-4.35"/>
-                </svg>
-                <input type="text" name="search" class="search-input" placeholder="Cari admin..." value="{{ request('search') }}">
+            <div style="display: flex; gap: 0.5rem;">
+                <a href="{{ route('admin.export-admin', request()->query()) }}" class="btn btn-secondary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Export Excel
+                </a>
+
+                <a href="{{ route('admin.create-admin') }}" class="btn btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Tambah Admin Baru
+                </a>
             </div>
-            <button type="submit" class="search-btn">Filter</button>
-            @if(request()->has('search') || request()->has('role'))
-                <a href="{{ route('admin.info-admin') }}" class="search-btn" style="background:#fef2f2; color:#dc2626; border: 1px solid #fecaca; text-decoration:none;">Reset</a>
-            @endif
+        </div>
+
+        {{-- Table List Admin --}}
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>NAMA ADMINISTRATOR</th>
+                        <th>USERNAME & EMAIL</th>
+                        <th>ROLE / KATEGORI</th>
+                        <th>DOMISILI WILAYAH</th>
+                        <th>STATUS AKUN</th>
+                        <th style="text-align: right;">AKSI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($admins as $item)
+                    <tr>
+                        <td>
+                            <div style="font-weight: 700; color: #0a2540;">{{ $item->name }}</div>
+                            @if($item->no_hp)
+                                <div style="font-size: 0.8rem; color: #6b7280; display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                    {{ $item->no_hp }}
+                                </div>
+                            @endif
+                        </td>
+                        <td>
+                            <div style="font-weight: 600;">{{ $item->username }}</div>
+                            <div style="font-size: 0.8rem; color: #6b7280;">{{ $item->email }}</div>
+                        </td>
+                        <td>
+                            <span style="font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; background: #f3f4f6; color: #0a2540;">
+                                {{ $item->role_display_name }}
+                            </span>
+                        </td>
+                        <td>{{ $item->domisili ?? 'Nasional' }}</td>
+                        <td>
+                            <form action="{{ route('admin.toggle-active-admin', $item->id) }}" method="POST" style="display: inline;">
+                                @csrf
+                                @method('PATCH')
+                                @if($item->is_active ?? true)
+                                    <button type="button" class="status-badge approved" style="border:none; cursor:pointer;" title="Klik untuk Nonaktifkan Akun" onclick="confirmToggleActive(this.form, true, '{{ addslashes($item->name) }}')">
+                                        ● Aktif
+                                    </button>
+                                @else
+                                    <button type="button" class="status-badge rejected" style="border:none; cursor:pointer;" title="Klik untuk Aktifkan Akun" onclick="confirmToggleActive(this.form, false, '{{ addslashes($item->name) }}')">
+                                        ● Nonaktif
+                                    </button>
+                                @endif
+                            </form>
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                                {{-- Reset Password Modal Trigger (12c) --}}
+                                <button type="button" class="btn btn-warning btn-sm" onclick="openResetPasswordModal({{ $item->id }}, '{{ addslashes($item->name) }}')" title="Reset Password Admin">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                    Reset Password
+                                </button>
+
+                                {{-- Edit Admin --}}
+                                <a href="{{ route('admin.edit-admin', $item->id) }}" class="btn btn-info btn-sm">Edit</a>
+
+                                {{-- Delete Admin --}}
+                                @if($item->id !== auth()->guard('admin')->user()->id)
+                                    <form action="{{ route('admin.delete-admin', $item->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmDeleteAdmin(this.form, '{{ addslashes($item->name) }}')">Hapus</button>
+                                    </form>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 2rem; color: #6b7280;">Belum ada data admin terdaftar.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 1rem;">
+            {{ $admins->links() }}
+        </div>
+    </div>
+</div>
+
+{{-- Reset Password Modal (12c) --}}
+<div class="modal-overlay" id="resetPasswordModal">
+    <div class="modal-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="color: #0a2540; margin: 0; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                Reset Password Admin
+            </h3>
+            <button type="button" onclick="closeResetPasswordModal()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: #6b7280;">&times;</button>
+        </div>
+
+        <form id="resetPasswordForm" method="POST">
+            @csrf
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; color: #374151;">Nama Administrator</label>
+                <input type="text" id="modalAdminName" class="form-control" style="width: 100%; background: #f3f4f6;" readonly>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.375rem; color: #374151;">Password Baru (Minimal 8 Karakter)</label>
+                <input type="password" name="password" class="form-control" style="width: 100%;" placeholder="Masukkan password baru..." required minlength="8">
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.375rem; color: #374151;">Konfirmasi Password Baru</label>
+                <input type="password" name="password_confirmation" class="form-control" style="width: 100%;" placeholder="Ulangi password baru..." required minlength="8">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                <button type="button" onclick="closeResetPasswordModal()" class="btn btn-secondary">Batal</button>
+                <button type="submit" class="btn btn-primary" onclick="Toast.fire({ icon: 'success', title: 'Password berhasil diperbarui...' })">Reset Password</button>
+            </div>
         </form>
     </div>
-
-<table class="admin-table">
-    <thead>
-        <tr>
-            <th>Admin</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Terdaftar</th>
-            <th>Aksi</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($admins as $adminItem)
-        <tr>
-            <td>
-                <div class="admin-cell">
-                    <div class="admin-avatar-table">
-                        @if($adminItem->photo)
-                            <img src="{{ $adminItem->photo_url }}" alt="{{ $adminItem->name }}" style="width: 100%; height: 100%; object-fit: cover;">
-                        @else
-                            {{ strtoupper(substr($adminItem->name, 0, 2)) }}
-                        @endif
-                    </div>
-                    <div class="admin-details">
-                        <div class="admin-name-table">{{ $adminItem->name }}</div>
-                        <div class="admin-email-table">{{ $adminItem->role_display_name }}</div>
-                    </div>
-                </div>
-            </td>
-            <td>{{ $adminItem->username }}</td>
-            <td>{{ $adminItem->email }}</td>
-            <td>{{ $adminItem->created_at->format('d M Y') }}</td>
-            <td>
-                <div class="action-buttons">
-                    <a href="{{ route('admin.edit-admin', ['admin' => $adminItem->id]) }}" class="btn-edit">Edit</a>
-                    <button class="btn-delete" onclick="openDeleteModal({{ $adminItem->id }}, '{{ $adminItem->name }}')">Hapus</button>
-                </div>
-            </td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
-    <div class="pagination">
-        <div class="pagination-info">
-            Menampilkan {{ $admins->firstItem() }} - {{ $admins->lastItem() }} dari {{ $admins->total() }} admin
-        </div>
-        <div class="pagination-buttons">
-            @if($admins->onFirstPage())
-                <button class="pagination-btn" disabled>Previous</button>
-            @else
-                <a href="{{ $admins->previousPageUrl() }}" class="pagination-btn">Previous</a>
-            @endif
-            
-            @foreach($admins->getUrlRange(1, $admins->lastPage()) as $page => $url)
-                <a href="{{ $url }}" class="pagination-btn {{ $page == $admins->currentPage() ? 'active' : '' }}">
-                    {{ $page }}
-                </a>
-            @endforeach
-            
-            @if($admins->hasMorePages())
-                <a href="{{ $admins->nextPageUrl() }}" class="pagination-btn">Next</a>
-            @else
-                <button class="pagination-btn" disabled>Next</button>
-            @endif
-        </div>
-    </div>
 </div>
-
-<!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="modal-overlay">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 class="modal-title">Konfirmasi Hapus Admin</h3>
-        </div>
-        <div class="modal-body">
-            <p class="modal-text">Apakah Anda yakin ingin menghapus admin ini?</p>
-            <div class="admin-info-modal">
-                <strong id="adminNameModal"></strong>
-            </div>
-            <p class="modal-text" style="margin-top: 1rem; font-size: 0.875rem;">
-                <strong>Perhatian:</strong> Data admin yang dihapus tidak dapat dikembalikan.
-            </p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-cancel-modal" onclick="closeDeleteModal()">Batal</button>
-            <form id="deleteForm" method="POST" style="display: inline;">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn-confirm-delete">Ya, Hapus Admin</button>
-            </form>
-        </div>
-    </div>
-</div>
-@endsection
 
 @push('scripts')
 <script>
-function openDeleteModal(adminId, adminName) {
-    document.getElementById('adminNameModal').textContent = adminName;
-    document.getElementById('deleteForm').action = `/admin/delete-admin/${adminId}`;
-    document.getElementById('deleteModal').classList.add('active');
-}
-
-function closeDeleteModal() {
-    document.getElementById('deleteModal').classList.remove('active');
-}
-
-// Close modal when clicking outside
-document.getElementById('deleteModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeDeleteModal();
-    }
-});
-
-function copyCredentials() {
-    var copyText = document.getElementById("credentialText");
-    copyText.select();
-    copyText.setSelectionRange(0, 99999);
-    navigator.clipboard.writeText(copyText.value).then(function() {
-        Swal.fire({
-            title: 'Tersalin!',
-            text: 'Kredensial admin berhasil disalin ke clipboard.',
-            icon: 'success',
-            timer: 2000,
-            showConfirmButton: false
-        });
-    }).catch(function() {
-        document.execCommand("copy");
-        Swal.fire({
-            title: 'Tersalin!',
-            text: 'Kredensial admin berhasil disalin.',
-            icon: 'success',
-            timer: 2000,
-            showConfirmButton: false
-        });
+    $(document).ready(function() {
+        if (typeof $.fn.select2 !== 'undefined') {
+            $('.select2-basic').select2({
+                width: '100%'
+            });
+        }
     });
-}
+
+    function confirmToggleActive(form, isCurrentlyActive, adminName) {
+        const actionText = isCurrentlyActive ? 'menonaktifkan' : 'mengaktifkan kembali';
+        const confirmColor = isCurrentlyActive ? '#dc2626' : '#059669';
+        
+        Swal.fire({
+            title: isCurrentlyActive ? 'Nonaktifkan Akun Admin?' : 'Aktifkan Akun Admin?',
+            text: 'Apakah Anda yakin ingin ' + actionText + ' akun admin ' + adminName + '?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: confirmColor,
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: isCurrentlyActive ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
+
+    function confirmDeleteAdmin(form, adminName) {
+        Swal.fire({
+            title: 'Hapus Akun Admin?',
+            text: 'Apakah Anda yakin ingin menghapus akun admin ' + adminName + '? Data yang dihapus tidak dapat dikembalikan.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Hapus Akun',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
+
+    function openResetPasswordModal(adminId, adminName) {
+        document.getElementById('resetPasswordForm').action = "/admin/reset-password-admin/" + adminId;
+        document.getElementById('modalAdminName').value = adminName;
+        document.getElementById('resetPasswordModal').classList.add('active');
+    }
+
+    function closeResetPasswordModal() {
+        document.getElementById('resetPasswordModal').classList.remove('active');
+    }
 </script>
 @endpush
+@endsection

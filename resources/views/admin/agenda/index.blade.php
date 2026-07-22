@@ -525,14 +525,14 @@
 <div class="table-container">
     <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
         <h4>Daftar Semua Agenda</h4>
-        <button class="btn" style="background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;" onclick="exportTableToExcel('Daftar_Agenda_SIKTN.xls')">
+        <a href="{{ route('admin.agenda.export-excel') }}" class="btn" style="background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; text-decoration: none;" onclick="Toast.fire({ icon: 'success', title: 'File Excel Agenda sedang diunduh...' })">
             <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
                 <line x1="12" y1="18" x2="12" y2="12"></line>
                 <polyline points="9 15 12 18 15 15"></polyline>
             </svg> Export Data (Excel)
-        </button>
+        </a>
     </div>
     <div class="table-wrapper">
         <table id="agendaTable" class="table">

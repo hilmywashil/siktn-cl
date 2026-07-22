@@ -408,8 +408,8 @@
             <p>Kelola dan verifikasi pendaftaran anggota Karang Taruna</p>
         </div>
         <div style="display: flex; gap: 0.75rem;">
-            @if(in_array($admin->category, ['super_admin', 'pimpinan', 'pnkt']))
-            <a href="{{ route('admin.anggota.export', request()->query()) }}" class="btn btn-outline" style="background: white; color: #10b981; border: 1px solid #10b981; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.background='#ecfdf5'" onmouseout="this.style.background='white'">
+            @if(in_array($admin->category, ['super_admin', 'pimpinan', 'pnkt', 'ppkt', 'pkkt']))
+            <a href="{{ route('admin.anggota.export', request()->query()) }}" class="btn btn-outline" style="background: white; color: #10b981; border: 1px solid #10b981; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.background='#ecfdf5'" onmouseout="this.style.background='white'" onclick="Toast.fire({ icon: 'success', title: 'File Excel Anggota sedang diunduh...' })">
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                     <polyline points="7 10 12 15 17 10"></polyline>

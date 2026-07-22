@@ -12,6 +12,10 @@ use App\Http\Controllers\Admin\AnggotaManagementController;
 use App\Http\Controllers\Admin\BeritaController as AdminBeritaController;
 use App\Http\Controllers\Admin\StrategicPlanController;
 use App\Http\Controllers\Admin\AgendaController;
+use App\Http\Controllers\Admin\KontakController;
+use App\Http\Controllers\Admin\Sekretariat\SuratController;
+use App\Http\Controllers\Admin\Sekretariat\SuratKeputusanController;
+use App\Http\Controllers\Admin\Sekretariat\NotulensiController;
 use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AnggotaController;
@@ -41,11 +45,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Info Admin (BPD only)
         Route::get('info-admin', [AdminDashboardController::class, 'infoAdmin'])->name('info-admin');
+        Route::get('export-admin', [AdminDashboardController::class, 'exportAdmin'])->name('export-admin');
         Route::get('create-admin', [AdminDashboardController::class, 'createAdmin'])->name('create-admin');
         Route::post('store-admin', [AdminDashboardController::class, 'storeAdmin'])->name('store-admin');
         Route::get('edit-admin/{admin}', [AdminDashboardController::class, 'editAdmin'])->name('edit-admin');
         Route::put('update-admin/{admin}', [AdminDashboardController::class, 'updateAdmin'])->name('update-admin');
         Route::delete('delete-admin/{admin}', [AdminDashboardController::class, 'deleteAdmin'])->name('delete-admin');
+        Route::patch('toggle-active-admin/{admin}', [AdminDashboardController::class, 'toggleActiveAdmin'])->name('toggle-active-admin');
+        Route::post('reset-password-admin/{admin}', [AdminDashboardController::class, 'resetPasswordAdmin'])->name('reset-password-admin');
 
         // Strategic Plan CRUD (Admin)
         Route::resource('strategic-plan', StrategicPlanController::class);
@@ -54,7 +61,30 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('agenda/get-events', [AgendaController::class, 'getEvents'])->name('agenda.get-events');
         Route::get('agenda/holidays', [AgendaController::class, 'getHolidays'])->name('agenda.holidays');
         Route::get('agenda/export', [AgendaController::class, 'exportICal'])->name('agenda.export');
+        Route::get('agenda/export-excel', [AgendaController::class, 'exportExcel'])->name('agenda.export-excel');
         Route::resource('agenda', AgendaController::class);
+
+        // Sekretariat Module (Surat Masuk/Keluar, SK, Notulensi)
+        Route::prefix('sekretariat')->name('sekretariat.')->group(function () {
+            // Surat Masuk & Keluar
+            Route::get('surat', [SuratController::class, 'index'])->name('surat.index');
+            Route::post('surat', [SuratController::class, 'store'])->name('surat.store');
+            Route::patch('surat/{id}/status', [SuratController::class, 'updateStatus'])->name('surat.update-status');
+            Route::delete('surat/{id}', [SuratController::class, 'destroy'])->name('surat.destroy');
+            Route::get('surat/{id}/audit-trail', [SuratController::class, 'auditTrail'])->name('surat.audit-trail');
+
+            // Surat Keputusan (SK)
+            Route::get('sk', [SuratKeputusanController::class, 'index'])->name('sk.index');
+            Route::post('sk', [SuratKeputusanController::class, 'store'])->name('sk.store');
+            Route::put('sk/{id}', [SuratKeputusanController::class, 'update'])->name('sk.update');
+            Route::delete('sk/{id}', [SuratKeputusanController::class, 'destroy'])->name('sk.destroy');
+
+            // Notulensi Rapat
+            Route::get('notulensi', [NotulensiController::class, 'index'])->name('notulensi.index');
+            Route::post('notulensi', [NotulensiController::class, 'store'])->name('notulensi.store');
+            Route::put('notulensi/{id}', [NotulensiController::class, 'update'])->name('notulensi.update');
+            Route::delete('notulensi/{id}', [NotulensiController::class, 'destroy'])->name('notulensi.destroy');
+        });
 
         // Logout
         Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');
@@ -88,6 +118,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Master Jabatan CRUD (Super Admin & PNKT only, logic handled in controller)
         Route::delete('jabatan/bulk-delete', [\App\Http\Controllers\Admin\JabatanController::class, 'bulkDestroy'])->name('jabatan.bulk-delete');
         Route::resource('jabatan', \App\Http\Controllers\Admin\JabatanController::class);
+
+        // Direktori Kontak
+        Route::get('kontak/export', [KontakController::class, 'export'])->name('kontak.export');
+        Route::get('kontak', [KontakController::class, 'index'])->name('kontak.index');
 
         // E-Katalog CRUD dengan Approval System (BPD only)
         Route::prefix('katalog')->name('katalog.')->group(function () {

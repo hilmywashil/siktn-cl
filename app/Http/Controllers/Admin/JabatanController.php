@@ -22,8 +22,6 @@ class JabatanController extends Controller
 
     public function index()
     {
-        $this->checkAuthorization();
-        
         $jabatans = Jabatan::orderBy('urutan', 'asc')->get();
         
         // Group by urutan untuk mengatasi urutan kembar (misal ada dua jabatan dengan urutan '1')
