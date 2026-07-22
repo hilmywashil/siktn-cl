@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
+use App\Models\Admin;
+use App\Notifications\AdminNotification;
 use Exception;
 
 class AnggotaController extends Controller
@@ -149,6 +152,14 @@ class AnggotaController extends Controller
 
                 // Commit transaction
                 DB::commit();
+
+                // Beritahu Admin
+                $admins = Admin::all();
+                Notification::send($admins, new AdminNotification(
+                    'new_anggota',
+                    'Pendaftaran Anggota Baru',
+                    "Ada pendaftaran anggota baru dari {$anggota->nama_lengkap}. Silakan tinjau dan verifikasi data pendaftar."
+                ));
 
                 // Auto login setelah registrasi
                 Auth::guard('anggota')->login($anggota, true);
@@ -345,6 +356,15 @@ class AnggotaController extends Controller
         }
 
         $anggota->save();
+
+        if ($needsVerification || in_array($anggota->getOriginal('status'), ['pending', 'pending_profile'])) {
+            $admins = Admin::all();
+            Notification::send($admins, new AdminNotification(
+                'new_anggota',
+                'Pembaruan Profil Anggota',
+                "Anggota {$anggota->nama_lengkap} telah memperbarui profilnya dan menunggu verifikasi."
+            ));
+        }
 
         return back()->with('success', $message);
     }

@@ -52,6 +52,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Logout
         Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');
 
+        // Notifications
+        Route::post('notifications/read-all', function () {
+            auth()->guard('admin')->user()->unreadNotifications->markAsRead();
+            return back();
+        })->name('notifications.readAll');
+
         // Profile
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');

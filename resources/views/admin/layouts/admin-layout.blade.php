@@ -141,6 +141,112 @@
             display: flex;
         }
 
+        /* Notification Dropdown for Admin */
+        .notification-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        .notification-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            font-size: 1.25rem;
+            color: #6b7280;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+        }
+        .notification-btn:hover {
+            color: #0a2540;
+        }
+        .notification-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: #d60b1c;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        .notification-dropdown {
+            position: absolute;
+            top: 120%;
+            right: -10px;
+            width: 320px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        .notification-dropdown.show {
+            display: flex;
+        }
+        .notification-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fc;
+        }
+        .notification-header h4 {
+            margin: 0;
+            font-size: 1rem;
+            color: #0a2540;
+            font-weight: 700;
+        }
+        .notification-body {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .notification-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .notification-item:hover {
+            background: #f8f9fc;
+        }
+        .notification-item.unread {
+            background: rgba(197, 146, 23, 0.05);
+        }
+        .notification-item-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #0a2540;
+        }
+        .notification-item-message {
+            font-size: 0.8rem;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+        .notification-item-time {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+        .notification-empty {
+            padding: 30px 20px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+
         .logout-modal-content {
             background: white;
             border-radius: 12px;
@@ -516,7 +622,59 @@
                 <div class="topbar-subtitle">{{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}
                 </div>
             </div>
-            <div class="topbar-actions">
+            <div class="topbar-actions" style="display: flex; align-items: center;">
+                {{-- Admin Notifications --}}
+                @php
+                    $adminUser = auth()->guard('admin')->user();
+                    $unreadNotifications = $adminUser->unreadNotifications;
+                @endphp
+                <div class="notification-wrapper">
+                    <button class="notification-btn" id="notificationBtn">
+                        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        @if($unreadNotifications->count() > 0)
+                            <span class="notification-badge">{{ $unreadNotifications->count() }}</span>
+                        @endif
+                    </button>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">
+                            <h4>Notifikasi</h4>
+                            @if($unreadNotifications->count() > 0)
+                                <form action="{{ route('admin.notifications.readAll') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" style="background:none;border:none;color:#c59217;font-size:0.75rem;cursor:pointer;font-weight:600;">Tandai dibaca</button>
+                                </form>
+                            @endif
+                        </div>
+                        <div class="notification-body">
+                            @forelse($adminUser->notifications->take(10) as $notification)
+                                <div class="notification-item {{ $notification->read_at ? '' : 'unread' }}">
+                                    <div class="notification-item-title">
+                                        @if($notification->data['type'] == 'new_anggota')
+                                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="#10b981" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                        @elseif($notification->data['type'] == 'new_katalog')
+                                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="#3b82f6" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+                                        @else
+                                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="#c59217" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                        @endif
+                                        {{ $notification->data['title'] ?? 'Notifikasi' }}
+                                    </div>
+                                    <div class="notification-item-message">
+                                        {{ $notification->data['message'] ?? '' }}
+                                    </div>
+                                    <div class="notification-item-time">{{ $notification->created_at->diffForHumans() }}</div>
+                                </div>
+                            @empty
+                                <div class="notification-empty">
+                                    Belum ada notifikasi masuk.
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
                 {{-- User Profile in Topbar --}}
                 <a href="{{ route('admin.profile') }}" class="topbar-user-profile">
                     <div class="topbar-user-avatar">
@@ -720,6 +878,24 @@
                 behavior: 'smooth'
             });
         });
+        
+        // Notification Dropdown Logic
+        const notifBtn = document.getElementById('notificationBtn');
+        const notifDropdown = document.getElementById('notificationDropdown');
+        if(notifBtn && notifDropdown) {
+            notifBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                notifDropdown.classList.toggle('show');
+            });
+            document.addEventListener('click', function(e) {
+                if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+                    notifDropdown.classList.remove('show');
+                }
+            });
+            notifDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
     </script>
     
     {{-- Global Toast Setup --}}

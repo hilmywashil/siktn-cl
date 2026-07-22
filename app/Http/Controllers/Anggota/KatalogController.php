@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
+use App\Models\Admin;
+use App\Notifications\AdminNotification;
 
 class KatalogController extends Controller
 {
@@ -114,6 +117,13 @@ class KatalogController extends Controller
             'katalog_id' => $katalog->id,
             'anggota_id' => $anggota->id,
         ]);
+
+        $admins = Admin::all();
+        Notification::send($admins, new AdminNotification(
+            'new_katalog',
+            'Pengajuan E-Katalog Baru',
+            "Anggota {$anggota->nama_lengkap} ({$katalog->company_name}) mengajukan E-Katalog baru. Silakan tinjau dan berikan persetujuan."
+        ));
 
         return redirect()->route('anggota.katalog.index')
             ->with('success', 'Katalog berhasil ditambahkan dan menunggu persetujuan admin.');
