@@ -229,18 +229,42 @@
             </div>
             @endif
 
-            {{-- 6. Agenda (Direct Link) --}}
-            <a href="#" class="menu-item {{ $activeMenu === 'agenda' ? 'active' : '' }}" style="text-decoration: none;">
-                <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
+            {{-- 6. Agenda Dropdown --}}
+            <div class="menu-dropdown">
+                <div class="menu-item has-dropdown {{ $activeMenu === 'agenda' ? 'active' : '' }}" onclick="toggleDropdown(this)">
+                    <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span>Agenda</span>
+                    </div>
+                    <svg class="dropdown-icon" viewBox="0 0 24 24">
+                        <polyline points="6 9 12 15 18 9" />
                     </svg>
-                    <span>Agenda</span>
                 </div>
-            </a>
+                <div class="submenu {{ $activeMenu === 'agenda' ? 'active' : '' }}">
+                    <a href="{{ route('agenda.public') }}" class="submenu-item" target="_blank">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="2" y1="12" x2="22" y2="12" />
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                        </svg>
+                        <span>Lihat Halaman</span>
+                    </a>
+                    @if($admin->canManageContent() || $admin->isPimpinan() || $admin->isPNKT())
+                    <a href="{{ route('admin.agenda.index') }}" class="submenu-item {{ $activeMenu === 'agenda' ? 'active' : '' }}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                        <span>Kelola Agenda</span>
+                    </a>
+                    @endif
+                </div>
+            </div>
 
             {{-- 7. E-Katalog Dropdown --}}
             <div class="menu-dropdown">

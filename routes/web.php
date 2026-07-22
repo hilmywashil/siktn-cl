@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\MisiController;
 use App\Http\Controllers\Admin\AnggotaManagementController;
 use App\Http\Controllers\Admin\BeritaController as AdminBeritaController;
 use App\Http\Controllers\Admin\StrategicPlanController;
+use App\Http\Controllers\Admin\AgendaController;
 use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AnggotaController;
@@ -48,6 +49,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Strategic Plan CRUD (Admin)
         Route::resource('strategic-plan', StrategicPlanController::class);
+
+        // Agenda CRUD (Admin)
+        Route::get('agenda/get-events', [AgendaController::class, 'getEvents'])->name('agenda.get-events');
+        Route::get('agenda/holidays', [AgendaController::class, 'getHolidays'])->name('agenda.holidays');
+        Route::get('agenda/export', [AgendaController::class, 'exportICal'])->name('agenda.export');
+        Route::resource('agenda', AgendaController::class);
 
         // Logout
         Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');
@@ -201,6 +208,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // Strategic Plan Public Route
 Route::get('/strategic-plan/{strategicPlan}', [StrategicPlanController::class, 'show'])
     ->name('strategic-plan.detail');
+
+// Agenda Public Feed (For Google Calendar Auto-Sync)
+Route::get('/agenda/feed.ics', [AgendaController::class, 'publicICalFeed'])->name('agenda.public-feed');
 
 // E-Katalog Public Routes
 Route::get('/e-katalog', [KatalogController::class, 'index'])->name('e-katalog');
