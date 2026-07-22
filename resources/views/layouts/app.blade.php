@@ -26,6 +26,109 @@
             border-color: #ffd700;
             color: #0a2540;
         }
+
+        /* Notification Dropdown */
+        .notification-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-right: 15px;
+        }
+        .notification-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            font-size: 1.2rem;
+            color: #0a2540;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+        }
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #d60b1c;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 50%;
+            transform: translate(25%, -25%);
+            border: 2px solid white;
+        }
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: -50px;
+            width: 320px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .notification-dropdown.show {
+            display: flex;
+        }
+        .notification-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fc;
+        }
+        .notification-header h4 {
+            margin: 0;
+            font-size: 1rem;
+            color: #0a2540;
+            font-weight: 700;
+        }
+        .notification-body {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .notification-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .notification-item:hover {
+            background: #f8f9fc;
+        }
+        .notification-item.unread {
+            background: rgba(197, 146, 23, 0.05);
+        }
+        .notification-item-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #0a2540;
+        }
+        .notification-item-message {
+            font-size: 0.8rem;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+        .notification-item-time {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+        .notification-empty {
+            padding: 30px 20px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
     </style>
     
     @stack('styles')
@@ -64,6 +167,57 @@
                         </button>
                     </form>
                 @elseif(auth('anggota')->check() || isset($anggota))
+                    @php
+                        $user = auth('anggota')->user() ?? $anggota;
+                        $unreadNotifications = $user->unreadNotifications;
+                    @endphp
+                    <div class="notification-wrapper">
+                        <button class="notification-btn" id="notificationBtn">
+                            <i class="fa fa-bell"></i>
+                            @if($unreadNotifications->count() > 0)
+                                <span class="notification-badge">{{ $unreadNotifications->count() }}</span>
+                            @endif
+                        </button>
+                        <div class="notification-dropdown" id="notificationDropdown">
+                            <div class="notification-header">
+                                <h4>Notifikasi</h4>
+                                @if($unreadNotifications->count() > 0)
+                                    <form action="{{ route('anggota.notifications.readAll') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" style="background:none;border:none;color:#c59217;font-size:0.75rem;cursor:pointer;font-weight:600;">Tandai semua dibaca</button>
+                                    </form>
+                                @endif
+                            </div>
+                            <div class="notification-body">
+                                @forelse($user->notifications->take(10) as $notification)
+                                    <div class="notification-item {{ $notification->read_at ? '' : 'unread' }}">
+                                        <div class="notification-item-title">
+                                            @if($notification->data['status'] == 'approved')
+                                                <i class="fa fa-check-circle" style="color:#10b981;margin-right:4px;"></i>
+                                            @elseif($notification->data['status'] == 'rejected')
+                                                <i class="fa fa-times-circle" style="color:#ef4444;margin-right:4px;"></i>
+                                            @elseif($notification->data['status'] == 'revision')
+                                                <i class="fa fa-exclamation-circle" style="color:#f59e0b;margin-right:4px;"></i>
+                                            @endif
+                                            {{ $notification->data['title'] }}
+                                        </div>
+                                        <div class="notification-item-message">
+                                            {{ $notification->data['message'] }}
+                                            @if(!empty($notification->data['notes']))
+                                                <br><strong>Catatan:</strong> {{ $notification->data['notes'] }}
+                                            @endif
+                                        </div>
+                                        <div class="notification-item-time">{{ $notification->created_at->diffForHumans() }}</div>
+                                    </div>
+                                @empty
+                                    <div class="notification-empty">
+                                        Belum ada notifikasi baru.
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
                     <a href="{{ route('profile-anggota') }}" class="btn-yellow-border-black">Dashboard</a>
                     <form action="{{ route('anggota.logout') }}" method="POST" style="display: inline;">
                         @csrf
@@ -112,6 +266,26 @@
     </script>
 
     @stack('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const notifBtn = document.getElementById('notificationBtn');
+            const notifDropdown = document.getElementById('notificationDropdown');
+            if(notifBtn && notifDropdown) {
+                notifBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    notifDropdown.classList.toggle('show');
+                });
+                document.addEventListener('click', function(e) {
+                    if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+                        notifDropdown.classList.remove('show');
+                    }
+                });
+                notifDropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

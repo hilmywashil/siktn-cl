@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Notifications\KatalogStatusNotification;
 
 class KatalogController extends Controller
 {
@@ -353,6 +354,10 @@ class KatalogController extends Controller
             'admin_id' => Auth::guard('admin')->id(),
         ]);
 
+        if ($katalog->anggota) {
+            $katalog->anggota->notify(new KatalogStatusNotification($katalog, 'approved'));
+        }
+
         return back()->with('success', "Katalog {$katalog->company_name} berhasil disetujui!");
     }
 
@@ -382,6 +387,10 @@ class KatalogController extends Controller
             'notes' => $request->revision_notes,
             'admin_id' => Auth::guard('admin')->id(),
         ]);
+
+        if ($katalog->anggota) {
+            $katalog->anggota->notify(new KatalogStatusNotification($katalog, 'revision', $request->revision_notes));
+        }
 
         return back()->with('success', "Katalog {$katalog->company_name} dikirim untuk direvisi.");
     }
@@ -413,6 +422,10 @@ class KatalogController extends Controller
             'reason' => $request->rejection_reason,
             'admin_id' => Auth::guard('admin')->id(),
         ]);
+
+        if ($katalog->anggota) {
+            $katalog->anggota->notify(new KatalogStatusNotification($katalog, 'rejected', $request->rejection_reason));
+        }
 
         return back()->with('success', "Katalog {$katalog->company_name} ditolak.");
     }

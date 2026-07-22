@@ -1500,7 +1500,15 @@
 
                             <div class="form-group">
                                 <label for="nik">NIK (Nomor Induk Kependudukan) <span style="color:red;">*</span></label>
-                                <input type="text" name="nik" id="nik" class="form-control" value="{{ old('nik', $anggota->nik) }}" required>
+                                <input type="text" name="nik" id="nik" class="form-control" 
+                                    value="{{ old('nik', $anggota->nik) }}" 
+                                    required 
+                                    maxlength="16" 
+                                    minlength="16" 
+                                    pattern="\d{16}" 
+                                    title="NIK harus tepat 16 angka"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16);"
+                                    placeholder="Masukkan 16 digit NIK">
                             </div>
 
                             <div class="form-group">

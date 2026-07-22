@@ -8,6 +8,7 @@ use App\Models\Organisasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Notifications\AnggotaStatusNotification;
 
 class AnggotaManagementController extends Controller
 {
@@ -456,6 +457,8 @@ class AnggotaManagementController extends Controller
             );
         }
 
+        $anggota->notify(new AnggotaStatusNotification('approved'));
+
         return redirect()
             ->route('admin.anggota.show', $anggota)
             ->with('success', 'Anggota berhasil disetujui dan ditambahkan ke struktur organisasi!');
@@ -481,6 +484,8 @@ class AnggotaManagementController extends Controller
             'approved_by' => $admin->id,
             'updated_fields' => null,
         ]);
+
+        $anggota->notify(new AnggotaStatusNotification('rejected', $request->rejection_reason));
 
         return redirect()
             ->route('admin.anggota.show', $anggota)

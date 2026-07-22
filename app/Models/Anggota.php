@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Notifications\Notifiable;
 
 class Anggota extends Authenticatable
 {
-    use HasFactory, HasRoles, SoftDeletes, Prunable;
+    use HasFactory, HasRoles, SoftDeletes, Prunable, Notifiable;
 
     protected $table = 'anggota';
 

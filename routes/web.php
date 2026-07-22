@@ -176,6 +176,12 @@ Route::prefix('anggota')->name('anggota.')->group(function () {
     // Protected Routes (harus login)
     Route::middleware('auth:anggota')->group(function () {
         Route::post('logout', [AnggotaAuthController::class, 'logout'])->name('logout');
+        
+        // Notifications
+        Route::post('notifications/read-all', function () {
+            auth('anggota')->user()->unreadNotifications->markAsRead();
+            return back();
+        })->name('notifications.readAll');
     });
 });
 
