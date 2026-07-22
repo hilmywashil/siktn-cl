@@ -26,11 +26,14 @@ class AgendaController extends Controller
             ->where('name', '!=', '')
             ->orderBy('name')
             ->get();
+            
+        $allAgendas = Agenda::orderBy('waktu_mulai', 'desc')->get();
 
         return view('admin.agenda.index', [
             'activeMenu' => 'agenda',
             'anggotas' => $anggotas,
-            'admins' => $admins
+            'admins' => $admins,
+            'allAgendas' => $allAgendas
         ]);
     }
 

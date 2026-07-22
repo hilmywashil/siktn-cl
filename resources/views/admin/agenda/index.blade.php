@@ -326,6 +326,127 @@
         .btn-icon {
             padding: 0.5rem;
         }
+
+        /* Tabel List Agenda Custom Styles */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        .table-header h4 {
+            margin: 0;
+            color: #0a2540;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        .table thead {
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .table th {
+            padding: 1rem;
+            text-align: left;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            white-space: nowrap;
+            border-bottom: none !important;
+        }
+
+        .table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.875rem;
+            color: #1f2937;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background: #f9fafb;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: nowrap;
+        }
+
+        .btn-icon-table {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            flex-shrink: 0;
+            color: #374151;
+        }
+
+        .btn-icon-table:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        .btn-icon-table svg {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .btn-icon-table.delete:hover {
+            color: #ef4444;
+            border-color: #fca5a5;
+            background: #fef2f2;
+        }
+        
+        .btn-icon-table.edit:hover {
+            color: #3b82f6;
+            border-color: #93c5fd;
+            background: #eff6ff;
+        }
+        
+        /* DataTables Custom Overrides */
+        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter {
+            padding: 1rem 1.5rem;
+        }
+        .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate {
+            padding: 1rem 1.5rem;
+        }
+        .dataTables_wrapper .dataTables_filter input {
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 0.3rem 0.5rem;
+            margin-left: 0.5rem;
+            outline: none;
+        }
+        .dataTables_wrapper .dataTables_filter input:focus {
+            border-color: #022648;
+        }
     </style>
 @endpush
 
@@ -397,6 +518,85 @@
             <div class="legend-item"><span class="legend-box" style="background: #3b82f6;"></span> Kategori Lainnya</div>
             <div class="legend-item"><span class="legend-box" style="background: #9ca3af;"></span> Arsip/Selesai</div>
         </div>
+    </div>
+</div>
+
+<!-- Table List Agenda -->
+<div class="table-container">
+    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h4>Daftar Semua Agenda</h4>
+        <button class="btn" style="background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;" onclick="exportTableToExcel('Daftar_Agenda_SIKTN.xls')">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="12" y1="18" x2="12" y2="12"></line>
+                <polyline points="9 15 12 18 15 15"></polyline>
+            </svg> Export Data (Excel)
+        </button>
+    </div>
+    <div class="table-wrapper">
+        <table id="agendaTable" class="table">
+            <thead>
+                <tr>
+                    <th width="5%">No</th>
+                    <th>Judul Kegiatan</th>
+                    <th>Jenis / Kategori</th>
+                    <th>Waktu Mulai</th>
+                    <th>Waktu Selesai</th>
+                    <th>PIC</th>
+                    <th width="15%">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($allAgendas as $index => $item)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td style="font-weight: 600; color: #111827;">{{ $item->judul }}</td>
+                        <td>
+                            @if($item->jenis_kegiatan == 'Meeting Internal')
+                                <span class="badge" style="background-color: #10b981; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">{{ $item->jenis_kegiatan }}</span>
+                            @elseif($item->jenis_kegiatan == 'Temu Karya')
+                                <span class="badge" style="background-color: #f59e0b; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">{{ $item->jenis_kegiatan }}</span>
+                            @elseif($item->jenis_kegiatan == 'Acara Publik')
+                                <span class="badge" style="background-color: #ef4444; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">{{ $item->jenis_kegiatan }}</span>
+                            @elseif($item->jenis_kegiatan == 'Webinar')
+                                <span class="badge" style="background-color: #8b5cf6; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">{{ $item->jenis_kegiatan }}</span>
+                            @else
+                                <span class="badge" style="background-color: #3b82f6; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">{{ $item->jenis_kegiatan }}</span>
+                            @endif
+                        </td>
+                        <td>{{ \Carbon\Carbon::parse($item->waktu_mulai)->translatedFormat('d M Y, H:i') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($item->waktu_selesai)->translatedFormat('d M Y, H:i') }}</td>
+                        <td>{{ $item->pic_name ?? '-' }}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-icon-table edit"
+                                    data-id="{{ $item->id }}"
+                                    data-judul="{{ $item->judul }}"
+                                    data-jenis="{{ $item->jenis_kegiatan }}"
+                                    data-mulai="{{ \Carbon\Carbon::parse($item->waktu_mulai)->format('Y-m-d H:i') }}"
+                                    data-selesai="{{ \Carbon\Carbon::parse($item->waktu_selesai)->format('Y-m-d H:i') }}"
+                                    data-pic="{{ $item->pic_name }}"
+                                    data-lokasi="{{ $item->lokasi }}"
+                                    data-deskripsi="{{ $item->deskripsi }}"
+                                    onclick="editAgendaFromList(this)" title="Edit">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                                <button class="btn-icon-table delete" onclick="deleteAgendaList({{ $item->id }})" title="Hapus">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -645,6 +845,15 @@
                 this.classList.add('active');
             });
         }
+        
+        // Initialize DataTable
+        if ($.fn.DataTable) {
+            $('#agendaTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json"
+                }
+            });
+        }
     });
 
     function toggleExportDropdown() {
@@ -775,6 +984,106 @@
         
         let url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${desc}&location=${loc}`;
         window.open(url, '_blank');
+    }
+
+    function editAgendaFromList(button) {
+        openModal(true);
+        
+        let id = button.getAttribute('data-id');
+        let judul = button.getAttribute('data-judul');
+        let jenis = button.getAttribute('data-jenis');
+        let mulai = button.getAttribute('data-mulai');
+        let selesai = button.getAttribute('data-selesai');
+        let pic = button.getAttribute('data-pic');
+        let lokasi = button.getAttribute('data-lokasi');
+        let deskripsi = button.getAttribute('data-deskripsi');
+        
+        document.getElementById('agenda_id').value = id;
+        document.getElementById('judul').value = judul;
+        $('#jenis_kegiatan').val(jenis).trigger('change');
+        
+        fpStart.setDate(mulai);
+        fpEnd.setDate(selesai);
+        
+        document.getElementById('lokasi').value = lokasi;
+        
+        if(pic) {
+            if ($('#pic_name').find("option[value='" + pic + "']").length) {
+                $('#pic_name').val(pic).trigger('change');
+            } else { 
+                var newOption = new Option(pic, pic, true, true);
+                $('#pic_name').append(newOption).trigger('change');
+            }
+        } else {
+            $('#pic_name').val(null).trigger('change');
+        }
+        
+        document.getElementById('deskripsi').value = deskripsi;
+    }
+
+    function deleteAgendaList(id) {
+        deleteAgenda(id); // Use the existing deleteAgenda logic which reloads the calendar
+        // Since we are also using a table, we should reload the page to refresh the table
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
+    }
+
+    function exportTableToExcel(filename) {
+        // Tampilkan Toast
+        Toast.fire({
+            icon: 'success',
+            title: 'File Excel sedang diunduh...'
+        });
+
+        var table = document.getElementById("agendaTable");
+        var clone = table.cloneNode(true);
+        
+        var rows = clone.rows;
+        for (var i = 0; i < rows.length; i++) {
+            rows[i].deleteCell(-1); // Hapus kolom Aksi
+            
+            for (var j = 0; j < rows[i].cells.length; j++) {
+                rows[i].cells[j].style.border = "1px solid #000000";
+                rows[i].cells[j].style.padding = "10px";
+                rows[i].cells[j].style.textAlign = "left";
+                rows[i].cells[j].style.verticalAlign = "middle";
+                
+                if (i === 0) {
+                    rows[i].cells[j].style.backgroundColor = "#022648";
+                    rows[i].cells[j].style.color = "#ffffff";
+                    rows[i].cells[j].style.fontWeight = "bold";
+                    rows[i].cells[j].style.fontSize = "12pt";
+                } else {
+                    // Ekstrak teks murni biar span badge nggak bikin teks jadi putih/hilang di Excel
+                    rows[i].cells[j].innerHTML = rows[i].cells[j].innerText.trim();
+                }
+            }
+        }
+
+        // Tambahkan Judul Besar di atas tabel
+        var titleHtml = '<tr><th colspan="6" style="text-align: center; font-size: 18pt; font-weight: bold; border: none; background: white; color: #022648; padding: 15px;">DAFTAR SELURUH AGENDA SIKTN</th></tr>';
+        titleHtml += '<tr><th colspan="6" style="border: none;"></th></tr>';
+
+        var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><' + 'x:ExcelWorkbook><' + 'x:ExcelWorksheets><' + 'x:ExcelWorksheet><' + 'x:Name>Data Agenda SIKTN</' + 'x:Name><' + 'x:WorksheetOptions><' + 'x:DisplayGridlines/></' + 'x:WorksheetOptions></' + 'x:ExcelWorksheet></' + 'x:ExcelWorksheets></' + 'x:ExcelWorkbook></xml><![endif]--></head><body>';
+        html += '<table style="border-collapse: collapse; font-family: Arial, sans-serif;">';
+        html += titleHtml;
+        html += clone.innerHTML;
+        html += '</table></body></html>';
+        
+        var blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+        var url = window.URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        
+        // Delay dikit biar toast sempet render
+        setTimeout(function() {
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 500);
     }
 </script>
 @endpush
