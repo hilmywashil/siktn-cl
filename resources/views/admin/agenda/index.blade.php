@@ -6,6 +6,84 @@
 @push('styles')
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css' rel='stylesheet' />
     <style>
+        .admin-ui-scope {
+            --navy: #022648;
+            --navy-dark: #01162f;
+            --navy-light: #0a3a6b;
+            --gold: #b7830f;
+            --green: #059669;
+            --blue: #2563eb;
+            --red: #dc2626;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-500: #6b7280;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --radius-sm: 4px;
+            --radius-md: 6px;
+            --radius-lg: 8px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        /* Summary Stat Cards */
+        .stat-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 1px 3px rgba(2, 38, 72, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            background: var(--navy);
+        }
+        .stat-card.active::before { background: var(--blue); }
+        .stat-card.done::before { background: var(--green); }
+
+        .stat-icon {
+            width: 44px; height: 44px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            background: var(--gray-100);
+            color: var(--navy);
+        }
+
+        .stat-info h4 {
+            margin: 0;
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-info .value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--navy);
+            margin-top: 0.2rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+
         .fc-toolbar-title {
             font-family: 'Montserrat', sans-serif;
             font-weight: 800;
@@ -451,6 +529,44 @@
 @endpush
 
 @section('content')
+@php
+    $agendas = $allAgendas ?? collect();
+@endphp
+<div class="admin-ui-scope" style="padding-top: 0.5rem;">
+
+    <!-- Stat Cards Top Benchmark -->
+    <div class="stat-cards-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            </div>
+            <div class="stat-info">
+                <h4>Total Agenda Terdaftar</h4>
+                <div class="value">{{ number_format($agendas->count()) }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card active">
+            <div class="stat-icon" style="background: #eff6ff; color: #2563eb;">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 16 16 14"></polyline></svg>
+            </div>
+            <div class="stat-info">
+                <h4>Agenda Mendatang</h4>
+                <div class="value">{{ number_format($agendas->filter(fn($a) => \Carbon\Carbon::parse($a->waktu_mulai)->isFuture())->count()) }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card done">
+            <div class="stat-icon" style="background: #ecfdf5; color: #059669;">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <div class="stat-info">
+                <h4>Agenda Selesai</h4>
+                <div class="value">{{ number_format($agendas->filter(fn($a) => \Carbon\Carbon::parse($a->waktu_mulai)->isPast())->count()) }}</div>
+            </div>
+        </div>
+    </div>
+
 <div class="calendar-container">
     <!-- Custom Toolbar -->
     <div class="custom-toolbar">
@@ -675,6 +791,7 @@
             </div>
         </form>
     </div>
+</div>
 </div>
 @endsection
 

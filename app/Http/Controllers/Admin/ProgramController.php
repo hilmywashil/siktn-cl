@@ -42,12 +42,41 @@ class ProgramController extends Controller
     /**
      * Tampilkan daftar seluruh program
      */
-    public function index()
+    public function index(Request $request)
     {
         $this->checkAuthorization(true); // true means viewOnly is allowed
-        $programs = Program::with('jabatan')->orderBy('created_at', 'desc')->get();
+        
+        $query = Program::with('jabatan');
+
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where(function($q) use ($search) {
+                $q->where('nama_program', 'like', "%{$search}%")
+                  ->orWhere('mitra', 'like', "%{$search}%")
+                  ->orWhere('pic', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('kategori')) {
+            $query->where('kategori', $request->get('kategori'));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->get('status'));
+        }
+
+        $programs = $query->orderBy('created_at', 'desc')->get();
+        
+        // Unfiltered stats for top cards
+        $stats = [
+            'total' => Program::count(),
+            'perencanaan' => Program::where('status', 'Perencanaan')->count(),
+            'berjalan' => Program::where('status', 'Berjalan')->count(),
+            'selesai' => Program::where('status', 'Selesai')->count(),
+        ];
+
         $activeMenu = 'program';
-        return view('admin.program.index', compact('programs', 'activeMenu'));
+        return view('admin.program.index', compact('programs', 'stats', 'activeMenu'));
     }
 
     /**
