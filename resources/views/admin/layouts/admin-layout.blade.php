@@ -660,6 +660,9 @@
                             return true;
                         })
                         ->take(10);
+
+                    // Recent Activity Logs (12b)
+                    $recentActivityLogs = \App\Models\AdminActivityLog::orderBy('created_at', 'desc')->take(20)->get();
                 @endphp
                 <div class="notification-wrapper">
                     <button class="notification-btn" id="notificationBtn">
@@ -928,7 +931,7 @@
             });
         });
         
-        // Notification Dropdown Logic
+        // Notification Dropdown & Tab Switch Logic
         const notifBtn = document.getElementById('notificationBtn');
         const notifDropdown = document.getElementById('notificationDropdown');
         if(notifBtn && notifDropdown) {
@@ -953,6 +956,32 @@
                     }, 5000);
                 }, 600);
             @endif
+        }
+
+        function switchNotifTab(tab) {
+            const panelNotif = document.getElementById('panelNotif');
+            const panelLog   = document.getElementById('panelLog');
+            const tabNotif   = document.getElementById('tabNotif');
+            const tabLog     = document.getElementById('tabLog');
+            const notifActions = document.getElementById('notifActions');
+
+            if (tab === 'notif') {
+                panelNotif.style.display = 'block';
+                panelLog.style.display   = 'none';
+                tabNotif.style.borderBottomColor = '#022648';
+                tabNotif.style.color             = '#022648';
+                tabLog.style.borderBottomColor   = 'transparent';
+                tabLog.style.color               = '#6b7280';
+                if(notifActions) notifActions.style.display = 'flex';
+            } else {
+                panelNotif.style.display = 'none';
+                panelLog.style.display   = 'block';
+                tabLog.style.borderBottomColor   = '#022648';
+                tabLog.style.color               = '#022648';
+                tabNotif.style.borderBottomColor = 'transparent';
+                tabNotif.style.color             = '#6b7280';
+                if(notifActions) notifActions.style.display = 'none';
+            }
         }
     </script>
     

@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PageSetting;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Support\Facades\Auth;
 
 class PageSettingController extends Controller
 {
+    use LogsAdminActivity;
     private function checkAuthorization()
     {
         $user = Auth::guard('admin')->user();
@@ -90,6 +92,8 @@ class PageSettingController extends Controller
                 );
             }
         }
+
+        $this->logActivity('program', 'Edit Pengaturan Halaman', null, 'Pengaturan Halaman Program');
 
         return redirect()->back()->with('success', 'Pengaturan halaman berhasil diperbarui.');
     }

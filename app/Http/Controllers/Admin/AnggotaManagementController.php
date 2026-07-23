@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Anggota;
 use App\Models\Organisasi;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -12,6 +13,7 @@ use App\Notifications\AnggotaStatusNotification;
 
 class AnggotaManagementController extends Controller
 {
+    use LogsAdminActivity;
     /**
      * Terapkan filter domisili jika user adalah PPKT atau PKKT
      */
@@ -30,6 +32,12 @@ class AnggotaManagementController extends Controller
     private function checkAnggotaAccess(Anggota $anggota)
     {
         $admin = auth()->guard('admin')->user();
+        
+        // Proteksi Data Pimpinan: Anggota dengan Jabatan Pimpinan hanya dapat dikelola/dihapus oleh Super Admin
+        if (strcasecmp($anggota->jabatan ?? '', 'Pimpinan') === 0 && (!$admin || !$admin->isSuperAdmin())) {
+            abort(403, 'Akses Ditolak: Data Anggota dengan Jabatan Pimpinan hanya dapat dikelola atau dihapus oleh Super Admin.');
+        }
+
         if (in_array($admin->category, ['ppkt', 'pkkt']) && !empty($admin->domisili)) {
             if ($anggota->domisili !== $admin->domisili) {
                 abort(403, 'Akses Ditolak: Anda hanya dapat mengelola data anggota dari wilayah Anda sendiri (' . $admin->domisili . ').');
@@ -149,6 +157,9 @@ class AnggotaManagementController extends Controller
             'initial_password' => $request->password,
             'status' => 'pending_profile',
         ]);
+
+        $newAnggota = Anggota::latest()->first();
+        $this->logActivity('anggota', 'Tambah', $newAnggota?->id, $request->nama_lengkap ?? $request->username, 'Username: ' . $request->username);
 
         return redirect()->back()->with('created_credentials', [
             'username' => $request->username,
@@ -322,6 +333,8 @@ class AnggotaManagementController extends Controller
 
         $anggota->update($validated);
 
+        $this->logActivity('anggota', 'Edit', $anggota->id, $anggota->nama_lengkap ?? $anggota->username, 'Update profil anggota');
+
         return redirect()
             ->route('admin.anggota.show', $anggota)
             ->with('success', 'Data anggota berhasil diperbarui!');
@@ -346,12 +359,14 @@ class AnggotaManagementController extends Controller
         // Update password
         $anggota->update([
             'password' => Hash::make($request->new_password),
-            'initial_password' => null, // Hapus initial password
+            'initial_password' => $request->new_password,
         ]);
+
+        $this->logActivity('anggota', 'Reset Password', $anggota->id, $anggota->nama_lengkap ?? $anggota->username);
 
         return redirect()
             ->route('admin.anggota.show', $anggota)
-            ->with('success', 'Password anggota berhasil diubah!');
+            ->with('success', 'Password anggota berhasil diubah.');
     }
 
     /**
@@ -471,6 +486,8 @@ class AnggotaManagementController extends Controller
 
         $anggota->notify(new AnggotaStatusNotification('approved'));
 
+        $this->logActivity('anggota', 'Approve', $anggota->id, $anggota->nama_lengkap ?? $anggota->username, 'Disetujui & dimasukkan ke struktur');
+
         return redirect()
             ->route('admin.anggota.show', $anggota)
             ->with('success', 'Anggota berhasil disetujui dan ditambahkan ke struktur organisasi!');
@@ -499,6 +516,8 @@ class AnggotaManagementController extends Controller
 
         $anggota->notify(new AnggotaStatusNotification('rejected', $request->rejection_reason));
 
+        $this->logActivity('anggota', 'Tolak', $anggota->id, $anggota->nama_lengkap ?? $anggota->username, $request->rejection_reason);
+
         return redirect()
             ->route('admin.anggota.show', $anggota)
             ->with('success', 'Pendaftaran anggota ditolak.');
@@ -512,7 +531,11 @@ class AnggotaManagementController extends Controller
         $this->checkRoleAuthorization();
         $this->checkAnggotaAccess($anggota);
         
+        $label = $anggota->nama_lengkap ?? $anggota->username;
+        $id = $anggota->id;
         $anggota->delete();
+
+        $this->logActivity('anggota', 'Hapus', $id, $label);
 
         return redirect()
             ->route('admin.anggota.list')
@@ -542,13 +565,23 @@ class AnggotaManagementController extends Controller
 
         $query = Anggota::whereIn('id', $request->ids);
         
-        // Cegah penghapusan data beda wilayah melalui request bulk
         $admin = auth()->guard('admin')->user();
+
+        // Prevent deleting Pimpinan records unless SuperAdmin
+        if (!$admin || !$admin->isSuperAdmin()) {
+            $query->where(function($q) {
+                $q->whereNull('jabatan')->orWhere('jabatan', '!=', 'Pimpinan');
+            });
+        }
+
+        // Cegah penghapusan data beda wilayah melalui request bulk
         if (in_array($admin->category, ['ppkt', 'pkkt']) && !empty($admin->domisili)) {
             $query->where('domisili', $admin->domisili);
         }
         
         $deletedCount = $query->delete();
+
+        $this->logActivity('anggota', 'Hapus Massal', null, "{$deletedCount} data anggota");
 
         return response()->json([
             'status' => 'deleted',
@@ -565,6 +598,8 @@ class AnggotaManagementController extends Controller
 
         $anggota = Anggota::onlyTrashed()->findOrFail($id);
         $anggota->restore();
+
+        $this->logActivity('anggota', 'Restore', $anggota->id, $anggota->nama_lengkap ?? $anggota->username);
 
         return redirect()->back()->with('success', 'Akun anggota berhasil dikembalikan.');
     }

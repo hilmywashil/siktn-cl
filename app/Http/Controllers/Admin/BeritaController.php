@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Berita;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class BeritaController extends Controller
 {
+    use LogsAdminActivity;
     private function checkAccess($admin)
     {
         if (!$admin || !$admin->canManageContent()) {
@@ -92,6 +94,9 @@ class BeritaController extends Controller
             'is_populer' => $request->has('is_populer'),
         ]);
 
+        $berita = Berita::latest()->first();
+        $this->logActivity('berita', 'Tambah', $berita?->id, $validated['judul'], 'Status: ' . $validated['status']);
+
         return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil ditambahkan!');
     }
 
@@ -153,6 +158,8 @@ class BeritaController extends Controller
             'is_populer' => $request->has('is_populer'),
         ]);
 
+        $this->logActivity('berita', 'Edit', $berita->id, $berita->judul, 'Status: ' . $validated['status']);
+
         return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil diupdate!');
     }
 
@@ -167,7 +174,11 @@ class BeritaController extends Controller
             Storage::disk('public')->delete($berita->gambar);
         }
 
+        $label = $berita->judul;
+        $id = $berita->id;
         $berita->delete();
+
+        $this->logActivity('berita', 'Hapus', $id, $label);
 
         return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil dihapus!');
     }

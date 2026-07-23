@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Notulensi;
 use App\Models\Agenda;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Support\Facades\Auth;
 
 class NotulensiController extends Controller
 {
+    use LogsAdminActivity;
     public function index(Request $request)
     {
         $admin = Auth::guard('admin')->user();
@@ -59,6 +61,9 @@ class NotulensiController extends Controller
             'created_by' => $admin->id,
         ]);
 
+        $not = Notulensi::latest()->first();
+        $this->logActivity('notulensi', 'Tambah', $not?->id, $validated['judul_rapat']);
+
         return redirect()->route('admin.sekretariat.notulensi.index')->with('success', 'Notulensi Rapat berhasil ditambahkan.');
     }
 
@@ -77,13 +82,18 @@ class NotulensiController extends Controller
 
         $notulensi->update($validated);
 
+        $this->logActivity('notulensi', 'Edit', $notulensi->id, $notulensi->judul_rapat);
+
         return redirect()->route('admin.sekretariat.notulensi.index')->with('success', 'Notulensi Rapat berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
-        $notulensi = Notulensi::findOrFail($id);
+        $label = $notulensi->judul_rapat;
+        $id = $notulensi->id;
         $notulensi->delete();
+
+        $this->logActivity('notulensi', 'Hapus', $id, $label);
 
         return redirect()->route('admin.sekretariat.notulensi.index')->with('success', 'Notulensi Rapat berhasil dihapus.');
     }

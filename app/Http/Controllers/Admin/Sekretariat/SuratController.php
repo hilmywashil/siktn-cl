@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Surat;
 use App\Models\SuratAuditLog;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\AdminNotification;
 use App\Models\Admin;
@@ -15,6 +16,7 @@ use Carbon\Carbon;
 
 class SuratController extends Controller
 {
+    use LogsAdminActivity;
     /**
      * Tampilkan Daftar Surat (Masuk & Keluar) dengan 2 Tab Utama (Masuk / Keluar) & 3 Klasifikasi (Internal / Eksternal / Penting)
      */
@@ -139,6 +141,8 @@ class SuratController extends Controller
             'notes' => "Surat {$surat->tipe} diunggah oleh Sekretariat (" . ($fileLampiranPath ? "File PDF/Word terlampir" : "Drive Link") . ")",
         ]);
 
+        $this->logActivity('surat', 'Tambah', $surat->id, $surat->nomor_surat . ' - ' . $surat->perihal, 'Status: ' . $status);
+
         // Notifikasi ke Pimpinan jika status Pending TTD (12a)
         if ($status === 'Pending TTD') {
             $pimpinans = Admin::whereIn('category', ['pimpinan', 'super_admin'])->get();
@@ -185,6 +189,8 @@ class SuratController extends Controller
             'new_status' => $newStatus,
             'notes' => $request->notes ?? "Status diubah dari {$oldStatus} ke {$newStatus}",
         ]);
+
+        $this->logActivity('surat', 'Ubah Status', $surat->id, $surat->nomor_surat . ' - ' . $surat->perihal, "Status: {$oldStatus} -> {$newStatus}");
 
         // Notifikasi ke Sekretariat / Creator ketika Surat Terbit (TTD) atau Revisi
         if (in_array($newStatus, ['Terbit', 'Revisi'])) {
@@ -234,6 +240,8 @@ class SuratController extends Controller
             'old_status' => $surat->status,
             'notes' => "Surat '{$surat->nomor_surat}' dihapus",
         ]);
+
+        $this->logActivity('surat', 'Hapus', $surat->id, $surat->nomor_surat . ' - ' . $surat->perihal);
 
         if ($surat->file_lampiran && Storage::disk('public')->exists($surat->file_lampiran)) {
             Storage::disk('public')->delete($surat->file_lampiran);

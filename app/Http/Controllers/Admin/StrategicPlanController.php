@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\StrategicPlan;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class StrategicPlanController extends Controller
 {
+    use LogsAdminActivity;
     public function index()
     {
         $admin = auth()->guard('admin')->user();
@@ -61,6 +63,9 @@ class StrategicPlanController extends Controller
 
         StrategicPlan::create($validated);
 
+        $plan = StrategicPlan::latest()->first();
+        $this->logActivity('strategic', 'Tambah', $plan?->id, $validated['title'], $validated['category']);
+
         return redirect()->route('admin.strategic-plan.index')
             ->with('success', 'Strategic Plan berhasil ditambahkan!');
     }
@@ -111,6 +116,8 @@ class StrategicPlanController extends Controller
 
         $strategicPlan->update($validated);
 
+        $this->logActivity('strategic', 'Edit', $strategicPlan->id, $strategicPlan->title, $strategicPlan->category);
+
         return redirect()->route('admin.strategic-plan.index')
             ->with('success', 'Strategic Plan berhasil diperbarui!');
     }
@@ -132,7 +139,11 @@ class StrategicPlanController extends Controller
             }
         }
 
+        $label = $strategicPlan->title;
+        $id = $strategicPlan->id;
         $strategicPlan->delete();
+
+        $this->logActivity('strategic', 'Hapus', $id, $label);
 
         return redirect()->route('admin.strategic-plan.index')
             ->with('success', 'Strategic Plan berhasil dihapus!');

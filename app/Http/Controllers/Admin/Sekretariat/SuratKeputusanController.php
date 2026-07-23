@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Sekretariat;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SuratKeputusan;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\AdminNotification;
 use App\Models\Admin;
@@ -13,6 +14,7 @@ use Carbon\Carbon;
 
 class SuratKeputusanController extends Controller
 {
+    use LogsAdminActivity;
     public function index(Request $request)
     {
         $admin = Auth::guard('admin')->user();
@@ -86,6 +88,8 @@ class SuratKeputusanController extends Controller
             }
         }
 
+        $this->logActivity('sk', 'Tambah', $sk->id, $sk->nomor_sk . ' - ' . $sk->judul_sk, 'Status: ' . $sk->status);
+
         return redirect()->route('admin.sekretariat.sk.index')->with('success', 'Surat Keputusan berhasil ditambahkan.');
     }
 
@@ -105,13 +109,18 @@ class SuratKeputusanController extends Controller
 
         $sk->update($validated);
 
+        $this->logActivity('sk', 'Edit', $sk->id, $sk->nomor_sk . ' - ' . $sk->judul_sk, 'Status: ' . $sk->status);
+
         return redirect()->route('admin.sekretariat.sk.index')->with('success', 'Surat Keputusan berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
-        $sk = SuratKeputusan::findOrFail($id);
+        $label = $sk->nomor_sk . ' - ' . $sk->judul_sk;
+        $skId = $sk->id;
         $sk->delete();
+
+        $this->logActivity('sk', 'Hapus', $skId, $label);
 
         return redirect()->route('admin.sekretariat.sk.index')->with('success', 'Surat Keputusan berhasil dihapus.');
     }

@@ -603,7 +603,11 @@
                         @foreach($anggota as $index => $item)
                             <tr>
                                 <td style="text-align: center;">
-                                    <input type="checkbox" class="row-checkbox" value="{{ $item->id }}" style="cursor: pointer;">
+                                    @if($admin->isSuperAdmin() || strcasecmp($item->jabatan ?? '', 'Pimpinan') !== 0)
+                                        <input type="checkbox" class="row-checkbox" value="{{ $item->id }}" style="cursor: pointer;">
+                                    @else
+                                        <span title="Data Pimpinan hanya dapat dikelola oleh Super Admin" style="color: var(--gray-300); cursor: not-allowed;">🔒</span>
+                                    @endif
                                 </td>
                                 <td>{{ $anggota->firstItem() + $index }}</td>
                                 <td>
@@ -659,15 +663,17 @@
                                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                                 Lihat & Verifikasi
                                             </a>
-                                            <div class="aksi-divider"></div>
-                                            <button type="button" class="aksi-item aksi-delete" onclick="confirmDelete({{ $item->id }}, '{{ addslashes($item->nama_lengkap ?? $item->username) }}')">
-                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                                Hapus Data
-                                            </button>
-                                            <form id="delete-form-{{ $item->id }}" action="{{ route('admin.anggota.destroy', $item) }}" method="POST" style="display:none;">
-                                                @csrf
-                                                @method('DELETE')
-                                            </form>
+                                            @if($admin->isSuperAdmin() || strcasecmp($item->jabatan ?? '', 'Pimpinan') !== 0)
+                                                <div class="aksi-divider"></div>
+                                                <button type="button" class="aksi-item aksi-delete" onclick="confirmDelete({{ $item->id }}, '{{ addslashes($item->nama_lengkap ?? $item->username) }}')">
+                                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                                    Hapus Data
+                                                </button>
+                                                <form id="delete-form-{{ $item->id }}" action="{{ route('admin.anggota.destroy', $item) }}" method="POST" style="display:none;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                </form>
+                                            @endif
                                         </div>
                                     </div>
                                 </td>

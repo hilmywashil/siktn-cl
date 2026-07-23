@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\TemuKarya;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class TemuKaryaController extends Controller
 {
+    use LogsAdminActivity;
     private function checkAuthorization()
     {
         $admin = Auth::guard('admin')->user();
@@ -103,7 +105,9 @@ class TemuKaryaController extends Controller
 
         $validated['created_by'] = Auth::guard('admin')->id();
 
-        TemuKarya::create($validated);
+        $tk = TemuKarya::create($validated);
+
+        $this->logActivity('temu-karya', 'Tambah', $tk->id, $tk->wilayah, 'Jenis: ' . $tk->jenis);
 
         return redirect()->back()->with('success', 'Data Temu Karya / Caretaker berhasil ditambahkan.');
     }
@@ -141,6 +145,8 @@ class TemuKaryaController extends Controller
 
         $temuKarya->update($validated);
 
+        $this->logActivity('temu-karya', 'Edit', $temuKarya->id, $temuKarya->wilayah, 'Status: ' . $temuKarya->status);
+
         return redirect()->back()->with('success', 'Data Temu Karya / Caretaker berhasil diperbarui.');
     }
 
@@ -155,7 +161,11 @@ class TemuKaryaController extends Controller
             Storage::disk('public')->delete($temuKarya->file_sk);
         }
 
+        $label = $temuKarya->wilayah;
+        $tkId = $temuKarya->id;
         $temuKarya->delete();
+
+        $this->logActivity('temu-karya', 'Hapus', $tkId, $label);
 
         return redirect()->back()->with('success', 'Data Temu Karya / Caretaker berhasil dihapus.');
     }

@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Misi;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class MisiController extends Controller
 {
+    use LogsAdminActivity;
     /**
      * Display a listing of the resource.
      */
@@ -62,8 +64,9 @@ class MisiController extends Controller
             $validated['image'] = $path;
         }
 
-        // Simpan data
-        Misi::create($validated);
+        $misi = Misi::create($validated);
+
+        $this->logActivity('misi', 'Tambah', $misi->id, $misi->title);
 
         return redirect()->route('admin.misi.index')
             ->with('success', 'Misi berhasil ditambahkan!');
@@ -127,8 +130,9 @@ class MisiController extends Controller
             $validated['image'] = $path;
         }
 
-        // Update data
         $misi->update($validated);
+
+        $this->logActivity('misi', 'Edit', $misi->id, $misi->title);
 
         return redirect()->route('admin.misi.index')
             ->with('success', 'Misi berhasil diperbarui!');
@@ -144,8 +148,11 @@ class MisiController extends Controller
             Storage::disk('public')->delete($misi->image);
         }
 
-        // Hapus data
+        $label = $misi->title;
+        $misiId = $misi->id;
         $misi->delete();
+
+        $this->logActivity('misi', 'Hapus', $misiId, $label);
 
         return redirect()->route('admin.misi.index')
             ->with('success', 'Misi berhasil dihapus!');
@@ -161,6 +168,8 @@ class MisiController extends Controller
         ]);
 
         $status = $misi->is_active ? 'diaktifkan' : 'dinonaktifkan';
+
+        $this->logActivity('misi', 'Ubah Status', $misi->id, $misi->title, ucfirst($status));
 
         return redirect()->route('admin.misi.index')
             ->with('success', "Misi berhasil {$status}!");

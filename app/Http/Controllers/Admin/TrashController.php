@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Anggota;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class TrashController extends Controller
 {
+    use LogsAdminActivity;
     /**
      * Tampilkan data sampah (hanya untuk Super Admin)
      */
@@ -39,11 +41,14 @@ class TrashController extends Controller
             'ids.*' => 'integer'
         ]);
 
+        $restoredCount = count($request->ids);
         Anggota::onlyTrashed()->whereIn('id', $request->ids)->restore();
+
+        $this->logActivity('anggota', 'Restore Massal', null, "{$restoredCount} data anggota");
 
         return response()->json([
             'status' => 'success',
-            'message' => count($request->ids) . ' data anggota berhasil dikembalikan.'
+            'message' => $restoredCount . ' data anggota berhasil dikembalikan.'
         ]);
     }
 
@@ -84,9 +89,13 @@ class TrashController extends Controller
             $anggota->forceDelete();
         }
 
+        $forcedCount = count($request->ids);
+
+        $this->logActivity('anggota', 'Hapus Permanen Massal', null, "{$forcedCount} data anggota");
+
         return response()->json([
             'status' => 'deleted',
-            'message' => count($request->ids) . ' data anggota berhasil dihapus permanen.'
+            'message' => $forcedCount . ' data anggota berhasil dihapus permanen.'
         ]);
     }
 }

@@ -7,6 +7,7 @@ use App\Models\Admin;
 use App\Models\Katalog;
 use App\Models\Organisasi;
 use App\Models\Anggota;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminDashboardController extends Controller
 {
+    use LogsAdminActivity;
     public function index(): View
     {
         $admin = Auth::guard('admin')->user();
@@ -317,6 +319,8 @@ class AdminDashboardController extends Controller
         
         $newAdmin->assignRole($validated['category']);
 
+        $this->logActivity('admin', 'Tambah Admin', $newAdmin->id, $newAdmin->name, 'Role: ' . $newAdmin->category);
+
         return redirect()->route('admin.info-admin')
             ->with('success', 'Admin berhasil ditambahkan!')
             ->with('created_credentials', [
@@ -374,6 +378,8 @@ class AdminDashboardController extends Controller
         
         $admin->syncRoles([$validated['category']]);
 
+        $this->logActivity('admin', 'Edit Admin', $admin->id, $admin->name, 'Role: ' . $admin->category);
+
         return redirect()->route('admin.info-admin')->with('success', 'Admin berhasil diupdate!');
     }
     
@@ -391,7 +397,12 @@ class AdminDashboardController extends Controller
             return redirect()->route('admin.info-admin')->with('error', 'Anda tidak bisa menghapus akun Anda sendiri!');
         }
         
+        $label = $admin->name;
+        $adminId = $admin->id;
         $admin->delete();
+
+        $this->logActivity('admin', 'Hapus Admin', $adminId, $label);
+
         return redirect()->route('admin.info-admin')->with('success', 'Admin berhasil dihapus!');
     }
 
@@ -409,6 +420,8 @@ class AdminDashboardController extends Controller
         $admin->update([
             'password' => Hash::make($request->password),
         ]);
+
+        $this->logActivity('admin', 'Reset Password Admin', $admin->id, $admin->name);
 
         return redirect()->back()->with('success', "Password untuk admin '{$admin->name}' berhasil di-reset!");
     }
@@ -429,6 +442,9 @@ class AdminDashboardController extends Controller
         ]);
 
         $statusText = $admin->is_active ? 'diaktifkan' : 'dinonaktifkan';
+
+        $this->logActivity('admin', 'Ubah Status Admin', $admin->id, $admin->name, ucfirst($statusText));
+
         return redirect()->back()->with('success', "Status akun admin '{$admin->name}' berhasil {$statusText}.");
     }
 }

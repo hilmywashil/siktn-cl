@@ -6,11 +6,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Organisasi;
 use App\Models\Jabatan;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class OrganisasiController extends Controller
 {
+    use LogsAdminActivity;
     public function index()
     {
         $organisasi = Organisasi::ordered()->get();
@@ -134,6 +136,9 @@ class OrganisasiController extends Controller
 
         Organisasi::create($validated);
 
+        $org = Organisasi::latest()->first();
+        $this->logActivity('organisasi', 'Tambah', $org?->id, $validated['nama'], $validated['jabatan']);
+
         return redirect()->route('admin.organisasi.index')
             ->with('success', 'Data organisasi berhasil ditambahkan');
     }
@@ -176,6 +181,8 @@ class OrganisasiController extends Controller
 
         $organisasi->update($validated);
 
+        $this->logActivity('organisasi', 'Edit', $organisasi->id, $organisasi->nama, $organisasi->jabatan);
+
         return redirect()->route('admin.organisasi.index')
             ->with('success', 'Data organisasi berhasil diperbarui');
     }
@@ -187,7 +194,11 @@ class OrganisasiController extends Controller
             Storage::disk('public')->delete($organisasi->foto);
         }
 
+        $label = $organisasi->nama;
+        $id = $organisasi->id;
         $organisasi->delete();
+
+        $this->logActivity('organisasi', 'Hapus', $id, $label);
 
         return redirect()->route('admin.organisasi.index')
             ->with('success', 'Data organisasi berhasil dihapus');

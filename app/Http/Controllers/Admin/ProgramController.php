@@ -7,12 +7,14 @@ use App\Models\Program;
 use App\Models\Jabatan;
 use App\Models\Anggota;
 use App\Models\Organisasi;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
 class ProgramController extends Controller
 {
+    use LogsAdminActivity;
     /**
      * Check if the authenticated admin has authorization.
      * Pimpinan hanya bisa melihat (viewOnly), sedangkan PNKT bisa mengelola (CRUD).
@@ -152,6 +154,9 @@ class ProgramController extends Controller
             'jabatan_id' => $request->kategori == 'Bidang' ? $request->jabatan_id : null,
         ]);
 
+        $newProgram = Program::latest()->first();
+        $this->logActivity('program', 'Tambah', $newProgram?->id, $request->nama_program, 'Kategori: ' . $request->kategori);
+
         return redirect()->route('admin.program.index')->with('success', 'Program berhasil ditambahkan.');
     }
 
@@ -255,6 +260,8 @@ class ProgramController extends Controller
             'jabatan_id' => $request->kategori == 'Bidang' ? $request->jabatan_id : null,
         ]);
 
+        $this->logActivity('program', 'Edit', $program->id, $program->nama_program, 'Status: ' . $request->status);
+
         return redirect()->route('admin.program.index')->with('success', 'Program berhasil diperbarui.');
     }
 
@@ -269,7 +276,12 @@ class ProgramController extends Controller
             \Illuminate\Support\Facades\Storage::delete('public/programs/' . $program->gambar);
         }
 
+        $label = $program->nama_program;
+        $id = $program->id;
         $program->delete();
+
+        $this->logActivity('program', 'Hapus', $id, $label);
+
         return redirect()->route('admin.program.index')->with('success', 'Program berhasil dihapus.');
     }
 
@@ -339,6 +351,8 @@ class ProgramController extends Controller
         $program->update([
             'status' => $request->status
         ]);
+
+        $this->logActivity('program', 'Ubah Status', $program->id, $program->nama_program, $request->status);
 
         return redirect()->back()->with('success', 'Status program berhasil diubah menjadi ' . $request->status . '.');
     }

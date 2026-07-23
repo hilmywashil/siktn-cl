@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Umkm;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 
 class UmkmManagementController extends Controller
 {
+    use LogsAdminActivity;
     /**
      * Display a listing of UMKM submissions
      */
@@ -67,6 +69,8 @@ class UmkmManagementController extends Controller
             'verified_by' => auth()->guard('admin')->id()
         ]);
 
+        $this->logActivity('katalog', 'Approve UMKM', $umkm->id, $umkm->nama_usaha);
+
         return redirect()->back()->with('success', 'UMKM berhasil disetujui!');
     }
 
@@ -88,6 +92,8 @@ class UmkmManagementController extends Controller
             'verified_by' => auth()->guard('admin')->id()
         ]);
 
+        $this->logActivity('katalog', 'Tolak UMKM', $umkm->id, $umkm->nama_usaha, $request->rejection_reason);
+
         return redirect()->back()->with('success', 'UMKM berhasil ditolak!');
     }
 
@@ -97,7 +103,11 @@ class UmkmManagementController extends Controller
     public function destroy($id)
     {
         $umkm = Umkm::findOrFail($id);
+        $label = $umkm->nama_usaha;
+        $umkmId = $umkm->id;
         $umkm->delete();
+
+        $this->logActivity('katalog', 'Hapus UMKM', $umkmId, $label);
 
         return redirect()->route('admin.umkm.index')->with('success', 'Data UMKM berhasil dihapus!');
     }

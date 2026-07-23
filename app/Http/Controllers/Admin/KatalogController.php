@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Katalog;
 use App\Models\KategoriEatalog;
 use App\Models\Anggota;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -14,6 +15,7 @@ use App\Notifications\KatalogStatusNotification;
 
 class KatalogController extends Controller
 {
+    use LogsAdminActivity;
     private function checkAuthorization($viewOnly = false)
     {
         $admin = auth()->guard('admin')->user();
@@ -206,6 +208,8 @@ class KatalogController extends Controller
             'company_name' => $katalog->company_name,
         ]);
 
+        $this->logActivity('katalog', 'Tambah', $katalog->id, $katalog->company_name);
+
         return redirect()
             ->route('admin.katalog.index')
             ->with('success', 'Katalog berhasil ditambahkan!');
@@ -328,6 +332,8 @@ class KatalogController extends Controller
             'admin_id' => Auth::guard('admin')->id(),
         ]);
 
+        $this->logActivity('katalog', 'Edit', $katalog->id, $katalog->company_name);
+
         return redirect()
             ->route('admin.katalog.index')
             ->with('success', 'Katalog berhasil diperbarui!');
@@ -356,7 +362,11 @@ class KatalogController extends Controller
             'admin_id' => Auth::guard('admin')->id(),
         ]);
 
+        $label = $katalog->company_name;
+        $id = $katalog->id;
         $katalog->delete();
+
+        $this->logActivity('katalog', 'Hapus', $id, $label);
 
         return redirect()
             ->route('admin.katalog.index')
@@ -396,6 +406,8 @@ class KatalogController extends Controller
             $katalog->anggota->notify(new KatalogStatusNotification($katalog, 'approved'));
         }
 
+        $this->logActivity('katalog', 'Approve', $katalog->id, $katalog->company_name);
+
         return back()->with('success', "Katalog {$katalog->company_name} berhasil disetujui!");
     }
 
@@ -430,6 +442,8 @@ class KatalogController extends Controller
         if ($katalog->anggota) {
             $katalog->anggota->notify(new KatalogStatusNotification($katalog, 'revision', $request->revision_notes));
         }
+
+        $this->logActivity('katalog', 'Revisi', $katalog->id, $katalog->company_name, $request->revision_notes);
 
         return back()->with('success', "Katalog {$katalog->company_name} dikirim untuk direvisi.");
     }
@@ -467,6 +481,8 @@ class KatalogController extends Controller
             $katalog->anggota->notify(new KatalogStatusNotification($katalog, 'rejected', $request->rejection_reason));
         }
 
+        $this->logActivity('katalog', 'Tolak', $katalog->id, $katalog->company_name, $request->rejection_reason);
+
         return back()->with('success', "Katalog {$katalog->company_name} ditolak.");
     }
 
@@ -485,6 +501,8 @@ class KatalogController extends Controller
             'new_status' => $newStatus,
             'admin_id' => Auth::guard('admin')->id(),
         ]);
+
+        $this->logActivity('katalog', 'Ubah Status', $katalog->id, $katalog->company_name, $newStatus ? 'Aktif' : 'Nonaktif');
 
         return back()->with('success', "Katalog berhasil {$statusText}.");
     }
@@ -520,6 +538,9 @@ class KatalogController extends Controller
             'is_active' => true,
         ]);
 
+        $kat = KategoriEatalog::latest()->first();
+        $this->logActivity('katalog', 'Tambah Kategori', $kat?->id, $request->nama);
+
         return back()->with('success', 'Kategori berhasil ditambahkan!');
     }
 
@@ -542,6 +563,8 @@ class KatalogController extends Controller
             'is_active' => $request->has('is_active'),
         ]);
 
+        $this->logActivity('katalog', 'Edit Kategori', $kategori->id, $request->nama);
+
         return back()->with('success', 'Kategori berhasil diperbarui!');
     }
 
@@ -554,7 +577,11 @@ class KatalogController extends Controller
             return back()->with('error', 'Kategori tidak bisa dihapus karena masih terhubung dengan katalog.');
         }
 
+        $label = $kategori->nama;
+        $id = $kategori->id;
         $kategori->delete();
+
+        $this->logActivity('katalog', 'Hapus Kategori', $id, $label);
 
         return back()->with('success', 'Kategori berhasil dihapus!');
     }

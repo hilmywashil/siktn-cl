@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Jabatan;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class JabatanController extends Controller
 {
+    use LogsAdminActivity;
     /**
      * Check if the authenticated admin has authorization.
      */
@@ -169,6 +171,9 @@ class JabatanController extends Controller
 
         Jabatan::create($request->only('nama_jabatan', 'urutan'));
 
+        $jab = Jabatan::latest()->first();
+        $this->logActivity('jabatan', 'Tambah', $jab?->id, $request->nama_jabatan);
+
         return redirect()->route('admin.jabatan.index')->with('success', 'Master Jabatan berhasil ditambahkan.');
     }
 
@@ -198,6 +203,8 @@ class JabatanController extends Controller
 
         $jabatan->update($request->only('nama_jabatan', 'urutan'));
 
+        $this->logActivity('jabatan', 'Edit', $jabatan->id, $jabatan->nama_jabatan);
+
         return redirect()->route('admin.jabatan.index')->with('success', 'Master Jabatan berhasil diperbarui.');
     }
 
@@ -205,7 +212,11 @@ class JabatanController extends Controller
     {
         $this->checkAuthorization();
         
+        $label = $jabatan->nama_jabatan;
+        $id = $jabatan->id;
         $jabatan->delete();
+
+        $this->logActivity('jabatan', 'Hapus', $id, $label);
 
         return redirect()->route('admin.jabatan.index')->with('success', 'Master Jabatan berhasil dihapus.');
     }

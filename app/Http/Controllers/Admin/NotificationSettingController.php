@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class NotificationSettingController extends Controller
 {
+    use LogsAdminActivity;
     public function edit()
     {
         $admin = Auth::guard('admin')->user();
@@ -37,6 +39,8 @@ class NotificationSettingController extends Controller
         $admin->update([
             'notification_settings' => $settings,
         ]);
+
+        $this->logActivity('admin', 'Edit Preferensi Notifikasi', $admin->id, $admin->name);
 
         return redirect()->back()->with('success', 'Preferensi Pengaturan Notifikasi berhasil diperbarui!');
     }

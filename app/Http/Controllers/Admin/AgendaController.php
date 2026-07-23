@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Agenda;
+use App\Traits\LogsAdminActivity;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,6 +14,7 @@ use App\Models\Admin;
 
 class AgendaController extends Controller
 {
+    use LogsAdminActivity;
     private function checkAuthorization()
     {
         $admin = auth()->guard('admin')->user();
@@ -109,6 +111,9 @@ class AgendaController extends Controller
 
         Agenda::create($validated);
 
+        $agenda = Agenda::latest()->first();
+        $this->logActivity('agenda', 'Tambah', $agenda?->id, $validated['judul'], $validated['jenis_kegiatan']);
+
         return response()->json(['success' => true, 'message' => 'Agenda berhasil ditambahkan.']);
     }
 
@@ -128,6 +133,8 @@ class AgendaController extends Controller
 
         $agenda->update($validated);
 
+        $this->logActivity('agenda', 'Edit', $agenda->id, $validated['judul'], $validated['jenis_kegiatan']);
+
         return response()->json(['success' => true, 'message' => 'Agenda berhasil diperbarui.']);
     }
 
@@ -135,7 +142,12 @@ class AgendaController extends Controller
     {
         $this->checkAuthorization();
 
+        $label = $agenda->judul;
+        $id = $agenda->id;
         $agenda->delete();
+
+        $this->logActivity('agenda', 'Hapus', $id, $label);
+
         return response()->json(['success' => true, 'message' => 'Agenda berhasil dihapus.']);
     }
 

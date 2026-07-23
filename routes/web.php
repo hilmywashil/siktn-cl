@@ -101,6 +101,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('settings/notifications', [NotificationSettingController::class, 'edit'])->name('settings.notifications');
         Route::post('settings/notifications', [NotificationSettingController::class, 'update'])->name('settings.notifications.update');
 
+        // Activity Logs / Audit Trail (12b)
+        Route::get('settings/activity-logs', [\App\Http\Controllers\Admin\AdminActivityLogController::class, 'index'])->name('settings.activity-logs');
+        Route::get('settings/activity-logs/export-pdf', [\App\Http\Controllers\Admin\AdminActivityLogController::class, 'exportPdf'])->name('settings.activity-logs.export-pdf');
+        Route::get('settings/activity-logs/export-txt', [\App\Http\Controllers\Admin\AdminActivityLogController::class, 'exportTxt'])->name('settings.activity-logs.export-txt');
+
         // Profile
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
