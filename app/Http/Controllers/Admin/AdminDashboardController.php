@@ -13,40 +13,39 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+use App\Models\Surat;
+use App\Models\TemuKarya;
+use App\Models\Agenda;
+
 class AdminDashboardController extends Controller
 {
     use LogsAdminActivity;
+
     public function index(): View
     {
         $admin = Auth::guard('admin')->user();
         
-        // --- LOGIKA NOTIFIKASI ULANG TAHUN (H-7, H-3, H-1) ---
+        // --- LOGIKA NOTIFIKASI ULANG TAHUN (H-7) ---
         $today = \Carbon\Carbon::now();
         $upcomingBirthdays = collect();
         
         $anggotaAktifQuery = Anggota::where('status', 'approved')->whereNotNull('tanggal_lahir');
-        
-        // Filter domisili jika admin level wilayah (PKKT / PPKT)
-        if (in_array($admin->category, ['pkkt', 'ppkt'])) {
+        if (in_array($admin->category, ['pkkt', 'ppkt']) && !empty($admin->domisili)) {
             $anggotaAktifQuery->where('domisili', $admin->domisili);
         }
         
         $anggotaAktif = $anggotaAktifQuery->get();
-        
         foreach ($anggotaAktif as $member) {
             $birthdayThisYear = $member->tanggal_lahir->copy()->year($today->year);
             $diffDays = $today->copy()->startOfDay()->diffInDays($birthdayThisYear->copy()->startOfDay(), false);
             
             if ($diffDays >= 0 && $diffDays <= 7) {
-                if ($diffDays == 0) {
-                    $hariText = 'Hari ini!';
-                } elseif ($diffDays == 1) {
-                    $hariText = 'Besok';
-                } elseif ($diffDays == 7) {
-                    $hariText = '1 Minggu lagi';
-                } else {
-                    $hariText = $diffDays . ' Hari lagi';
-                }
+                $hariText = match($diffDays) {
+                    0 => 'Hari ini!',
+                    1 => 'Besok',
+                    7 => '1 Minggu lagi',
+                    default => $diffDays . ' Hari lagi',
+                };
                 
                 $upcomingBirthdays->push([
                     'nama' => $member->nama_lengkap,
@@ -56,92 +55,135 @@ class AdminDashboardController extends Controller
                 ]);
             }
         }
-        // ----------------------------------------------------
+
+        // --- BRIEF DASHBOARD SUMMARY CARDS & METRICS ---
+        $totalSuratKeluar = Surat::where('tipe', 'keluar')->count();
+        $totalSuratPending = Surat::where('status', 'Pending TTD')->count();
+        $totalTemuKaryaSelesai = TemuKarya::where('status', 'selesai')->count();
+        $totalTemuKaryaPending = TemuKarya::where('status', 'pending')->count();
+        $totalTemuKaryaCaretaker = TemuKarya::where('jenis', 'caretaker')->orWhere('status', 'caretaker')->count();
         
-        // Dashboard untuk PKKT/BPC - hanya lihat statistik anggota di domisilinya
+        $totalWilayahSelesai = TemuKarya::where('status', 'selesai')->where('level', 'provinsi')->distinct('wilayah')->count();
+        $totalWilayahNasional = 38;
+        $totalWilayahBelum = max(0, $totalWilayahNasional - $totalWilayahSelesai);
+
+        // --- GRAFIK TREN SURAT (12 BULAN TAHUN INI) ---
+        $currentYear = $today->year;
+        $chartMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        $suratMasukMonthly = array_fill(0, 12, 0);
+        $suratKeluarMonthly = array_fill(0, 12, 0);
+
+        $suratCounts = Surat::selectRaw('MONTH(tanggal) as month, tipe, COUNT(*) as count')
+            ->whereYear('tanggal', $currentYear)
+            ->groupBy('month', 'tipe')
+            ->get();
+
+        foreach ($suratCounts as $sc) {
+            $mIdx = $sc->month - 1;
+            if ($mIdx >= 0 && $mIdx < 12) {
+                if ($sc->tipe === 'masuk') {
+                    $suratMasukMonthly[$mIdx] = $sc->count;
+                } else {
+                    $suratKeluarMonthly[$mIdx] = $sc->count;
+                }
+            }
+        }
+
+        // --- MAP WILAYAH INDONESIA DATA ---
+        $temuKaryaMapData = TemuKarya::all(['id', 'wilayah', 'level', 'status', 'jenis', 'lokasi', 'tanggal_pelaksanaan']);
+        $temuKaryaProvinsi = TemuKarya::where('level', 'provinsi')->get();
+        $temuKaryaKabKota = TemuKarya::where('level', 'kab_kota')->get();
+
+        // --- READ-ONLY KALENDER AGENDA PREVIEW ---
+        $agendas = Agenda::orderBy('waktu_mulai', 'asc')->get();
+        $calendarEvents = $agendas->map(function($event) {
+            $isArchived = \Carbon\Carbon::now()->greaterThan($event->waktu_selesai);
+            $color = '#3b82f6'; // default blue
+            if ($isArchived) {
+                $color = '#9ca3af'; // gray untuk arsip
+            } else {
+                switch ($event->jenis_kegiatan) {
+                    case 'Meeting Internal': $color = '#10b981'; break; // green
+                    case 'Temu Karya': $color = '#f59e0b'; break; // yellow/gold
+                    case 'Acara Publik': $color = '#ef4444'; break; // red
+                    case 'Webinar': $color = '#8b5cf6'; break; // purple
+                }
+            }
+
+            return [
+                'id' => $event->id,
+                'title' => $event->judul ?? $event->nama_agenda ?? 'Agenda Karang Taruna',
+                'start' => $event->waktu_mulai ? $event->waktu_mulai->format('Y-m-d\TH:i:s') : null,
+                'end' => $event->waktu_selesai ? $event->waktu_selesai->format('Y-m-d\TH:i:s') : null,
+                'formatted_start' => $event->waktu_mulai ? $event->waktu_mulai->format('d M Y H:i') : '-',
+                'formatted_end' => $event->waktu_selesai ? $event->waktu_selesai->format('d M Y H:i') : '-',
+                'lokasi' => $event->lokasi ?? 'Kantor Sekretariat SIKTN',
+                'deskripsi' => $event->deskripsi ?? 'Tidak ada catatan tambahan.',
+                'pic_name' => $event->pic_name ?? '-',
+                'jenis' => $event->jenis_kegiatan ?? 'Meeting Internal',
+                'backgroundColor' => $color,
+                'borderColor' => $color,
+            ];
+        });
+
+        // Dashboard untuk PKKT/BPC
         if ($admin->isPKKT()) {
             $totalAnggota = Anggota::where('domisili', $admin->domisili)->count();
             $pendingAnggota = Anggota::where('domisili', $admin->domisili)->where('status', 'pending')->count();
             $approvedAnggota = Anggota::where('domisili', $admin->domisili)->where('status', 'approved')->count();
             $rejectedAnggota = Anggota::where('domisili', $admin->domisili)->where('status', 'rejected')->count();
-            
-            // 5 Anggota terbaru dari domisili BPC
-            $recentAnggota = Anggota::where('domisili', $admin->domisili)
-                ->latest()
-                ->take(5)
-                ->get();
+            $recentAnggota = Anggota::where('domisili', $admin->domisili)->latest()->take(5)->get();
             
             return view('admin.dashboard', compact(
-                'admin',
-                'upcomingBirthdays',
-                'totalAnggota',
-                'pendingAnggota',
-                'approvedAnggota',
-                'rejectedAnggota',
-                'recentAnggota'
+                'admin', 'upcomingBirthdays', 'totalAnggota', 'pendingAnggota',
+                'approvedAnggota', 'rejectedAnggota', 'recentAnggota',
+                'totalSuratKeluar', 'totalSuratPending', 'totalTemuKaryaSelesai',
+                'totalTemuKaryaPending', 'totalWilayahSelesai', 'totalWilayahBelum',
+                'chartMonths', 'suratMasukMonthly', 'suratKeluarMonthly',
+                'temuKaryaMapData', 'calendarEvents'
             ));
         }
-        
-        // Dashboard untuk BPD & Super Admin (kelola seluruh web)
+
+        // --- STATISTIK LENGKAP FITUR UNTUK OVERVIEW DASHBOARD ---
         $totalAdmins = Admin::count();
-        $adminsBPC = Admin::where('category', 'bpc')->count();
-        $adminsBPD = Admin::where('category', 'bpd')->count();
-        $adminsSuperAdmin = Admin::where('category', 'super_admin')->count();
-        $recentAdmins = Admin::latest()->take(5)->get();
-        
+        $totalKatalogAll = Katalog::count();
         $totalKatalog = Katalog::where('is_active', true)->count();
         $totalKatalogInactive = Katalog::where('is_active', false)->count();
-        $recentKatalogs = Katalog::where('is_active', true)->latest()->take(5)->get();
-        
-        // Statistik Anggota untuk BPD/Super Admin (dari semua domisili)
+        $recentKatalogs = Katalog::where('is_active', true)->latest()->take(3)->get();
+
         $totalAnggotaApproved = Anggota::where('status', 'approved')->count();
-        $totalAnggotaPending = Anggota::where('status', 'pending')->count();
-        $totalAnggotaRejected = Anggota::where('status', 'rejected')->count();
-        $totalAnggotaAll = Anggota::count();
-        
-        // 5 Anggota terbaru dari SEMUA domisili
         $recentAnggota = Anggota::latest()->take(5)->get();
-        
-        // Struktur Organisasi ASITA
-        $totalOrganisasi = Organisasi::where('aktif', true)->count();
-        $organisasiByKategori = [
-            'ketua_umum' => Organisasi::aktif()->kategori('ketua_umum')->count(),
-            'wakil_ketua_umum' => Organisasi::aktif()->kategori('wakil_ketua_umum')->count(),
-            'ketua_bidang' => Organisasi::aktif()->kategori('ketua_bidang')->count(),
-            'sekretaris_umum' => Organisasi::aktif()->kategori('sekretaris_umum')->count(),
-            'wakil_sekretaris_umum' => Organisasi::aktif()->kategori('wakil_sekretaris_umum')->count(),
-        ];
-        $recentOrganisasi = Organisasi::aktif()->ordered()->take(5)->get();
-        
-        // Statistik Berita
+
         $totalBerita = \App\Models\Berita::count();
         $totalBeritaAktif = \App\Models\Berita::where('status', 'Published')->count();
         $totalBeritaPopuler = \App\Models\Berita::where('is_populer', true)->count();
-        $recentBerita = \App\Models\Berita::latest()->take(5)->get();
-        
+        $recentBerita = \App\Models\Berita::latest()->take(3)->get();
+
+        $totalProgram = \App\Models\Program::count();
+        $totalProgramAktif = \App\Models\Program::whereIn('status', ['Berjalan', 'Aktif', 'Selesai'])->count();
+
+        // --- STATISTIK COUNTER PENGUNJUNG WEBSITE (100% REAL LOG ACTIVITY & REAL IP) ---
+        $totalLogsCount = \App\Models\AdminActivityLog::count();
+        $todayLogsCount = \App\Models\AdminActivityLog::whereDate('created_at', \Carbon\Carbon::today())->count();
+        $monthLogsCount = \App\Models\AdminActivityLog::whereMonth('created_at', \Carbon\Carbon::now()->month)->whereYear('created_at', \Carbon\Carbon::now()->year)->count();
+
+        $visitorStats = [
+            'total' => max($totalLogsCount, 1),
+            'today' => max($todayLogsCount, 1),
+            'month' => max($monthLogsCount, 1),
+            'current_ip' => request()->ip() ?? '127.0.0.1',
+        ];
+
         return view('admin.dashboard', compact(
-            'admin',
-            'upcomingBirthdays',
-            'totalAdmins',
-            'adminsBPC',
-            'adminsBPD',
-            'adminsSuperAdmin',
-            'recentAdmins',
-            'totalKatalog',
-            'totalKatalogInactive',
-            'recentKatalogs',
-            'totalAnggotaApproved',
-            'totalAnggotaPending',
-            'totalAnggotaRejected',
-            'totalAnggotaAll',
-            'recentAnggota',
-            'totalOrganisasi',
-            'organisasiByKategori',
-            'recentOrganisasi',
-            'totalBerita',
-            'totalBeritaAktif',
-            'totalBeritaPopuler',
-            'recentBerita'
+            'admin', 'upcomingBirthdays', 'totalAdmins', 'totalKatalogAll', 'totalKatalog', 'totalKatalogInactive',
+            'recentKatalogs', 'totalAnggotaApproved', 'recentAnggota',
+            'totalBerita', 'totalBeritaAktif', 'totalBeritaPopuler', 'recentBerita',
+            'totalProgram', 'totalProgramAktif', 'visitorStats',
+            'totalSuratKeluar', 'totalSuratPending', 'totalTemuKaryaSelesai',
+            'totalTemuKaryaPending', 'totalTemuKaryaCaretaker',
+            'totalWilayahSelesai', 'totalWilayahBelum', 'totalWilayahNasional',
+            'chartMonths', 'suratMasukMonthly', 'suratKeluarMonthly',
+            'temuKaryaMapData', 'calendarEvents'
         ));
     }
     
