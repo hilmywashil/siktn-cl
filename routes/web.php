@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\OrganisasiController;
+use App\Http\Controllers\Admin\TemuKaryaController;
 use App\Http\Controllers\Admin\KatalogController as AdminKatalogController;
 use App\Http\Controllers\Admin\MisiController;
 use App\Http\Controllers\Admin\AnggotaManagementController;
@@ -107,8 +108,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo');
         Route::delete('/profile/photo', [ProfileController::class, 'deletePhoto'])->name('profile.photo.delete');
 
-        // Organisasi CRUD (BPD only)
+        // Organisasi & Temu Karya CRUD
         Route::resource('organisasi', OrganisasiController::class);
+        Route::get('temu-karya', [TemuKaryaController::class, 'index'])->name('temu-karya.index');
+        Route::post('temu-karya', [TemuKaryaController::class, 'store'])->name('temu-karya.store');
+        Route::put('temu-karya/{temuKarya}', [TemuKaryaController::class, 'update'])->name('temu-karya.update');
+        Route::delete('temu-karya/{temuKarya}', [TemuKaryaController::class, 'destroy'])->name('temu-karya.destroy');
 
         // Program CRUD (Khusus PNKT / Sesuai Brief)
         Route::get('program/get-pics', [\App\Http\Controllers\Admin\ProgramController::class, 'getPicsByJabatan'])->name('program.get-pics');

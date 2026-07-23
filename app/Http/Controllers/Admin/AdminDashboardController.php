@@ -171,7 +171,12 @@ class AdminDashboardController extends Controller
         
         $admins = $query->latest()->paginate(10)->appends($request->query());
         
-        return view('admin.info-admin', compact('admin', 'admins'));
+        $totalAdmins = Admin::count();
+        $activeAdmins = Admin::where('is_active', true)->count();
+        $regionalAdmins = Admin::whereIn('category', ['ppkt', 'pkkt'])->count();
+        $superAdminCount = Admin::where('category', 'super_admin')->count();
+
+        return view('admin.info-admin', compact('admin', 'admins', 'totalAdmins', 'activeAdmins', 'regionalAdmins', 'superAdminCount'));
     }
 
     public function exportAdmin(Request $request)
