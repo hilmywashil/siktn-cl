@@ -2,87 +2,137 @@
 @extends('admin.layouts.admin-layout')
 
 @section('title', 'Kelola Organisasi')
-
 @section('page-title', 'Kelola Organisasi')
 
 @push('styles')
 <style>
-    .stats-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        margin-bottom: 2rem;
+    .admin-ui-scope {
+        --navy: #022648;
+        --navy-dark: #01162f;
+        --navy-light: #0a3a6b;
+        --gold: #b7830f;
+        --green: #059669;
+        --blue: #2563eb;
+        --red: #dc2626;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-500: #6b7280;
+        --gray-700: #374151;
+        --gray-900: #111827;
+        --radius-sm: 4px;
+        --radius-md: 6px;
+        --radius-lg: 8px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
-    .stats-grid {
+    /* Summary Stat Cards */
+    .stat-cards-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .stat-card {
+        background: #ffffff;
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        border: 1px solid var(--gray-200);
+        box-shadow: 0 1px 3px rgba(2, 38, 72, 0.05);
+        display: flex;
+        align-items: center;
         gap: 1rem;
-        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
     }
 
-    .stat-item {
-        background: linear-gradient(135deg, #0a2540 0%, #164e63 100%);
-        padding: 1.5rem;
-        border-radius: 8px;
-        color: white;
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 4px;
+        background: var(--navy);
+    }
+    .stat-card.active::before { background: var(--green); }
+
+    .stat-icon {
+        width: 44px; height: 44px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        background: var(--gray-100);
+        color: var(--navy);
     }
 
-    .stat-label {
-        font-size: 0.875rem;
-        opacity: 0.9;
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-value {
-        font-size: 2rem;
+    .stat-info h4 {
+        margin: 0;
+        font-size: 0.75rem;
+        color: var(--gray-500);
         font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
+    .stat-info .value {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--navy);
+        margin-top: 0.2rem;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    /* Main Container Card */
     .content-card {
         background: white;
-        border-radius: 12px;
+        border-radius: var(--radius-lg);
         padding: 1.5rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border: 1px solid var(--gray-200);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
-    .card-header {
+    .card-header-flex {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #f3f4f6;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.875rem;
+        border-bottom: 1px solid var(--gray-200);
     }
 
     .card-title {
-        font-size: 1.25rem;
+        font-size: 1.15rem;
         font-weight: 700;
-        color: #0a2540;
+        color: var(--navy);
+        margin: 0;
     }
 
-    .btn-primary {
-        background: #0a2540;
+    .btn-solid-navy {
+        background: var(--navy);
         color: white;
-        padding: 0.625rem 1.5rem;
-        border-radius: 8px;
-        text-decoration: none;
-        font-size: 0.875rem;
+        padding: 0.55rem 1.15rem;
+        border-radius: var(--radius-md);
         font-weight: 600;
+        font-size: 0.875rem;
+        border: none;
+        cursor: pointer;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        transition: all 0.2s;
-        border: none;
-        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 4px rgba(2, 38, 72, 0.12);
     }
 
-    .btn-primary:hover {
-        background: #164e63;
+    .btn-solid-navy:hover {
+        background: var(--navy-light);
+        color: white;
         transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(2, 38, 72, 0.2);
     }
 
+    /* Table Styling */
     .table-container {
         overflow-x: auto;
     }
@@ -93,23 +143,23 @@
     }
 
     .data-table th {
-        background: #f9fafb;
-        padding: 0.875rem;
+        background: var(--gray-50);
+        padding: 0.875rem 1rem;
         text-align: left;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #374151;
-        border-bottom: 2px solid #e5e7eb;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--gray-700);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid var(--gray-200);
     }
 
     .data-table td {
-        padding: 1rem 0.875rem;
-        border-bottom: 1px solid #e5e7eb;
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray-100);
         font-size: 0.875rem;
-    }
-
-    .data-table tr:hover {
-        background: #f9fafb;
+        color: var(--gray-900);
+        vertical-align: middle;
     }
 
     .avatar-cell {
@@ -119,119 +169,133 @@
     }
 
     .avatar {
-        width: 64px;
-        height: 64px;
+        width: 48px;
+        height: 48px;
         border-radius: 8px;
         object-fit: cover;
-        border: 2px solid #e5e7eb;
+        border: 2px solid var(--gray-200);
     }
 
     .avatar-info h4 {
         font-size: 0.875rem;
-        font-weight: 600;
-        color: #0a2540;
-        margin-bottom: 0.25rem;
+        font-weight: 700;
+        color: var(--navy);
+        margin: 0 0 0.15rem 0;
     }
 
     .avatar-info p {
         font-size: 0.75rem;
-        color: #6b7280;
+        color: var(--gray-500);
+        margin: 0;
     }
 
-    .badge {
-        padding: 0.375rem 0.75rem;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        display: inline-block;
-    }
-
-    .badge-active {
-        background: #d1fae5;
-        color: #065f46;
-    }
-
-    .badge-inactive {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .kategori-badge {
-        padding: 0.375rem 0.75rem;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        display: inline-block;
-        background: #dbeafe;
-        color: #1e40af;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .btn-edit, .btn-delete {
-        padding: 0.5rem 0.875rem;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-decoration: none;
+    .badge-status {
         display: inline-flex;
         align-items: center;
         gap: 0.375rem;
-        transition: all 0.2s;
-        border: none;
-        cursor: pointer;
+        padding: 0.35rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
     }
 
-    .btn-edit {
-        background: #dbeafe;
+    .badge-status.approved { background: #d1fae5; color: #065f46; }
+    .badge-status.rejected { background: #fee2e2; color: #991b1b; }
+
+    .kategori-badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: inline-block;
+        background: #eff6ff;
         color: #1e40af;
     }
 
-    .btn-edit:hover {
-        background: #bfdbfe;
+    /* Action Trigger (⋮) & Floating Dropdown */
+    .aksi-wrapper {
+        position: relative;
+        display: inline-block;
     }
 
-    .btn-delete {
-        background: #fee2e2;
-        color: #991b1b;
+    .btn-aksi-trigger {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--navy);
+        color: #ffffff;
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 3px rgba(2, 38, 72, 0.12);
     }
 
-    .btn-delete:hover {
-        background: #fecaca;
+    .btn-aksi-trigger:hover {
+        background: var(--navy-light);
+        transform: scale(1.08) translateY(-1px);
+        box-shadow: 0 4px 12px rgba(2, 38, 72, 0.25);
     }
 
-    .empty-state {
-        text-align: center;
-        padding: 3rem;
-        color: #6b7280;
+    .aksi-dropdown {
+        display: block;
+        position: fixed;
+        min-width: 170px;
+        background: #ffffff;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-md);
+        box-shadow: 0 14px 32px rgba(2, 38, 72, 0.18);
+        padding: 6px;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px) scale(0.96);
+        transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.18s;
+        pointer-events: none;
     }
 
-    .empty-state svg {
-        width: 64px;
-        height: 64px;
-        margin: 0 auto 1rem;
-        opacity: 0.5;
+    .aksi-dropdown.is-open {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
     }
 
-    .alert {
-        padding: 1rem 1.25rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
+    .aksi-item {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 9px;
+        width: 100%;
+        padding: 0.55rem 0.65rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        border-radius: var(--radius-sm);
+        color: var(--gray-900);
+        text-decoration: none !important;
+        border: none;
+        background: transparent;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .alert-success {
-        background: #d1fae5;
-        color: #065f46;
-        border: 1px solid #6ee7b7;
+    .aksi-item:hover {
+        background: var(--gray-100);
+        transform: translateX(4px);
     }
 
-    /* Org Tree - sama persis kayak Master Jabatan */
+    .aksi-item.aksi-edit:hover { color: var(--navy); }
+    .aksi-item.aksi-delete:hover { color: var(--red); background: #fef2f2; }
+
+    .aksi-divider {
+        height: 1px;
+        background: var(--gray-200);
+        margin: 4px 0;
+    }
+
+    /* Org Tree - CSS ASLI PERSIS */
     .org-tree {
         text-align: center;
         display: block;
@@ -403,21 +467,39 @@
 @endpush
 
 @section('content')
-    <div class="stats-grid" style="margin-bottom: 2rem;">
-        <div class="stat-item">
-            <div class="stat-label">Total Anggota</div>
-            <div class="stat-value">{{ $organisasi->count() }}</div>
+<div class="admin-ui-scope" style="padding-top: 0.5rem;">
+
+    <!-- Stat Cards Top Benchmark -->
+    <div class="stat-cards-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <div class="stat-info">
+                <h4>Total Pengurus</h4>
+                <div class="value">{{ number_format($organisasi->count()) }}</div>
+            </div>
         </div>
-        <div class="stat-item">
-            <div class="stat-label">Aktif</div>
-            <div class="stat-value">{{ $organisasi->where('aktif', true)->count() }}</div>
+
+        <div class="stat-card active">
+            <div class="stat-icon" style="background: #ecfdf5; color: #059669;">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <div class="stat-info">
+                <h4>Pengurus Aktif</h4>
+                <div class="value">{{ number_format($organisasi->where('aktif', true)->count()) }}</div>
+            </div>
         </div>
     </div>
+
+    <!-- Bagan Struktur Organisasi -->
     <div class="content-card" style="margin-bottom: 2rem;">
-        <div class="card-header">
+        <div class="card-header-flex">
             <div>
-                <h3 class="card-title">Struktur Organisasi</h3>
-                <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem;">Bagan organisasi berdasarkan jabatan. Klik <strong>+</strong> pada node untuk menambah anggota.</p>
+                <h3 class="card-title">Struktur Hirarki Organisasi</h3>
+                <p style="color: var(--gray-500); font-size: 0.85rem; margin: 0.2rem 0 0 0;">
+                    Bagan organisasi berdasarkan susunan jabatan. Klik tanda <strong>+</strong> pada node untuk menambah anggota.
+                </p>
             </div>
         </div>
         
@@ -431,21 +513,20 @@
                     </ul>
                 </div>
             @else
-                <div class="empty-state" style="padding: 2rem;">
-                    <p>Belum ada jabatan. <a href="{{ route('admin.jabatan.index') }}">Tambah Jabatan</a> terlebih dahulu.</p>
+                <div style="text-align: center; padding: 2.5rem; color: var(--gray-500);">
+                    <p>Belum ada jabatan. <a href="{{ route('admin.jabatan.index') }}" style="color: var(--navy); font-weight: 700;">Tambah Jabatan</a> terlebih dahulu.</p>
                 </div>
             @endif
         </div>
     </div>
 
-
-
+    <!-- Tabel Daftar Pengurus -->
     <div class="content-card">
-        <div class="card-header">
-            <h3 class="card-title">Daftar Struktur Organisasi</h3>
+        <div class="card-header-flex">
+            <h3 class="card-title">Daftar Anggota Pengurus Organisasi</h3>
             @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPNKT())
-            <a href="{{ route('admin.organisasi.create') }}" class="btn-primary">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
+            <a href="{{ route('admin.organisasi.create') }}" class="btn-solid-navy">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
@@ -464,7 +545,7 @@
                             <th>Kategori</th>
                             <th>Status</th>
                             @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPNKT())
-                            <th>Aksi</th>
+                            <th style="text-align: center; width: 80px;">Aksi</th>
                             @endif
                         </tr>
                     </thead>
@@ -485,31 +566,37 @@
                                     <span class="kategori-badge">{{ $item->kategori_label }}</span>
                                 </td>
                                 <td>
-                                    <span class="badge {{ $item->aktif ? 'badge-active' : 'badge-inactive' }}">
-                                        {{ $item->aktif ? 'Aktif' : 'Tidak Aktif' }}
+                                    <span class="badge-status {{ $item->aktif ? 'approved' : 'rejected' }}">
+                                        ● {{ $item->aktif ? 'Aktif' : 'Tidak Aktif' }}
                                     </span>
                                 </td>
                                 @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPNKT())
-                                <td>
-                                    <div class="action-buttons">
-                                        <a href="{{ route('admin.organisasi.edit', $item) }}" class="btn-edit">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14">
-                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                <td style="text-align: center;">
+                                    <!-- Action Dropdown Trigger (⋮) -->
+                                    <div class="aksi-wrapper">
+                                        <button type="button" class="btn-aksi-trigger" data-target="dropdown-org-{{ $item->id }}" aria-label="Menu Aksi">
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                                <circle cx="12" cy="5" r="1.75"></circle>
+                                                <circle cx="12" cy="12" r="1.75"></circle>
+                                                <circle cx="12" cy="19" r="1.75"></circle>
                                             </svg>
-                                            Edit
-                                        </a>
-                                        <form action="{{ route('admin.organisasi.destroy', $item) }}" method="POST" class="delete-form">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" class="btn-delete delete-btn">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14">
-                                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                </svg>
-                                                Hapus
+                                        </button>
+
+                                        <div class="aksi-dropdown" id="dropdown-org-{{ $item->id }}">
+                                            <a href="{{ route('admin.organisasi.edit', $item) }}" class="aksi-item aksi-edit">
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                                Edit Anggota
+                                            </a>
+                                            <div class="aksi-divider"></div>
+                                            <button type="button" class="aksi-item aksi-delete" onclick="triggerDeleteOrg({{ $item->id }}, '{{ addslashes($item->nama) }}')">
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                                Hapus Anggota
                                             </button>
-                                        </form>
+                                            <form id="delete-form-org-{{ $item->id }}" action="{{ route('admin.organisasi.destroy', $item) }}" method="POST" style="display:none;">
+                                                @csrf
+                                                @method('DELETE')
+                                            </form>
+                                        </div>
                                     </div>
                                 </td>
                                 @endif
@@ -518,50 +605,87 @@
                     </tbody>
                 </table>
             @else
-                <div class="empty-state">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <div style="text-align: center; padding: 3rem; color: var(--gray-500);">
+                    <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 1rem; opacity: 0.5;">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>
                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                         <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                     </svg>
-                    <h3>Belum ada data organisasi</h3>
-                    <p>Mulai tambahkan anggota struktur organisasi</p>
+                    <h3 style="margin: 0 0 0.5rem 0; color: var(--navy); font-weight: 700;">Belum ada data pengurus</h3>
+                    <p style="margin: 0; font-size: 0.875rem;">Mulai tambahkan anggota struktur organisasi Karang Taruna.</p>
                 </div>
             @endif
         </div>
     </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const deleteButtons = document.querySelectorAll('.delete-btn');
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                const form = this.closest('.delete-form');
-                
-                Swal.fire({
-                    title: 'Hapus Data?',
-                    text: "Data yang dihapus tidak dapat dikembalikan!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#dc2626',
-                    cancelButtonColor: '#6b7280',
-                    confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal',
-                    customClass: {
-                        confirmButton: 'swal2-confirm-btn',
-                        cancelButton: 'swal2-cancel-btn'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
+    document.addEventListener('DOMContentLoaded', function () {
+        let activeDropdown = null;
+
+        // Position & Toggle Dropdown Trigger (⋮)
+        document.querySelectorAll('.btn-aksi-trigger').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const targetId = this.getAttribute('data-target');
+                const dropdown = document.getElementById(targetId);
+
+                if (activeDropdown && activeDropdown !== dropdown) {
+                    activeDropdown.classList.remove('is-open');
+                }
+
+                if (dropdown.classList.contains('is-open')) {
+                    dropdown.classList.remove('is-open');
+                    activeDropdown = null;
+                } else {
+                    const rect = this.getBoundingClientRect();
+                    dropdown.style.top = (rect.bottom + 4) + 'px';
+                    dropdown.style.left = (rect.right - 170) + 'px';
+                    dropdown.classList.add('is-open');
+                    activeDropdown = dropdown;
+                }
             });
         });
+
+        // Close dropdown on click outside
+        document.addEventListener('click', function () {
+            if (activeDropdown) {
+                activeDropdown.classList.remove('is-open');
+                activeDropdown = null;
+            }
+        });
+
+        // Close dropdown on scroll
+        window.addEventListener('scroll', function () {
+            if (activeDropdown) {
+                activeDropdown.classList.remove('is-open');
+                activeDropdown = null;
+            }
+        }, true);
     });
+
+    function triggerDeleteOrg(id, name) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Hapus Anggota Pengurus?',
+                text: `Apakah Anda yakin ingin menghapus ${name} dari struktur organisasi?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#f3f4f6',
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-org-' + id).submit();
+                }
+            });
+        } else if (confirm(`Yakin ingin menghapus ${name} dari struktur organisasi?`)) {
+            document.getElementById('delete-form-org-' + id).submit();
+        }
+    }
 </script>
 @endpush

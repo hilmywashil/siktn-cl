@@ -10,14 +10,32 @@
 @section('content')
     @include('layouts.components.hero')
     <style>
+        .public-tree-wrapper {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            background: #ffffff;
+            padding: 2rem 1rem 4rem 1rem;
+            min-height: 500px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .public-tree-container {
+            transform-origin: top center;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-block;
+            margin: 0 auto;
+            text-align: center;
+        }
+
         .public-tree {
             text-align: center;
-            display: block;
+            display: inline-block;
             margin: 0 auto;
             width: max-content;
             min-width: max-content;
-            padding: 2rem 2rem 5rem 2rem;
-            overflow-x: auto;
+            padding: 1rem 2rem 3rem 2rem;
         }
         .public-tree ul {
             padding-top: 30px;
@@ -70,16 +88,92 @@
         }
         .card { transition: all 0.3s; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px rgba(0,0,0,0.1) !important; }
+
+        /* Floating Zoom Control Bar */
+        .zoom-controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 999;
+            background: #022648;
+            border-radius: 50px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 25px rgba(2, 38, 72, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+        }
+
+        .zoom-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .zoom-btn:hover {
+            background: #b7830f;
+            transform: scale(1.1);
+        }
+
+        .zoom-btn-text {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .zoom-btn-text:hover {
+            background: #b7830f;
+        }
+
+        .zoom-indicator {
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0 8px;
+            font-family: monospace;
+        }
     </style>
-    <section class="wrapper-white-1" style="overflow-x: auto;">
-        <div class="organisasi-section" data-aos="fade-up" style="max-width: 100%;">
+
+    <section class="wrapper-white-1">
+        <div class="organisasi-section" data-aos="fade-up" style="width: 100%;">
             @if(isset($organisasiTree) && $organisasiTree->count() > 0)
-                <div class="public-tree">
-                    <ul>
-                        @foreach($organisasiTree as $root)
-                            @include('pages.partials.org-tree-node', ['node' => $root])
-                        @endforeach
-                    </ul>
+                <div class="public-tree-wrapper" id="publicTreeWrapper">
+                    <div class="public-tree-container" id="publicTreeContainer">
+                        <div class="public-tree" id="publicTree">
+                            <ul>
+                                @foreach($organisasiTree as $root)
+                                    @include('pages.partials.org-tree-node', ['node' => $root])
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Zoom Toolbar -->
+                <div class="zoom-controls">
+                    <button class="zoom-btn" onclick="zoomIn()" title="Perbesar Tampilan">+</button>
+                    <span class="zoom-indicator" id="zoomIndicator">100%</span>
+                    <button class="zoom-btn" onclick="zoomOut()" title="Perkecil Tampilan">-</button>
+                    <button class="zoom-btn-text" onclick="autoFitTree()" title="Paskan dengan Layar">Auto-Fit</button>
+                    <button class="zoom-btn-text" onclick="resetZoom()" title="Kembali ke 100%">Reset</button>
                 </div>
             @else
                 <div style="text-align: center; padding: 50px 0; color: #6b7280;">
@@ -88,4 +182,79 @@
             @endif
         </div>
     </section>
+
+    <script>
+        let currentScale = 1;
+        let autoScaleValue = 1;
+
+        function applyScale(scale) {
+            currentScale = scale;
+            const container = document.getElementById('publicTreeContainer');
+            const wrapper = document.getElementById('publicTreeWrapper');
+            const tree = document.getElementById('publicTree');
+            const indicator = document.getElementById('zoomIndicator');
+
+            if (!container || !wrapper || !tree) return;
+
+            container.style.transform = `scale(${scale})`;
+            indicator.innerText = Math.round(scale * 100) + '%';
+
+            // Adjust wrapper height so there is no awkward gap after zooming out
+            const unscaledHeight = tree.offsetHeight;
+            const scaledHeight = unscaledHeight * scale;
+            wrapper.style.height = (scaledHeight + 80) + 'px';
+        }
+
+        function autoFitTree() {
+            const wrapper = document.getElementById('publicTreeWrapper');
+            const tree = document.getElementById('publicTree');
+
+            if (!wrapper || !tree) return;
+
+            // Reset scaling temporarily to measure exact natural width
+            const container = document.getElementById('publicTreeContainer');
+            container.style.transform = 'scale(1)';
+
+            const wrapperWidth = wrapper.clientWidth - 40; // padding offset
+            const treeWidth = tree.scrollWidth || tree.offsetWidth;
+
+            if (treeWidth > 0 && wrapperWidth > 0) {
+                let calculatedScale = wrapperWidth / treeWidth;
+                // Cap max auto-scale at 100% so normal trees don't get oversized
+                if (calculatedScale > 1) calculatedScale = 1;
+                // Cap min auto-scale at 25% for extreme layouts
+                if (calculatedScale < 0.25) calculatedScale = 0.25;
+
+                autoScaleValue = calculatedScale;
+                applyScale(calculatedScale);
+            }
+        }
+
+        function zoomIn() {
+            let nextScale = currentScale + 0.1;
+            if (nextScale > 1.8) nextScale = 1.8;
+            applyScale(nextScale);
+        }
+
+        function zoomOut() {
+            let nextScale = currentScale - 0.1;
+            if (nextScale < 0.2) nextScale = 0.2;
+            applyScale(nextScale);
+        }
+
+        function resetZoom() {
+            applyScale(1);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(autoFitTree, 300);
+            window.addEventListener('resize', function() {
+                autoFitTree();
+            });
+        });
+
+        window.addEventListener('load', function() {
+            setTimeout(autoFitTree, 400);
+        });
+    </script>
 @endsection
