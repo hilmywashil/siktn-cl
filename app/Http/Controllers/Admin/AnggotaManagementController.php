@@ -60,6 +60,24 @@ class AnggotaManagementController extends Controller
         $query = Anggota::query();
         $query = $this->applyDomisiliFilter($query);
         
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where(function($q) use ($search) {
+                $q->where('nama_lengkap', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('no_hp', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('domisili')) {
+            $query->where('domisili', $request->get('domisili'));
+        }
+
+        if ($request->filled('jabatan')) {
+            $query->where('jabatan', $request->get('jabatan'));
+        }
+
         if ($status !== 'all') {
             $query->where('status', $status);
         }
@@ -78,7 +96,10 @@ class AnggotaManagementController extends Controller
             'rejected' => (clone $statsQuery)->where('status', 'rejected')->count(),
         ];
         
-        return view('admin.anggota.index', compact('anggota', 'stats', 'status'));
+        $domisiliList = Anggota::whereNotNull('domisili')->where('domisili', '!=', '')->distinct()->pluck('domisili')->sort()->values();
+        $jabatanList = Anggota::whereNotNull('jabatan')->where('jabatan', '!=', '')->distinct()->pluck('jabatan')->sort()->values();
+
+        return view('admin.anggota.index', compact('anggota', 'stats', 'status', 'domisiliList', 'jabatanList'));
     }
 
     /**
