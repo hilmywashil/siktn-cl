@@ -634,15 +634,32 @@
                 {{-- Admin Notifications --}}
                 @php
                     $adminUser = auth()->guard('admin')->user();
+                    $notifSettings = $adminUser->notification_settings ?? [
+                        'surat_pending' => true,
+                        'sk_expired' => true,
+                        'new_anggota' => true,
+                        'new_katalog' => true,
+                        'auto_open_login' => true,
+                    ];
+
                     $unreadNotifications = $adminUser->unreadNotifications;
-                    // Filter: Belum dibaca OR Sudah dibaca dalam 24 jam terakhir (H+1 hari otomatis bersih)
+                    
+                    // Filter berdasarkan waktu 24 jam & sakelar preferensi user (12d)
                     $filteredNotifications = $adminUser->notifications()
                         ->where(function($q) {
                             $q->whereNull('read_at')
                               ->orWhere('read_at', '>=', \Carbon\Carbon::now()->subDay());
                         })
-                        ->take(10)
-                        ->get();
+                        ->get()
+                        ->filter(function($n) use ($notifSettings) {
+                            $type = $n->data['type'] ?? '';
+                            if (in_array($type, ['surat_pending', 'surat_terbit', 'surat_revisi']) && !($notifSettings['surat_pending'] ?? true)) return false;
+                            if ($type === 'sk_expired' && !($notifSettings['sk_expired'] ?? true)) return false;
+                            if ($type === 'new_anggota' && !($notifSettings['new_anggota'] ?? true)) return false;
+                            if ($type === 'new_katalog' && !($notifSettings['new_katalog'] ?? true)) return false;
+                            return true;
+                        })
+                        ->take(10);
                 @endphp
                 <div class="notification-wrapper">
                     <button class="notification-btn" id="notificationBtn">
@@ -657,12 +674,20 @@
                     <div class="notification-dropdown" id="notificationDropdown">
                         <div class="notification-header">
                             <h4>Notifikasi</h4>
-                            @if($unreadNotifications->count() > 0)
-                                <form action="{{ route('admin.notifications.readAll') }}" method="POST">
-                                    @csrf
-                                    <button type="submit" style="background:none;border:none;color:#c59217;font-size:0.75rem;cursor:pointer;font-weight:600;">Tandai dibaca</button>
-                                </form>
-                            @endif
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                @if($unreadNotifications->count() > 0)
+                                    <form action="{{ route('admin.notifications.readAll') }}" method="POST" style="margin:0;">
+                                        @csrf
+                                        <button type="submit" style="background:none;border:none;color:#c59217;font-size:0.75rem;cursor:pointer;font-weight:600;">Tandai dibaca</button>
+                                    </form>
+                                @endif
+                                <a href="{{ route('admin.settings.notifications') }}" title="Pengaturan Preferensi Notifikasi" style="color: #6b7280; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; padding: 2px; border-radius: 4px; transition: color 0.2s;" onmouseover="this.style.color='#0a2540'" onmouseout="this.style.color='#6b7280'">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                                    </svg>
+                                </a>
+                            </div>
                         </div>
                         <div class="notification-body">
                             @forelse($filteredNotifications as $notification)
@@ -920,7 +945,7 @@
                 e.stopPropagation();
             });
 
-            @if(session('just_logged_in') && $unreadNotifications->count() > 0)
+            @if(session('just_logged_in') && $unreadNotifications->count() > 0 && ($notifSettings['auto_open_login'] ?? true))
                 setTimeout(function() {
                     notifDropdown.classList.add('show');
                     setTimeout(function() {

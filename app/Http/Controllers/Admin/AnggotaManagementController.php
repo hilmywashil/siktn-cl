@@ -168,6 +168,9 @@ class AnggotaManagementController extends Controller
         $anggotas = $query->orderBy('nama_lengkap', 'asc')->get();
 
         $admin = auth()->guard('admin')->user();
+        $isSuperAdmin = $admin->isSuperAdmin();
+        $colSpan = $isSuperAdmin ? 13 : 12;
+
         $wilayahTitle = !empty($admin->domisili) ? strtoupper($admin->domisili) : 'NASIONAL';
         $fileName = 'Data_Anggota_SIKTN_' . date('Ymd_His') . '.xls';
 
@@ -178,17 +181,17 @@ class AnggotaManagementController extends Controller
         $html .= '<table style="border-collapse: collapse; width: 100%;">';
 
         // Title Header Banner SIKTN (Navy Blue & Gold)
-        $html .= '<tr><td colspan="12" style="height: 15px;"></td></tr>';
+        $html .= '<tr><td colspan="' . $colSpan . '" style="height: 15px;"></td></tr>';
         $html .= '<tr>';
-        $html .= '<td colspan="12" style="background-color: #0a2540; color: #ffd700; font-size: 16pt; font-weight: bold; text-align: center; padding: 16px; border: 2px solid #0a2540;">SISTEM INFORMASI KARANG TARUNA NASIONAL (SIKTN)</td>';
+        $html .= '<td colspan="' . $colSpan . '" style="background-color: #0a2540; color: #ffd700; font-size: 16pt; font-weight: bold; text-align: center; padding: 16px; border: 2px solid #0a2540;">SISTEM INFORMASI KARANG TARUNA NASIONAL (SIKTN)</td>';
         $html .= '</tr>';
         $html .= '<tr>';
-        $html .= '<td colspan="12" style="background-color: #164e63; color: #ffffff; font-size: 11pt; font-weight: bold; text-align: center; padding: 10px; border: 1px solid #164e63;">LAPORAN DATABASE ANGGOTA & PENGURUS - WILAYAH: ' . htmlspecialchars($wilayahTitle) . '</td>';
+        $html .= '<td colspan="' . $colSpan . '" style="background-color: #164e63; color: #ffffff; font-size: 11pt; font-weight: bold; text-align: center; padding: 10px; border: 1px solid #164e63;">LAPORAN DATABASE ANGGOTA & PENGURUS - WILAYAH: ' . htmlspecialchars($wilayahTitle) . '</td>';
         $html .= '</tr>';
         $html .= '<tr>';
-        $html .= '<td colspan="12" style="font-size: 9pt; color: #64748b; text-align: right; padding: 6px; font-style: italic;">Tanggal Export: ' . date('d F Y H:i:s') . ' WIB</td>';
+        $html .= '<td colspan="' . $colSpan . '" style="font-size: 9pt; color: #64748b; text-align: right; padding: 6px; font-style: italic;">Tanggal Export: ' . date('d F Y H:i:s') . ' WIB</td>';
         $html .= '</tr>';
-        $html .= '<tr><td colspan="12" style="height: 10px;"></td></tr>';
+        $html .= '<tr><td colspan="' . $colSpan . '" style="height: 10px;"></td></tr>';
 
         // Header Table Columns (Navy Blue Header with Gold Text)
         $html .= '<tr>';
@@ -196,6 +199,9 @@ class AnggotaManagementController extends Controller
         $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: center; font-weight: bold; font-size: 10pt;">NIK</th>';
         $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">NAMA LENGKAP</th>';
         $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">USERNAME</th>';
+        if ($isSuperAdmin) {
+            $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">PASSWORD</th>';
+        }
         $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">EMAIL</th>';
         $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: center; font-weight: bold; font-size: 10pt;">NO. WHATSAPP / HP</th>';
         $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt;">JABATAN</th>';
@@ -225,6 +231,9 @@ class AnggotaManagementController extends Controller
             $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-family: monospace; font-size: 9.5pt; mso-number-format:\'\@\';">\'' . ($a->nik ?? '-') . '</td>';
             $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-weight: bold; font-size: 9.5pt;">' . htmlspecialchars($a->nama_lengkap ?? '-') . '</td>';
             $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($a->username ?? '-') . '</td>';
+            if ($isSuperAdmin) {
+                $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-family: monospace; font-weight: bold; font-size: 9.5pt; color: #0f766e;">' . htmlspecialchars($a->initial_password ?? '-') . '</td>';
+            }
             $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($a->email ?? '-') . '</td>';
             $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-family: monospace; text-align: center; font-size: 9.5pt; mso-number-format:\'\@\';">\'' . ($a->no_hp ?? '-') . '</td>';
             $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-size: 9.5pt;">' . htmlspecialchars($a->jabatan ?? 'Anggota') . '</td>';
@@ -237,9 +246,9 @@ class AnggotaManagementController extends Controller
         }
 
         // Summary Row at Bottom
-        $html .= '<tr><td colspan="12" style="height: 10px;"></td></tr>';
+        $html .= '<tr><td colspan="' . $colSpan . '" style="height: 10px;"></td></tr>';
         $html .= '<tr>';
-        $html .= '<td colspan="12" style="background-color: #0a2540; color: #ffffff; padding: 10px; font-weight: bold; font-size: 10pt; text-align: right;">Total Data Anggota: ' . count($anggotas) . ' Orang</td>';
+        $html .= '<td colspan="' . $colSpan . '" style="background-color: #0a2540; color: #ffffff; padding: 10px; font-weight: bold; font-size: 10pt; text-align: right;">Total Data Anggota: ' . count($anggotas) . ' Orang</td>';
         $html .= '</tr>';
 
         $html .= '</table>';

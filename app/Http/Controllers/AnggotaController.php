@@ -394,7 +394,7 @@ class AnggotaController extends Controller
 
         $anggota->update([
             'password' => Hash::make($request->new_password),
-            'initial_password' => null,
+            'initial_password' => $request->new_password,
         ]);
 
         return back()->with('password_success', $request->new_password);

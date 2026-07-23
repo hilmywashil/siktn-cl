@@ -13,6 +13,14 @@ use App\Models\Admin;
 
 class AgendaController extends Controller
 {
+    private function checkAuthorization()
+    {
+        $admin = auth()->guard('admin')->user();
+        if (!$admin || !$admin->canManageContent()) {
+            abort(403, 'Akses ditolak: Fitur Agenda hanya untuk Pengurus Nasional (PNKT), Pimpinan, dan Super Admin.');
+        }
+    }
+
     public function index()
     {
         $anggotas = Anggota::select('id', 'nama_lengkap as name')
@@ -85,6 +93,8 @@ class AgendaController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkAuthorization();
+
         $validated = $request->validate([
             'judul' => 'required|string|max:255',
             'jenis_kegiatan' => 'required|string|max:255',
@@ -104,6 +114,8 @@ class AgendaController extends Controller
 
     public function update(Request $request, Agenda $agenda)
     {
+        $this->checkAuthorization();
+
         $validated = $request->validate([
             'judul' => 'required|string|max:255',
             'jenis_kegiatan' => 'required|string|max:255',
@@ -121,6 +133,8 @@ class AgendaController extends Controller
 
     public function destroy(Agenda $agenda)
     {
+        $this->checkAuthorization();
+
         $agenda->delete();
         return response()->json(['success' => true, 'message' => 'Agenda berhasil dihapus.']);
     }

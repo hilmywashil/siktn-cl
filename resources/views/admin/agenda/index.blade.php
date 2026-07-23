@@ -498,12 +498,14 @@
                 </svg> Auto-Sync
             </button>
             
+            @if(auth()->guard('admin')->user()->canManageContent())
             <button class="btn btn-primary" onclick="openModal()">
                 <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg> Tambah Agenda
             </button>
+            @endif
         </div>
     </div>
 
@@ -569,6 +571,7 @@
                         <td>{{ \Carbon\Carbon::parse($item->waktu_selesai)->translatedFormat('d M Y, H:i') }}</td>
                         <td>{{ $item->pic_name ?? '-' }}</td>
                         <td>
+                            @if(auth()->guard('admin')->user()->canManageContent())
                             <div class="action-buttons">
                                 <button class="btn-icon-table edit"
                                     data-id="{{ $item->id }}"
@@ -592,6 +595,9 @@
                                     </svg>
                                 </button>
                             </div>
+                            @else
+                                <span style="font-size: 0.75rem; color: #9ca3af; font-weight: 500;">Read-Only</span>
+                            @endif
                         </td>
                     </tr>
                 @endforeach
@@ -737,6 +743,7 @@
                 // Update title custom saat ganti bulan/minggu
                 document.getElementById('customCalendarTitle').innerText = info.view.title;
             },
+            @if(auth()->guard('admin')->user()->canManageContent())
             dateClick: function(info) {
                 // Saat tanggal di klik kosong
                 openModal();
@@ -748,6 +755,7 @@
                 fpStart.setDate(startVal);
                 fpEnd.setDate(endVal);
             },
+            @endif
             eventClick: function(info) {
                 // Saat event di klik
                 let event = info.event;
@@ -923,6 +931,13 @@
         document.getElementById('modalTitle').innerText = isEdit ? 'Edit Agenda' : 'Tambah Agenda';
         document.getElementById('btnDelete').style.display = isEdit ? 'inline-flex' : 'none';
         document.getElementById('btnGoogleCal').style.display = isEdit ? 'inline-flex' : 'none';
+
+        @if(!auth()->guard('admin')->user()->canManageContent())
+            document.getElementById('modalTitle').innerText = 'Detail Agenda Kegiatan';
+            document.getElementById('btnDelete').style.display = 'none';
+            document.getElementById('btnSave').style.display = 'none';
+            $('#agendaForm input, #agendaForm select, #agendaForm textarea').prop('disabled', true);
+        @endif
         
         document.getElementById('agendaModal').classList.add('show');
     }

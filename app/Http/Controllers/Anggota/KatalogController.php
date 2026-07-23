@@ -50,11 +50,11 @@ class KatalogController extends Controller
         $validated = $request->validate([
             'company_name' => 'required|string|max:255',
             'business_field' => 'required|string|max:255',
-            'kategori_id' => 'nullable|exists:kategori_ekatalog,id',
+            'kategori_id' => 'nullable|string|max:255',
             'harga' => 'nullable|string|max:50',
             'description' => 'required|string|max:1000',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
             'address' => 'required|string|max:500',
             'wilayah' => 'nullable|string|max:100',
             'phone' => 'required|string|max:20',
@@ -64,11 +64,26 @@ class KatalogController extends Controller
             'map_embed_url' => 'nullable|string',
         ]);
 
+        $kategoriId = $request->kategori_id;
+        if (!empty($kategoriId) && !is_numeric($kategoriId)) {
+            $katName = trim($kategoriId);
+            $existingKat = \App\Models\KategoriEatalog::where('nama', 'LIKE', $katName)->first();
+            if ($existingKat) {
+                $kategoriId = $existingKat->id;
+            } else {
+                $newKat = \App\Models\KategoriEatalog::create([
+                    'nama' => $katName,
+                    'is_active' => false,
+                ]);
+                $kategoriId = $newKat->id;
+            }
+        }
+
         $data = [
             'anggota_id' => $anggota->id,
             'company_name' => $request->company_name,
             'business_field' => $request->business_field,
-            'kategori_id' => $request->kategori_id,
+            'kategori_id' => $kategoriId,
             'harga' => $request->harga,
             'description' => $request->description,
             'address' => $request->address,
@@ -166,11 +181,11 @@ class KatalogController extends Controller
         $validated = $request->validate([
             'company_name' => 'required|string|max:255',
             'business_field' => 'required|string|max:255',
-            'kategori_id' => 'nullable|exists:kategori_ekatalog,id',
+            'kategori_id' => 'nullable|string|max:255',
             'harga' => 'nullable|string|max:50',
             'description' => 'required|string|max:1000',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
             'address' => 'required|string|max:500',
             'wilayah' => 'nullable|string|max:100',
             'phone' => 'required|string|max:20',

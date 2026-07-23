@@ -23,6 +23,12 @@ class Admin extends Authenticatable
         'is_active',
         'no_hp',
         'foto_profil',
+        'notification_settings',
+    ];
+
+    protected $casts = [
+        'notification_settings' => 'array',
+        'is_active' => 'boolean',
     ];
 
     protected $hidden = [
@@ -89,8 +95,14 @@ class Admin extends Authenticatable
 
     public function canManageContent(): bool
     {
-        // Pimpinan, Super Admin, PNKT bisa kelola konten (berita, katalog, dsb)
+        // Pimpinan, Super Admin, PNKT bisa kelola konten (berita, dsb)
         return $this->isSuperAdmin() || $this->isPimpinan() || $this->isPNKT();
+    }
+
+    public function canManageKatalog(): bool
+    {
+        // Super Admin, Pimpinan, PNKT (Nasional), PPKT (Provinsi), PKKT (Kab/Kota) bisa mengelola E-Katalog
+        return $this->isSuperAdmin() || $this->isPimpinan() || $this->isPNKT() || $this->isPPKT() || $this->isPKKT();
     }
 
     public function canApproveAnggota(): bool

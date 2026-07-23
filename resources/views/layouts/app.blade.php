@@ -266,7 +266,20 @@
     </script>
 
     @stack('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 4000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             const notifBtn = document.getElementById('notificationBtn');
             const notifDropdown = document.getElementById('notificationDropdown');
@@ -286,6 +299,36 @@
             }
         });
     </script>
+    @if(session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Toast.fire({
+                    icon: 'success',
+                    title: "{!! addslashes(session('success')) !!}"
+                });
+            });
+        </script>
+    @endif
+    @if(session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Toast.fire({
+                    icon: 'error',
+                    title: "{!! addslashes(session('error')) !!}"
+                });
+            });
+        </script>
+    @endif
+    @if(session('info'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Toast.fire({
+                    icon: 'info',
+                    title: "{!! addslashes(session('info')) !!}"
+                });
+            });
+        </script>
+    @endif
 </body>
 
 </html>

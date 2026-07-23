@@ -8,7 +8,51 @@
 @endphp
 
 @push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
+    /* Premium Select2 Customization SIKTN */
+    .select2-container--default .select2-selection--single {
+        height: 44px; padding: 0.4rem 0.875rem; font-size: 0.875rem; font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 500; color: #0a2540; background-color: #ffffff; border: 1px solid #d1d5db; border-radius: 6px;
+        display: flex; align-items: center; transition: all 0.3s ease;
+    }
+    .select2-container--default .select2-selection--single:focus,
+    .select2-container--default.select2-container--focus .select2-selection--single {
+        border-color: #0a2540; outline: none; box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.1);
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered { color: #0a2540; padding-left: 0; line-height: normal; font-weight: 600; }
+    .select2-container--default .select2-selection--single .select2-selection__placeholder { color: #9ca3af; font-weight: normal; }
+    .select2-container--default .select2-selection--single .select2-selection__arrow { height: 42px; right: 12px; }
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+        border-color: #0a2540 transparent transparent transparent; border-width: 6px 5px 0 5px;
+    }
+    
+    .select2-dropdown {
+        border: 1px solid rgba(10, 37, 64, 0.12); border-radius: 8px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.875rem; z-index: 9999;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12); margin-top: 4px; overflow: hidden;
+        background-color: #ffffff;
+    }
+    .select2-search--dropdown { padding: 8px; }
+    .select2-search--dropdown .select2-search__field { 
+        border: 1px solid #d1d5db; border-radius: 6px; padding: 0.5rem 0.75rem; outline: none; transition: border 0.3s;
+    }
+    .select2-search--dropdown .select2-search__field:focus { border-color: #0a2540 !important; box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.1); }
+    
+    .select2-results__options { padding: 4px; max-height: 250px; }
+    .select2-results__option { 
+        padding: 8px 12px !important; margin: 2px 0 !important; border-radius: 4px !important; transition: all 0.2s ease; font-weight: 500; color: #374151;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected],
+    .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable { 
+        background-color: #f0f4f8 !important; color: #0a2540 !important; font-weight: 700 !important; transform: translateX(4px);
+    }
+    .select2-container--default .select2-results__option[aria-selected=true] { 
+        background-color: #0a2540 !important; color: #ffffff !important; font-weight: 700 !important; 
+    }
+    .select2-results__group {
+        padding: 6px 10px !important; font-size: 0.75rem !important; text-transform: uppercase !important; letter-spacing: 1px !important; color: #6b7280 !important; font-weight: 700 !important;
+    }
+
     .form-container {
         background: white;
         border-radius: 6px;
@@ -385,31 +429,28 @@
         <div class="form-group">
             <label class="form-label">Logo Perusahaan</label>
             @if($katalog->logo)
-                <div class="image-label">Logo saat ini:</div>
-                <div class="current-image">
-                    <img src="{{ $katalog->logo_url }}" alt="Current Logo">
+                <div style="margin-bottom: 10px;">
+                    <img src="{{ asset('storage/' . $katalog->logo) }}" alt="Logo" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid #d1d5db;">
                 </div>
             @endif
-            <input type="file" name="logo" class="form-file-input" accept="image/*" onchange="previewLogo(event)" style="margin-top: 0.75rem;">
-            <div class="form-hint">Biarkan kosong jika tidak ingin mengubah logo. Format: JPG, PNG, GIF (Max: 2MB)</div>
-            <div class="file-preview" id="logoPreview"></div>
+            <input type="file" name="logo" class="form-file-input" accept="image/*">
+            <div class="form-hint">Biarkan kosong jika tidak ingin mengubah logo. Format: JPG, PNG, GIF (Max: 10MB)</div>
             @error('logo')
                 <div class="form-error">{{ $message }}</div>
             @enderror
         </div>
 
         <div class="form-group">
-            <label class="form-label">Gambar Galeri (Max 3)</label>
-            @if($katalog->images && count($katalog->images_url) > 0)
-                <div class="image-label">Gambar saat ini:</div>
-                <div class="current-images">
-                    @foreach($katalog->images_url as $imageUrl)
-                        <img src="{{ $imageUrl }}" alt="Gallery Image">
+            <label class="form-label">Galeri Gambar (Maks 3)</label>
+            @if($katalog->images && count($katalog->images) > 0)
+                <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                    @foreach($katalog->images as $img)
+                        <img src="{{ asset('storage/' . $img) }}" alt="Gambar Katalog" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid #d1d5db;">
                     @endforeach
                 </div>
             @endif
-            <input type="file" name="images[]" class="form-file-input" accept="image/*" multiple onchange="previewImages(event)" style="margin-top: 0.75rem;">
-            <div class="form-hint">Biarkan kosong jika tidak ingin mengubah gambar. Upload gambar baru akan mengganti semua gambar lama. Format: JPG, PNG, GIF (Max: 2MB per file)</div>
+            <input type="file" name="images[]" class="form-file-input" accept="image/*" multiple>
+            <div class="form-hint">Biarkan kosong jika tidak ingin mengubah gambar. Upload gambar baru akan mengganti semua gambar lama. Format: JPG, PNG, GIF (Max: 10MB per file)</div>
             <div class="file-preview" id="imagesPreview"></div>
             @error('images.*')
                 <div class="form-error">{{ $message }}</div>
@@ -426,8 +467,14 @@
 
         <div class="form-group">
             <label class="form-label">Wilayah</label>
-            <input type="text" name="wilayah" class="form-input" value="{{ old('wilayah', $katalog->wilayah) }}" placeholder="Contoh: Jawa Timur, Kabupaten Nganjuk">
-            <div class="form-hint">Isi sesuai lokasi wilayah perusahaan (Provinsi/Kabupaten/Kota)</div>
+            <select name="wilayah" id="adminWilayahSelect" class="form-select" style="width: 100%;">
+                <option value="">-- Pilih Wilayah Domisili --</option>
+                @php $currentWilayah = old('wilayah', $katalog->wilayah ?? ''); @endphp
+                @if($currentWilayah)
+                    <option value="{{ $currentWilayah }}" selected>{{ $currentWilayah }}</option>
+                @endif
+            </select>
+            <div class="form-hint">Pilih lokasi wilayah perusahaan (Provinsi atau Kabupaten/Kota)</div>
             @error('wilayah')
                 <div class="form-error">{{ $message }}</div>
             @enderror
@@ -655,6 +702,56 @@
         
         return null;
     }
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentWilayah = "{{ old('wilayah', $katalog->wilayah ?? '') }}";
+        
+        Promise.all([
+            fetch("{{ asset('provinces.json') }}").then(res => res.json()),
+            fetch("{{ asset('regencies.json') }}").then(res => res.json())
+        ]).then(([provinces, regencies]) => {
+            let optgroupProv = $('<optgroup label="Tingkat Provinsi"></optgroup>');
+            provinces.forEach(prov => {
+                if (prov !== currentWilayah) optgroupProv.append(`<option value="${prov}">${prov}</option>`);
+            });
+
+            let optgroupReg = $('<optgroup label="Tingkat Kabupaten/Kota"></optgroup>');
+            regencies.forEach(reg => {
+                if (reg !== currentWilayah) optgroupReg.append(`<option value="${reg}">${reg}</option>`);
+            });
+
+            $('#adminWilayahSelect').append(optgroupProv).append(optgroupReg);
+            $('#adminWilayahSelect').select2({
+                placeholder: "-- Pilih Wilayah Domisili --",
+                allowClear: true,
+                width: '100%'
+            });
+
+            $('select[name="kategori_id"]').select2({
+                placeholder: "-- Pilih atau Ketik Kategori Baru --",
+                tags: true,
+                allowClear: true,
+                width: '100%'
+            });
+        }).catch(err => {
+            console.error('Gagal meload data wilayah:', err);
+            $('#adminWilayahSelect').select2({
+                placeholder: "-- Pilih Wilayah Domisili --",
+                allowClear: true,
+                width: '100%'
+            });
+
+            $('select[name="kategori_id"]').select2({
+                placeholder: "-- Pilih atau Ketik Kategori Baru --",
+                tags: true,
+                allowClear: true,
+                width: '100%'
+            });
+        });
+    });
 </script>
 @endpush
 @endsection

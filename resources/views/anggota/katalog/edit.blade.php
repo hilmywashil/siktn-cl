@@ -3,7 +3,51 @@
 @section('title', 'Edit Katalog Perusahaan')
 
 @push('styles')
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
+        /* Premium Select2 Customization SIKTN */
+        .select2-container--default .select2-selection--single {
+            height: 48px; padding: 0.4rem 1rem; font-size: 0.92rem; font-family: 'Google Sans', sans-serif;
+            font-weight: 500; color: #022648; background-color: #ffffff; border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 8px;
+            display: flex; align-items: center; transition: all 0.3s ease;
+        }
+        .select2-container--default .select2-selection--single:focus,
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #022648; outline: none; box-shadow: 0 0 0 3px rgba(9, 11, 98, 0.05);
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered { color: #022648; padding-left: 0; line-height: normal; font-weight: 600; }
+        .select2-container--default .select2-selection--single .select2-selection__placeholder { color: #9ca3af; font-weight: normal; }
+        .select2-container--default .select2-selection--single .select2-selection__arrow { height: 46px; right: 12px; }
+        .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border-color: #022648 transparent transparent transparent; border-width: 6px 5px 0 5px;
+        }
+        
+        .select2-dropdown {
+            border: 1px solid rgba(2, 38, 72, 0.12); border-radius: 12px; font-family: 'Google Sans', sans-serif; font-size: 0.92rem; z-index: 9999;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12); margin-top: 6px; overflow: hidden;
+            background-color: #ffffff;
+        }
+        .select2-search--dropdown { padding: 10px; }
+        .select2-search--dropdown .select2-search__field { 
+            border: 1px solid #d1d5db; border-radius: 6px; padding: 0.5rem 0.875rem; outline: none; transition: border 0.3s;
+        }
+        .select2-search--dropdown .select2-search__field:focus { border-color: #022648 !important; box-shadow: 0 0 0 3px rgba(9, 11, 98, 0.05); }
+        
+        .select2-results__options { padding: 4px; max-height: 250px; }
+        .select2-results__option { 
+            padding: 10px 14px !important; margin: 2px 0 !important; border-radius: 6px !important; transition: all 0.2s ease; font-weight: 500; color: #374151;
+        }
+        .select2-container--default .select2-results__option--highlighted[aria-selected],
+        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable { 
+            background-color: #f0f4f8 !important; color: #022648 !important; font-weight: 700 !important; transform: translateX(4px);
+        }
+        .select2-container--default .select2-results__option[aria-selected=true] { 
+            background-color: #022648 !important; color: #ffffff !important; font-weight: 700 !important; 
+        }
+        .select2-results__group {
+            padding: 8px 12px !important; font-size: 0.75rem !important; text-transform: uppercase !important; letter-spacing: 1px !important; color: #6b7280 !important; font-weight: 700 !important;
+        }
+
         :root {
             --primary-blue: #022648;
             --secondary-blue: #18227C;
@@ -630,7 +674,7 @@
                             </div>
                         @endif
                         <input type="file" name="logo" id="logo" class="form-file-input" accept="image/*" onchange="previewLogo(event)">
-                        <div class="form-hint">Biarkan kosong jika tidak ingin mengubah. Format: JPG, PNG, GIF (Max: 2MB)</div>
+                        <div class="form-hint">Biarkan kosong jika tidak ingin mengubah. Format: JPG, PNG, GIF (Max: 10MB)</div>
                         <div class="file-preview" id="logoPreview"></div>
                         @error('logo')
                             <div class="form-error">{{ $message }}</div>
@@ -652,7 +696,7 @@
                             </div>
                         @endif
                         <input type="file" name="images[]" id="images" class="form-file-input" accept="image/*" multiple onchange="previewImages(event)">
-                        <div class="form-hint">Upload gambar baru akan mengganti seluruh gambar lama. Format: JPG, PNG, GIF (Max: 2MB per file)</div>
+                        <div class="form-hint">Upload gambar baru akan mengganti seluruh gambar lama. Format: JPG, PNG, GIF (Max: 10MB per file)</div>
                         <div class="file-preview" id="imagesPreview"></div>
                         @error('images.*')
                             <div class="form-error">{{ $message }}</div>
@@ -676,9 +720,15 @@
 
                     <!-- Wilayah -->
                     <div class="form-group">
-                        <label for="wilayah">Wilayah</label>
-                        <input type="text" name="wilayah" id="wilayah" class="form-control" value="{{ old('wilayah', $katalog->wilayah) }}" placeholder="Contoh: Jawa Timur, Kabupaten Nganjuk">
-                        <div class="form-hint">Provinsi atau Kabupaten/Kota lokasi perusahaan</div>
+                        <label for="wilayahSelect">Wilayah <span style="color: red;">*</span></label>
+                        <select name="wilayah" id="wilayahSelect" class="form-control" style="width: 100%;" required>
+                            <option value="">-- Pilih Wilayah Domisili --</option>
+                            @php $currentWilayah = old('wilayah', $katalog->wilayah ?? $anggota->domisili ?? ''); @endphp
+                            @if($currentWilayah)
+                                <option value="{{ $currentWilayah }}" selected>{{ $currentWilayah }}</option>
+                            @endif
+                        </select>
+                        <div class="form-hint">Provinsi atau Kabupaten/Kota lokasi perusahaan/produk</div>
                         @error('wilayah')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -925,6 +975,56 @@
             if (oldMapInput) {
                 previewMap(oldMapInput);
             }
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentWilayah = "{{ old('wilayah', $katalog->wilayah ?? $anggota->domisili ?? '') }}";
+            
+            Promise.all([
+                fetch("{{ asset('provinces.json') }}").then(res => res.json()),
+                fetch("{{ asset('regencies.json') }}").then(res => res.json())
+            ]).then(([provinces, regencies]) => {
+                let optgroupProv = $('<optgroup label="Tingkat Provinsi"></optgroup>');
+                provinces.forEach(prov => {
+                    if (prov !== currentWilayah) optgroupProv.append(`<option value="${prov}">${prov}</option>`);
+                });
+
+                let optgroupReg = $('<optgroup label="Tingkat Kabupaten/Kota"></optgroup>');
+                regencies.forEach(reg => {
+                    if (reg !== currentWilayah) optgroupReg.append(`<option value="${reg}">${reg}</option>`);
+                });
+
+                $('#wilayahSelect').append(optgroupProv).append(optgroupReg);
+                $('#wilayahSelect').select2({
+                    placeholder: "-- Pilih Wilayah Domisili --",
+                    allowClear: true,
+                    width: '100%'
+                });
+
+                $('#kategori_id').select2({
+                    placeholder: "-- Pilih atau Ketik Kategori Baru --",
+                    tags: true,
+                    allowClear: true,
+                    width: '100%'
+                });
+            }).catch(err => {
+                console.error('Gagal meload data wilayah:', err);
+                $('#wilayahSelect').select2({
+                    placeholder: "-- Pilih Wilayah Domisili --",
+                    allowClear: true,
+                    width: '100%'
+                });
+
+                $('#kategori_id').select2({
+                    placeholder: "-- Pilih atau Ketik Kategori Baru --",
+                    tags: true,
+                    allowClear: true,
+                    width: '100%'
+                });
+            });
         });
     </script>
 @endpush

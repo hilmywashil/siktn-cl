@@ -1,0 +1,17 @@
+SIKTN BRIEF
+1. Alur PNKT Sekertariat dan anggota pengurus: Sekertariat PNKT mengikutkan anggoa pengurus(hanya berupa username(sama seperti SMADIMENT, karna tujuannya hanya untuk terbit credential) > PNKT sekertariat memberikan credential dan link loginnya ke grup WhatsApp > Anggota pengurus login ke dashboard > di dashboard beri pemberitahuan untuk menyesuaikan profile (rubah credential dan melengkapi profile)) > anggota pengurus merubah credential dan melengkapi profile > Jika sudah melengkapi profile (approve oleh sekertariat PNKT) Note : untuk bagian "PNKT sekertariat memberikan credential dan link loginnya ke grup WhatsApp" ini dilakukan manual tidak melalui sistem (di tulis hanya karna untuk bayangan flow)
+2. Field profile anggota pengurus: - Foto(ada dua opsi: kamera/pilih file) - NIK - Nama Lengkap - Tempat dan tanggal lahir - Alamat lengkap - Jabatan - Pendidikan Terakhir - Pekerjaan - Riwayat organisasi - Kompetensi - Nomor HP/WhatsApp - Email - Sosial media ada tiga field (isntagram-tiktok-X) Note : Hanya sosial media yang opsional field lain wajib
+3. Struktur organisasi langsung muncul setelah melengkapi data dari anggota pengurus (dibuat fleksibel atau templates) dan tetap ada input manual nya
+4. Untuk jabatan diinput manual oleh sekertariat PNKT 5. Untuk KTA terbit otomatis setelah anggota pengurus melengkapi profile
+dan sudah divalidasi oleh PNKT(ukuran KTA standar kartu) 6. Terdapat pop up 1 minggu > 3 hari > H1 hari sebelum ulang tahun 7. Navbar : (Home, organisasi, program, e-katalog, dan berita) 8. Ada opsi en/in 9. Untuk program masuk ke navbar bukan hanya berupa section di
+home/beranda 10. Yang bisa akses bagian program adalah PNKT 11. Ketika cursor berada di navbar program akan muncul dua opsi yaitu : CSR
+& Bidang 12. Untuk field program sama seperti hipmi, namun ada dua opsi: CSR dan
+Bidang
+
+13. E-KATALOG sama dengan HIPMI namun untuk tautan bisnis berupa opsi yaitu link website dan tautan online shope (jadi ada dua field)
+14. E-KATALOG dibagi menjadi berdasarkan wilayah (nasional, provinsi, dan kabupaten/kota)
+15. Validasi E-katalog dari PKKT oleh PPKT dan input E-Katalog oleh PPKT di validasi oleh PNKT dan PNKT (masih perlu di make sure)
+16. Berita untuk inputan sama dengan hipmi (berita diinput oleh PNKT) 17. Sekertariat maupun anggota pengurus dan pimpinan bisa lihat berupa KPI
+(mana yang belum mana yang sudah melengkapi profile, E-Katalog, dll) 18. Color palete ambil biru dongker gradasi putih
+
+

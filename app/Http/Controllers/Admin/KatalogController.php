@@ -17,11 +17,40 @@ class KatalogController extends Controller
     private function checkAuthorization($viewOnly = false)
     {
         $admin = auth()->guard('admin')->user();
-        if (!$admin->canManageContent()) {
-            if ($viewOnly && $admin->isPimpinan()) {
+        if (!$admin || !$admin->canManageKatalog()) {
+            if ($viewOnly && $admin && $admin->isPimpinan()) {
                 return; // Pimpinan allowed for view only
             }
             abort(403, 'Akses ditolak: Anda tidak memiliki hak akses ke fitur ini.');
+        }
+    }
+
+    private function applyDomisiliFilter($query)
+    {
+        $admin = auth()->guard('admin')->user();
+        if ($admin && in_array($admin->category, ['ppkt', 'pkkt']) && !empty($admin->domisili)) {
+            if ($admin->category === 'ppkt') {
+                $query->where('wilayah', 'LIKE', "%{$admin->domisili}%");
+            } else {
+                $query->where('wilayah', $admin->domisili);
+            }
+        }
+        return $query;
+    }
+
+    private function checkKatalogAccess(Katalog $katalog)
+    {
+        $admin = auth()->guard('admin')->user();
+        if ($admin && in_array($admin->category, ['ppkt', 'pkkt']) && !empty($admin->domisili)) {
+            if ($admin->category === 'ppkt') {
+                if (!empty($katalog->wilayah) && strpos($katalog->wilayah, $admin->domisili) === false) {
+                    abort(403, 'Akses Ditolak: Anda hanya dapat mengelola data E-Katalog dari wilayah Provinsi Anda (' . $admin->domisili . ').');
+                }
+            } else {
+                if (!empty($katalog->wilayah) && $katalog->wilayah !== $admin->domisili) {
+                    abort(403, 'Akses Ditolak: Anda hanya dapat mengelola data E-Katalog dari wilayah Kab/Kota Anda (' . $admin->domisili . ').');
+                }
+            }
         }
     }
 
@@ -30,6 +59,7 @@ class KatalogController extends Controller
         $this->checkAuthorization(true);
 
         $query = Katalog::with('kategori');
+        $this->applyDomisiliFilter($query);
 
         // Filter by status
         if ($request->filled('status') && $request->status !== 'all') {
@@ -106,11 +136,11 @@ class KatalogController extends Controller
             'anggota_id' => 'nullable|integer',
             'company_name' => 'required|string|max:255',
             'business_field' => 'required|string|max:255',
-            'kategori_id' => 'nullable|exists:kategori_ekatalog,id',
+            'kategori_id' => 'nullable|string|max:255',
             'harga' => 'nullable|string|max:50',
             'description' => 'required|string|max:1000',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
             'address' => 'required|string|max:500',
             'wilayah' => 'nullable|string|max:100',
             'phone' => 'required|string|max:20',
@@ -200,6 +230,7 @@ class KatalogController extends Controller
     public function edit(Katalog $katalog)
     {
         $this->checkAuthorization();
+        $this->checkKatalogAccess($katalog);
 
         try {
             $anggotas = Anggota::where('status', 'approved')
@@ -222,11 +253,11 @@ class KatalogController extends Controller
             'anggota_id' => 'nullable|integer',
             'company_name' => 'required|string|max:255',
             'business_field' => 'required|string|max:255',
-            'kategori_id' => 'nullable|exists:kategori_ekatalog,id',
+            'kategori_id' => 'nullable|string|max:255',
             'harga' => 'nullable|string|max:50',
             'description' => 'required|string|max:1000',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
             'address' => 'required|string|max:500',
             'wilayah' => 'nullable|string|max:100',
             'phone' => 'required|string|max:20',
@@ -305,6 +336,7 @@ class KatalogController extends Controller
     public function destroy(Katalog $katalog)
     {
         $this->checkAuthorization();
+        $this->checkKatalogAccess($katalog);
 
         if ($katalog->logo && Storage::disk('public')->exists($katalog->logo)) {
             Storage::disk('public')->delete($katalog->logo);
@@ -334,6 +366,7 @@ class KatalogController extends Controller
     public function approve(Katalog $katalog)
     {
         $this->checkAuthorization();
+        $this->checkKatalogAccess($katalog);
 
         if ($katalog->status === 'approved') {
             return back()->with('info', 'Katalog sudah disetujui sebelumnya.');
@@ -347,6 +380,11 @@ class KatalogController extends Controller
             'revision_notes' => null,
             'is_active' => true,
         ]);
+
+        // Auto-approve pending custom category if created by member
+        if ($katalog->kategori_id && $katalog->kategori && !$katalog->kategori->is_active) {
+            $katalog->kategori->update(['is_active' => true]);
+        }
 
         Log::info('Katalog approved', [
             'katalog_id' => $katalog->id,
@@ -364,6 +402,7 @@ class KatalogController extends Controller
     public function revision(Request $request, Katalog $katalog)
     {
         $this->checkAuthorization();
+        $this->checkKatalogAccess($katalog);
 
         $request->validate([
             'revision_notes' => 'required|string|max:500',
@@ -398,6 +437,7 @@ class KatalogController extends Controller
     public function reject(Request $request, Katalog $katalog)
     {
         $this->checkAuthorization();
+        $this->checkKatalogAccess($katalog);
 
         $request->validate([
             'rejection_reason' => 'required|string|max:500',

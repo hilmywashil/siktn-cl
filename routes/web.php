@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\KontakController;
 use App\Http\Controllers\Admin\Sekretariat\SuratController;
 use App\Http\Controllers\Admin\Sekretariat\SuratKeputusanController;
 use App\Http\Controllers\Admin\Sekretariat\NotulensiController;
+use App\Http\Controllers\Admin\NotificationSettingController;
 use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AnggotaController;
@@ -94,6 +95,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
             auth()->guard('admin')->user()->unreadNotifications->markAsRead();
             return back();
         })->name('notifications.readAll');
+
+        // Notification Preferences Settings (12d)
+        Route::get('settings/notifications', [NotificationSettingController::class, 'edit'])->name('settings.notifications');
+        Route::post('settings/notifications', [NotificationSettingController::class, 'update'])->name('settings.notifications.update');
 
         // Profile
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
