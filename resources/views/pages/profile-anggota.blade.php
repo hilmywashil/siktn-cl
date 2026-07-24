@@ -363,25 +363,19 @@
         }
 
         .kta-front-curve {
-            position: absolute;
-            bottom: -20px;
-            left: -10%;
-            width: 120%;
-            height: 40px;
-            background: var(--primary-blue);
-            border-radius: 50%;
-            border-bottom: 8px solid var(--accent-yellow);
+            display: none;
         }
 
         .kta-logo-front {
-            width: 130px;
-            height: 130px;
-            margin: -30px auto 10px;
+            width: 110px;
+            height: 110px;
+            margin: -25px auto 10px;
             position: relative;
             z-index: 2;
             background: white;
             border-radius: 50%;
-            padding: 4px;
+            padding: 6px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
         }
 
         .kta-logo-front img {
@@ -480,16 +474,26 @@
         .kta-bottom-row {
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
-            padding: 10px 20px 15px;
+            align-items: center;
+            padding: 10px 20px 14px;
             margin-top: auto;
+            position: relative;
+            z-index: 5;
         }
 
         .kta-qr-code {
-            width: 65px;
-            height: 65px;
-            background: white;
-            padding: 2px;
+            width: 66px;
+            height: 66px;
+            background: #ffffff;
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid rgba(2, 38, 72, 0.18);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-sizing: border-box;
         }
 
         .kta-signature {
@@ -1138,10 +1142,12 @@
             <aside class="dashboard-sidebar">
                 <div class="user-badge">
                     <div class="user-avatar-wrapper">
-                        @if($anggota->foto_diri)
+                        @if($anggota->foto_diri && Storage::disk('public')->exists($anggota->foto_diri))
                             <img src="{{ Storage::url($anggota->foto_diri) }}" class="user-avatar" alt="{{ $anggota->nama_lengkap }}">
                         @else
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($anggota->nama_lengkap) }}&background=090b62&color=fff&size=120" class="user-avatar" alt="Avatar">
+                            <div class="user-avatar-placeholder" style="width: 100%; height: 100%; background: #022648; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800; font-family: 'Montserrat', sans-serif;">
+                                {{ strtoupper(substr($anggota->nama_lengkap ?? 'A', 0, 2)) }}
+                            </div>
                         @endif
                     </div>
                     <h4 class="user-name">{{ $anggota->nama_lengkap }}</h4>
@@ -1335,7 +1341,7 @@
                             <div class="kta-front-curve"></div>
 
                             <div class="kta-logo-front">
-                                <img src="{{ asset('assets/img/logo.png') }}" alt="Karang Taruna" onerror="this.src='https://ui-avatars.com/api/?name=Karang Taruna&background=090b62&color=fff'">
+                                <img src="{{ asset('assets-front/images/logo_karang_taruna.png') }}" alt="Karang Taruna">
                             </div>
 
                             <div class="kta-member-name">{{ $anggota->nama_lengkap }}</div>
@@ -1375,11 +1381,11 @@
                             </div>
 
                             <div class="kta-bottom-row">
-                                <div class="kta-qr-code">
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ urlencode(route('detail-buku', $anggota->id)) }}" alt="QR Code" style="width: 100%; height: 100%;" />
+                                <div class="kta-qr-code" id="ktaQrCodeContainer">
+                                    {!! \App\Services\QrCodeSvg::generate(route('detail-buku', $anggota->id)) !!}
                                 </div>
                                 <div class="kta-signature">
-                                    <img src="{{ asset('assets-front/images/signature_dummy.png') }}" alt="Signature" class="kta-signature-img" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/f/f6/Signature_of_John_Hancock.svg'; this.style.opacity='0.5';">
+                                    <img src="{{ asset('assets-front/images/signature_dummy.png') }}" alt="Signature" class="kta-signature-img" onerror="this.style.display='none'">
                                     <p class="kta-signature-text">PENGURUS NASIONAL KARANG TARUNA</p>
                                     <p class="kta-signature-subtext">KETUA UMUM</p>
                                 </div>
@@ -1772,13 +1778,16 @@
         }
     </script>
 
-    <!-- Dependencies -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Dependencies (Local Assets for Maximum Speed) -->
+    <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
+    <link href="{{ asset('vendor/select2/css/select2.min.css') }}" rel="stylesheet" />
+    <script src="{{ asset('vendor/select2/js/select2.min.js') }}"></script>
+    <script src="{{ asset('vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
+    <script src="{{ asset('vendor/qrcode/qrcode.min.js') }}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+
 
     <script>
         (function() {
