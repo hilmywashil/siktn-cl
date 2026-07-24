@@ -303,7 +303,7 @@
         }
 
         /* ==============================================
-        KTA PREVIEW STYLING (NEW VERTICAL DESIGN)
+        KTA PREVIEW STYLING (PREMIUM MODERN DESIGN)
         ============================================== */
         .kta-card-wrapper {
             display: flex;
@@ -314,16 +314,17 @@
         }
 
         .kta-card {
-            width: 320px;
-            height: 510px;
+            width: 330px;
+            height: 520px;
             background: #ffffff;
-            border-radius: 12px;
+            border-radius: 16px;
             position: relative;
-            font-family: 'Times New Roman', Times, serif;
-            box-shadow: 0 15px 35px rgba(11, 19, 84, 0.15);
+            font-family: 'Inter', 'Google Sans', system-ui, -apple-system, sans-serif;
+            box-shadow: 0 20px 40px -10px rgba(2, 38, 72, 0.2), 0 4px 12px rgba(0, 0, 0, 0.05);
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            border: 1px solid rgba(2, 38, 72, 0.12);
         }
 
         .kta-card * {
@@ -332,33 +333,35 @@
 
         /* Front Side Elements */
         .kta-header-front {
-            background: var(--primary-blue);
+            background: linear-gradient(135deg, #022648 0%, #083b6e 100%);
             color: #ffffff;
             text-align: center;
-            padding: 30px 15px 40px;
+            padding: 24px 15px 32px;
             position: relative;
         }
 
         .kta-header-front h2 {
-            font-size: 22px;
-            font-weight: 700;
-            margin: 0 0 5px;
+            font-size: 20px;
+            font-weight: 800;
+            margin: 0 0 4px;
             letter-spacing: 1.5px;
             text-transform: uppercase;
             line-height: 1.2;
+            color: #ffffff;
         }
 
         .kta-header-front p {
-            font-family: 'Google Sans', sans-serif;
-            font-size: 11px;
+            font-size: 10px;
             margin: 0;
-            letter-spacing: 1px;
-            font-weight: 500;
+            letter-spacing: 1.8px;
+            font-weight: 700;
+            color: #f3c350;
+            text-transform: uppercase;
         }
 
         .kta-gold-bar {
-            background: var(--accent-yellow);
-            height: 8px;
+            background: linear-gradient(90deg, #b7830f 0%, #f3c350 50%, #b7830f 100%);
+            height: 5px;
             width: 100%;
         }
 
@@ -367,15 +370,19 @@
         }
 
         .kta-logo-front {
-            width: 110px;
-            height: 110px;
-            margin: -25px auto 10px;
+            width: 95px;
+            height: 95px;
+            margin: -24px auto 6px;
             position: relative;
-            z-index: 2;
-            background: white;
+            z-index: 3;
+            background: #ffffff;
             border-radius: 50%;
-            padding: 6px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            padding: 4px;
+            border: 3.5px solid #b7830f;
+            box-shadow: 0 8px 20px rgba(2, 38, 72, 0.22);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .kta-logo-front img {
@@ -387,58 +394,71 @@
 
         .kta-member-name {
             text-align: center;
-            color: var(--primary-blue);
-            font-size: 17px;
-            font-weight: 700;
+            color: #022648;
+            font-size: 16px;
+            font-weight: 800;
             text-transform: uppercase;
-            margin: 5px 15px 0;
-            line-height: 1.2;
+            margin: 4px 12px 2px;
+            line-height: 1.25;
+            letter-spacing: 0.5px;
         }
 
-        .kta-member-nrp {
+        .kta-member-nik-container {
             text-align: center;
-            color: var(--primary-blue);
-            font-family: 'Google Sans', sans-serif;
-            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .kta-member-nik-badge {
+            display: inline-block;
+            background: #f1f5f9;
+            color: #022648;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 11px;
             font-weight: 700;
-            margin-top: 5px;
+            padding: 3px 12px;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            letter-spacing: 0.5px;
         }
 
         .kta-anchor-divider {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin: 10px 0;
-            color: var(--accent-yellow);
-            font-size: 18px;
+            gap: 8px;
+            margin: 6px 0 10px;
+            color: #b7830f;
+            font-size: 12px;
         }
 
         .kta-anchor-divider::before,
         .kta-anchor-divider::after {
             content: '';
-            width: 80px;
-            height: 2px;
-            background: var(--accent-yellow);
+            width: 70px;
+            height: 1.5px;
+            background: linear-gradient(90deg, transparent, #b7830f, transparent);
         }
 
         .kta-details-container {
             display: flex;
-            padding: 0 20px;
-            margin-top: 10px;
-            gap: 15px;
+            padding: 0 18px;
+            margin-top: 4px;
+            gap: 14px;
+            align-items: center;
         }
 
         .kta-photo-wrapper {
-            width: 85px;
-            height: 110px;
-            border: 1px solid #e5e7eb;
-            background: #f9fafb;
+            width: 90px;
+            height: 115px;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            background: #f8fafc;
             flex-shrink: 0;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
         }
 
         .kta-photo-wrapper img {
@@ -451,44 +471,65 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            gap: 6px;
         }
 
         .kta-detail-row {
             display: flex;
-            font-family: 'Google Sans', sans-serif;
-            font-size: 9px;
-            font-weight: 700;
-            color: var(--primary-blue);
+            font-size: 9.5px;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.3;
         }
 
         .kta-detail-label {
-            width: 85px;
+            width: 78px;
             flex-shrink: 0;
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 8.5px;
+            letter-spacing: 0.3px;
         }
 
         .kta-detail-value {
             flex-grow: 1;
+            color: #022648;
+            font-weight: 700;
+        }
+
+        .kta-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 8.5px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid #bbf7d0;
+            letter-spacing: 0.3px;
         }
 
         .kta-bottom-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 20px 14px;
+            padding: 10px 18px 14px;
             margin-top: auto;
             position: relative;
             z-index: 5;
         }
 
         .kta-qr-code {
-            width: 66px;
-            height: 66px;
+            width: 65px;
+            height: 65px;
             background: #ffffff;
             padding: 4px;
             border-radius: 8px;
-            border: 1px solid rgba(2, 38, 72, 0.18);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -498,32 +539,33 @@
 
         .kta-signature {
             text-align: center;
-            color: var(--primary-blue);
+            color: #022648;
         }
 
         .kta-signature-img {
-            height: 40px;
-            margin-bottom: 5px;
+            height: 36px;
+            margin-bottom: 2px;
             object-fit: contain;
         }
 
         .kta-signature-text {
-            font-family: 'Google Sans', sans-serif;
-            font-size: 9px;
-            font-weight: 700;
+            font-size: 8.5px;
+            font-weight: 800;
             margin: 0;
+            letter-spacing: 0.3px;
+            color: #022648;
         }
 
         .kta-signature-subtext {
-            font-family: 'Google Sans', sans-serif;
-            font-size: 8px;
-            color: #666;
-            margin: 2px 0 0;
+            font-size: 7.5px;
+            color: #64748b;
+            margin: 1px 0 0;
+            font-weight: 600;
         }
 
         .kta-bottom-bar {
-            height: 15px;
-            background: var(--accent-yellow);
+            height: 12px;
+            background: linear-gradient(90deg, #022648 0%, #083b6e 70%, #b7830f 100%);
             width: 100%;
             margin-top: auto;
         }
@@ -535,39 +577,41 @@
         }
 
         .kta-card-back .kta-header-front {
-            padding: 25px 15px;
-            border-radius: 0;
+            padding: 20px 15px 24px;
         }
 
         .kta-card-back .kta-header-front h2 {
-            font-family: 'Google Sans', sans-serif;
-            font-size: 18px;
+            font-size: 17px;
             letter-spacing: 1px;
             margin: 0;
         }
 
         .kta-back-content {
-            padding: 30px 25px;
+            padding: 24px 22px;
             position: relative;
             z-index: 2;
         }
 
         .kta-back-ketentuan-title {
-            font-family: 'Google Sans', sans-serif;
-            font-weight: 700;
-            font-size: 12px;
-            color: var(--primary-blue);
-            margin-bottom: 15px;
+            font-weight: 800;
+            font-size: 11.5px;
+            color: #022648;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .kta-back-ketentuan-list {
             margin: 0;
-            padding-left: 15px;
-            font-family: 'Google Sans', sans-serif;
-            font-size: 11px;
-            color: var(--primary-blue);
-            line-height: 1.6;
+            padding-left: 18px;
+            font-size: 10.5px;
+            color: #334155;
+            line-height: 1.65;
             font-weight: 600;
+        }
+
+        .kta-back-ketentuan-list li {
+            margin-bottom: 8px;
         }
 
         .kta-back-ketentuan-list li {
@@ -1345,7 +1389,9 @@
                             </div>
 
                             <div class="kta-member-name">{{ $anggota->nama_lengkap }}</div>
-                            <div class="kta-member-nrp">{{ $anggota->nik ?? 'NIK: -' }}</div>
+                            <div class="kta-member-nik-container">
+                                <span class="kta-member-nik-badge">NIK: {{ $anggota->nik ?? '-' }}</span>
+                            </div>
 
                             <div class="kta-anchor-divider">
                                 <i class="fas fa-star"></i>
@@ -1356,13 +1402,13 @@
                                     @if($anggota->foto_diri)
                                         <img src="{{ Storage::url($anggota->foto_diri) }}" alt="{{ $anggota->nama_lengkap }}">
                                     @else
-                                        <i class="fas fa-user text-muted" style="font-size: 2rem;"></i>
+                                        <i class="fas fa-user text-muted" style="font-size: 2.2rem; color: #94a3b8;"></i>
                                     @endif
                                 </div>
 
                                 <div class="kta-details-list">
                                     <div class="kta-detail-row">
-                                        <div class="kta-detail-label">TANGGAL LAHIR</div>
+                                        <div class="kta-detail-label">TGL LAHIR</div>
                                         <div class="kta-detail-value">: {{ $anggota->tanggal_lahir ? $anggota->tanggal_lahir->format('d F Y') : '-' }}</div>
                                     </div>
                                     <div class="kta-detail-row">
@@ -1375,7 +1421,7 @@
                                     </div>
                                     <div class="kta-detail-row">
                                         <div class="kta-detail-label">STATUS</div>
-                                        <div class="kta-detail-value">: ANGGOTA AKTIF</div>
+                                        <div class="kta-detail-value">: <span class="kta-status-badge"><i class="fas fa-check-circle"></i> AKTIF</span></div>
                                     </div>
                                 </div>
                             </div>
