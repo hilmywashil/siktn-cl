@@ -471,6 +471,7 @@ class AnggotaManagementController extends Controller
             $anggota->update(['jabatan' => $jabatanNama]);
 
             // Masukkan ke Struktur Organisasi
+            $activePeriodeId = \App\Models\PeriodeKepengurusan::aktif()->first()?->id;
             Organisasi::updateOrCreate(
                 ['anggota_id' => $anggota->id],
                 [
@@ -480,6 +481,7 @@ class AnggotaManagementController extends Controller
                     'foto' => $anggota->foto_diri ?? null,
                     'aktif' => true,
                     'urutan' => $masterJabatan->urutan,
+                    'periode_id' => $activePeriodeId,
                 ]
             );
         }

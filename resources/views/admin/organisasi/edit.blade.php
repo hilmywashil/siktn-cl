@@ -221,6 +221,22 @@
             <input type="hidden" id="urutan" name="urutan" value="{{ old('urutan', $organisasi->urutan) }}">
 
             <div class="form-group">
+                <label for="periode_id" class="form-label required">Periode Kepengurusan</label>
+                <select id="periode_id" name="periode_id" class="form-select @error('periode_id') error @enderror">
+                    @if(isset($allPeriodes) && $allPeriodes->count() > 0)
+                        @foreach($allPeriodes as $per)
+                            <option value="{{ $per->id }}" {{ old('periode_id', $organisasi->periode_id) == $per->id ? 'selected' : '' }}>
+                                {{ $per->nama_periode }} ({{ $per->tahun_mulai }}–{{ $per->tahun_selesai }}) {{ $per->is_aktif ? '★ AKTIF' : '' }}
+                            </option>
+                        @endforeach
+                    @endif
+                </select>
+                @error('periode_id')
+                    <div class="error-message">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
                 <label for="foto" class="form-label">Foto</label>
                 
                 @if($organisasi->foto)

@@ -13,15 +13,28 @@ use Illuminate\Support\Facades\Storage;
 class OrganisasiController extends Controller
 {
     use LogsAdminActivity;
-    public function index()
+    public function index(Request $request)
     {
-        $organisasi = Organisasi::ordered()->get();
+        $allPeriodes = \App\Models\PeriodeKepengurusan::orderBy('is_aktif', 'desc')
+            ->orderBy('tahun_mulai', 'desc')
+            ->get();
+
+        $activePeriode = \App\Models\PeriodeKepengurusan::aktif()->first() 
+            ?? $allPeriodes->first();
+
+        $selectedPeriodeId = $request->get('periode_id', $activePeriode?->id);
+        $selectedPeriode = $allPeriodes->firstWhere('id', $selectedPeriodeId) ?? $activePeriode;
+
+        $organisasiQuery = Organisasi::ordered();
+
+        if ($selectedPeriodeId) {
+            $organisasiQuery->where('periode_id', $selectedPeriodeId);
+        }
+
+        $organisasi = $organisasiQuery->get();
 
         // Build jabatan tree with members
         $jabatans = Jabatan::orderBy('urutan')->get();
-
-        // Map urutan -> jabatan for quick lookup
-        $jabatanByUrutan = $jabatans->keyBy('urutan');
 
         // Map urutan -> org members
         $orgByUrutan = $organisasi->groupBy('urutan'); // grouped by urutan to be 100% unique per node
@@ -53,6 +66,8 @@ class OrganisasiController extends Controller
             'organisasi' => $organisasi,
             'organisasiByUrutan' => $organisasi->groupBy('urutan'),
             'jabatanTree' => $roots,
+            'allPeriodes' => $allPeriodes,
+            'selectedPeriode' => $selectedPeriode,
         ]);
     }
 
@@ -60,9 +75,11 @@ class OrganisasiController extends Controller
     public function create()
     {
         $jabatans = Jabatan::all();
+        $allPeriodes = \App\Models\PeriodeKepengurusan::orderBy('is_aktif', 'desc')->orderBy('tahun_mulai', 'desc')->get();
         return view('admin.organisasi.create', [
             'activeMenu' => 'organisasi',
-            'jabatans' => $jabatans
+            'jabatans' => $jabatans,
+            'allPeriodes' => $allPeriodes,
         ]);
     }
 
@@ -72,6 +89,7 @@ class OrganisasiController extends Controller
             'nama' => 'required|string|max:255',
             'jabatan' => 'required|string|max:255',
             'atasan_id' => 'nullable|exists:jabatans,id',
+            'periode_id' => 'nullable|exists:periode_kepengurusans,id',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'aktif' => 'boolean'
         ]);
@@ -82,9 +100,12 @@ class OrganisasiController extends Controller
 
         $jabatanNama = $validated['jabatan'];
         $atasanId = $validated['atasan_id'] ?? null;
+        $urutanInput = $request->input('urutan');
         $newUrutan = '1';
 
-        if ($atasanId) {
+        if ($urutanInput) {
+            $newUrutan = $urutanInput;
+        } else if ($atasanId) {
             $atasan = \App\Models\Jabatan::find($atasanId);
             if ($atasan) {
                 $parentUrutan = $atasan->urutan;
@@ -124,32 +145,41 @@ class OrganisasiController extends Controller
             }
         }
 
-        // Bikin record Jabatan baru untuk anggota ini (1 card 1 anggota)
-        \App\Models\Jabatan::create([
-            'nama_jabatan' => $jabatanNama,
-            'urutan' => $newUrutan
-        ]);
+        // Bikin record Jabatan baru HANYA jika urutan belum ada di master jabatans
+        if (!\App\Models\Jabatan::where('urutan', $newUrutan)->exists()) {
+            \App\Models\Jabatan::create([
+                'nama_jabatan' => $jabatanNama,
+                'urutan' => $newUrutan
+            ]);
+        }
 
         $validated['urutan'] = $newUrutan;
         $validated['kategori'] = $jabatanNama; // Backward compatibility
-        unset($validated['atasan_id']);
+        if (empty($validated['periode_id'])) {
+            $activePeriode = \App\Models\PeriodeKepengurusan::aktif()->first();
+            if ($activePeriode) {
+                $validated['periode_id'] = $activePeriode->id;
+            }
+        }
 
         Organisasi::create($validated);
 
         $org = Organisasi::latest()->first();
         $this->logActivity('organisasi', 'Tambah', $org?->id, $validated['nama'], $validated['jabatan']);
 
-        return redirect()->route('admin.organisasi.index')
+        return redirect()->route('admin.organisasi.index', ['periode_id' => $validated['periode_id'] ?? null])
             ->with('success', 'Data organisasi berhasil ditambahkan');
     }
 
     public function edit(Organisasi $organisasi)
     {
         $jabatans = Jabatan::all();
+        $allPeriodes = \App\Models\PeriodeKepengurusan::orderBy('is_aktif', 'desc')->orderBy('tahun_mulai', 'desc')->get();
         return view('admin.organisasi.edit', [
             'activeMenu' => 'organisasi',
             'organisasi' => $organisasi,
-            'jabatans' => $jabatans
+            'jabatans' => $jabatans,
+            'allPeriodes' => $allPeriodes,
         ]);
     }
 
@@ -158,6 +188,7 @@ class OrganisasiController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'jabatan' => 'required|string|max:255',
+            'periode_id' => 'nullable|exists:periode_kepengurusans,id',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'aktif' => 'boolean'
         ]);

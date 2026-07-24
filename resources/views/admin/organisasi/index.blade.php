@@ -494,13 +494,25 @@
 
     <!-- Bagan Struktur Organisasi -->
     <div class="content-card" style="margin-bottom: 2rem;">
-        <div class="card-header-flex">
+        <div class="card-header-flex" style="flex-wrap: wrap; gap: 1rem;">
             <div>
                 <h3 class="card-title">Struktur Hirarki Organisasi</h3>
                 <p style="color: var(--gray-500); font-size: 0.85rem; margin: 0.2rem 0 0 0;">
                     Bagan organisasi berdasarkan susunan jabatan. Klik tanda <strong>+</strong> pada node untuk menambah anggota.
                 </p>
             </div>
+            @if(isset($allPeriodes) && $allPeriodes->count() > 0)
+            <form action="{{ route('admin.organisasi.index') }}" method="GET" style="display: flex; align-items: center; gap: 0.6rem;">
+                <label for="admin_periode_filter" style="font-size: 0.85rem; font-weight: 700; color: var(--navy); margin: 0; white-space: nowrap;">Periode:</label>
+                <select name="periode_id" id="admin_periode_filter" onchange="this.form.submit()" class="select2-basic" style="min-width: 220px; height: 38px;">
+                    @foreach($allPeriodes as $per)
+                        <option value="{{ $per->id }}" {{ isset($selectedPeriode) && $selectedPeriode->id == $per->id ? 'selected' : '' }}>
+                            {{ $per->nama_periode }} ({{ $per->tahun_mulai }} – {{ $per->tahun_selesai }}){{ $per->is_aktif ? ' - Aktif' : '' }}
+                        </option>
+                    @endforeach
+                </select>
+            </form>
+            @endif
         </div>
         
         <div class="org-tree-wrapper">
@@ -624,6 +636,15 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        if (typeof $ !== 'undefined' && typeof $.fn.select2 !== 'undefined') {
+            $('.select2-basic').select2({
+                minimumResultsForSearch: Infinity,
+                width: 'auto'
+            }).on('change', function() {
+                this.form.submit();
+            });
+        }
+
         let activeDropdown = null;
 
         // Position & Toggle Dropdown Trigger (⋮)

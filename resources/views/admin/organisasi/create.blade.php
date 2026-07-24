@@ -174,6 +174,9 @@
     <div class="form-card">
         <form action="{{ route('admin.organisasi.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
+            @if(request('urutan'))
+                <input type="hidden" name="urutan" value="{{ request('urutan') }}">
+            @endif
 
             <div class="form-group">
                 <label for="nama" class="form-label required">Nama Lengkap</label>
@@ -210,6 +213,22 @@
                 </select>
                 <div class="form-helper">Pilih jabatan induk untuk menentukan urutan secara otomatis.</div>
                 @error('atasan_id')
+                    <div class="error-message">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="periode_id" class="form-label required">Periode Kepengurusan</label>
+                <select id="periode_id" name="periode_id" class="form-select @error('periode_id') error @enderror">
+                    @if(isset($allPeriodes) && $allPeriodes->count() > 0)
+                        @foreach($allPeriodes as $per)
+                            <option value="{{ $per->id }}" {{ old('periode_id', request('periode_id')) == $per->id || ($per->is_aktif && !old('periode_id')) ? 'selected' : '' }}>
+                                {{ $per->nama_periode }} ({{ $per->tahun_mulai }}–{{ $per->tahun_selesai }}) {{ $per->is_aktif ? '★ AKTIF' : '' }}
+                            </option>
+                        @endforeach
+                    @endif
+                </select>
+                @error('periode_id')
                     <div class="error-message">{{ $message }}</div>
                 @enderror
             </div>

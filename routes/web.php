@@ -106,6 +106,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('settings/activity-logs/export-pdf', [\App\Http\Controllers\Admin\AdminActivityLogController::class, 'exportPdf'])->name('settings.activity-logs.export-pdf');
         Route::get('settings/activity-logs/export-txt', [\App\Http\Controllers\Admin\AdminActivityLogController::class, 'exportTxt'])->name('settings.activity-logs.export-txt');
 
+        // Periode Kepengurusan Settings (12d)
+        Route::get('settings/periode', [\App\Http\Controllers\Admin\PeriodeKepengurusanController::class, 'index'])->name('settings.periode.index');
+        Route::post('settings/periode', [\App\Http\Controllers\Admin\PeriodeKepengurusanController::class, 'store'])->name('settings.periode.store');
+        Route::put('settings/periode/{periode}', [\App\Http\Controllers\Admin\PeriodeKepengurusanController::class, 'update'])->name('settings.periode.update');
+        Route::delete('settings/periode/{periode}', [\App\Http\Controllers\Admin\PeriodeKepengurusanController::class, 'destroy'])->name('settings.periode.destroy');
+        Route::post('settings/periode/{periode}/set-active', [\App\Http\Controllers\Admin\PeriodeKepengurusanController::class, 'setActive'])->name('settings.periode.set-active');
+
         // Profile
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -270,10 +277,28 @@ Route::get('/berita', [BeritaController::class, 'index'])->name('berita');
 Route::get('/berita/{slug}', [BeritaController::class, 'show'])->name('berita-detail');
 
 // Other Public Pages
-Route::get('/organisasi', function () {
-    $organisasi = \App\Models\Organisasi::aktif()
-        ->orderBy('urutan', 'asc')
+Route::get('/organisasi', function (Illuminate\Http\Request $request) {
+    $allPeriodes = \App\Models\PeriodeKepengurusan::orderBy('is_aktif', 'desc')
+        ->orderBy('tahun_mulai', 'desc')
         ->get();
+
+    $activePeriode = \App\Models\PeriodeKepengurusan::aktif()->first() 
+        ?? $allPeriodes->first();
+
+    $selectedPeriodeId = $request->get('periode_id', $activePeriode?->id);
+
+    $selectedPeriode = $allPeriodes->firstWhere('id', $selectedPeriodeId) ?? $activePeriode;
+
+    $organisasiQuery = \App\Models\Organisasi::aktif();
+
+    if ($selectedPeriodeId) {
+        $organisasiQuery->where(function($q) use ($selectedPeriodeId) {
+            $q->where('periode_id', $selectedPeriodeId)
+              ->orWhereNull('periode_id');
+        });
+    }
+
+    $organisasi = $organisasiQuery->orderBy('urutan', 'asc')->get();
 
     $nodesByUrutan = [];
     foreach ($organisasi as $org) {
@@ -300,7 +325,7 @@ Route::get('/organisasi', function () {
         }
     }
 
-    return view('pages.organisasi', compact('organisasiTree'));
+    return view('pages.organisasi', compact('organisasiTree', 'allPeriodes', 'selectedPeriode'));
 })->name('organisasi');
 Route::get('/organisasi/{nama}', [PublicOrganisasiController::class, 'show'])
     ->name('organisasi.show');

@@ -18,16 +18,18 @@
                     </div>
                 @endforeach
             @else
-                <div class="org-node-jabatan">{{ $node->nama_jabatan }}</div>
-                <p style="font-size: 0.7rem; color: #94a3b8; margin: 0;">Kosong</p>
+                <a href="{{ route('admin.organisasi.create', ['urutan' => $node->urutan, 'atasan_id' => $node->atasan_id, 'jabatan' => $node->nama_jabatan, 'periode_id' => request('periode_id', $selectedPeriode->id ?? '')]) }}" style="text-decoration: none; display: block; color: inherit; width: 100%; height: 100%;">
+                    <div class="org-node-jabatan">{{ $node->nama_jabatan }}</div>
+                    <p style="font-size: 0.7rem; color: #022648; margin: 0; font-weight: 700;">Kosong <span style="font-size: 0.65rem; color: #b7830f;">(+ Isi)</span></p>
+                </a>
             @endif
         </div>
 
         {{-- Add Sibling Button (Right) --}}
-        <a href="{{ route('admin.organisasi.create') }}?atasan_id={{ $node->atasan_id }}&jabatan={{ urlencode($node->nama_jabatan) }}" class="org-add-btn sibling-btn" title="Tambah Anggota (Jabatan Sejajar)">+</a>
+        <a href="{{ route('admin.organisasi.create', ['atasan_id' => $node->atasan_id, 'jabatan' => $node->nama_jabatan, 'periode_id' => request('periode_id', $selectedPeriode->id ?? '')]) }}" class="org-add-btn sibling-btn" title="Tambah Anggota (Jabatan Sejajar)">+</a>
         
         {{-- Add Child Button (Bottom) --}}
-        <a href="{{ route('admin.organisasi.create') }}?atasan_id={{ $node->id }}" class="org-add-btn child-btn" title="Tambah Anggota (Jabatan Bawahan)">+</a>
+        <a href="{{ route('admin.organisasi.create', ['atasan_id' => $node->id, 'periode_id' => request('periode_id', $selectedPeriode->id ?? '')]) }}" class="org-add-btn child-btn" title="Tambah Anggota (Jabatan Bawahan)">+</a>
     </div>
 
     @if($node->children->count() > 0)

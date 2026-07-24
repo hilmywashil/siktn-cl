@@ -152,8 +152,117 @@
         }
     </style>
 
+    <style>
+        .custom-periode-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .custom-dropdown-trigger {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 0.45rem 0.95rem;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.825rem;
+            font-weight: 700;
+            color: #022648;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(2, 38, 72, 0.05);
+        }
+        .custom-dropdown-trigger:hover {
+            border-color: #022648;
+            box-shadow: 0 4px 12px rgba(2, 38, 72, 0.1);
+        }
+        .custom-dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 6px);
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            box-shadow: 0 12px 30px rgba(2, 38, 72, 0.15);
+            min-width: 250px;
+            z-index: 9999;
+            display: none;
+            overflow: hidden;
+            padding: 4px 0;
+        }
+        .custom-dropdown-menu.show {
+            display: block;
+            animation: select2DropdownFadeIn 0.15s ease-out;
+        }
+        .custom-dropdown-item {
+            display: block;
+            padding: 0.65rem 1rem;
+            color: #022648;
+            text-decoration: none !important;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.15s ease;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .custom-dropdown-item:last-child {
+            border-bottom: none;
+        }
+        .custom-dropdown-item:hover {
+            background: #f8fafc;
+            color: #022648;
+            padding-left: 1.15rem;
+        }
+        .custom-dropdown-item.selected {
+            background: #022648 !important;
+            color: #ffffff !important;
+        }
+
+        @keyframes select2DropdownFadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
     <section class="wrapper-white-1">
         <div class="organisasi-section" data-aos="fade-up" style="width: 100%;">
+            {{-- Period Filter Header Bar --}}
+            <div style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; width: 100%;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="width: 38px; height: 38px; border-radius: 6px; background: #022648; display: flex; align-items: center; justify-content: center; color: #ffffff; flex-shrink: 0;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Masa Bakti Kepengurusan</div>
+                        <div style="font-size: 1.05rem; font-weight: 800; color: #022648;">
+                            {{ $selectedPeriode ? $selectedPeriode->nama_periode : 'Periode Kepengurusan' }}
+                            @if($selectedPeriode && $selectedPeriode->tahun_mulai)
+                                <span style="font-size: 0.85rem; color: #64748b; font-weight: 600; margin-left: 4px;">({{ $selectedPeriode->tahun_mulai }} – {{ $selectedPeriode->tahun_selesai }})</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                @if(isset($allPeriodes) && $allPeriodes->count() > 0)
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <span style="font-size: 0.825rem; font-weight: 700; color: #022648; white-space: nowrap;">Pilih Periode:</span>
+                    <div class="custom-periode-dropdown">
+                        <button type="button" class="custom-dropdown-trigger" onclick="togglePeriodeMenu(event)">
+                            <span>{{ $selectedPeriode ? $selectedPeriode->nama_periode . ' (' . $selectedPeriode->tahun_mulai . ' – ' . $selectedPeriode->tahun_selesai . ')' : 'Pilih Periode' }}</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div class="custom-dropdown-menu" id="customPeriodeMenu">
+                            @foreach($allPeriodes as $per)
+                                <a href="{{ route('organisasi', ['periode_id' => $per->id]) }}" class="custom-dropdown-item {{ $selectedPeriode && $selectedPeriode->id == $per->id ? 'selected' : '' }}">
+                                    <div style="font-weight: 700; font-size: 0.85rem;">{{ $per->nama_periode }}</div>
+                                    <div style="font-size: 0.75rem; opacity: 0.85; font-weight: 600;">{{ $per->tahun_mulai }} – {{ $per->tahun_selesai }} {{ $per->is_aktif ? '• (Aktif Saat Ini)' : '' }}</div>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endif
+            </div>
+
             @if(isset($organisasiTree) && $organisasiTree->count() > 0)
                 <div class="public-tree-wrapper" id="publicTreeWrapper">
                     <div class="public-tree-container" id="publicTreeContainer">
@@ -245,6 +354,21 @@
         function resetZoom() {
             applyScale(1);
         }
+
+        function togglePeriodeMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('customPeriodeMenu');
+            if (menu) {
+                menu.classList.toggle('show');
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('customPeriodeMenu');
+            if (menu && !e.target.closest('.custom-periode-dropdown')) {
+                menu.classList.remove('show');
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(autoFitTree, 300);

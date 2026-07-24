@@ -25,6 +25,7 @@ class Organisasi extends Model
     protected $table = 'organisasi';
 
     protected $fillable = [
+        'periode_id',
         'anggota_id',
         'nama',
         'jabatan',
@@ -37,6 +38,11 @@ class Organisasi extends Model
     protected $casts = [
         'aktif' => 'boolean',
     ];
+
+    public function periode()
+    {
+        return $this->belongsTo(PeriodeKepengurusan::class, 'periode_id');
+    }
 
     // Accessor for photo URL
     public function getFotoUrlAttribute()
