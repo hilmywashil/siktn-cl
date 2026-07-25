@@ -10,6 +10,7 @@ class BeritaController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search');
+        $wilayahSelected = $request->get('wilayah');
 
         $beritaUtamaQuery = Berita::active()->latestPublish();
 
@@ -20,17 +21,26 @@ class BeritaController extends Controller
             });
         }
 
+        if ($wilayahSelected) {
+            $beritaUtamaQuery->where('wilayah', $wilayahSelected);
+        }
+
         $beritaUtama = $beritaUtamaQuery->first();
 
-        $beritas = Berita::active()
-            ->latestPublish()
-            ->when($search, function ($q) use ($search) {
-                $q->where(function ($query) use ($search) {
-                    $query->where('judul', 'like', '%' . $search . '%')
-                        ->orWhere('konten', 'like', '%' . $search . '%');
-                });
-            })
-            ->paginate(12);
+        $beritasQuery = Berita::active()->latestPublish();
+
+        if ($search) {
+            $beritasQuery->where(function ($query) use ($search) {
+                $query->where('judul', 'like', '%' . $search . '%')
+                    ->orWhere('konten', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($wilayahSelected) {
+            $beritasQuery->where('wilayah', $wilayahSelected);
+        }
+
+        $beritas = $beritasQuery->paginate(12);
 
         $beritaPopuler = Berita::active()
             ->populer()
@@ -38,19 +48,23 @@ class BeritaController extends Controller
             ->take(5)
             ->get();
 
-        // Berita terbaru (5 terbaru dari SEMUA berita, tidak exclude apapun)
-        // Ini memastikan berita terbaru yang baru ditambahkan akan langsung muncul
         $beritaTerbaru = Berita::active()
             ->latestPublish()
             ->take(5)
             ->get();
+
+        $listWilayahDb = Berita::active()->whereNotNull('wilayah')->distinct()->pluck('wilayah')->toArray();
+        $provinces = ["Nasional", "Aceh","Sumatera Utara","Sumatera Barat","Riau","Jambi","Sumatera Selatan","Bengkulu","Lampung","Kepulauan Bangka Belitung","Kepulauan Riau","Dki Jakarta","Jawa Barat","Jawa Tengah","Di Yogyakarta","Jawa Timur","Banten","Bali","Nusa Tenggara Barat","Nusa Tenggara Timur","Kalimantan Barat","Kalimantan Tengah","Kalimantan Selatan","Kalimantan Timur","Kalimantan Utara","Sulawesi Utara","Sulawesi Tengah","Sulawesi Selatan","Sulawesi Tenggara","Gorontalo","Sulawesi Barat","Maluku","Maluku Utara","Papua Barat","Papua"];
+        $listWilayah = array_unique(array_merge($provinces, $listWilayahDb));
 
         return view('pages.berita', compact(
             'beritaUtama',
             'beritas',
             'beritaPopuler',
             'beritaTerbaru',
-            'search'
+            'search',
+            'wilayahSelected',
+            'listWilayah'
         ));
     }
 

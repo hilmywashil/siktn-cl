@@ -75,9 +75,12 @@ class SuratKeputusanController extends Controller
             'created_by' => $admin->id,
         ]);
 
-        // Cek jika SK yang baru dibuat akan berakhir dalam <= 6 bulan
-        $daysUntilExpired = Carbon::now()->diffInDays(Carbon::parse($sk->tanggal_berakhir), false);
-        if ($sk->status === 'Aktif' && $daysUntilExpired >= 0 && $daysUntilExpired <= 180) {
+        // Cek jika SK yang baru dibuat akan berakhir dalam <= 7 hari (1 minggu)
+        $now = Carbon::now()->startOfDay();
+        $endDate = Carbon::parse($sk->tanggal_berakhir)->startOfDay();
+        $daysUntilExpired = (int) $now->diffInDays($endDate, false);
+
+        if ($sk->status === 'Aktif' && $daysUntilExpired >= 0 && $daysUntilExpired <= 7) {
             $admins = Admin::whereIn('category', ['super_admin', 'pimpinan', 'pnkt'])->get();
             if ($admins->count() > 0) {
                 Notification::send($admins, new AdminNotification(

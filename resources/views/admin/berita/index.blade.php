@@ -321,7 +321,10 @@ $activeMenu = 'berita';
                             <img src="{{ $berita->gambar_url }}" alt="{{ $berita->judul }}" class="berita-image">
                         </td>
                         <td>
-                            <div style="font-size: 0.72rem; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem;">{{ $berita->kategori }}</div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 0.25rem;">
+                                <span style="font-size: 0.72rem; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 0.5px;">{{ $berita->kategori }}</span>
+                                <span style="font-size: 0.7rem; font-weight: 700; color: #022648; background: #e0f2fe; padding: 1px 6px; border-radius: 4px;">📍 {{ $berita->wilayah ?? 'Nasional' }}</span>
+                            </div>
                             <div style="font-weight: 600; color: var(--gray-900); line-height: 1.4;">{{ $berita->judul }}</div>
                         </td>
                         <td style="font-size: 0.875rem; color: var(--gray-500);">

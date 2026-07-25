@@ -18,6 +18,7 @@ class Berita extends Model
         'konten',
         'gambar',
         'kategori',
+        'wilayah',
         'tags',
         'status',
         'is_populer',

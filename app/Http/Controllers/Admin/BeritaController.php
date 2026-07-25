@@ -26,12 +26,22 @@ class BeritaController extends Controller
         
         $query = Berita::with('author')->latest();
 
+        if ($admin->isPPKT() && !empty($admin->domisili)) {
+            $query->where(function($q) use ($admin) {
+                $q->where('wilayah', $admin->domisili)->orWhere('admin_id', $admin->id);
+            });
+        }
+
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
         if ($request->filled('kategori')) {
             $query->where('kategori', $request->kategori);
+        }
+
+        if ($request->filled('wilayah')) {
+            $query->where('wilayah', $request->wilayah);
         }
 
         $beritas = $query->paginate(10);
@@ -62,6 +72,7 @@ class BeritaController extends Controller
             'konten' => 'required|string',
             'gambar' => 'required|image|mimes:jpeg,jpg,png,webp|max:2048',
             'kategori' => 'required|string',
+            'wilayah' => 'nullable|string|max:255',
             'tags' => 'nullable|string',
             'status' => 'required|in:Draft,Published,Archived',
             'tanggal_publish' => 'required|date',
@@ -82,16 +93,21 @@ class BeritaController extends Controller
             $path = $gambar->storeAs('berita', $filename, 'public');
         }
 
+        // Tentukan wilayah & is_populer berdasarkan role
+        $wilayahValue = $admin->isPPKT() ? ($admin->domisili ?? 'Nasional') : ($validated['wilayah'] ?? 'Nasional');
+        $isPopulerValue = $admin->isPPKT() ? false : $request->has('is_populer');
+
         Berita::create([
             'admin_id' => $admin->id,
             'judul' => $validated['judul'],
             'konten' => $validated['konten'],
             'gambar' => $path,
             'kategori' => $validated['kategori'],
+            'wilayah' => $wilayahValue,
             'tags' => $tagsArray,
             'status' => $validated['status'],
             'tanggal_publish' => $validated['tanggal_publish'],
-            'is_populer' => $request->has('is_populer'),
+            'is_populer' => $isPopulerValue,
         ]);
 
         $berita = Berita::latest()->first();
@@ -106,6 +122,10 @@ class BeritaController extends Controller
         $this->checkAccess($admin);
 
         $berita = Berita::findOrFail($id);
+
+        if ($admin->isPPKT() && !empty($admin->domisili) && $berita->wilayah !== $admin->domisili && $berita->admin_id !== $admin->id) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit berita wilayah lain.');
+        }
         
         $kategorisDb = Berita::whereNotNull('kategori')->distinct()->pluck('kategori')->toArray();
         $kategoris = array_unique(array_merge(['Pengumuman', 'Kegiatan', 'Regulasi'], $kategorisDb));
@@ -120,11 +140,16 @@ class BeritaController extends Controller
 
         $berita = Berita::findOrFail($id);
 
+        if ($admin->isPPKT() && !empty($admin->domisili) && $berita->wilayah !== $admin->domisili && $berita->admin_id !== $admin->id) {
+            abort(403, 'Anda tidak memiliki akses untuk mengubah berita wilayah lain.');
+        }
+
         $validated = $request->validate([
             'judul' => 'required|string|max:255',
             'konten' => 'required|string',
             'gambar' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
             'kategori' => 'required|string',
+            'wilayah' => 'nullable|string|max:255',
             'tags' => 'nullable|string',
             'status' => 'required|in:Draft,Published,Archived',
             'tanggal_publish' => 'required|date',
@@ -147,15 +172,19 @@ class BeritaController extends Controller
             $path = $gambar->storeAs('berita', $filename, 'public');
         }
 
+        $wilayahValue = $admin->isPPKT() ? ($admin->domisili ?? $berita->wilayah) : ($validated['wilayah'] ?? 'Nasional');
+        $isPopulerValue = $admin->isPPKT() ? false : $request->has('is_populer');
+
         $berita->update([
             'judul' => $validated['judul'],
             'konten' => $validated['konten'],
             'gambar' => $path,
             'kategori' => $validated['kategori'],
+            'wilayah' => $wilayahValue,
             'tags' => $tagsArray,
             'status' => $validated['status'],
             'tanggal_publish' => $validated['tanggal_publish'],
-            'is_populer' => $request->has('is_populer'),
+            'is_populer' => $isPopulerValue,
         ]);
 
         $this->logActivity('berita', 'Edit', $berita->id, $berita->judul, 'Status: ' . $validated['status']);

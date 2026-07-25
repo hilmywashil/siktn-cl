@@ -12,28 +12,28 @@ use Carbon\Carbon;
 class CheckSkExpired extends Command
 {
     protected $signature = 'sk:check-expired';
-    protected $description = 'Kirim notifikasi ke admin jika ada SK yang akan habis masa berlakunya dalam 30 hari';
+    protected $description = 'Kirim notifikasi ke admin jika ada SK yang akan habis masa berlakunya dalam 7 hari (1 minggu)';
 
     public function handle()
     {
         $today = Carbon::today();
-        $threshold = $today->copy()->addDays(30);
+        $threshold = $today->copy()->addDays(7);
 
-        // SK yang Aktif dan berakhir dalam 30 hari ke depan
+        // SK yang Aktif dan berakhir dalam 7 hari ke depan
         $expiringSks = SuratKeputusan::where('status', 'Aktif')
             ->whereBetween('tanggal_berakhir', [$today->toDateString(), $threshold->toDateString()])
             ->get();
 
         if ($expiringSks->isEmpty()) {
-            $this->info('Tidak ada SK yang akan habis dalam 30 hari ke depan.');
+            $this->info('Tidak ada SK yang akan habis dalam 7 hari ke depan.');
             return;
         }
 
         $admins = Admin::whereIn('category', ['super_admin', 'pimpinan', 'pnkt'])->get();
 
         foreach ($expiringSks as $sk) {
-            $expiredDate = Carbon::parse($sk->tanggal_berakhir);
-            $daysLeft = $today->diffInDays($expiredDate, false);
+            $expiredDate = Carbon::parse($sk->tanggal_berakhir)->startOfDay();
+            $daysLeft = (int) $today->diffInDays($expiredDate, false);
 
             if ($daysLeft < 0) {
                 $label = "sudah habis masa berlakunya";

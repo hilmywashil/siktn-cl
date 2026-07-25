@@ -663,8 +663,17 @@ $activeMenu = 'dashboard';
         // Render Initial Grid Wilayah Level Provinsi
         renderMapGrid('provinsi');
 
-        // --- 1. CHART.JS TREN SURAT MASUK & KELUAR ---
+        // --- 1. CHART.JS TREN SURAT MASUK & KELUAR (COLORFUL SMADIMENT STYLE) ---
         const ctx = document.getElementById('suratTrendChart').getContext('2d');
+        
+        const gradMasuk = ctx.createLinearGradient(0, 0, 0, 300);
+        gradMasuk.addColorStop(0, '#2563eb');
+        gradMasuk.addColorStop(1, '#3b82f6');
+
+        const gradKeluar = ctx.createLinearGradient(0, 0, 0, 300);
+        gradKeluar.addColorStop(0, '#f59e0b');
+        gradKeluar.addColorStop(1, '#d97706');
+
         new Chart(ctx, {
             type: 'bar',
             data: {
@@ -673,16 +682,18 @@ $activeMenu = 'dashboard';
                     {
                         label: 'Surat Masuk',
                         data: @json($suratMasukMonthly),
-                        backgroundColor: '#022648',
-                        borderRadius: 4,
+                        backgroundColor: gradMasuk,
+                        hoverBackgroundColor: '#1d4ed8',
+                        borderRadius: 6,
                         barPercentage: 0.5,
                         categoryPercentage: 0.6,
                     },
                     {
                         label: 'Surat Keluar',
                         data: @json($suratKeluarMonthly),
-                        backgroundColor: '#b7830f',
-                        borderRadius: 4,
+                        backgroundColor: gradKeluar,
+                        hoverBackgroundColor: '#b45309',
+                        borderRadius: 6,
                         barPercentage: 0.5,
                         categoryPercentage: 0.6,
                     }
