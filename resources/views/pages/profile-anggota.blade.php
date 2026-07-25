@@ -1888,7 +1888,7 @@
                         <div class="kta-card" id="ktaCardFront">
                             <div class="kta-header-front">
                                 <h2>KARANG TARUNA</h2>
-                                <p>PENGURUS NASIONAL</p>
+                                <p>INDONESIA</p>
                             </div>
                             <div class="kta-gold-bar"></div>
 
@@ -1942,7 +1942,7 @@
                                 </div>
                                 <div class="kta-signature">
                                     <img src="{{ asset('assets-front/images/signature_dummy.png') }}" alt="Signature" class="kta-signature-img" onerror="this.style.display='none'">
-                                    <p class="kta-signature-text">PENGURUS NASIONAL KARANG TARUNA</p>
+                                    <p class="kta-signature-text">KARANG TARUNA INDONESIA</p>
                                     <p class="kta-signature-subtext">KETUA UMUM</p>
                                 </div>
                             </div>
@@ -1972,7 +1972,7 @@
                                 <div class="kta-back-footer-curve"></div>
                                 <div class="kta-back-footer-content">
                                     <h3 class="kta-back-footer-title">KARANG TARUNA</h3>
-                                    <h4 class="kta-back-footer-subtitle">PENGURUS NASIONAL</h4>
+                                    <h4 class="kta-back-footer-subtitle">INDONESIA</h4>
 
                                     <div class="kta-back-address">
                                         Jl. Raya Boulevard Barat No. 1, Kelapa<br>Gading, Jakarta Utara 14240

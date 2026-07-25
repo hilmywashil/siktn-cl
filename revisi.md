@@ -31,8 +31,8 @@
 ---
 
 ## 🪪 5. KTA Digital & Form Isian
-- [ ] **Penyesuaian Label KTA**: Hapus label *"Pengurus Nasional"* pada Kartu Tanda Anggota (KTA Digital).
-- [ ] **Form Isian Link Field**:
+- [x] **Penyesuaian Label KTA**: Hapus label *"Pengurus Nasional"* pada Kartu Tanda Anggota (KTA Digital).
+- [x] **Form Isian Link Field**:
   - `Username`
   - `Nama`
   - `Wilayah` *(Dropdown)*

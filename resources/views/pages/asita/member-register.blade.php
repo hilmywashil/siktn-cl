@@ -333,75 +333,47 @@
                     <form action="{{ route('member-register.store') }}" method="POST" id="memberRegForm">
                         @csrf
 
-                        {{-- DATA PERUSAHAAN --}}
-                        <div class="field-section-label">Data Perusahaan</div>
+                        <div class="field-section-label">Informasi Pendaftaran Anggota</div>
 
                         <div class="form-group">
-                            <label>Nama Perusahaan <span class="required">*</span></label>
-                            <input type="text" name="nama_perusahaan" value="{{ old('nama_perusahaan') }}" required placeholder="Contoh: PT. Travel Nusantara Indonesia">
+                            <label>Username <span class="required">*</span></label>
+                            <input type="text" name="username" value="{{ old('username') }}" required placeholder="Contoh: bukit_jabar">
+                            <span class="help-text">Username unik untuk login ke portal SIKTN</span>
                         </div>
 
                         <div class="form-group">
-                            <label>Trade Mark <span class="required">*</span></label>
-                            <input type="text" name="trade_mark" value="{{ old('trade_mark') }}" required placeholder="Contoh: Nusantara Tour & Travel">
-                            <span class="help-text">Nama merek / brand perusahaan yang dikenal publik</span>
+                            <label>Nama Lengkap <span class="required">*</span></label>
+                            <input type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}" required placeholder="Contoh: Ahmad Hidayat, S.T.">
                         </div>
 
                         <div class="form-group">
-                            <label>Tanggal Berdiri Perusahaan <span class="required">*</span></label>
-                            <input type="text" class="datepicker" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}" required max="{{ date('Y-m-d') }}" placeholder="Pilih tanggal">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Alamat Kantor <span class="required">*</span></label>
-                            <textarea name="alamat_kantor" required placeholder="Alamat lengkap kantor perusahaan">{{ old('alamat_kantor') }}</textarea>
+                            <label>Pilih Wilayah / Domisili Provinsi <span class="required">*</span></label>
+                            <select name="domisili" class="form-control select2-basic" required style="width: 100%; padding: 0.75rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.9375rem;">
+                                <option value="">-- Pilih Wilayah Provinsi --</option>
+                                @php
+                                    $provinces = ["Aceh","Sumatera Utara","Sumatera Barat","Riau","Jambi","Sumatera Selatan","Bengkulu","Lampung","Kepulauan Bangka Belitung","Kepulauan Riau","DKI Jakarta","Jawa Barat","Jawa Tengah","DI Yogyakarta","Jawa Timur","Banten","Bali","Nusa Tenggara Barat","Nusa Tenggara Timur","Kalimantan Barat","Kalimantan Tengah","Kalimantan Selatan","Kalimantan Timur","Kalimantan Utara","Sulawesi Utara","Sulawesi Tengah","Sulawesi Selatan","Sulawesi Tenggara","Gorontalo","Sulawesi Barat","Maluku","Maluku Utara","Papua Barat","Papua"];
+                                @endphp
+                                @foreach($provinces as $prov)
+                                    <option value="{{ $prov }}" {{ old('domisili') == $prov ? 'selected' : '' }}>{{ $prov }}</option>
+                                @endforeach
+                            </select>
+                            <span class="help-text">Verifikasi pendaftaran Anda akan diproses oleh Admin PPKT Wilayah ini</span>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Telepon Kantor / WhatsApp <span class="required">*</span></label>
-                                <input type="text" name="telepon_wa_perusahaan" value="{{ old('telepon_wa_perusahaan') }}" required placeholder="Contoh: 0812-3456-7890">
+                                <label>E-mail <span class="required">*</span></label>
+                                <input type="email" name="email" value="{{ old('email') }}" required placeholder="email@domain.com">
                             </div>
 
                             <div class="form-group">
-                                <label>Email <span class="required">*</span></label>
-                                <input type="email" name="email_website_perusahaan" value="{{ old('email_website_perusahaan') }}" required placeholder="email@perusahaan.com">
-                                <span class="help-text">Digunakan untuk login</span>
+                                <label>Password <span class="required">*</span></label>
+                                <input type="password" name="password" required placeholder="Masukkan password akun">
                             </div>
-                        </div>
-
-                        {{-- LEGALITAS --}}
-                        <div class="field-section-label">Nomor Legalitas</div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>NIA <span class="required">*</span></label>
-                                <input type="text" name="nia" value="{{ old('nia') }}" required placeholder="Nomor Induk Anggota ASITA">
-                                <span class="help-text">Nomor Induk Anggota ASITA</span>
-                            </div>
-
-                            <div class="form-group">
-                                <label>NIB <span class="required">*</span></label>
-                                <input type="text" name="nomor_induk_berusaha_tdup" value="{{ old('nomor_induk_berusaha_tdup') }}" required placeholder="Nomor Induk Berusaha">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>NPWP Perusahaan <span class="required">*</span></label>
-                            <input type="text" name="npwp_perusahaan" value="{{ old('npwp_perusahaan') }}" required placeholder="00.000.000.0-000.000">
-                        </div>
-
-                        {{-- PRODUK USAHA / BIO --}}
-                        <div class="field-section-label">Produk Usaha / Bio Perusahaan</div>
-
-                        <div class="form-group">
-                            <label>Produk Usaha / Bio Perusahaan <span class="required">*</span></label>
-                            <textarea name="bio_perusahaan" required placeholder="Deskripsikan produk usaha atau profil singkat perusahaan Anda...&#10;Contoh: Kami bergerak di bidang Outbound Tour, Inbound Tour, dan Tiket Pesawat sejak 2010.">{{ old('bio_perusahaan') }}</textarea>
-                            <span class="help-text">Ceritakan produk/layanan utama perusahaan Anda</span>
                         </div>
 
                         <button type="submit" class="btn-submit" id="submitBtn">
-                            Daftarkan & Dapatkan Akses
+                            Daftarkan & Kirim Verifikasi
                         </button>
                     </form>
                 </div>

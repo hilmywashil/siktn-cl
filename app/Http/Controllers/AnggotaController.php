@@ -427,28 +427,15 @@ class AnggotaController extends Controller
             Log::info('=== MEMBER REGISTER FORM SUBMITTED ===');
 
             $validated = $request->validate([
-                // DATA PERUSAHAAN
-                'nama_perusahaan'           => 'required|string|max:255',
-                'trade_mark'                => 'required|string|max:255',
-                'tanggal_lahir'             => 'required|date|before_or_equal:today',
-                'alamat_kantor'             => 'required|string|max:1000',
-                'telepon_wa_perusahaan'     => 'required|string|max:30',
-                'email_website_perusahaan'  => 'required|email|max:255|unique:anggota,email_website_perusahaan',
-
-                // LEGALITAS
-                'nia'                       => 'required|string|max:255',
-                'nomor_induk_berusaha_tdup' => 'required|string|max:255',
-                'npwp_perusahaan'           => 'required|string|max:255',
-
-                // BIO / PRODUK USAHA
-                'bio_perusahaan'            => 'required|string|max:2000',
+                'username'      => 'required|string|max:255|unique:anggota,username',
+                'nama_lengkap'  => 'required|string|max:255',
+                'domisili'      => 'required|string|max:255',
+                'email'         => 'required|email|max:255|unique:anggota,email',
+                'password'      => 'required|string|min:6',
             ], [
-                'tanggal_lahir.required'            => 'Tanggal berdiri perusahaan wajib diisi',
-                'tanggal_lahir.date'                => 'Format tanggal tidak valid',
-                'tanggal_lahir.before_or_equal'     => 'Tanggal berdiri tidak boleh di masa depan',
-                'email_website_perusahaan.unique'   => 'Email perusahaan sudah terdaftar, silakan gunakan email lain',
-                'nia.required'                      => 'NIA (Nomor Induk Anggota) wajib diisi',
-                'bio_perusahaan.required'           => 'Produk usaha / bio perusahaan wajib diisi',
+                'username.unique'  => 'Username ini sudah digunakan, silakan pilih username lain.',
+                'email.unique'     => 'Email ini sudah terdaftar, silakan gunakan email lain.',
+                'password.min'     => 'Password minimal terdiri dari 6 karakter.',
             ]);
 
             Log::info('Member register validation passed');
@@ -456,47 +443,26 @@ class AnggotaController extends Controller
             DB::beginTransaction();
 
             try {
-                $passwordPlain = Str::random(12);
+                $passwordPlain = $validated['password'];
 
-                // Kolom NOT NULL yang tidak ada di form ini diisi otomatis
-                // agar tidak perlu ubah struktur database
                 $anggota = Anggota::create([
-                    // DATA PERUSAHAAN
-                    'nama_perusahaan'           => $validated['nama_perusahaan'],
-                    'trade_mark'                => $validated['trade_mark'],
-                    'tanggal_lahir'             => $validated['tanggal_lahir'],
-                    'alamat_kantor'             => $validated['alamat_kantor'],
-                    'telepon_wa_perusahaan'     => $validated['telepon_wa_perusahaan'],
-                    'email_website_perusahaan'  => $validated['email_website_perusahaan'],
-
-                    // DATA PIMPINAN — otomatis dari data perusahaan karena NOT NULL
-                    'nama_pimpinan'             => $validated['nama_perusahaan'],
-                    'alamat_pimpinan'           => $validated['alamat_kantor'],
-                    'telepon_wa_pimpinan'       => $validated['telepon_wa_perusahaan'],
-                    'email_pimpinan'            => $validated['email_website_perusahaan'],
-
-                    // LEGALITAS — NIA disimpan di kolom akte_notaris
-                    'akte_notaris'              => $validated['nia'],
-                    'nomor_induk_berusaha_tdup' => $validated['nomor_induk_berusaha_tdup'],
-                    'npwp_perusahaan'           => $validated['npwp_perusahaan'],
-
-                    // BIO disimpan sebagai JSON di produk_usaha_yang_akan_dijual
-                    'produk_usaha_yang_akan_dijual' => [$validated['bio_perusahaan']],
-
-                    // DOKUMEN — placeholder string karena kolom NOT NULL
-                    'surat_permohonan'          => '-',
-                    'akte_pendirian_perusahaan' => '-',
-                    'nib_atau_tdup'             => $validated['nomor_induk_berusaha_tdup'],
-                    'ktp_pimpinan'              => '-',
-                    'npwp_perusahaan_file'      => $validated['npwp_perusahaan'],
-
-                    // AUTH & STATUS
-                    'password'          => Hash::make($passwordPlain),
-                    'initial_password'  => $passwordPlain,
-                    'status'            => 'pending',
+                    'username'                  => $validated['username'],
+                    'nama_lengkap'              => $validated['nama_lengkap'],
+                    'nama_perusahaan'           => $validated['nama_lengkap'],
+                    'domisili'                  => $validated['domisili'],
+                    'email'                     => $validated['email'],
+                    'email_website_perusahaan'  => $validated['email'],
+                    'email_pimpinan'            => $validated['email'],
+                    'nama_pimpinan'             => $validated['nama_lengkap'],
+                    'telepon_wa_perusahaan'     => '-',
+                    'alamat_kantor'             => '-',
+                    'alamat_pimpinan'           => '-',
+                    'password'                  => Hash::make($passwordPlain),
+                    'initial_password'          => $passwordPlain,
+                    'status'                    => 'pending',
                 ]);
 
-                Log::info('Member anggota created', ['id' => $anggota->id]);
+                Log::info('Member anggota created', ['id' => $anggota->id, 'domisili' => $anggota->domisili]);
 
                 DB::commit();
 
