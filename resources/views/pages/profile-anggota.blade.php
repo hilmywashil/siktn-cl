@@ -47,32 +47,33 @@
         }
 
         /* ==============================================
-        SIDEBAR STYLING
+        /* ==============================================
+        SIDEBAR STYLING (SIKTN BENCHMARK CRISP 6PX RADIUS)
         ============================================== */
         .dashboard-sidebar {
             background: #ffffff;
-            border-radius: 14px;
-            padding: 28px 20px;
-            box-shadow: 0 10px 30px rgba(11, 19, 84, 0.03);
-            border: 1px solid rgba(11, 19, 84, 0.06);
+            border-radius: 6px;
+            padding: 24px 18px;
+            box-shadow: 0 4px 14px rgba(2, 38, 72, 0.06);
+            border: 1px solid #e5e7eb;
             height: fit-content;
         }
 
         .user-badge {
             text-align: center;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            margin-bottom: 22px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #f1f5f9;
         }
 
         .user-avatar-wrapper {
-            width: 90px;
-            height: 90px;
+            width: 85px;
+            height: 85px;
             border-radius: 50%;
             overflow: hidden;
-            margin: 0 auto 15px auto;
-            border: 3px solid var(--accent-yellow);
-            box-shadow: 0 4px 15px rgba(11, 19, 84, 0.12);
+            margin: 0 auto 12px auto;
+            border: 3px solid #b7830f;
+            box-shadow: 0 4px 12px rgba(2, 38, 72, 0.15);
         }
 
         .user-avatar {
@@ -82,49 +83,48 @@
         }
 
         .user-name {
-            font-family: 'Google Sans', sans-serif;
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: var(--primary-blue);
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #022648;
             margin: 0 0 4px 0;
             letter-spacing: -0.2px;
         }
 
         .user-nrp {
             font-family: monospace;
-            font-size: 0.85rem;
-            color: var(--text-grey);
-            font-weight: 600;
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 700;
             letter-spacing: 0.5px;
         }
 
         .status-badge {
             display: inline-block;
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.68rem;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         .status-pending {
-            background-color: rgba(197, 146, 23, 0.08) !important;
-            color: var(--accent-yellow) !important;
-            border: 1px solid rgba(197, 146, 23, 0.2) !important;
+            background-color: #fef3c7 !important;
+            color: #b7830f !important;
+            border: 1px solid #fde68a !important;
         }
 
         .status-approved {
-            background-color: rgba(197, 146, 23, 0.08) !important;
-            color: var(--accent-yellow) !important;
-            border: 1px solid rgba(197, 146, 23, 0.2) !important;
+            background-color: #dcfce7 !important;
+            color: #059669 !important;
+            border: 1px solid #bbf7d0 !important;
         }
 
         .status-rejected {
-            background-color: rgba(214, 11, 28, 0.08) !important;
-            color: var(--accent-red) !important;
-            border: 1px solid rgba(214, 11, 28, 0.18) !important;
+            background-color: #fee2e2 !important;
+            color: #dc2626 !important;
+            border: 1px solid #fca5a5 !important;
         }
 
         .sidebar-menu {
@@ -140,50 +140,50 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 11px 16px;
+            padding: 10px 14px;
             width: 100%;
             border: none;
             background: transparent;
-            font-family: 'Google Sans', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-grey);
-            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #475569;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             text-align: left;
             text-decoration: none;
         }
 
         .sidebar-menu-btn:hover {
-            background-color: rgba(11, 19, 84, 0.04);
-            color: var(--primary-blue);
+            background-color: #f1f5f9;
+            color: #022648;
+            transform: translateX(3px);
         }
 
         .sidebar-menu-btn.active {
-            background: var(--primary-gradient);
+            background: #022648;
             color: #ffffff;
-            border-left: 4px solid var(--accent-yellow);
+            border-left: 4px solid #b7830f;
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
         }
 
         .sidebar-menu-btn i {
-            font-size: 1rem;
+            font-size: 0.95rem;
             width: 18px;
             text-align: center;
-            opacity: 0.9;
+            opacity: 0.95;
         }
 
         /* ==============================================
-        CONTENT SECTIONS
+        CONTENT SECTIONS (CRISP 6PX RADIUS)
         ============================================== */
         .dashboard-content {
             background: #ffffff;
-            border-radius: 14px;
-            padding: 35px 40px;
-            box-shadow: 0 10px 30px rgba(11, 19, 84, 0.03);
-            border: 1px solid rgba(11, 19, 84, 0.06);
+            border-radius: 6px;
+            padding: 30px 34px;
+            box-shadow: 0 4px 14px rgba(2, 38, 72, 0.06);
+            border: 1px solid #e5e7eb;
             min-height: 550px;
         }
 
@@ -197,41 +197,40 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .section-title {
-            font-family: 'Google Sans', sans-serif;
-            font-size: 1.45rem;
-            font-weight: 700;
-            color: var(--primary-blue);
-            margin-bottom: 24px;
-            border-bottom: 2px solid var(--accent-yellow);
-            padding-bottom: 12px;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #022648;
+            margin-bottom: 22px;
+            border-bottom: 2.5px solid #b7830f;
+            padding-bottom: 10px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         /* Grid info */
         .info-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+            gap: 16px;
             margin-top: 10px;
         }
 
         .info-card {
             display: flex;
             align-items: center;
-            gap: 18px;
-            padding: 20px 24px;
+            gap: 16px;
+            padding: 16px 20px;
             background: #ffffff;
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(11, 19, 84, 0.04), 0 1px 3px rgba(11, 19, 84, 0.02);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(2, 38, 72, 0.03);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
@@ -243,14 +242,15 @@
             top: 0;
             height: 100%;
             width: 4px;
-            background: var(--accent-yellow);
+            background: #b7830f;
             opacity: 0;
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
 
         .info-card:hover {
-            box-shadow: 0 8px 25px rgba(11, 19, 84, 0.08);
-            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(2, 38, 72, 0.08);
+            transform: translateY(-2px);
+            border-color: #cbd5e1;
         }
 
         .info-card:hover::before {
@@ -415,8 +415,8 @@
             font-family: 'Consolas', 'Courier New', monospace;
             font-size: 11px;
             font-weight: 700;
-            padding: 3px 12px;
-            border-radius: 20px;
+            padding: 3px 10px;
+            border-radius: 4px;
             border: 1px solid #e2e8f0;
             letter-spacing: 0.5px;
         }
@@ -507,7 +507,7 @@
             font-size: 8.5px;
             font-weight: 800;
             padding: 2px 8px;
-            border-radius: 12px;
+            border-radius: 4px;
             border: 1px solid #bbf7d0;
             letter-spacing: 0.3px;
         }
@@ -700,15 +700,15 @@
         }
 
         /* ==============================================
-        COMPANY INPUT FORM & LOCKED STATE
+        COMPANY INPUT FORM & LOCKED STATE (CRISP 6PX RADIUS)
         ============================================== */
         .locked-state-box {
             background-color: #FFFDF5;
             border: 1px dashed #F59E0B;
-            border-radius: 10px;
-            padding: 35px 30px;
+            border-radius: 6px;
+            padding: 28px 24px;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.02);
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.02);
         }
 
         .locked-icon {
@@ -718,9 +718,8 @@
         }
 
         .locked-title {
-            font-family: 'Google Sans', sans-serif;
-            font-size: 1.15rem;
-            font-weight: 700;
+            font-size: 1.1rem;
+            font-weight: 800;
             color: #92400E;
             margin-bottom: 8px;
         }
@@ -737,8 +736,8 @@
         .form-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 25px;
+            gap: 18px;
+            margin-bottom: 24px;
         }
 
         .form-grid.full-width {
@@ -751,51 +750,50 @@
         }
 
         .form-group label {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--primary-blue);
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #022648;
             margin-bottom: 6px;
             text-transform: uppercase;
             letter-spacing: 0.6px;
         }
 
         .form-control {
-            padding: 11px 16px;
-            border-radius: 8px;
-            border: 1px solid rgba(9, 11, 98, 0.12);
-            font-family: 'Google Sans', sans-serif;
-            font-size: 0.92rem;
-            transition: all 0.25s ease;
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             background-color: #ffffff;
-            color: var(--text-dark);
+            color: #022648;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(9, 11, 98, 0.08);
+            border-color: #022648;
+            box-shadow: 0 0 0 3px rgba(2, 38, 72, 0.1);
         }
 
         .btn-submit {
-            background: var(--primary-gradient);
+            background: #022648;
             color: #ffffff;
             border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-family: 'Google Sans', sans-serif;
+            padding: 11px 22px;
+            border-radius: 6px;
             font-weight: 700;
-            font-size: 0.92rem;
+            font-size: 0.875rem;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
 
         .btn-submit:hover {
-            background-color: var(--secondary-blue);
+            background-color: #083b6e;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(9, 11, 98, 0.15);
+            box-shadow: 0 4px 12px rgba(2, 38, 72, 0.2);
         }
 
         .form-section-divider {
@@ -1097,12 +1095,338 @@
             font-family: 'Google Sans', sans-serif !important;
         }
 
+        /* ==============================================
+        MEMBER HERO BANNER & STAT CARDS (SIKTN BENCHMARK)
+        ============================================== */
+        .member-hero-banner {
+            background: linear-gradient(135deg, #022648 0%, #083b6e 60%, #01162f 100%);
+            border-radius: 8px;
+            padding: 26px 30px;
+            margin-bottom: 24px;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 32px rgba(2, 38, 72, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .member-hero-banner::after {
+            content: '';
+            position: absolute;
+            right: -60px;
+            bottom: -60px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: rgba(183, 131, 15, 0.12);
+            pointer-events: none;
+        }
+
+        .hero-banner-inner {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            position: relative;
+            z-index: 2;
+            flex-wrap: wrap;
+        }
+
+        .hero-avatar-wrapper {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .hero-avatar-ring {
+            width: 95px;
+            height: 95px;
+            border-radius: 50%;
+            border: 3.5px solid #b7830f;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-avatar-initial {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #022648;
+            background: #f1f5f9;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar-edit-badge {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #b7830f;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .avatar-edit-badge:hover {
+            background: #d49b16;
+            transform: scale(1.1);
+        }
+
+        .hero-info-box {
+            flex-grow: 1;
+        }
+
+        .hero-portal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(183, 131, 15, 0.2);
+            color: #f3c350;
+            border: 1px solid rgba(243, 195, 80, 0.3);
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 4px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .hero-member-name {
+            font-size: 1.65rem;
+            font-weight: 800;
+            margin: 0 0 8px 0;
+            color: #ffffff;
+            letter-spacing: -0.3px;
+        }
+
+        .hero-meta-list {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .hero-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+
+        .hero-meta-item strong {
+            color: #ffffff;
+        }
+
+        .hero-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .hero-status-pill.approved {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, 0.4);
+        }
+
+        .hero-status-pill.pending {
+            background: rgba(234, 179, 8, 0.2);
+            color: #fef08a;
+            border: 1px solid rgba(254, 240, 138, 0.4);
+        }
+
+        /* STAT CARDS (SIKTN BENCHMARK) */
+        .stat-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .stat-cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stat-cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 16px 18px;
+            box-shadow: 0 4px 14px rgba(2, 38, 72, 0.06);
+            border: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(2, 38, 72, 0.12);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+        }
+
+        .stat-card.approved::before { background: #059669; }
+        .stat-card.gold::before { background: #b7830f; }
+        .stat-card.total::before { background: #022648; }
+        .stat-card.blue::before { background: #2563eb; }
+
+        .stat-card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .stat-card.approved .stat-card-icon { background: #dcfce7; color: #059669; }
+        .stat-card.gold .stat-card-icon { background: #fef3c7; color: #b7830f; }
+        .stat-card.total .stat-card-icon { background: #e0e7ff; color: #022648; }
+        .stat-card.blue .stat-card-icon { background: #dbeafe; color: #2563eb; }
+
+        .stat-card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stat-card-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card-value {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #022648;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        /* ACTION DROPDOWN TRIGGER (SIKTN BENCHMARK POINT 2) */
+        .btn-aksi-trigger {
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #022648;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(2, 38, 72, 0.12);
+        }
+        .btn-aksi-trigger:hover {
+            background: #083b6e;
+            transform: scale(1.08) translateY(-1px);
+            box-shadow: 0 4px 12px rgba(2, 38, 72, 0.25);
+        }
+        .aksi-dropdown {
+            display: block;
+            position: fixed;
+            min-width: 180px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            box-shadow: 0 12px 28px rgba(2, 38, 72, 0.18);
+            padding: 6px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px) scale(0.96);
+            transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.18s;
+            pointer-events: none;
+        }
+        .aksi-dropdown.is-open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+        .aksi-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 0.55rem 0.65rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            border-radius: 4px;
+            color: #111827;
+            text-decoration: none !important;
+            border: none;
+            background: transparent;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .aksi-item:hover {
+            background: #f3f4f6;
+            transform: translateX(4px);
+        }
+        .aksi-item.aksi-delete:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
 @endpush
 
 @section('content')
-    <div class="dashboard-container">
+    <div class="dashboard-container admin-ui-scope">
         @if(session('password_success'))
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
@@ -1180,6 +1504,72 @@
                 });
             </script>
         @endif
+
+        <!-- MEMBER HERO BANNER (PORTAL ANGGOTA RESMI) -->
+        <div class="member-hero-banner">
+            <div class="hero-banner-inner">
+                <div class="hero-avatar-wrapper">
+                    <div class="hero-avatar-ring">
+                        @if($anggota->foto_diri && Storage::disk('public')->exists($anggota->foto_diri))
+                            <img src="{{ Storage::url($anggota->foto_diri) }}" class="hero-avatar-img" alt="{{ $anggota->nama_lengkap }}">
+                        @else
+                            <div class="hero-avatar-initial">{{ strtoupper(substr($anggota->nama_lengkap ?? 'A', 0, 2)) }}</div>
+                        @endif
+                    </div>
+                    <button type="button" class="avatar-edit-badge" onclick="document.getElementById('foto_diri').click();" title="Ubah Foto Profil">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+                <div class="hero-info-box">
+                    <div class="hero-portal-badge">
+                        <i class="fas fa-shield-alt"></i> PORTAL ANGGOTA RESMI | PNKT SIKTN
+                    </div>
+                    <h1 class="hero-member-name">{{ $anggota->nama_lengkap }}</h1>
+                    <div class="hero-meta-list">
+                        <span class="hero-meta-item"><i class="fas fa-id-badge" style="color: #f3c350;"></i> NIK: <strong>{{ $anggota->nik ?? '-' }}</strong></span>
+                        <span class="hero-meta-item"><i class="fas fa-user-tie" style="color: #60a5fa;"></i> Jabatan: <strong>{{ $anggota->jabatan ?? '-' }}</strong></span>
+                        <span class="hero-status-pill @if($anggota->status == 'approved') approved @else pending @endif">
+                            <i class="fas fa-circle" style="font-size: 6px;"></i> {{ strtoupper($anggota->status == 'approved' ? 'ANGGOTA AKTIF' : $anggota->status) }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STAT CARDS (SIKTN ADMIN UI BENCHMARK) -->
+        <div class="stat-cards-grid">
+            <div class="stat-card approved">
+                <div class="stat-card-icon"><i class="fas fa-user-check"></i></div>
+                <div class="stat-card-info">
+                    <span class="stat-card-label">Status Keanggotaan</span>
+                    <h3 class="stat-card-value">{{ $anggota->status == 'approved' ? 'Terverifikasi (Aktif)' : ucfirst($anggota->status) }}</h3>
+                </div>
+            </div>
+
+            <div class="stat-card gold">
+                <div class="stat-card-icon"><i class="fas fa-id-card"></i></div>
+                <div class="stat-card-info">
+                    <span class="stat-card-label">Nomor Induk Anggota</span>
+                    <h3 class="stat-card-value" style="font-family: monospace;">{{ $anggota->nik ?? '-' }}</h3>
+                </div>
+            </div>
+
+            <div class="stat-card total">
+                <div class="stat-card-icon"><i class="fas fa-store"></i></div>
+                <div class="stat-card-info">
+                    <span class="stat-card-label">Katalog Saya</span>
+                    <h3 class="stat-card-value">{{ \App\Models\Katalog::where('anggota_id', $anggota->id)->count() }} Produk</h3>
+                </div>
+            </div>
+
+            <div class="stat-card blue">
+                <div class="stat-card-icon"><i class="fas fa-qrcode"></i></div>
+                <div class="stat-card-info">
+                    <span class="stat-card-label">KTA Digital</span>
+                    <h3 class="stat-card-value">{{ $anggota->status == 'approved' ? 'Siap Unduh / Cetak' : 'Belum Divalidasi' }}</h3>
+                </div>
+            </div>
+        </div>
 
         <div class="dashboard-grid">
             <!-- SIDEBAR -->
@@ -1421,7 +1811,7 @@
                                     </div>
                                     <div class="kta-detail-row">
                                         <div class="kta-detail-label">STATUS</div>
-                                        <div class="kta-detail-value">: <span class="kta-status-badge"><i class="fas fa-check-circle"></i> AKTIF</span></div>
+                                        <div class="kta-detail-value">: ANGGOTA AKTIF</div>
                                     </div>
                                 </div>
                             </div>
@@ -1844,6 +2234,34 @@
         })();
 
         document.addEventListener('DOMContentLoaded', function() {
+            // SIKTN Admin UI Benchmark: Floating Action Dropdown Trigger
+            document.addEventListener('click', function(e) {
+                const trigger = e.target.closest('.btn-aksi-trigger');
+                if (trigger) {
+                    e.stopPropagation();
+                    const targetId = trigger.getAttribute('data-target');
+                    const dropdown = document.getElementById(targetId);
+                    
+                    // Close all open dropdowns
+                    document.querySelectorAll('.aksi-dropdown.is-open').forEach(d => {
+                        if (d !== dropdown) d.classList.remove('is-open');
+                    });
+                    
+                    if (dropdown) {
+                        if (dropdown.classList.contains('is-open')) {
+                            dropdown.classList.remove('is-open');
+                        } else {
+                            const rect = trigger.getBoundingClientRect();
+                            dropdown.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+                            dropdown.style.left = (rect.right + window.scrollX - 180) + 'px';
+                            dropdown.classList.add('is-open');
+                        }
+                    }
+                } else if (!e.target.closest('.aksi-dropdown')) {
+                    document.querySelectorAll('.aksi-dropdown.is-open').forEach(d => d.classList.remove('is-open'));
+                }
+            });
+
             let cropper;
             let camStream = null;
 

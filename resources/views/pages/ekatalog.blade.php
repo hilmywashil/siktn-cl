@@ -303,10 +303,7 @@
                                 <img src="{{ $katalog->logo_url }}" alt="{{ $katalog->company_name }}">
                                 <div>
                                     <h3>{{ $katalog->company_name }}</h3>
-                                    <p>{{ $katalog->business_field }}</p>
-                                    @if($katalog->kategori)
-                                        <span style="display: inline-block; background: #022648; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; margin-top: 4px;">{{ $katalog->kategori->nama }}</span>
-                                    @endif
+                                    <p>{{ $katalog->kategori->nama ?? $katalog->business_field }}</p>
                                 </div>
                             </div>
                         </a>

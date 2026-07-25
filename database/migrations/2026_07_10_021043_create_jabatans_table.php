@@ -6,21 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('jabatans', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_jabatan')->unique();
+            $table->string('nama_jabatan');
+            $table->string('urutan', 50)->default('99');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('jabatans');

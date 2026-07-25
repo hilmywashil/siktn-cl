@@ -3,157 +3,160 @@
 namespace Database\Seeders;
 
 use App\Models\Anggota;
+use App\Models\Katalog;
+use App\Models\KategoriEatalog;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class AnggotaSeeder extends Seeder
 {
     public function run(): void
     {
-        // 27 Kabupaten/Kota di Jawa Barat
+        // 1. DEDICATED TEST ANGGOTA ACCOUNT (DaDANG)
+        $testAnggota = Anggota::updateOrCreate(
+            ['username' => 'dadang'],
+            [
+                'nama_lengkap' => 'DaDANG',
+                'nik' => '3273011205950001',
+                'tempat_lahir' => 'Kota Bandung',
+                'tanggal_lahir' => '1995-05-12',
+                'alamat_lengkap' => 'Jl. Asia Afrika No. 10, Kota Bandung',
+                'domisili' => 'Kota Bandung',
+                'jabatan' => 'Anggota Aktif',
+                'pendidikan_terakhir' => 'S1 / Sarjana',
+                'pekerjaan' => 'Wirausaha / CEO',
+                'riwayat_organisasi' => 'Pengurus Karang Taruna Kota Bandung (2022-2026)',
+                'kompetensi' => 'Digital Marketing, IT & Business Development',
+                'no_hp' => '081234567890',
+                'email' => 'dadang@siktn.com',
+                'password' => Hash::make('password123'),
+                'initial_password' => 'password123',
+                'status' => 'approved',
+                'approved_at' => now(),
+                'approved_by' => 1,
+                'instagram' => '@dadang_siktn',
+                'tiktok' => '@dadang_siktn',
+            ]
+        );
+
+        // Assign Spatie Role for Anggota
+        $roleAnggota = Role::where('name', 'anggota')->where('guard_name', 'anggota')->first();
+        if ($roleAnggota && $testAnggota) {
+            $testAnggota->assignRole($roleAnggota);
+        }
+
+        // Seed Katalog for DaDANG
+        $kategoriIT = KategoriEatalog::where('nama', 'LIKE', '%Teknologi%')->first() ?? KategoriEatalog::first();
+        Katalog::updateOrCreate(
+            ['anggota_id' => $testAnggota->id],
+            [
+                'company_name' => 'PT Jaya Sukses Digital',
+                'business_field' => 'Teknologi Informasi & Digital Marketing',
+                'description' => 'Perusahaan konsultan IT dan Digital Marketing terpercaya di Kota Bandung yang melayani pembuatan website, aplikasi mobile, dan strategi pemasaran digital.',
+                'address' => 'Jl. Asia Afrika No. 10, Kota Bandung',
+                'wilayah' => 'Kota Bandung',
+                'phone' => '081234567890',
+                'email' => 'info@jayadigital.co.id',
+                'website_url' => 'https://jayadigital.co.id',
+                'kategori_id' => $kategoriIT ? $kategoriIT->id : null,
+                'status' => 'approved',
+                'approved_at' => now(),
+                'approved_by' => 1,
+                'is_active' => true,
+            ]
+        );
+
+        // 2. DUMMY ANGGOTA ACCOUNTS ACROSS JAWA BARAT
         $domisiliList = [
-            'Bandung',
-            'Bandung Barat',
-            'Bekasi',
-            'Bogor',
-            'Ciamis',
-            'Cianjur',
-            'Cirebon',
-            'Garut',
-            'Indramayu',
-            'Karawang',
-            'Kuningan',
-            'Majalengka',
-            'Pangandaran',
-            'Purwakarta',
-            'Subang',
-            'Sukabumi',
-            'Sumedang',
-            'Tasikmalaya',
-            'Kota Bandung',
-            'Kota Banjar',
-            'Kota Bekasi',
-            'Kota Bogor',
-            'Kota Cimahi',
-            'Kota Cirebon',
-            'Kota Depok',
-            'Kota Sukabumi',
-            'Kota Tasikmalaya',
+            'Kota Bandung', 'Bandung', 'Bandung Barat', 'Kota Cimahi',
+            'Kota Bogor', 'Bogor', 'Kota Depok', 'Kota Bekasi', 'Bekasi',
+            'Kota Cirebon', 'Cirebon', 'Garut', 'Tasikmalaya', 'Subang',
+            'Sumedang', 'Sukabumi', 'Purwakarta', 'Karawang', 'Indramayu'
         ];
 
-        $legalitasUsaha = ['PT', 'CV', 'PT Perorangan'];
-        $bidangUsaha = [
-            'Teknologi Informasi',
-            'Perdagangan',
-            'Manufaktur',
-            'Jasa Konstruksi',
-            'Konsultan',
-            'F&B',
-            'Fashion',
-            'Pendidikan',
-            'Kesehatan',
-            'Transportasi',
-            'Properti',
-            'Agribisnis',
-        ];
+        $kategoriList = KategoriEatalog::all();
 
-        $usiaPerusahaan = ['< 1 tahun', '1-3 tahun', '3-5 tahun', '> 5 tahun'];
-        $omsetPerusahaan = ['< 300 juta', '300 juta - 2,5 miliar', '2,5 miliar - 50 miliar', '> 50 miliar'];
-        $agama = ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu'];
+        foreach ($domisiliList as $index => $domisili) {
+            $nama = $this->generateNama($index);
+            $username = strtolower(str_replace(' ', '', $nama)) . ($index + 1);
+            $status = ['approved', 'approved', 'pending', 'rejected'][$index % 4];
 
-        // Buat dummy data untuk setiap domisili (2-5 anggota per domisili)
-        foreach ($domisiliList as $domisili) {
-            $jumlahAnggota = rand(2, 5);
-            
-            for ($i = 1; $i <= $jumlahAnggota; $i++) {
-                $namaUsaha = $this->generateNama();
-                $status = ['pending', 'approved', 'rejected'][rand(0, 2)];
-                
-                Anggota::create([
-                    // Data Pribadi
-                    'nama_usaha' => $namaUsaha,
-                    'jenis_kelamin' => rand(0, 1) ? 'Laki-laki' : 'Perempuan',
+            $anggota = Anggota::updateOrCreate(
+                ['username' => $username],
+                [
+                    'nama_lengkap' => $nama,
+                    'nik' => '32' . rand(10, 99) . rand(1000000000, 9999999999),
                     'tempat_lahir' => $domisili,
-                    'tanggal_lahir' => now()->subYears(rand(25, 50))->format('Y-m-d'),
-                    'agama' => $agama[array_rand($agama)],
-                    'nomor_telepon' => '08' . rand(1000000000, 9999999999),
+                    'tanggal_lahir' => now()->subYears(rand(22, 45))->format('Y-m-d'),
+                    'alamat_lengkap' => 'Jl. ' . $this->generateJalan() . ' No. ' . rand(1, 100) . ', ' . $domisili,
                     'domisili' => $domisili,
-                    'alamat_domisili' => 'Jl. ' . $this->generateJalan() . ' No.' . rand(1, 100) . ', ' . $domisili,
-                    'kode_pos' => rand(40000, 49999),
-                    'email' => strtolower(str_replace(' ', '', $namaUsaha)) . rand(1, 999) . '@example.com',
-                    'nomor_ktp' => $this->generateKTP(),
-                    'foto_ktp' => 'anggota/ktp/dummy-ktp-' . rand(1, 100) . '.jpg',
-                    'foto_diri' => 'anggota/foto/dummy-foto-' . rand(1, 100) . '.jpg',
-                    
-                    // Profile Perusahaan
-                    'nama_usaha_perusahaan' => $legalitasUsaha[array_rand($legalitasUsaha)] . ' ' . $this->generateNamaPerusahaan(),
-                    'legalitas_usaha' => $legalitasUsaha[array_rand($legalitasUsaha)],
-                    'jabatan_usaha' => ['Direktur Utama', 'CEO', 'Managing Director', 'Owner'][rand(0, 3)],
-                    'alamat_kantor' => 'Jl. ' . $this->generateJalan() . ' No.' . rand(1, 100) . ', ' . $domisili,
-                    'bidang_usaha' => $bidangUsaha[array_rand($bidangUsaha)],
-                    'brand_usaha' => $this->generateBrand(),
-                    'jumlah_karyawan' => rand(5, 500),
-                    'nomor_ktp_perusahaan' => $this->generateKTP(),
-                    'usia_perusahaan' => $usiaPerusahaan[array_rand($usiaPerusahaan)],
-                    'omset_perusahaan' => $omsetPerusahaan[array_rand($omsetPerusahaan)],
-                    'npwp_perusahaan' => $this->generateNPWP(),
-                    'no_nota_pendirian' => 'AHU-' . rand(1000000, 9999999) . '.AH.01.01',
-                    'profile_perusahaan' => 'anggota/profile/dummy-profile-' . rand(1, 100) . '.pdf',
-                    'logo_perusahaan' => 'anggota/logo/dummy-logo-' . rand(1, 100) . '.png',
-                    
-                    // Organisasi
-                    'sfc_hipmi' => ['Teknologi & Inovasi', 'Ekonomi Kreatif', 'UMKM', 'Industri', 'Perdagangan'][rand(0, 4)],
-                    'referensi_hipmi' => rand(0, 1) ? 'Ya' : 'Tidak',
-                    'organisasi_lain' => rand(0, 1) ? 'Ya' : 'Tidak',
-                    
-                    // Status
+                    'jabatan' => ['Pengurus Harian', 'Anggota Aktif', 'Ketua Bidang'][$index % 3],
+                    'pendidikan_terakhir' => ['SMA / Sederajat', 'D3 / Diploma', 'S1 / Sarjana', 'S2 / Magister'][$index % 4],
+                    'pekerjaan' => ['Pelaku UMKM', 'Wirausaha', 'Karyawan Swasta', 'Professional'][$index % 4],
+                    'riwayat_organisasi' => 'Pengurus Karang Taruna ' . $domisili,
+                    'kompetensi' => 'Kewirausahaan, Manajemen Usaha, Pemberdayaan Pemuda',
+                    'no_hp' => '08' . rand(1000000000, 9999999999),
+                    'email' => $username . '@example.com',
+                    'password' => Hash::make('password123'),
+                    'initial_password' => 'password123',
                     'status' => $status,
-                    'rejection_reason' => $status === 'rejected' ? 'Data tidak lengkap atau tidak sesuai persyaratan' : null,
+                    'rejection_reason' => $status === 'rejected' ? 'Dokumen persyaratan belum lengkap' : null,
                     'approved_at' => $status === 'approved' ? now()->subDays(rand(1, 30)) : null,
-                    'approved_by' => $status !== 'pending' ? rand(1, 3) : null,
-                ]);
+                    'approved_by' => $status === 'approved' ? 1 : null,
+                ]
+            );
+
+            if ($roleAnggota && $anggota) {
+                $anggota->assignRole($roleAnggota);
+            }
+
+            // Create Katalog for approved anggota
+            if ($status === 'approved' && $kategoriList->count() > 0) {
+                $kat = $kategoriList[$index % $kategoriList->count()];
+                $companyName = 'PT ' . $this->generateNamaPerusahaan($index);
+
+                Katalog::updateOrCreate(
+                    ['anggota_id' => $anggota->id],
+                    [
+                        'company_name' => $companyName,
+                        'business_field' => $kat->nama,
+                        'description' => 'Usaha ' . $kat->nama . ' terdepan di wilayah ' . $domisili . ' yang fokus pada kualitas produk dan kepuasan pelanggan.',
+                        'address' => $anggota->alamat_lengkap,
+                        'wilayah' => $domisili,
+                        'phone' => $anggota->no_hp,
+                        'email' => strtolower(str_replace(' ', '', $companyName)) . '@example.com',
+                        'website_url' => 'https://' . strtolower(str_replace([' ', 'PT'], '', $companyName)) . '.com',
+                        'kategori_id' => $kat->id,
+                        'status' => 'approved',
+                        'approved_at' => now(),
+                        'approved_by' => 1,
+                        'is_active' => true,
+                    ]
+                );
             }
         }
     }
 
-    // Helper functions untuk generate dummy data
-    private function generateNama(): string
+    private function generateNama(int $index): string
     {
-        $namaDepan = ['Ahmad', 'Budi', 'Candra', 'Dewi', 'Eka', 'Fitri', 'Gani', 'Hani', 'Indra', 'Joko', 'Kartika', 'Lina', 'Maya', 'Nanda', 'Oki', 'Putri', 'Rizki', 'Sari', 'Toni', 'Udin', 'Vina', 'Wawan', 'Yanti', 'Zaki'];
-        $namaBelakang = ['Pratama', 'Wijaya', 'Kusuma', 'Permana', 'Saputra', 'Nugraha', 'Hidayat', 'Ramadhan', 'Santoso', 'Wibowo', 'Gunawan', 'Setiawan', 'Firmansyah', 'Hakim', 'Rahman'];
+        $namaDepan = ['Ahmad', 'Budi', 'Candra', 'Dewi', 'Eka', 'Fitri', 'Gani', 'Hani', 'Indra', 'Joko', 'Kartika', 'Lina', 'Maya', 'Nanda', 'Oki', 'Putri', 'Rizki', 'Sari', 'Toni', 'Udin'];
+        $namaBelakang = ['Pratama', 'Wijaya', 'Kusuma', 'Permana', 'Saputra', 'Nugraha', 'Hidayat', 'Ramadhan', 'Santoso', 'Wibowo'];
         
-        return $namaDepan[array_rand($namaDepan)] . ' ' . $namaBelakang[array_rand($namaBelakang)];
+        return $namaDepan[$index % count($namaDepan)] . ' ' . $namaBelakang[$index % count($namaBelakang)];
     }
 
-    private function generateNamaPerusahaan(): string
+    private function generateNamaPerusahaan(int $index): string
     {
         $prefix = ['Maju', 'Jaya', 'Sukses', 'Prima', 'Gemilang', 'Sentosa', 'Abadi', 'Karya', 'Mega', 'Indo'];
         $suffix = ['Mandiri', 'Bersama', 'Sejahtera', 'Makmur', 'Utama', 'Nusantara', 'Internasional', 'Global', 'Persada', 'Raya'];
         
-        return $prefix[array_rand($prefix)] . ' ' . $suffix[array_rand($suffix)];
-    }
-
-    private function generateBrand(): string
-    {
-        $brands = ['BrandTech', 'MegaStore', 'PrimaMart', 'EliteShop', 'TopQuality', 'BestChoice', 'SmartSolution', 'ProService', 'MaxValue', 'SuperGoods'];
-        
-        return $brands[array_rand($brands)];
+        return $prefix[$index % count($prefix)] . ' ' . $suffix[$index % count($suffix)];
     }
 
     private function generateJalan(): string
     {
-        $jalan = ['Merdeka', 'Sudirman', 'Gatot Subroto', 'Ahmad Yani', 'Diponegoro', 'Raya Bandung', 'Asia Afrika', 'Soekarno Hatta', 'Cihampelas', 'Dago', 'Setiabudhi', 'Buah Batu', 'Kopo', 'Soreang'];
-        
+        $jalan = ['Merdeka', 'Sudirman', 'Gatot Subroto', 'Ahmad Yani', 'Diponegoro', 'Raya Bandung', 'Asia Afrika', 'Soekarno Hatta', 'Cihampelas', 'Dago'];
         return $jalan[array_rand($jalan)];
-    }
-
-    private function generateKTP(): string
-    {
-        return '32' . rand(10, 99) . rand(1000000000, 9999999999);
-    }
-
-    private function generateNPWP(): string
-    {
-        return rand(10, 99) . '.' . rand(100, 999) . '.' . rand(100, 999) . '.' . rand(1, 9) . '-' . rand(100, 999) . '.' . rand(100, 999);
     }
 }

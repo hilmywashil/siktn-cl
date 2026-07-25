@@ -10,14 +10,17 @@ return new class extends Migration
     {
         Schema::create('beritas', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('admin_id')->nullable()->constrained('admins')->nullOnDelete();
             $table->string('judul');
             $table->string('slug')->unique();
             $table->text('konten');
             $table->string('gambar');
+            $table->string('kategori')->default('Pengumuman');
+            $table->json('tags')->nullable();
             $table->boolean('is_populer')->default(false);
-            $table->boolean('is_active')->default(true);
+            $table->enum('status', ['Draft', 'Published', 'Archived'])->default('Draft');
             $table->integer('views')->default(0);
-            $table->date('tanggal_publish');
+            $table->dateTime('tanggal_publish')->nullable();
             $table->timestamps();
         });
     }

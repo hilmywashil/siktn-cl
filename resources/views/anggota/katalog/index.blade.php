@@ -45,31 +45,31 @@
             gap: 30px;
         }
 
-        /* SIDEBAR STYLING */
+        /* SIDEBAR STYLING (CRISP 6PX RADIUS) */
         .dashboard-sidebar {
             background: #ffffff;
-            border-radius: 14px;
-            padding: 28px 20px;
-            box-shadow: 0 10px 30px rgba(11, 19, 84, 0.03);
-            border: 1px solid rgba(11, 19, 84, 0.06);
+            border-radius: 6px;
+            padding: 24px 18px;
+            box-shadow: 0 4px 14px rgba(2, 38, 72, 0.06);
+            border: 1px solid #e5e7eb;
             height: fit-content;
         }
 
         .user-badge {
             text-align: center;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            margin-bottom: 22px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #f1f5f9;
         }
 
         .user-avatar-wrapper {
-            width: 90px;
-            height: 90px;
+            width: 85px;
+            height: 85px;
             border-radius: 50%;
             overflow: hidden;
-            margin: 0 auto 15px auto;
-            border: 3px solid var(--accent-gold);
-            box-shadow: 0 4px 15px rgba(11, 19, 84, 0.12);
+            margin: 0 auto 12px auto;
+            border: 3px solid #b7830f;
+            box-shadow: 0 4px 12px rgba(2, 38, 72, 0.15);
         }
 
         .user-avatar {
@@ -79,49 +79,48 @@
         }
 
         .user-name {
-            font-family: 'Google Sans', sans-serif;
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: var(--primary-blue);
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #022648;
             margin: 0 0 4px 0;
             letter-spacing: -0.2px;
         }
 
         .user-nrp {
             font-family: monospace;
-            font-size: 0.85rem;
-            color: var(--text-grey);
-            font-weight: 600;
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 700;
             letter-spacing: 0.5px;
         }
 
         .status-badge {
             display: inline-block;
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.68rem;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         .status-pending {
-            background-color: rgba(197, 146, 23, 0.08) !important;
-            color: var(--accent-gold) !important;
-            border: 1px solid rgba(197, 146, 23, 0.2) !important;
+            background-color: #fef3c7 !important;
+            color: #b7830f !important;
+            border: 1px solid #fde68a !important;
         }
 
         .status-approved {
-            background-color: rgba(197, 146, 23, 0.08) !important;
-            color: var(--accent-gold) !important;
-            border: 1px solid rgba(197, 146, 23, 0.2) !important;
+            background-color: #dcfce7 !important;
+            color: #059669 !important;
+            border: 1px solid #bbf7d0 !important;
         }
 
         .status-rejected {
-            background-color: rgba(214, 11, 28, 0.08) !important;
-            color: var(--accent-red) !important;
-            border: 1px solid rgba(214, 11, 28, 0.18) !important;
+            background-color: #fee2e2 !important;
+            color: #dc2626 !important;
+            border: 1px solid #fca5a5 !important;
         }
 
         .sidebar-menu {
@@ -137,47 +136,47 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 11px 16px;
+            padding: 10px 14px;
             width: 100%;
             border: none;
             background: transparent;
-            font-family: 'Google Sans', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-grey);
-            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #475569;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             text-align: left;
             text-decoration: none;
         }
 
         .sidebar-menu-btn:hover {
-            background-color: rgba(11, 19, 84, 0.04);
-            color: var(--primary-blue);
+            background-color: #f1f5f9;
+            color: #022648;
+            transform: translateX(3px);
         }
 
         .sidebar-menu-btn.active {
-            background-color: var(--primary-blue);
+            background-color: #022648;
             color: #ffffff;
-            border-left: 4px solid var(--accent-gold);
+            border-left: 4px solid #b7830f;
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
         }
 
         .sidebar-menu-btn i {
-            font-size: 1rem;
+            font-size: 0.95rem;
             width: 18px;
             text-align: center;
-            opacity: 0.9;
+            opacity: 0.95;
         }
 
         .dashboard-content {
             background: #ffffff;
-            border-radius: 14px;
-            padding: 35px 40px;
-            box-shadow: 0 10px 30px rgba(11, 19, 84, 0.03);
-            border: 1px solid rgba(11, 19, 84, 0.06);
+            border-radius: 6px;
+            padding: 30px 34px;
+            box-shadow: 0 4px 14px rgba(2, 38, 72, 0.06);
+            border: 1px solid #e5e7eb;
             min-height: 550px;
         }
 
@@ -185,93 +184,70 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid var(--accent-gold);
-            padding-bottom: 18px;
-            margin-bottom: 30px;
+            border-bottom: 2.5px solid #b7830f;
+            padding-bottom: 14px;
+            margin-bottom: 24px;
         }
 
         .section-title {
-            font-family: 'Google Sans', sans-serif;
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--primary-blue);
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #022648;
             margin: 0;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .section-title i {
-            color: var(--primary-blue);
-            font-size: 1.3rem;
-        }
-
-        /* Alert notifications */
-        .alert-box {
-            border-radius: 8px;
-            padding: 14px 18px;
-            margin-bottom: 25px;
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
-            font-size: 0.88rem;
-        }
-
-        .alert-box.alert-success {
-            background-color: #D1FAE5;
-            color: #065F46;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-
-        .alert-box.alert-danger {
-            background-color: #FEE2E2;
-            color: #991B1B;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-        }
-
-        .alert-box.alert-warning {
-            background-color: #FEF3C7;
-            color: #92400e;
-            border: 1px solid rgba(245, 158, 11, 0.2);
-        }
-
-                /* SUMMARY CARDS */
+        /* SUMMARY / STAT CARDS GRID */
         .summary-cards {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 16px !important;
+            margin-bottom: 24px !important;
         }
 
         .summary-card {
             background: #ffffff;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid rgba(9, 11, 98, 0.08);
+            padding: 14px 16px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 6px rgba(2, 38, 72, 0.03);
             display: flex;
             align-items: center;
-            gap: 16px;
-            transition: all 0.3s ease;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #022648;
         }
 
         .summary-card:hover {
-            border-color: var(--primary-blue);
-            box-shadow: 0 6px 20px rgba(9, 11, 98, 0.04);
+            border-color: #cbd5e1;
+            box-shadow: 0 6px 16px rgba(2, 38, 72, 0.08);
             transform: translateY(-2px);
         }
 
         .summary-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.1rem;
             flex-shrink: 0;
-            background: rgba(9, 11, 98, 0.05) !important;
-            color: var(--primary-blue) !important;
-            border: 1px solid rgba(9, 11, 98, 0.02);
+            background: #f1f5f9 !important;
+            color: #022648 !important;
         }
 
         .summary-info {
@@ -281,29 +257,29 @@
         }
 
         .summary-value {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--text-dark);
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #022648;
             line-height: 1;
         }
 
         .summary-label {
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--text-grey);
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: #64748b;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         /* FILTER & SEARCH */
         .filter-section {
-            background: #ffffff;
-            padding: 16px 20px;
-            border-radius: 12px;
-            border: 1px solid rgba(9, 11, 98, 0.08);
-            margin-bottom: 30px;
+            background: #f8fafc;
+            padding: 14px 18px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 24px;
             display: flex;
-            gap: 20px;
+            gap: 16px;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
@@ -311,43 +287,43 @@
 
         .filter-tabs {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
         }
 
         .filter-tab {
-            padding: 8px 16px;
-            border: 1px solid rgba(9, 11, 98, 0.1);
-            background: white;
-            color: var(--text-grey);
-            border-radius: 8px;
-            font-size: 0.82rem;
-            font-weight: 600;
+            padding: 6px 14px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #475569;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .filter-tab:hover {
-            border-color: var(--primary-blue);
-            color: var(--primary-blue);
-            background: rgba(9, 11, 98, 0.02);
+            border-color: #022648;
+            color: #022648;
+            background: #f1f5f9;
         }
 
         .filter-tab.active {
-            background: var(--primary-blue);
-            color: white;
-            border-color: var(--primary-blue);
+            background: #022648;
+            color: #ffffff;
+            border-color: #022648;
         }
 
         .search-box {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 16px;
-            border: 1px solid rgba(9, 11, 98, 0.12);
-            border-radius: 8px;
-            background: white;
-            width: 300px;
+            gap: 8px;
+            padding: 6px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: #ffffff;
+            width: 280px;
             transition: all 0.3s ease;
         }
 
@@ -453,20 +429,20 @@
         }
 
         .status-badge-pill {
-            padding: 5px 12px;
-            border-radius: 20px;
+            padding: 4px 10px;
+            border-radius: 4px;
             font-size: 0.72rem;
-            font-weight: 700;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        .status-badge-pill.pending { background-color: rgba(197, 146, 23, 0.08) !important; color: var(--accent-gold) !important; border: 1px solid rgba(197, 146, 23, 0.18) !important; }
-        .status-badge-pill.approved { background-color: rgba(11, 19, 84, 0.06) !important; color: var(--primary-blue) !important; border: 1px solid rgba(11, 19, 84, 0.12) !important; }
-        .status-badge-pill.rejected { background-color: rgba(214, 11, 28, 0.08) !important; color: var(--accent-red) !important; border: 1px solid rgba(214, 11, 28, 0.18) !important; }
-        .status-badge-pill.revision { background-color: rgba(59, 130, 246, 0.08) !important; color: #3b82f6 !important; border: 1px solid rgba(59, 130, 246, 0.18) !important; }
-        .status-badge-pill.active { background-color: rgba(11, 19, 84, 0.04) !important; color: var(--primary-blue) !important; border: 1px solid rgba(11, 19, 84, 0.08) !important; }
-        .status-badge-pill.inactive { background-color: #F3F4F6 !important; color: #4B5563 !important; border: 1px solid rgba(75, 85, 99, 0.15) !important; }
+        .status-badge-pill.pending { background-color: #fef3c7 !important; color: #b7830f !important; border: 1px solid #fde68a !important; }
+        .status-badge-pill.approved { background-color: #e0e7ff !important; color: #022648 !important; border: 1px solid #c7d2fe !important; }
+        .status-badge-pill.rejected { background-color: #fee2e2 !important; color: #dc2626 !important; border: 1px solid #fca5a5 !important; }
+        .status-badge-pill.revision { background-color: #dbeafe !important; color: #2563eb !important; border: 1px solid #bfdbfe !important; }
+        .status-badge-pill.active { background-color: #dcfce7 !important; color: #059669 !important; border: 1px solid #bbf7d0 !important; }
+        .status-badge-pill.inactive { background-color: #f1f5f9 !important; color: #64748b !important; border: 1px solid #cbd5e1 !important; }
 
         .katalog-body {
             padding: 24px 30px;
@@ -492,6 +468,10 @@
             background: var(--primary-blue);
             color: white;
             border-color: var(--primary-blue);
+        }
+
+        .btn-toggle-detail * {
+            pointer-events: none;
         }
 
         .btn-toggle-detail i {
@@ -1099,42 +1079,42 @@
 
                                     <!-- Toggle Button -->
                                     <div style="text-align: center;">
-                                        <button class="btn-toggle-detail" onclick="toggleDetail(this)">
+                                        <button type="button" class="btn-toggle-detail" onclick="toggleDetail(this)">
                                             <i class="fas fa-chevron-down"></i>
                                             <span>Lihat Detail</span>
                                         </button>
                                     </div>
                                 </div>
 
-                                <!-- CARD ACTIONS -->
-                                @if($anggota->status === 'approved')
-                                    <div class="katalog-actions">
-                                        <a href="{{ route('anggota.katalog.edit', $katalog->id) }}" class="btn-action secondary">
-                                            <i class="fas fa-edit"></i> Edit Data
-                                        </a>
+                                 <!-- CARD ACTIONS -->
+                                 @if($anggota->status === 'approved')
+                                     <div class="katalog-actions" style="gap: 6px; display: flex; justify-content: flex-end;">
+                                         <a href="{{ route('anggota.katalog.edit', $katalog->id) }}" class="btn-action secondary" style="border-radius: 6px;">
+                                             <i class="fas fa-edit"></i> Edit Data
+                                         </a>
 
-                                        @if($katalog->status === 'approved')
-                                            <form action="{{ route('anggota.katalog.toggle-status', $katalog->id) }}" method="POST" style="display: inline;">
-                                                @csrf
-                                                <button type="submit" class="btn-action secondary">
-                                                    @if($katalog->is_active)
-                                                        <i class="fas fa-eye-slash"></i> Nonaktifkan
-                                                    @else
-                                                        <i class="fas fa-eye"></i> Aktifkan di Web
-                                                    @endif
-                                                </button>
-                                            </form>
-                                        @endif
+                                         @if($katalog->status === 'approved')
+                                             <form action="{{ route('anggota.katalog.toggle-status', $katalog->id) }}" method="POST" style="display: inline;">
+                                                 @csrf
+                                                 <button type="submit" class="btn-action secondary" style="border-radius: 6px;">
+                                                     @if($katalog->is_active)
+                                                         <i class="fas fa-eye-slash"></i> Nonaktifkan
+                                                     @else
+                                                         <i class="fas fa-eye"></i> Aktifkan
+                                                     @endif
+                                                 </button>
+                                             </form>
+                                         @endif
 
-                                        <form action="{{ route('anggota.katalog.destroy', $katalog->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus katalog {{ $katalog->company_name }}? Data tidak dapat dikembalikan!')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn-action danger">
-                                                <i class="fas fa-trash-alt"></i> Hapus
-                                            </button>
-                                        </form>
-                                    </div>
-                                @endif
+                                         <form id="delete-katalog-form-{{ $katalog->id }}" action="{{ route('anggota.katalog.destroy', $katalog->id) }}" method="POST" style="display: inline;">
+                                             @csrf
+                                             @method('DELETE')
+                                             <button type="button" class="btn-action danger" style="border-radius: 6px;" onclick="confirmDeleteKatalog({{ $katalog->id }}, '{{ addslashes($katalog->company_name) }}')">
+                                                 <i class="fas fa-trash-alt"></i> Hapus
+                                             </button>
+                                         </form>
+                                     </div>
+                                 @endif
                             </div>
                         @endforeach
                     </div>
@@ -1172,23 +1152,28 @@
         // Toggle Detail Katalog
         function toggleDetail(button) {
             const katalogCard = button.closest('.katalog-card');
+            if (!katalogCard) return;
             const detailContent = katalogCard.querySelector('.katalog-detail-content');
+            if (!detailContent) return;
+            
             const icon = button.querySelector('i');
             const label = button.querySelector('span');
             
-            if (detailContent.style.display === 'none') {
+            const isHidden = window.getComputedStyle(detailContent).display === 'none';
+            if (isHidden) {
                 detailContent.style.display = 'block';
                 button.classList.add('expanded');
-                icon.className = 'fas fa-chevron-up';
-                label.innerText = 'Sembunyikan Detail';
+                if (icon) icon.className = 'fas fa-chevron-up';
+                if (label) label.innerText = 'Sembunyikan Detail';
             } else {
                 detailContent.style.display = 'none';
                 button.classList.remove('expanded');
-                icon.className = 'fas fa-chevron-down';
-                label.innerText = 'Lihat Detail';
+                if (icon) icon.className = 'fas fa-chevron-down';
+                if (label) label.innerText = 'Lihat Detail';
             }
         }
 
+      
         // Filter Katalog by Status
         function filterKatalog(filter, element) {
             const cards = document.querySelectorAll('.katalog-card');
@@ -1273,5 +1258,26 @@
                 });
             });
         });
+
+        // SweetAlert2 Delete Confirmation (SIKTN Benchmark)
+        function confirmDeleteKatalog(id, name) {
+            Swal.fire({
+                title: 'Hapus Katalog?',
+                text: "Apakah Anda yakin ingin menghapus katalog '" + name + "'? Data yang dihapus tidak dapat dikembalikan.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: '<i class="fas fa-trash-alt"></i> Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                customClass: {
+                    popup: 'admin-ui-scope'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-katalog-form-' + id).submit();
+                }
+            });
+        }
     </script>
 @endpush

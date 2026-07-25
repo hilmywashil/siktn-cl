@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('pengirim_tujuan');
             $table->enum('status', ['Pending TTD', 'Terbit', 'Revisi', 'Draft'])->default('Pending TTD');
             $table->text('link_drive')->nullable();
+            $table->string('file_lampiran')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('admins')->onDelete('set null');
             $table->timestamps();
         });

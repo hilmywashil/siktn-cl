@@ -12,6 +12,32 @@ return new class extends Migration
             $table->id();
 
             // =====================
+            // IDENTITAS & AUTH
+            // =====================
+            $table->string('username')->unique()->nullable();
+            $table->string('nik')->nullable();
+            $table->string('nama_lengkap')->nullable();
+            $table->string('tempat_lahir')->nullable();
+            $table->date('tanggal_lahir')->nullable();
+            $table->text('alamat_lengkap')->nullable();
+            $table->string('domisili')->nullable()->comment('Wilayah untuk filter PPKT/PKKT');
+            $table->string('jabatan')->nullable()->comment('Diisi oleh Sekretariat');
+            $table->string('pendidikan_terakhir')->nullable();
+            $table->string('pekerjaan')->nullable();
+            $table->text('riwayat_organisasi')->nullable();
+            $table->text('kompetensi')->nullable();
+            $table->string('email')->nullable();
+            $table->string('no_hp')->nullable();
+            $table->string('foto_diri')->nullable();
+
+            // =====================
+            // SOSIAL MEDIA
+            // =====================
+            $table->string('instagram')->nullable();
+            $table->string('tiktok')->nullable();
+            $table->string('twitter')->nullable();
+
+            // =====================
             // AUTH
             // =====================
             $table->string('password')->nullable();
@@ -19,53 +45,20 @@ return new class extends Migration
             $table->rememberToken();
 
             // =====================
-            // DATA PERUSAHAAN
-            // =====================
-            $table->string('nama_perusahaan');
-            $table->string('trade_mark');
-            $table->date('tanggal_lahir');
-            $table->text('alamat_kantor');
-            $table->string('telepon_wa_perusahaan');
-            $table->string('email_website_perusahaan'); // UNIQUE DIHAPUS
-
-            // =====================
-            // DATA PIMPINAN
-            // =====================
-            $table->string('nama_pimpinan');
-            $table->text('alamat_pimpinan');
-            $table->string('telepon_wa_pimpinan');
-            $table->string('email_pimpinan'); // UNIQUE DIHAPUS
-
-            // =====================
-            // LEGALITAS
-            // =====================
-            $table->string('akte_notaris');
-            $table->string('nomor_induk_berusaha_tdup');
-            $table->string('npwp_perusahaan');
-
-            // =====================
-            // PRODUK USAHA
-            // =====================
-            $table->json('produk_usaha_yang_akan_dijual')->nullable();
-
-            // =====================
-            // DOKUMEN
-            // =====================
-            $table->string('surat_permohonan');
-            $table->string('akte_pendirian_perusahaan');
-            $table->string('nib_atau_tdup');
-            $table->string('ktp_pimpinan');
-            $table->string('npwp_perusahaan_file');
-
-            // =====================
             // STATUS & APPROVAL
             // =====================
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->enum('status', ['pending', 'pending_profile', 'pending_verification', 'approved', 'rejected'])->default('pending_profile');
             $table->text('rejection_reason')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->unsignedBigInteger('approved_by')->nullable();
 
+            // =====================
+            // TRACKING
+            // =====================
+            $table->json('updated_fields')->nullable();
+
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -15,7 +15,12 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('photo')->nullable();
             $table->string('password');
-            $table->string('domisili')->nullable(); // TAMBAHKAN INI
+            $table->string('domisili')->nullable();
+            $table->string('category')->default('super_admin');
+            $table->boolean('is_active')->default(true);
+            $table->string('no_hp')->nullable();
+            $table->string('foto_profil')->nullable();
+            $table->json('notification_settings')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

@@ -1,5 +1,4 @@
 <?php
-// database/migrations/2024_01_xx_create_organisasi_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -11,11 +10,13 @@ return new class extends Migration
     {
         Schema::create('organisasi', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('periode_id')->nullable()->constrained('periode_kepengurusans')->nullOnDelete();
+            $table->foreignId('anggota_id')->nullable()->constrained('anggota')->onDelete('cascade');
             $table->string('nama');
             $table->string('jabatan');
             $table->string('foto')->nullable();
-            $table->enum('kategori', ['ketua_umum', 'wakil_ketua_umum', 'ketua_bidang', 'sekretaris_umum', 'wakil_sekretaris_umum']);
-            $table->integer('urutan')->default(0);
+            $table->string('kategori');
+            $table->string('urutan', 50)->default('0');
             $table->boolean('aktif')->default(true);
             $table->timestamps();
         });
