@@ -426,30 +426,131 @@
         margin: 4px 0;
     }
 
-    /* Modals Custom */
+    /* Modals Custom Standard & Professional */
     .modal-overlay {
+        --navy: #022648; --navy-dark: #01162f; --navy-light: #0a3a6b;
+        --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
+        --gray-500: #6b7280; --gray-700: #374151; --gray-900: #111827;
+        --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px;
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(15, 23, 42, 0.6);
-        display: none;
+        background: rgba(2, 38, 72, 0.48);
+        backdrop-filter: blur(4px);
+        display: flex;
         align-items: center;
         justify-content: center;
         z-index: 9999;
-        padding: 1rem;
+        padding: 1.5rem;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
     
     .modal-overlay.active {
-        display: flex;
+        opacity: 1;
+        visibility: visible;
     }
 
-    .modal-content {
-        background: white;
-        border-radius: var(--radius-lg);
-        max-width: 600px;
+    .modal-content-lg {
+        background: #ffffff;
+        border-radius: 12px;
+        max-width: 680px;
         width: 100%;
-        padding: 1.5rem;
+        box-shadow: 0 24px 48px rgba(2, 38, 72, 0.25);
+        border: 1px solid rgba(2, 38, 72, 0.1);
+        overflow: hidden;
+        transform: scale(0.94) translateY(12px);
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-overlay.active .modal-content-lg {
+        transform: scale(1) translateY(0);
+    }
+
+    .modal-header-prof {
+        padding: 1.2rem 1.5rem;
+        background: linear-gradient(135deg, #022648 0%, #01162f 100%);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-body-prof {
+        padding: 1.5rem;
         overflow-y: auto;
+    }
+
+    .modal-footer-prof {
+        padding: 1rem 1.5rem;
+        background: #f8f9fc;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+    }
+
+    .modal-overlay .form-control {
+        border: 1px solid #cbd5e1 !important; border-radius: 6px !important;
+        padding: 0.55rem 0.875rem !important; font-size: 0.875rem !important;
+        background-color: #ffffff !important; color: #0f172a !important; outline: none !important;
+        transition: border-color 0.2s, box-shadow 0.2s !important; width: 100% !important;
+    }
+
+    .modal-overlay .form-control:focus {
+        border-color: #022648 !important; box-shadow: 0 0 0 3px rgba(2, 38, 72, 0.12) !important;
+    }
+
+    .modal-overlay .btn-solid-navy {
+        background-color: #022648 !important; color: #ffffff !important; border: none !important;
+        padding: 0.55rem 1.25rem !important; border-radius: 6px !important; font-weight: 700 !important;
+        cursor: pointer !important; display: inline-flex !important; align-items: center !important; gap: 0.5rem !important;
+    }
+
+    .modal-overlay .btn-solid-navy:hover { background-color: #01162f !important; }
+
+    .modal-overlay .btn-outline-secondary {
+        background-color: #ffffff !important; color: #374151 !important; border: 1px solid #d1d5db !important;
+        padding: 0.55rem 1.25rem !important; border-radius: 6px !important; font-weight: 600 !important;
+        cursor: pointer !important; display: inline-flex !important; align-items: center !important; gap: 0.5rem !important;
+    }
+
+    .modal-overlay .btn-outline-secondary:hover { background-color: #f3f4f6 !important; color: #022648 !important; }
+
+    .form-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+    }
+
+    .form-group-full {
+        grid-column: 1 / -1;
+    }
+
+    .file-upload-zone {
+        border: 2px dashed #cbd5e1;
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        background: #f8fafc;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .file-upload-zone:hover {
+        border-color: var(--navy);
+        background: #f1f5f9;
+    }
+
+    .file-upload-zone input[type="file"] {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        opacity: 0;
+        cursor: pointer;
     }
 
     .timeline {
@@ -678,102 +779,135 @@
         </div>
     </div>
 
-    <!-- Modal 2: Create Surat -->
-    <div class="modal-overlay" id="modalCreateSurat">
-        <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--navy); margin: 0;">Catat {{ $tipe == 'masuk' ? 'Surat Masuk' : 'Surat Keluar' }} Baru</h3>
-                <button type="button" onclick="closeModal('modalCreateSurat')" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;">&times;</button>
+    <!-- Modal 2: Create Surat (Standard & Professional 2-Column Grid) -->
+    <div class="modal-overlay" id="modalCreateSurat" onclick="if(event.target===this) closeModal('modalCreateSurat')">
+        <div class="modal-content-lg">
+            <div class="modal-header-prof">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.05rem; font-weight: 800; color: white; margin: 0;">Catat {{ $tipe == 'masuk' ? 'Surat Masuk' : 'Surat Keluar' }} Baru</h3>
+                        <span style="font-size: 0.725rem; color: #94a3b8;">Isi data persuratan secara sistematis dan rapi</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('modalCreateSurat')" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">&times;</button>
             </div>
+
             <form action="{{ route('admin.sekretariat.surat.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="tipe" value="{{ $tipe }}">
                 
-                <div class="form-group">
-                    <label>Nomor Surat</label>
-                    <input type="text" name="nomor_surat" class="form-control" placeholder="Contoh: 001/SK/PNKT/VII/2026" required>
+                <div class="modal-body-prof">
+                    <div class="form-grid-2">
+                        <!-- Baris 1: Nomor & Tanggal -->
+                        <div class="form-group">
+                            <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Nomor Surat <span style="color: red;">*</span></label>
+                            <input type="text" name="nomor_surat" class="form-control" placeholder="Contoh: 001/SK/PNKT/VII/2026" required style="font-size: 0.85rem; font-weight: 600;">
+                        </div>
+
+                        <div class="form-group">
+                            <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Tanggal Surat <span style="color: red;">*</span></label>
+                            <input type="date" name="tanggal" class="form-control datepicker" value="{{ date('Y-m-d') }}" required style="font-size: 0.85rem; font-weight: 600;">
+                        </div>
+
+                        <!-- Baris 2: Klasifikasi & Status -->
+                        <div class="form-group">
+                            <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Klasifikasi Surat <span style="color: red;">*</span></label>
+                            <select name="klasifikasi" class="form-control select2-basic" style="width: 100%;" required>
+                                <option value="internal">Surat Internal</option>
+                                <option value="eksternal">Surat Eksternal</option>
+                                <option value="penting">Surat Penting</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Status Awal</label>
+                            <select name="status" class="form-control select2-basic" style="width: 100%;">
+                                <option value="Draft">Draft</option>
+                                <option value="Pending TTD">Pending TTD</option>
+                                <option value="Terbit">Terbit</option>
+                            </select>
+                        </div>
+
+                        <!-- Baris 3: Perihal -->
+                        <div class="form-group form-group-full">
+                            <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Perihal Surat <span style="color: red;">*</span></label>
+                            <input type="text" name="perihal" class="form-control" placeholder="Tuliskan judul atau perihal utama surat..." required style="font-size: 0.85rem;">
+                        </div>
+
+                        <!-- Baris 4: Pengirim / Tujuan -->
+                        <div class="form-group form-group-full">
+                            <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">{{ $tipe == 'masuk' ? 'Pengirim (Instansi/Nama)' : 'Tujuan (Instansi/Nama)' }} <span style="color: red;">*</span></label>
+                            <input type="text" name="pengirim_tujuan" class="form-control" placeholder="{{ $tipe == 'masuk' ? 'Nama/Instansi Pengirim Surat' : 'Nama/Instansi Tujuan Surat' }}" required style="font-size: 0.85rem;">
+                        </div>
+
+                        <!-- Baris 5: File Lampiran & Google Drive Link -->
+                        <div class="form-group">
+                            <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Upload File Lampiran (PDF / Word)</label>
+                            <div class="file-upload-zone" onclick="document.getElementById('createFileInput').click()">
+                                <svg viewBox="0 0 24 24" width="24" height="24" stroke="#64748b" fill="none" stroke-width="2" style="margin-bottom: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                <div style="font-size: 0.775rem; font-weight: 600; color: #334155;" id="createFileNameLabel">Klik / Drag file .pdf, .doc, .docx</div>
+                                <input type="file" id="createFileInput" name="file_lampiran" accept=".pdf,.doc,.docx" onchange="document.getElementById('createFileNameLabel').textContent = this.files[0]?.name || 'Klik / Drag file .pdf, .doc, .docx'">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Link Google Drive (Opsional)</label>
+                            <input type="url" name="link_drive" class="form-control" placeholder="https://drive.google.com/..." style="font-size: 0.85rem; height: 60px;">
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Klasifikasi Surat</label>
-                    <select name="klasifikasi" class="form-control select2-basic" style="width: 100%;" required>
-                        <option value="internal">Surat Internal</option>
-                        <option value="eksternal">Surat Eksternal</option>
-                        <option value="penting">Surat Penting</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Perihal</label>
-                    <input type="text" name="perihal" class="form-control" placeholder="Perihal surat..." required>
-                </div>
-
-                <div class="form-group">
-                    <label>{{ $tipe == 'masuk' ? 'Pengirim (Instansi/Nama)' : 'Tujuan (Instansi/Nama)' }}</label>
-                    <input type="text" name="pengirim_tujuan" class="form-control" placeholder="{{ $tipe == 'masuk' ? 'Nama/Instansi Pengirim' : 'Nama/Instansi Tujuan' }}" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Tanggal Surat</label>
-                    <input type="date" name="tanggal" class="form-control" value="{{ date('Y-m-d') }}" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Upload File Lampiran (PDF / Word)</label>
-                    <input type="file" name="file_lampiran" class="form-control" accept=".pdf,.doc,.docx">
-                </div>
-
-                <div class="form-group">
-                    <label>Link Google Drive (Opsional)</label>
-                    <input type="url" name="link_drive" class="form-control" placeholder="https://drive.google.com/...">
-                </div>
-
-                <div class="form-group">
-                    <label>Status Awal</label>
-                    <select name="status" class="form-control select2-basic" style="width: 100%;">
-                        <option value="Draft">Draft</option>
-                        <option value="Pending TTD">Pending TTD</option>
-                        <option value="Terbit">Terbit</option>
-                    </select>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem;">
-                    <button type="button" onclick="closeModal('modalCreateSurat')" class="btn-outline-secondary">Batal</button>
-                    <button type="submit" class="btn-solid-navy">Simpan Surat</button>
+                <div class="modal-footer-prof">
+                    <button type="button" onclick="closeModal('modalCreateSurat')" class="btn-outline-secondary" style="padding: 0.5rem 1.25rem;">Batal</button>
+                    <button type="submit" class="btn-solid-navy" style="padding: 0.5rem 1.25rem; font-weight: 700;">Simpan Surat</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal 3: Update Status Surat -->
-    <div class="modal-overlay" id="modalStatusSurat">
-        <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--navy); margin: 0;">Ubah Status Surat</h3>
-                <button type="button" onclick="closeModal('modalStatusSurat')" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;">&times;</button>
+    <!-- Modal 3: Update Status Surat (Standard & Professional) -->
+    <div class="modal-overlay" id="modalStatusSurat" onclick="if(event.target===this) closeModal('modalStatusSurat')">
+        <div class="modal-content-lg" style="max-width: 520px;">
+            <div class="modal-header-prof">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" fill="none" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.05rem; font-weight: 800; color: white; margin: 0;">Ubah Status Surat</h3>
+                        <span style="font-size: 0.725rem; color: #94a3b8;">Pilih status alur kerja surat yang baru</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('modalStatusSurat')" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
             </div>
+
             <form id="formUpdateStatus" method="POST">
                 @csrf
                 @method('PATCH')
                 
-                <div class="form-group">
-                    <label>Status Baru</label>
-                    <select name="status" id="statusSelect" class="form-control select2-basic" style="width: 100%;" required>
-                        <option value="Draft">Draft</option>
-                        <option value="Pending TTD">Pending TTD</option>
-                        <option value="Terbit">Terbit</option>
-                        <option value="Revisi">Revisi</option>
-                    </select>
+                <div class="modal-body-prof">
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Status Baru <span style="color: red;">*</span></label>
+                        <select name="status" id="statusSelect" class="form-control select2-basic" style="width: 100%;" required>
+                            <option value="Draft">Draft</option>
+                            <option value="Pending TTD">Pending TTD</option>
+                            <option value="Terbit">Terbit</option>
+                            <option value="Revisi">Revisi</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Catatan / Alasan Perubahan (Disimpan ke Audit Trail)</label>
+                        <textarea name="catatan" class="form-control" rows="3" placeholder="Contoh: Menunggu verifikasi tanda tangan pengurus..." style="font-size: 0.85rem;"></textarea>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Catatan / Alasan Perubahan (Masuk ke Audit Trail)</label>
-                    <textarea name="catatan" class="form-control" rows="3" placeholder="Contoh: Menunggu tanda tangan ketua umum..."></textarea>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem;">
+                <div class="modal-footer-prof">
                     <button type="button" onclick="closeModal('modalStatusSurat')" class="btn-outline-secondary">Batal</button>
-                    <button type="submit" class="btn-solid-navy">Perbarui Status</button>
+                    <button type="submit" class="btn-solid-navy" style="font-weight: 700;">Perbarui Status</button>
                 </div>
             </form>
         </div>

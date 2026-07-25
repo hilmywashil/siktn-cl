@@ -144,17 +144,56 @@
     .aksi-item.aksi-delete:hover { color: var(--red); background: #fef2f2; }
     .aksi-divider { height: 1px; background: var(--gray-200); margin: 4px 0; }
 
-    /* Modal */
+    /* Modals Custom Standard & Professional */
     .modal-overlay {
+        --navy: #022648; --navy-dark: #01162f; --navy-light: #0a3a6b;
+        --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
+        --gray-500: #6b7280; --gray-700: #374151; --gray-900: #111827;
+        --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px;
         position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(15,23,42,0.6); display: none;
-        align-items: center; justify-content: center; z-index: 9999; padding: 1rem;
+        background: rgba(2, 38, 72, 0.48); backdrop-filter: blur(4px);
+        display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 1.5rem;
+        opacity: 0; visibility: hidden; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .modal-overlay.active { display: flex; }
-    .modal-content {
-        background: white; border-radius: var(--radius-lg); max-width: 560px; width: 100%;
-        padding: 1.5rem; max-height: 90vh; overflow-y: auto;
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-content-lg {
+        background: #ffffff; border-radius: 12px; max-width: 680px; width: 100%;
+        box-shadow: 0 24px 48px rgba(2, 38, 72, 0.25); border: 1px solid rgba(2, 38, 72, 0.1);
+        overflow: hidden; transform: scale(0.94) translateY(12px);
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); max-height: 90vh;
+        display: flex; flex-direction: column;
     }
+    .modal-overlay.active .modal-content-lg { transform: scale(1) translateY(0); }
+    .modal-header-prof {
+        padding: 1.2rem 1.5rem; background: linear-gradient(135deg, #022648 0%, #01162f 100%);
+        color: white; display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-body-prof { padding: 1.5rem; overflow-y: auto; }
+    .modal-footer-prof {
+        padding: 1rem 1.5rem; background: #f8f9fc; border-top: 1px solid #e5e7eb;
+        display: flex; justify-content: flex-end; gap: 0.75rem;
+    }
+    .modal-overlay .form-control {
+        border: 1px solid #cbd5e1 !important; border-radius: 6px !important;
+        padding: 0.55rem 0.875rem !important; font-size: 0.875rem !important;
+        background-color: #ffffff !important; color: #0f172a !important; outline: none !important;
+        transition: border-color 0.2s, box-shadow 0.2s !important; width: 100% !important;
+    }
+    .modal-overlay .form-control:focus {
+        border-color: #022648 !important; box-shadow: 0 0 0 3px rgba(2, 38, 72, 0.12) !important;
+    }
+    .modal-overlay .btn-solid-navy {
+        background-color: #022648 !important; color: #ffffff !important; border: none !important;
+        padding: 0.55rem 1.25rem !important; border-radius: 6px !important; font-weight: 700 !important;
+        cursor: pointer !important; display: inline-flex !important; align-items: center !important; gap: 0.5rem !important;
+    }
+    .modal-overlay .btn-solid-navy:hover { background-color: #01162f !important; }
+    .modal-overlay .btn-outline-secondary {
+        background-color: #ffffff !important; color: #374151 !important; border: 1px solid #d1d5db !important;
+        padding: 0.55rem 1.25rem !important; border-radius: 6px !important; font-weight: 600 !important;
+        cursor: pointer !important; display: inline-flex !important; align-items: center !important; gap: 0.5rem !important;
+    }
+    .modal-overlay .btn-outline-secondary:hover { background-color: #f3f4f6 !important; color: #022648 !important; }
 </style>
 @endpush
 
@@ -315,111 +354,133 @@
 
 </div>
 
-<!-- Create Modal -->
-<div class="modal-overlay" id="createModal">
-    <div class="modal-content">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3 style="color: var(--navy); margin: 0; font-weight: 700;">Tambah Notulensi Rapat Baru</h3>
-            <button type="button" onclick="closeCreateModal()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--gray-500);">&times;</button>
+<!-- Create Modal (Standard & Professional) -->
+<div class="modal-overlay" id="createModal" onclick="if(event.target===this) closeCreateModal()">
+    <div class="modal-content-lg">
+        <div class="modal-header-prof">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.05rem; font-weight: 800; color: white; margin: 0;">Tambah Notulensi Rapat Baru</h3>
+                    <span style="font-size: 0.725rem; color: #94a3b8;">Catat hasil rapat dan keputusannya secara rapi</span>
+                </div>
+            </div>
+            <button type="button" onclick="closeCreateModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
         </div>
 
         <form action="{{ route('admin.sekretariat.notulensi.store') }}" method="POST">
             @csrf
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label>Tautkan ke Agenda / Rapat (Opsional)</label>
-                <select name="agenda_id" class="form-control select2-basic" style="width: 100%;">
-                    <option value="">-- Pilih Agenda Rapat Terkait --</option>
-                    @foreach($agendas as $ag)
-                        <option value="{{ $ag->id }}">{{ $ag->judul }} ({{ \Carbon\Carbon::parse($ag->waktu_mulai)->format('d M Y') }})</option>
-                    @endforeach
-                </select>
-            </div>
+            <div class="modal-body-prof">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Tautkan ke Agenda / Rapat (Opsional)</label>
+                        <select name="agenda_id" class="form-control select2-basic" style="width: 100%;">
+                            <option value="">-- Pilih Agenda Rapat Terkait --</option>
+                            @foreach($agendas as $ag)
+                                <option value="{{ $ag->id }}">{{ $ag->judul }} ({{ \Carbon\Carbon::parse($ag->waktu_mulai)->format('d M Y') }})</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label>Judul Rapat</label>
-                <input type="text" name="judul_rapat" class="form-control" placeholder="Contoh: Rapat Kerja Sekretariat Nasional..." required>
-            </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Judul Rapat <span style="color: red;">*</span></label>
+                        <input type="text" name="judul_rapat" class="form-control" placeholder="Contoh: Rapat Kerja Sekretariat Nasional..." required style="font-size: 0.85rem;">
+                    </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                <div class="form-group">
-                    <label>Tanggal & Waktu Rapat</label>
-                    <input type="text" name="tanggal_rapat" class="form-control datetimepicker" style="background: white;" value="{{ date('Y-m-d H:i') }}" placeholder="Pilih tanggal & waktu..." required>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Tanggal & Waktu Rapat <span style="color: red;">*</span></label>
+                        <input type="text" name="tanggal_rapat" class="form-control datetimepicker" style="background: white; font-size: 0.85rem;" value="{{ date('Y-m-d H:i') }}" placeholder="Pilih tanggal & waktu..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Pemimpin Rapat</label>
+                        <input type="text" name="pemimpin_rapat" class="form-control" placeholder="Nama pemimpin rapat..." style="font-size: 0.85rem;">
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Ringkasan Hasil Notulensi</label>
+                        <textarea name="ringkasan_hasil" class="form-control" style="height: 95px; font-size: 0.85rem;" placeholder="Poin-poin penting hasil rapat..."></textarea>
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Link Tautan Dokumen (Google Drive)</label>
+                        <input type="url" name="link_drive" class="form-control" placeholder="https://drive.google.com/file/d/..." style="font-size: 0.85rem;">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Pemimpin Rapat</label>
-                    <input type="text" name="pemimpin_rapat" class="form-control" placeholder="Nama pemimpin rapat...">
-                </div>
             </div>
 
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label>Ringkasan Hasil Notulensi</label>
-                <textarea name="ringkasan_hasil" class="form-control" style="height: 90px;" placeholder="Poin-poin penting hasil rapat..."></textarea>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label>Link Tautan Dokumen (Google Drive)</label>
-                <input type="url" name="link_drive" class="form-control" placeholder="https://drive.google.com/file/d/...">
-            </div>
-
-            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+            <div class="modal-footer-prof">
                 <button type="button" onclick="closeCreateModal()" class="btn-outline-secondary">Batal</button>
-                <button type="submit" class="btn-solid-navy" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Notulensi Rapat sedang disimpan...' })">Simpan Notulensi</button>
+                <button type="submit" class="btn-solid-navy" style="font-weight: 700;" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Notulensi Rapat sedang disimpan...' })">Simpan Notulensi</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Edit Modal -->
-<div class="modal-overlay" id="editModal">
-    <div class="modal-content">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3 style="color: var(--navy); margin: 0; font-weight: 700;">Edit Notulensi Rapat</h3>
-            <button type="button" onclick="closeEditModal()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--gray-500);">&times;</button>
+<!-- Edit Modal (Standard & Professional) -->
+<div class="modal-overlay" id="editModal" onclick="if(event.target===this) closeEditModal()">
+    <div class="modal-content-lg">
+        <div class="modal-header-prof">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" fill="none" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.05rem; font-weight: 800; color: white; margin: 0;">Edit Notulensi Rapat</h3>
+                    <span style="font-size: 0.725rem; color: #94a3b8;">Perbarui informasi hasil rapat</span>
+                </div>
+            </div>
+            <button type="button" onclick="closeEditModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
         </div>
 
         <form id="editForm" method="POST">
             @csrf
             @method('PUT')
             
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label>Tautkan ke Agenda / Rapat (Opsional)</label>
-                <select name="agenda_id" id="editAgendaId" class="form-control select2-basic" style="width: 100%;">
-                    <option value="">-- Pilih Agenda Rapat Terkait --</option>
-                    @foreach($agendas as $ag)
-                        <option value="{{ $ag->id }}">{{ $ag->judul }} ({{ \Carbon\Carbon::parse($ag->waktu_mulai)->format('d M Y') }})</option>
-                    @endforeach
-                </select>
-            </div>
+            <div class="modal-body-prof">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Tautkan ke Agenda / Rapat (Opsional)</label>
+                        <select name="agenda_id" id="editAgendaId" class="form-control select2-basic" style="width: 100%;">
+                            <option value="">-- Pilih Agenda Rapat Terkait --</option>
+                            @foreach($agendas as $ag)
+                                <option value="{{ $ag->id }}">{{ $ag->judul }} ({{ \Carbon\Carbon::parse($ag->waktu_mulai)->format('d M Y') }})</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label>Judul Rapat</label>
-                <input type="text" name="judul_rapat" id="editJudulRapat" class="form-control" required>
-            </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Judul Rapat <span style="color: red;">*</span></label>
+                        <input type="text" name="judul_rapat" id="editJudulRapat" class="form-control" required style="font-size: 0.85rem;">
+                    </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                <div class="form-group">
-                    <label>Tanggal & Waktu Rapat</label>
-                    <input type="text" name="tanggal_rapat" id="editTanggalRapat" class="form-control datetimepicker" style="background: white;" required>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Tanggal & Waktu Rapat <span style="color: red;">*</span></label>
+                        <input type="text" name="tanggal_rapat" id="editTanggalRapat" class="form-control datetimepicker" style="background: white; font-size: 0.85rem;" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Pemimpin Rapat</label>
+                        <input type="text" name="pemimpin_rapat" id="editPemimpinRapat" class="form-control" style="font-size: 0.85rem;">
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Ringkasan Hasil Notulensi</label>
+                        <textarea name="ringkasan_hasil" id="editRingkasanHasil" class="form-control" style="height: 95px; font-size: 0.85rem;"></textarea>
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Link Tautan Dokumen (Google Drive)</label>
+                        <input type="url" name="link_drive" id="editLinkDrive" class="form-control" style="font-size: 0.85rem;">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Pemimpin Rapat</label>
-                    <input type="text" name="pemimpin_rapat" id="editPemimpinRapat" class="form-control">
-                </div>
             </div>
 
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label>Ringkasan Hasil Notulensi</label>
-                <textarea name="ringkasan_hasil" id="editRingkasanHasil" class="form-control" style="height: 90px;"></textarea>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label>Link Tautan Dokumen (Google Drive)</label>
-                <input type="url" name="link_drive" id="editLinkDrive" class="form-control">
-            </div>
-
-            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+            <div class="modal-footer-prof">
                 <button type="button" onclick="closeEditModal()" class="btn-outline-secondary">Batal</button>
-                <button type="submit" class="btn-solid-navy" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Notulensi Rapat berhasil diperbarui...' })">Update Notulensi</button>
+                <button type="submit" class="btn-solid-navy" style="font-weight: 700;" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Notulensi Rapat berhasil diperbarui...' })">Update Notulensi</button>
             </div>
         </form>
     </div>

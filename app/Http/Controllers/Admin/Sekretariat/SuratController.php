@@ -218,6 +218,24 @@ class SuratController extends Controller
                     ));
                 }
             }
+        } elseif ($newStatus === 'Pending TTD') {
+            // Notifikasi ke Pimpinan saat diubah dari Draft ke Pending TTD
+            $pimpinans = Admin::whereIn('category', ['pimpinan', 'super_admin'])->get();
+            if ($pimpinans->count() > 0) {
+                Notification::send($pimpinans, new AdminNotification(
+                    'surat_pending',
+                    'Surat Membutuhkan TTD',
+                    "Surat '{$surat->nomor_surat}' ({$surat->perihal}) baru saja diajukan dan membutuhkan persetujuan/TTD Pimpinan."
+                ));
+            }
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Status surat '{$surat->nomor_surat}' berhasil diubah menjadi {$newStatus}.",
+                'surat' => $surat,
+            ]);
         }
 
         return redirect()->back()->with('success', "Status surat '{$surat->nomor_surat}' berhasil diubah menjadi {$newStatus}.");
@@ -258,9 +276,131 @@ class SuratController extends Controller
     public function auditTrail($id)
     {
         $surat = Surat::with(['auditLogs', 'creator'])->findOrFail($id);
+
+        $fileUrl = null;
+        $isWord = false;
+        $isPdf = false;
+
+        if ($surat->file_lampiran) {
+            $fileUrl = asset('storage/' . $surat->file_lampiran);
+            $ext = strtolower(pathinfo($surat->file_lampiran, PATHINFO_EXTENSION));
+            if (in_array($ext, ['doc', 'docx'])) {
+                $isWord = true;
+            } elseif ($ext === 'pdf') {
+                $isPdf = true;
+            }
+        }
+
         return response()->json([
             'surat' => $surat,
             'audit_logs' => $surat->auditLogs,
+            'file_url' => $fileUrl,
+            'is_word' => $isWord,
+            'is_pdf' => $isPdf,
+        ]);
+    }
+
+    /**
+     * Feed Notifikasi Surat Keluar 3 Kategori (Internal, Eksternal, Penting) untuk Dropdown Topbar
+     */
+    public function notificationFeed()
+    {
+        $internalSurats = Surat::where('klasifikasi', 'internal')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        $eksternalSurats = Surat::where('klasifikasi', 'eksternal')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        $pentingSurats = Surat::where('klasifikasi', 'penting')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        $pendingCount = Surat::where('status', 'Pending TTD')
+            ->count();
+
+        $formatSurat = function($s) {
+            $fileUrl = $s->file_lampiran ? asset('storage/' . $s->file_lampiran) : null;
+            $ext = $s->file_lampiran ? strtolower(pathinfo($s->file_lampiran, PATHINFO_EXTENSION)) : '';
+            return [
+                'id' => $s->id,
+                'nomor_surat' => $s->nomor_surat,
+                'perihal' => $s->perihal,
+                'pengirim_tujuan' => $s->pengirim_tujuan,
+                'status' => $s->status,
+                'klasifikasi' => $s->klasifikasi,
+                'tanggal' => Carbon::parse($s->tanggal)->translatedFormat('d M Y'),
+                'file_url' => $fileUrl,
+                'link_drive' => $s->link_drive,
+                'is_pdf' => $ext === 'pdf',
+                'is_word' => in_array($ext, ['doc', 'docx']),
+            ];
+        };
+
+        return response()->json([
+            'pending_count' => $pendingCount,
+            'internal' => $internalSurats->map($formatSurat),
+            'eksternal' => $eksternalSurats->map($formatSurat),
+            'penting' => $pentingSurats->map($formatSurat),
+            'counts' => [
+                'internal' => Surat::where('klasifikasi', 'internal')->where('status', 'Pending TTD')->count(),
+                'eksternal' => Surat::where('klasifikasi', 'eksternal')->where('status', 'Pending TTD')->count(),
+                'penting' => Surat::where('klasifikasi', 'penting')->where('status', 'Pending TTD')->count(),
+            ]
+        ]);
+    }
+
+    /**
+     * Upload File Surat Bertanda Tangan Baru (File Ber-TTD) dari Slide-over
+     */
+    public function uploadSigned(Request $request, $id)
+    {
+        $admin = Auth::guard('admin')->user();
+        $surat = Surat::findOrFail($id);
+
+        $request->validate([
+            'signed_file' => 'required|file|mimes:pdf,doc,docx|max:10240',
+        ]);
+
+        // Hapus file lama jika ada
+        if ($surat->file_lampiran && Storage::disk('public')->exists($surat->file_lampiran)) {
+            Storage::disk('public')->delete($surat->file_lampiran);
+        }
+
+        $newPath = $request->file('signed_file')->store('surat_lampiran', 'public');
+        $oldStatus = $surat->status;
+
+        $surat->update([
+            'file_lampiran' => $newPath,
+            'status' => 'Terbit',
+        ]);
+
+        // Audit Trail Log
+        SuratAuditLog::create([
+            'surat_id' => $surat->id,
+            'admin_id' => $admin->id,
+            'admin_name' => $admin->name,
+            'action' => 'Upload File Ber-TTD',
+            'old_status' => $oldStatus,
+            'new_status' => 'Terbit',
+            'notes' => "File Surat bertanda tangan baru diunggah oleh {$admin->name}. Status otomatis berubah menjadi Terbit.",
+        ]);
+
+        $this->logActivity('surat', 'Upload TTD', $surat->id, $surat->nomor_surat . ' - ' . $surat->perihal, 'Upload file ber-TTD');
+
+        $ext = strtolower(pathinfo($newPath, PATHINFO_EXTENSION));
+
+        return response()->json([
+            'success' => true,
+            'message' => "File bertanda tangan untuk Surat '{$surat->nomor_surat}' berhasil di-upload!",
+            'file_url' => asset('storage/' . $newPath),
+            'is_pdf' => $ext === 'pdf',
+            'is_word' => in_array($ext, ['doc', 'docx']),
+            'status' => 'Terbit',
         ]);
     }
 }

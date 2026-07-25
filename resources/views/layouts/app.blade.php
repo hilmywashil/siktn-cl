@@ -229,7 +229,7 @@
                 @else
                     {{-- <a href="{{ route('join-us') }}" class="btn-transparent-border-black">Jadi Anggota</a> --}}
                     <a href="{{ route('anggota.login') }}" class="btn-yellow-border-black"><i class="fa fa-sign-in"
-                            style="margin-right: 10px"></i> Dashboard Login</a>
+                            style="margin-right: 10px"></i> Login</a>
                 @endif
             </div>
         </div>

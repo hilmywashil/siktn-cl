@@ -8,6 +8,9 @@ use App\Traits\LogsAdminActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Admin;
+use App\Notifications\AdminNotification;
+use Illuminate\Support\Facades\Notification;
 
 class TemuKaryaController extends Controller
 {
@@ -93,6 +96,7 @@ class TemuKaryaController extends Controller
             'status' => 'required|in:selesai,pending,caretaker',
             'foto_dokumentasi' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:5120',
+            'link_drive' => 'nullable|url|max:500',
         ]);
 
         if ($request->hasFile('foto_dokumentasi')) {
@@ -104,10 +108,23 @@ class TemuKaryaController extends Controller
         }
 
         $validated['created_by'] = Auth::guard('admin')->id();
+        $validated['jumlah_peserta'] = $validated['jumlah_peserta'] ?? 0;
 
         $tk = TemuKarya::create($validated);
 
         $this->logActivity('temu-karya', 'Tambah', $tk->id, $tk->wilayah, 'Jenis: ' . $tk->jenis);
+
+        // Notifikasi ke Pimpinan jika status Pending
+        if ($tk->status === 'pending') {
+            $pimpinans = Admin::whereIn('category', ['pimpinan', 'super_admin'])->get();
+            if ($pimpinans->count() > 0) {
+                Notification::send($pimpinans, new AdminNotification(
+                    'surat_pending', // Using generic pending type so it shows in notif badge
+                    'Pelaporan Temu Karya Pending',
+                    "Laporan Temu Karya/Caretaker untuk wilayah {$tk->wilayah} berstatus Pending dan menunggu peninjauan."
+                ));
+            }
+        }
 
         return redirect()->back()->with('success', 'Data Temu Karya / Caretaker berhasil ditambahkan.');
     }
@@ -127,6 +144,7 @@ class TemuKaryaController extends Controller
             'status' => 'required|in:selesai,pending,caretaker',
             'foto_dokumentasi' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:5120',
+            'link_drive' => 'nullable|url|max:500',
         ]);
 
         if ($request->hasFile('foto_dokumentasi')) {
@@ -143,9 +161,23 @@ class TemuKaryaController extends Controller
             $validated['file_sk'] = $request->file('file_sk')->store('temu_karya/sk', 'public');
         }
 
+        $validated['jumlah_peserta'] = $validated['jumlah_peserta'] ?? 0;
+
         $temuKarya->update($validated);
 
         $this->logActivity('temu-karya', 'Edit', $temuKarya->id, $temuKarya->wilayah, 'Status: ' . $temuKarya->status);
+
+        // Notifikasi ke Pimpinan jika status diubah ke Pending
+        if ($temuKarya->status === 'pending') {
+            $pimpinans = Admin::whereIn('category', ['pimpinan', 'super_admin'])->get();
+            if ($pimpinans->count() > 0) {
+                Notification::send($pimpinans, new AdminNotification(
+                    'surat_pending', // Using generic pending type so it shows in notif badge
+                    'Pelaporan Temu Karya Pending',
+                    "Laporan Temu Karya/Caretaker untuk wilayah {$temuKarya->wilayah} berstatus Pending dan menunggu peninjauan."
+                ));
+            }
+        }
 
         return redirect()->back()->with('success', 'Data Temu Karya / Caretaker berhasil diperbarui.');
     }

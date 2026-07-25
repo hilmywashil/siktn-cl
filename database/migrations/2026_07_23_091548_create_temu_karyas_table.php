@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('foto_dokumentasi')->nullable();
             $table->text('catatan')->nullable();
             $table->string('file_sk')->nullable(); // Upload file SK Temu Karya / Caretaker
+            $table->string('link_drive')->nullable(); // Link Google Drive Dokumen
             $table->enum('status', ['selesai', 'pending', 'caretaker'])->default('selesai');
             $table->unsignedBigInteger('created_by')->nullable();
             $table->foreign('created_by')->references('id')->on('admins')->onDelete('set null');

@@ -70,8 +70,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('sekretariat')->name('sekretariat.')->group(function () {
             // Surat Masuk & Keluar
             Route::get('surat', [SuratController::class, 'index'])->name('surat.index');
+            Route::get('surat/notifications', [SuratController::class, 'notificationFeed'])->name('surat.notifications');
             Route::post('surat', [SuratController::class, 'store'])->name('surat.store');
             Route::patch('surat/{id}/status', [SuratController::class, 'updateStatus'])->name('surat.update-status');
+            Route::post('surat/{id}/upload-signed', [SuratController::class, 'uploadSigned'])->name('surat.upload-signed');
             Route::delete('surat/{id}', [SuratController::class, 'destroy'])->name('surat.destroy');
             Route::get('surat/{id}/audit-trail', [SuratController::class, 'auditTrail'])->name('surat.audit-trail');
 

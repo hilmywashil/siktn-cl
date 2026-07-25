@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('notify:birthdays')->dailyAt('08:00');
+Schedule::command('sk:check-expired')->dailyAt('08:00');

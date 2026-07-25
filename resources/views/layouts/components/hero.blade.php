@@ -29,7 +29,7 @@
                     {{-- <a href="{{ route('join-us') }}" class="btn-white"><i class="fa fa-user-plus"
                             style="margin-right: 10px"></i> Jadi Anggota</a> --}}
                     <a href="{{ route('anggota.login') }}" class="btn-yellow"><i class="fa fa-sign-in"
-                            style="margin-right: 10px"></i> Dashboard Login</a>
+                            style="margin-right: 10px"></i> Login</a>
                 </div>
             </div>
         </div>

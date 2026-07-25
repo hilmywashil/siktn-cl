@@ -182,53 +182,50 @@
     /* Modal Overlay */
     .modal-overlay {
         position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.5);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 1050;
-        padding: 1rem;
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(2, 38, 72, 0.48); backdrop-filter: blur(4px);
+        display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 1.5rem;
+        opacity: 0; visibility: hidden; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .modal-overlay.show {
-        display: flex;
+    .modal-overlay.show { opacity: 1; visibility: visible; }
+    .modal-content-lg {
+        background: #ffffff; border-radius: 12px; max-width: 680px; width: 100%;
+        box-shadow: 0 24px 48px rgba(2, 38, 72, 0.25); border: 1px solid rgba(2, 38, 72, 0.1);
+        overflow: hidden; transform: scale(0.94) translateY(12px);
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); max-height: 90vh;
+        display: flex; flex-direction: column;
     }
-    .modal-card {
-        background: white;
-        border-radius: 12px;
-        width: 100%;
-        max-width: 600px;
-        max-height: 90vh;
-        overflow-y: auto;
-        padding: 1.5rem;
-        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+    .modal-overlay.show .modal-content-lg { transform: scale(1) translateY(0); }
+    .modal-header-prof {
+        padding: 1.2rem 1.5rem; background: linear-gradient(135deg, #022648 0%, #01162f 100%);
+        color: white; display: flex; justify-content: space-between; align-items: center;
     }
-    .form-group {
-        margin-bottom: 1.25rem;
+    .modal-body-prof { padding: 1.5rem; overflow-y: auto; }
+    .modal-footer-prof {
+        padding: 1rem 1.5rem; background: #f8f9fc; border-top: 1px solid #e5e7eb;
+        display: flex; justify-content: flex-end; gap: 0.75rem;
     }
-    .form-group label {
-        display: block;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #374151;
-        margin-bottom: 0.5rem;
+    .modal-overlay .form-control {
+        border: 1px solid #cbd5e1 !important; border-radius: 6px !important;
+        padding: 0.55rem 0.875rem !important; font-size: 0.875rem !important;
+        background-color: #ffffff !important; color: #0f172a !important; outline: none !important;
+        transition: border-color 0.2s, box-shadow 0.2s !important; width: 100% !important;
     }
-    .form-control {
-        width: 100%;
-        padding: 0.65rem 1rem;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 0.875rem;
-        outline: none;
+    .modal-overlay .form-control:focus {
+        border-color: #022648 !important; box-shadow: 0 0 0 3px rgba(2, 38, 72, 0.12) !important;
     }
-    .form-control:focus {
-        border-color: #022648;
+    .modal-overlay .btn-solid-navy {
+        background-color: #022648 !important; color: #ffffff !important; border: none !important;
+        padding: 0.55rem 1.25rem !important; border-radius: 6px !important; font-weight: 700 !important;
+        cursor: pointer !important; display: inline-flex !important; align-items: center !important; gap: 0.5rem !important;
     }
-    .grid-2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
+    .modal-overlay .btn-solid-navy:hover { background-color: #01162f !important; }
+    .modal-overlay .btn-outline-secondary {
+        background-color: #ffffff !important; color: #374151 !important; border: 1px solid #d1d5db !important;
+        padding: 0.55rem 1.25rem !important; border-radius: 6px !important; font-weight: 600 !important;
+        cursor: pointer !important; display: inline-flex !important; align-items: center !important; gap: 0.5rem !important;
     }
+    .modal-overlay .btn-outline-secondary:hover { background-color: #f3f4f6 !important; color: #022648 !important; }
 </style>
 @endpush
 
@@ -237,6 +234,16 @@
     @if(session('success'))
         <div style="padding: 1rem; background: #d1fae5; color: #065f46; border-radius: 8px; margin-bottom: 1.5rem; font-weight: 600;">
             {{ session('success') }}
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div style="padding: 1rem; background: #fee2e2; color: #991b1b; border-radius: 8px; margin-bottom: 1.5rem; font-weight: 600;">
+            <ul style="margin: 0; padding-left: 1.5rem;">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
@@ -348,18 +355,25 @@
                                         </a>
                                     </div>
                                 @endif
+                                @if($item->link_drive)
+                                    <div style="margin-top: 2px;">
+                                        <a href="{{ $item->link_drive }}" target="_blank" style="font-size: 0.75rem; color: #022648; font-weight: 600; text-decoration: underline;">
+                                            Link Drive
+                                        </a>
+                                    </div>
+                                @endif
                             </td>
                             <td>
                                 <div style="display: flex; gap: 0.5rem;">
                                     <button class="btn-action" onclick="editData({{ json_encode($item) }})" title="Edit">
                                         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                     </button>
-                                    <form action="{{ route('admin.temu-karya.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Yakin hapus data ini?')">
+                                    <button type="button" class="btn-action delete" title="Hapus" onclick="confirmDelete(this, '{{ route('admin.temu-karya.destroy', $item->id) }}')">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                    <form id="delete-form-{{ $item->id }}" action="{{ route('admin.temu-karya.destroy', $item->id) }}" method="POST" style="display: none;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn-action delete" title="Hapus">
-                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                        </button>
                                     </form>
                                 </div>
                             </td>
@@ -377,12 +391,20 @@
     </div>
 </div>
 
-<!-- Modal Form -->
-<div class="modal-overlay" id="temuKaryaModal">
-    <div class="modal-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-            <h3 id="modalTitle" style="margin: 0; color: #022648; font-weight: 700;">Tambah Data Temu Karya</h3>
-            <button onclick="closeModal()" style="border: none; background: transparent; font-size: 1.5rem; cursor: pointer; color: #6b7280;">&times;</button>
+<!-- Modal Form (Standard & Professional) -->
+<div class="modal-overlay" id="temuKaryaModal" onclick="if(event.target===this) closeModal()">
+    <div class="modal-content-lg">
+        <div class="modal-header-prof">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                </div>
+                <div>
+                    <h3 id="modalTitle" style="font-size: 1.05rem; font-weight: 800; color: white; margin: 0;">Tambah Data Temu Karya</h3>
+                    <span style="font-size: 0.725rem; color: #94a3b8;">Kelola pelaporan Temu Karya dan Caretaker Wilayah</span>
+                </div>
+            </div>
+            <button type="button" onclick="closeModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
         </div>
 
         <form id="temuKaryaForm" action="{{ route('admin.temu-karya.store') }}" method="POST" enctype="multipart/form-data">
@@ -390,63 +412,70 @@
             <input type="hidden" name="_method" id="formMethod" value="POST">
             <input type="hidden" name="jenis" value="{{ request()->get('jenis', 'temu_karya') }}">
 
-            <div class="form-group">
-                <label>Nama Wilayah (Provinsi / Kab / Kota)</label>
-                <input type="text" name="wilayah" id="wilayah" class="form-control" placeholder="Contoh: Provinsi Jawa Barat / Kab. Bogor" required>
-            </div>
+            <div class="modal-body-prof">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Nama Wilayah (Provinsi / Kab / Kota) <span style="color: red;">*</span></label>
+                        <input type="text" name="wilayah" id="wilayah" class="form-control" placeholder="Contoh: Provinsi Jawa Barat / Kab. Bogor" required style="font-size: 0.85rem; font-weight: 600;">
+                    </div>
 
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Tingkat Level Wilayah</label>
-                    <select name="level" id="level" class="form-control" required>
-                        <option value="provinsi">Provinsi</option>
-                        <option value="kab_kota">Kabupaten / Kota</option>
-                    </select>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Tingkat Level Wilayah <span style="color: red;">*</span></label>
+                        <select name="level" id="level" class="form-control" required style="font-size: 0.85rem;">
+                            <option value="provinsi">Provinsi</option>
+                            <option value="kab_kota">Kabupaten / Kota</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Status Organisasi <span style="color: red;">*</span></label>
+                        <select name="status" id="status" class="form-control" required style="font-size: 0.85rem;">
+                            <option value="selesai">Temu Karya Selesai</option>
+                            <option value="pending">Pending Temu Karya</option>
+                            <option value="caretaker">Caretaker</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Tanggal Pelaksanaan</label>
+                        <input type="date" name="tanggal_pelaksanaan" id="tanggal_pelaksanaan" class="form-control" style="font-size: 0.85rem;">
+                    </div>
+
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Jumlah Peserta (Orang)</label>
+                        <input type="number" name="jumlah_peserta" id="jumlah_peserta" class="form-control" placeholder="0" style="font-size: 0.85rem;">
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Lokasi Pelaksanaan</label>
+                        <input type="text" name="lokasi" id="lokasi" class="form-control" placeholder="Lokasi gedung / kota" style="font-size: 0.85rem;">
+                    </div>
+
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Upload File SK (PDF / Word)</label>
+                        <input type="file" name="file_sk" id="file_sk" class="form-control" accept=".pdf,.doc,.docx,.jpg,.png" style="font-size: 0.8rem;">
+                    </div>
+
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Dokumentasi Foto</label>
+                        <input type="file" name="foto_dokumentasi" id="foto_dokumentasi" class="form-control" accept="image/*" style="font-size: 0.8rem;">
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Link Tautan Dokumen (Google Drive)</label>
+                        <input type="url" name="link_drive" id="link_drive" class="form-control" placeholder="https://drive.google.com/file/d/..." style="font-size: 0.85rem;">
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Catatan / Keterangan Tambahan</label>
+                        <textarea name="catatan" id="catatan" class="form-control" rows="3" placeholder="Catatan hasil temu karya / penunjukan caretaker..." style="font-size: 0.85rem;"></textarea>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Status Organisasi</label>
-                    <select name="status" id="status" class="form-control" required>
-                        <option value="selesai">Temu Karya Selesai</option>
-                        <option value="pending">Pending Temu Karya</option>
-                        <option value="caretaker">Caretaker</option>
-                    </select>
-                </div>
             </div>
 
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Tanggal Pelaksanaan</label>
-                    <input type="date" name="tanggal_pelaksanaan" id="tanggal_pelaksanaan" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label>Jumlah Peserta (Orang)</label>
-                    <input type="number" name="jumlah_peserta" id="jumlah_peserta" class="form-control" placeholder="0">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Lokasi Pelaksanaan</label>
-                <input type="text" name="lokasi" id="lokasi" class="form-control" placeholder="Lokasi gedung / kota">
-            </div>
-
-            <div class="form-group">
-                <label>Upload File SK (Temu Karya / Caretaker - PDF)</label>
-                <input type="file" name="file_sk" id="file_sk" class="form-control" accept=".pdf,.doc,.docx,.jpg,.png">
-            </div>
-
-            <div class="form-group">
-                <label>Dokumentasi Foto</label>
-                <input type="file" name="foto_dokumentasi" id="foto_dokumentasi" class="form-control" accept="image/*">
-            </div>
-
-            <div class="form-group">
-                <label>Catatan / Keterangan Tambahan</label>
-                <textarea name="catatan" id="catatan" class="form-control" rows="3" placeholder="Catatan hasil temu karya / penunjukan caretaker..."></textarea>
-            </div>
-
-            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem;">
-                <button type="button" class="btn-action" onclick="closeModal()" style="width: auto; padding: 0.6rem 1.2rem;">Batal</button>
-                <button type="submit" class="btn-solid-navy">Simpan Data</button>
+            <div class="modal-footer-prof">
+                <button type="button" class="btn-outline-secondary" onclick="closeModal()">Batal</button>
+                <button type="submit" class="btn-solid-navy" style="font-weight: 700;">Simpan Data</button>
             </div>
         </form>
     </div>
@@ -478,9 +507,29 @@
         document.getElementById('tanggal_pelaksanaan').value = data.tanggal_pelaksanaan ? data.tanggal_pelaksanaan.substring(0, 10) : '';
         document.getElementById('jumlah_peserta').value = data.jumlah_peserta || 0;
         document.getElementById('lokasi').value = data.lokasi || '';
+        document.getElementById('link_drive').value = data.link_drive || '';
         document.getElementById('catatan').value = data.catatan || '';
 
         document.getElementById('temuKaryaModal').classList.add('show');
+    }
+
+    function confirmDelete(button, url) {
+        Swal.fire({
+            title: 'Hapus Data?',
+            text: "Data Temu Karya / Caretaker ini akan dihapus secara permanen!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#cbd5e1',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let formId = button.nextElementSibling.id;
+                document.getElementById(formId).submit();
+            }
+        });
     }
 </script>
 @endpush

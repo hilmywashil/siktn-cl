@@ -21,6 +21,7 @@ class TemuKarya extends Model
         'foto_dokumentasi',
         'catatan',
         'file_sk',
+        'link_drive',
         'status',
         'created_by',
     ];

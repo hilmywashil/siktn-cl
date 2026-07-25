@@ -306,27 +306,29 @@ $activeMenu = 'dashboard';
     </div>
 
     <!-- REAL IP VISITOR COUNTER BAR -->
+    @if(isset($visitorStats))
     <div class="visitor-counter-bar">
         <div style="display: flex; align-items: center; gap: 0.6rem;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             <span style="font-weight: 800; font-size: 0.875rem; color: var(--navy);">Statistik Pengunjung Website (Real IP Tracker):</span>
-            <span class="visitor-ip-badge">IP: {{ $visitorStats['current_ip'] }}</span>
+            <span class="visitor-ip-badge">IP: {{ $visitorStats['current_ip'] ?? request()->ip() }}</span>
         </div>
         <div style="display: flex; gap: 1.75rem;">
             <div class="visitor-stat-item">
                 <span class="lbl">Hari Ini:</span>
-                <span class="val">{{ number_format($visitorStats['today']) }}</span>
+                <span class="val">{{ number_format($visitorStats['today'] ?? 1) }}</span>
             </div>
             <div class="visitor-stat-item">
                 <span class="lbl">Bulan Ini:</span>
-                <span class="val">{{ number_format($visitorStats['month']) }}</span>
+                <span class="val">{{ number_format($visitorStats['month'] ?? 1) }}</span>
             </div>
             <div class="visitor-stat-item">
                 <span class="lbl">Total Kunjungan:</span>
-                <span class="val" style="color: var(--green);">{{ number_format($visitorStats['total']) }}</span>
+                <span class="val" style="color: var(--green);">{{ number_format($visitorStats['total'] ?? 1) }}</span>
             </div>
         </div>
     </div>
+    @endif
 
     <!-- 5 BRIEF SUMMARY STAT CARDS -->
     <div class="brief-stat-cards">

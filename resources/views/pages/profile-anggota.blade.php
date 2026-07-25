@@ -1421,6 +1421,48 @@
             color: #dc2626;
         }
 
+        /* ==============================================
+        SELECT2 CUSTOM STYLING & MICRO-ANIMATIONS (SIKTN BENCHMARK)
+        ============================================== */
+        @keyframes select2DropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .select2-container--default .select2-selection--single {
+            height: 40px; padding: 0.35rem 0.75rem; font-size: 0.8125rem; font-weight: 600;
+            color: var(--primary-blue); background-color: #fff; border: 1px solid #d1d5db;
+            border-radius: 6px; display: flex; align-items: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); min-width: 140px;
+        }
+        .select2-container--default .select2-selection--single:hover {
+            border-color: var(--primary-blue); transform: translateY(-1px); box-shadow: 0 3px 8px rgba(2, 38, 72, 0.1);
+        }
+
+        .select2-dropdown {
+            border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.8125rem; z-index: 9999;
+            box-shadow: 0 12px 28px rgba(2, 38, 72, 0.15); margin-top: 4px; overflow: hidden; background-color: #fff;
+        }
+        .select2-container--open .select2-dropdown {
+            animation: select2DropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .select2-container--default .select2-results__option--selectable {
+            color: #111827 !important;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            padding: 0.5rem 0.75rem !important;
+        }
+        .select2-results__option--highlighted[aria-selected],
+        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+            background-color: var(--primary-blue) !important; color: #ffffff !important; font-weight: 600 !important;
+            padding-left: 1.15rem !important;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
 @endpush
@@ -2004,12 +2046,24 @@
 
                             <div class="form-group">
                                 <label for="domisili">Domisili <span style="color:red;">*</span></label>
-                                <select name="domisili" id="domisiliSelect" class="form-control" required style="width: 100%;">
+                                @php
+                                    $currentDomisili = old('domisili', $anggota->domisili ?? '');
+                                    $provinces = ["Aceh","Sumatera Utara","Sumatera Barat","Riau","Jambi","Sumatera Selatan","Bengkulu","Lampung","Kepulauan Bangka Belitung","Kepulauan Riau","Dki Jakarta","Jawa Barat","Jawa Tengah","Di Yogyakarta","Jawa Timur","Banten","Bali","Nusa Tenggara Barat","Nusa Tenggara Timur","Kalimantan Barat","Kalimantan Tengah","Kalimantan Selatan","Kalimantan Timur","Kalimantan Utara","Sulawesi Utara","Sulawesi Tengah","Sulawesi Selatan","Sulawesi Tenggara","Gorontalo","Sulawesi Barat","Maluku","Maluku Utara","Papua Barat","Papua"];
+                                    $regenciesJson = public_path('regencies.json');
+                                    $regencies = file_exists($regenciesJson) ? json_decode(file_get_contents($regenciesJson), true) : [];
+                                @endphp
+                                <select name="domisili" id="domisiliSelect" class="form-control select2-basic" required style="width: 100%;">
                                     <option value="">-- Pilih Domisili --</option>
-                                    @php $currentDomisiliBlade = old('domisili', $anggota->domisili ?? ''); @endphp
-                                    @if($currentDomisiliBlade)
-                                        <option value="{{ $currentDomisiliBlade }}" selected>{{ $currentDomisiliBlade }}</option>
-                                    @endif
+                                    <optgroup label="Tingkat Provinsi">
+                                        @foreach($provinces as $prov)
+                                            <option value="{{ $prov }}" {{ $currentDomisili === $prov ? 'selected' : '' }}>{{ $prov }}</option>
+                                        @endforeach
+                                    </optgroup>
+                                    <optgroup label="Tingkat Kabupaten/Kota">
+                                        @foreach($regencies as $reg)
+                                            <option value="{{ $reg }}" {{ $currentDomisili === $reg ? 'selected' : '' }}>{{ $reg }}</option>
+                                        @endforeach
+                                    </optgroup>
                                 </select>
                             </div>
 
@@ -2534,39 +2588,11 @@
                 });
             }
 
-            const currentDomisili = "{{ old('domisili', $anggota->domisili ?? '') }}";
-
-            // Load data for Select2 first, then initialize
-            Promise.all([
-                fetch("{{ asset('provinces.json') }}").then(res => res.json()),
-                fetch("{{ asset('regencies.json') }}").then(res => res.json())
-            ]).then(([provinces, regencies]) => {
-                let optgroupProv = $('<optgroup label="Tingkat Provinsi"></optgroup>');
-                provinces.forEach(prov => {
-                    if (prov !== currentDomisili) optgroupProv.append(`<option value="${prov}">${prov}</option>`);
-                });
-
-                let optgroupReg = $('<optgroup label="Tingkat Kabupaten/Kota"></optgroup>');
-                regencies.forEach(reg => {
-                    if (reg !== currentDomisili) optgroupReg.append(`<option value="${reg}">${reg}</option>`);
-                });
-
-                $('#domisiliSelect').append(optgroupProv).append(optgroupReg);
-
-                // Inisialisasi Select2 SETELAH option ditambahkan
-                $('#domisiliSelect').select2({
-                    placeholder: "-- Pilih Domisili --",
-                    allowClear: true,
-                    width: '100%'
-                });
-            }).catch(err => {
-                console.error('Gagal meload data domisili:', err);
-                // Tetap inisialisasi meskipun error, agar UI tidak rusak
-                $('#domisiliSelect').select2({
-                    placeholder: "-- Pilih Domisili --",
-                    allowClear: true,
-                    width: '100%'
-                });
+            // Initialize Select2 for domisili (options already rendered server-side)
+            $('#domisiliSelect').select2({
+                placeholder: "-- Pilih Domisili --",
+                allowClear: true,
+                width: '100%'
             });
 
             // Initialize select2 for jabatan

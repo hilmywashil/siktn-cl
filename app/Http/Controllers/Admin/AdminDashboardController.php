@@ -126,42 +126,6 @@ class AdminDashboardController extends Controller
             ];
         });
 
-        // Dashboard untuk PKKT/BPC
-        if ($admin->isPKKT()) {
-            $totalAnggota = Anggota::where('domisili', $admin->domisili)->count();
-            $pendingAnggota = Anggota::where('domisili', $admin->domisili)->where('status', 'pending')->count();
-            $approvedAnggota = Anggota::where('domisili', $admin->domisili)->where('status', 'approved')->count();
-            $rejectedAnggota = Anggota::where('domisili', $admin->domisili)->where('status', 'rejected')->count();
-            $recentAnggota = Anggota::where('domisili', $admin->domisili)->latest()->take(5)->get();
-            
-            return view('admin.dashboard', compact(
-                'admin', 'upcomingBirthdays', 'totalAnggota', 'pendingAnggota',
-                'approvedAnggota', 'rejectedAnggota', 'recentAnggota',
-                'totalSuratKeluar', 'totalSuratPending', 'totalTemuKaryaSelesai',
-                'totalTemuKaryaPending', 'totalWilayahSelesai', 'totalWilayahBelum',
-                'chartMonths', 'suratMasukMonthly', 'suratKeluarMonthly',
-                'temuKaryaMapData', 'calendarEvents'
-            ));
-        }
-
-        // --- STATISTIK LENGKAP FITUR UNTUK OVERVIEW DASHBOARD ---
-        $totalAdmins = Admin::count();
-        $totalKatalogAll = Katalog::count();
-        $totalKatalog = Katalog::where('is_active', true)->count();
-        $totalKatalogInactive = Katalog::where('is_active', false)->count();
-        $recentKatalogs = Katalog::where('is_active', true)->latest()->take(3)->get();
-
-        $totalAnggotaApproved = Anggota::where('status', 'approved')->count();
-        $recentAnggota = Anggota::latest()->take(5)->get();
-
-        $totalBerita = \App\Models\Berita::count();
-        $totalBeritaAktif = \App\Models\Berita::where('status', 'Published')->count();
-        $totalBeritaPopuler = \App\Models\Berita::where('is_populer', true)->count();
-        $recentBerita = \App\Models\Berita::latest()->take(3)->get();
-
-        $totalProgram = \App\Models\Program::count();
-        $totalProgramAktif = \App\Models\Program::whereIn('status', ['Berjalan', 'Aktif', 'Selesai'])->count();
-
         // --- STATISTIK COUNTER PENGUNJUNG WEBSITE (100% REAL LOG ACTIVITY & REAL IP) ---
         $totalLogsCount = \App\Models\AdminActivityLog::count();
         $todayLogsCount = \App\Models\AdminActivityLog::whereDate('created_at', \Carbon\Carbon::today())->count();
@@ -174,10 +138,41 @@ class AdminDashboardController extends Controller
             'current_ip' => request()->ip() ?? '127.0.0.1',
         ];
 
+        // --- METRIKS ANGGOTA (DIBEDAKAN UNTUK REGIONAL PKKT/PPKT VS NASIONAL) ---
+        if (in_array($admin->category, ['pkkt', 'ppkt', 'bpc', 'bpd']) && !empty($admin->domisili)) {
+            $totalAnggota = Anggota::where('domisili', $admin->domisili)->count();
+            $pendingAnggota = Anggota::where('domisili', $admin->domisili)->where('status', 'pending')->count();
+            $approvedAnggota = Anggota::where('domisili', $admin->domisili)->where('status', 'approved')->count();
+            $rejectedAnggota = Anggota::where('domisili', $admin->domisili)->where('status', 'rejected')->count();
+            $recentAnggota = Anggota::where('domisili', $admin->domisili)->latest()->take(5)->get();
+        } else {
+            $totalAnggota = Anggota::count();
+            $pendingAnggota = Anggota::where('status', 'pending')->count();
+            $approvedAnggota = Anggota::where('status', 'approved')->count();
+            $rejectedAnggota = Anggota::where('status', 'rejected')->count();
+            $recentAnggota = Anggota::latest()->take(5)->get();
+        }
+        $totalAnggotaApproved = $approvedAnggota;
+
+        // --- STATISTIK LENGKAP FITUR LAINNYA ---
+        $totalAdmins = Admin::count();
+        $totalKatalogAll = Katalog::count();
+        $totalKatalog = Katalog::where('is_active', true)->count();
+        $totalKatalogInactive = Katalog::where('is_active', false)->count();
+        $recentKatalogs = Katalog::where('is_active', true)->latest()->take(3)->get();
+
+        $totalBerita = \App\Models\Berita::count();
+        $totalBeritaAktif = \App\Models\Berita::where('status', 'Published')->count();
+        $totalBeritaPopuler = \App\Models\Berita::where('is_populer', true)->count();
+        $recentBerita = \App\Models\Berita::latest()->take(3)->get();
+
+        $totalProgram = \App\Models\Program::count();
+        $totalProgramAktif = \App\Models\Program::whereIn('status', ['Berjalan', 'Aktif', 'Selesai'])->count();
+
         return view('admin.dashboard', compact(
-            'admin', 'upcomingBirthdays', 'totalAdmins', 'totalKatalogAll', 'totalKatalog', 'totalKatalogInactive',
-            'recentKatalogs', 'totalAnggotaApproved', 'recentAnggota',
-            'totalBerita', 'totalBeritaAktif', 'totalBeritaPopuler', 'recentBerita',
+            'admin', 'upcomingBirthdays', 'totalAnggota', 'pendingAnggota', 'approvedAnggota', 'rejectedAnggota',
+            'recentAnggota', 'totalAnggotaApproved', 'totalAdmins', 'totalKatalogAll', 'totalKatalog', 'totalKatalogInactive',
+            'recentKatalogs', 'totalBerita', 'totalBeritaAktif', 'totalBeritaPopuler', 'recentBerita',
             'totalProgram', 'totalProgramAktif', 'visitorStats',
             'totalSuratKeluar', 'totalSuratPending', 'totalTemuKaryaSelesai',
             'totalTemuKaryaPending', 'totalTemuKaryaCaretaker',
