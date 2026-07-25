@@ -22,6 +22,7 @@ class TemuKarya extends Model
         'catatan',
         'file_sk',
         'link_drive',
+        'surat_keputusan_id',
         'status',
         'created_by',
     ];
@@ -34,5 +35,10 @@ class TemuKarya extends Model
     public function creator()
     {
         return $this->belongsTo(Admin::class, 'created_by');
+    }
+
+    public function suratKeputusan()
+    {
+        return $this->belongsTo(SuratKeputusan::class, 'surat_keputusan_id');
     }
 }

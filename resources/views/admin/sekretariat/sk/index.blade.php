@@ -317,7 +317,9 @@
                 <tbody>
                     @forelse($sks as $item)
                     @php
-                        $daysLeft = \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($item->tanggal_berakhir), false);
+                        $now = \Carbon\Carbon::now()->startOfDay();
+                        $endDate = \Carbon\Carbon::parse($item->tanggal_berakhir)->startOfDay();
+                        $daysLeft = (int) $now->diffInDays($endDate, false);
                         $isNearExpiring = $item->status == 'Aktif' && $daysLeft >= 0 && $daysLeft <= 180;
                     @endphp
                     <tr style="{{ $isNearExpiring ? 'background: #fffbeb;' : '' }}">
@@ -332,9 +334,23 @@
                         </td>
                         <td>{{ \Carbon\Carbon::parse($item->tanggal_berlaku)->format('d M Y') }}</td>
                         <td>
-                            <div>{{ \Carbon\Carbon::parse($item->tanggal_berakhir)->format('d M Y') }}</div>
-                            @if($isNearExpiring)
-                                <span style="font-size: 0.75rem; color: var(--amber); font-weight: 700;">({{ $daysLeft }} hari lagi)</span>
+                            <div style="font-weight: 600;">{{ \Carbon\Carbon::parse($item->tanggal_berakhir)->format('d M Y') }}</div>
+                            @if($daysLeft < 0)
+                                <span style="display: inline-block; font-size: 0.72rem; color: #dc2626; background: #fee2e2; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-top: 3px;">
+                                    ● Expired {{ abs($daysLeft) }} hari lalu
+                                </span>
+                            @elseif($daysLeft == 0)
+                                <span style="display: inline-block; font-size: 0.72rem; color: #b45309; background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-top: 3px;">
+                                    ⚠️ Berakhir Hari Ini
+                                </span>
+                            @elseif($daysLeft <= 30)
+                                <span style="display: inline-block; font-size: 0.72rem; color: #b45309; background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-top: 3px;">
+                                    ⏳ Sisa {{ $daysLeft }} hari lagi
+                                </span>
+                            @else
+                                <span style="display: inline-block; font-size: 0.72rem; color: #047857; background: #d1fae5; padding: 2px 6px; border-radius: 4px; font-weight: 600; margin-top: 3px;">
+                                    ✓ Sisa {{ $daysLeft }} hari lagi
+                                </span>
                             @endif
                         </td>
                         <td>

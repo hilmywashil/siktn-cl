@@ -348,17 +348,31 @@
                                     <span class="badge-status badge-pending">Pending</span>
                                 @endif
 
+                                @if($item->suratKeputusan)
+                                    <div style="margin-top: 4px; padding: 4px 8px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px;">
+                                        <div style="font-size: 0.75rem; font-weight: 700; color: #065f46;">
+                                            📜 {{ $item->suratKeputusan->nomor_sk }}
+                                        </div>
+                                        <div style="font-size: 0.7rem; color: #374151;">{{ Str::limit($item->suratKeputusan->judul_sk, 30) }}</div>
+                                        @if($item->suratKeputusan->link_drive)
+                                            <a href="{{ $item->suratKeputusan->link_drive }}" target="_blank" style="font-size: 0.72rem; color: #2563eb; font-weight: 700; text-decoration: underline; display: inline-flex; align-items: center; gap: 3px; margin-top: 2px;">
+                                                🔗 Drive SK
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endif
+
                                 @if($item->file_sk)
                                     <div style="margin-top: 4px;">
                                         <a href="{{ Storage::url($item->file_sk) }}" target="_blank" style="font-size: 0.75rem; color: #2563eb; font-weight: 600; text-decoration: underline;">
-                                            Lihat File SK
+                                            Lihat File Upload SK
                                         </a>
                                     </div>
                                 @endif
                                 @if($item->link_drive)
                                     <div style="margin-top: 2px;">
                                         <a href="{{ $item->link_drive }}" target="_blank" style="font-size: 0.75rem; color: #022648; font-weight: 600; text-decoration: underline;">
-                                            Link Drive
+                                            Link Drive Manual
                                         </a>
                                     </div>
                                 @endif
@@ -451,8 +465,28 @@
                         <input type="text" name="lokasi" id="lokasi" class="form-control" placeholder="Lokasi gedung / kota" style="font-size: 0.85rem;">
                     </div>
 
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Pilihan Surat Keputusan (SK) Master Sekretariat (Opsional)</label>
+                        <select name="surat_keputusan_id" id="surat_keputusan_id" class="form-control" style="font-size: 0.85rem;">
+                            <option value="">-- Tanpa SK / Pilih Dari Master SK --</option>
+                            @if(isset($masterSks))
+                                @foreach($masterSks as $sk)
+                                    @php
+                                        $now = \Carbon\Carbon::now()->startOfDay();
+                                        $endDate = \Carbon\Carbon::parse($sk->tanggal_berakhir)->startOfDay();
+                                        $daysLeft = (int) $now->diffInDays($endDate, false);
+                                        $statusLabel = $daysLeft < 0 ? "[Expired {$daysLeft}d]" : ($daysLeft <= 30 ? "[Sisa {$daysLeft}d]" : '[Aktif]');
+                                    @endphp
+                                    <option value="{{ $sk->id }}">
+                                        {{ $sk->nomor_sk }} - {{ $sk->judul_sk }} {{ $statusLabel }}
+                                    </option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+
                     <div class="form-group">
-                        <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Upload File SK (PDF / Word)</label>
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Upload File SK Manual (PDF / Word)</label>
                         <input type="file" name="file_sk" id="file_sk" class="form-control" accept=".pdf,.doc,.docx,.jpg,.png" style="font-size: 0.8rem;">
                     </div>
 
@@ -488,6 +522,7 @@
         document.getElementById('temuKaryaForm').reset();
         document.getElementById('temuKaryaForm').action = "{{ route('admin.temu-karya.store') }}";
         document.getElementById('formMethod').value = 'POST';
+        document.getElementById('surat_keputusan_id').value = '';
         document.getElementById('modalTitle').innerText = 'Tambah Data {{ request()->get('jenis') === 'caretaker' ? 'Caretaker' : 'Temu Karya' }}';
         document.getElementById('temuKaryaModal').classList.add('show');
     }
@@ -507,6 +542,7 @@
         document.getElementById('tanggal_pelaksanaan').value = data.tanggal_pelaksanaan ? data.tanggal_pelaksanaan.substring(0, 10) : '';
         document.getElementById('jumlah_peserta').value = data.jumlah_peserta || 0;
         document.getElementById('lokasi').value = data.lokasi || '';
+        document.getElementById('surat_keputusan_id').value = data.surat_keputusan_id || '';
         document.getElementById('link_drive').value = data.link_drive || '';
         document.getElementById('catatan').value = data.catatan || '';
 

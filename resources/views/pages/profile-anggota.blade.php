@@ -1416,11 +1416,6 @@
             background: #f3f4f6;
             transform: translateX(4px);
         }
-        .aksi-item.aksi-delete:hover {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
         /* ==============================================
         SELECT2 CUSTOM STYLING & MICRO-ANIMATIONS (SIKTN BENCHMARK)
         ============================================== */
@@ -1436,32 +1431,115 @@
         }
 
         .select2-container--default .select2-selection--single {
-            height: 40px; padding: 0.35rem 0.75rem; font-size: 0.8125rem; font-weight: 600;
-            color: var(--primary-blue); background-color: #fff; border: 1px solid #d1d5db;
-            border-radius: 6px; display: flex; align-items: center;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); min-width: 140px;
+            height: 42px !important;
+            padding: 0.35rem 0.75rem !important;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
+            color: #022648 !important;
+            background-color: #fff !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 6px !important;
+            display: flex !important;
+            align-items: center !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            width: 100% !important;
         }
-        .select2-container--default .select2-selection--single:hover {
-            border-color: var(--primary-blue); transform: translateY(-1px); box-shadow: 0 3px 8px rgba(2, 38, 72, 0.1);
+
+        .select2-container--default .select2-selection--single:hover,
+        .select2-container--default .select2-selection--single:focus,
+        .select2-container--default.select2-container--focus .select2-selection--single,
+        .select2-container--default.select2-container--open .select2-selection--single {
+            border-color: #022648 !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 3px 8px rgba(2, 38, 72, 0.12) !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #022648 !important;
+            font-weight: 600 !important;
+            padding-left: 0 !important;
+            line-height: normal !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #6b7280 !important;
+            font-weight: 500 !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 40px !important;
+            right: 8px !important;
         }
 
         .select2-dropdown {
-            border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.8125rem; z-index: 9999;
-            box-shadow: 0 12px 28px rgba(2, 38, 72, 0.15); margin-top: 4px; overflow: hidden; background-color: #fff;
-        }
-        .select2-container--open .select2-dropdown {
-            animation: select2DropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            border: 1px solid #d1d5db !important;
+            border-radius: 6px !important;
+            font-size: 0.875rem !important;
+            z-index: 99999 !important;
+            box-shadow: 0 12px 28px rgba(2, 38, 72, 0.18) !important;
+            margin-top: 4px !important;
+            overflow: hidden !important;
+            background-color: #ffffff !important;
         }
 
-        .select2-container--default .select2-results__option--selectable {
-            color: #111827 !important;
-            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            padding: 0.5rem 0.75rem !important;
+        .select2-container--open .select2-dropdown {
+            animation: select2DropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
         }
-        .select2-results__option--highlighted[aria-selected],
-        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
-            background-color: var(--primary-blue) !important; color: #ffffff !important; font-weight: 600 !important;
+
+        .select2-container--default .select2-results__option {
+            padding: 8px 14px !important;
+            font-size: 0.875rem !important;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        /* HIGHLIGHTED OPTION (HOVER/NAVIGATE) - MUST BE NAVY #022648 WITH WHITE BOLD TEXT */
+        .select2-container--default .select2-results__option--highlighted,
+        .select2-container--default .select2-results__option--highlighted[aria-selected],
+        .select2-container--default .select2-results__option--highlighted[aria-selected="true"],
+        .select2-container--default .select2-results__option--highlighted[aria-selected="false"],
+        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable,
+        .select2-results__option--highlighted,
+        .select2-results__option--highlighted[aria-selected] {
+            background-color: #022648 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
             padding-left: 1.15rem !important;
+        }
+
+        /* SELECTED OPTION */
+        .select2-container--default .select2-results__option[aria-selected="true"],
+        .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #f3f4f6 !important;
+            color: #022648 !important;
+            font-weight: 700 !important;
+        }
+
+        .select2-search--dropdown {
+            padding: 8px !important;
+        }
+
+        .select2-search--dropdown .select2-search__field {
+            border: 1px solid #d1d5db !important;
+            border-radius: 6px !important;
+            padding: 0.5rem 0.75rem !important;
+            outline: none !important;
+            font-size: 0.875rem !important;
+        }
+
+        .select2-search--dropdown .select2-search__field:focus {
+            border-color: #022648 !important;
+            box-shadow: 0 0 0 3px rgba(2, 38, 72, 0.1) !important;
+        }
+
+        .select2-results__group {
+            padding: 8px 12px !important;
+            font-size: 0.75rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            color: #022648 !important;
+            font-weight: 800 !important;
+            background-color: #f8fafc !important;
+            border-bottom: 1px solid #e2e8f0 !important;
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
@@ -2020,7 +2098,7 @@
 
                             <div class="form-group">
                                 <label for="jabatan">Jabatan <span style="color:red;">*</span></label>
-                                <select name="jabatan" id="jabatanSelect" class="form-control" required style="width: 100%;">
+                                <select name="jabatan" id="jabatanSelect" class="form-control select2-basic" required style="width: 100%;">
                                     <option value="">-- Pilih Jabatan --</option>
                                     @php 
                                         $currentJabatan = old('jabatan', $anggota->jabatan ?? ''); 
@@ -2270,8 +2348,8 @@
 
     <!-- Dependencies (Local Assets for Maximum Speed) -->
     <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
-    <link href="{{ asset('vendor/select2/css/select2.min.css') }}" rel="stylesheet" />
-    <script src="{{ asset('vendor/select2/js/select2.min.js') }}"></script>
+    <link href="{{ asset('vendor/select2/select2.min.css') }}" rel="stylesheet" />
+    <script src="{{ asset('vendor/select2/select2.min.js') }}"></script>
     <script src="{{ asset('vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
     <script src="{{ asset('vendor/qrcode/qrcode.min.js') }}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
@@ -2670,49 +2748,6 @@
     </script>
 
     <style>
-        /* Premium Select2 Customization */
-        .select2-container--default .select2-selection--single {
-            height: 48px; padding: 0.4rem 1rem; font-size: 0.95rem; font-family: 'Google Sans', sans-serif;
-            font-weight: 500; color: #022648; background-color: #ffffff; border: 2px solid #e5e7eb; border-radius: 10px;
-            display: flex; align-items: center; transition: all 0.3s ease;
-        }
-        .select2-container--default .select2-selection--single:focus,
-        .select2-container--default.select2-container--focus .select2-selection--single {
-            border-color: #022648; outline: none; box-shadow: 0 0 0 4px rgba(2, 38, 72, 0.1);
-        }
-        .select2-container--default .select2-selection--single .select2-selection__rendered { color: #022648; padding-left: 0; line-height: normal; }
-        .select2-container--default .select2-selection--single .select2-selection__placeholder { color: #9ca3af; }
-        .select2-container--default .select2-selection--single .select2-selection__arrow { height: 46px; right: 12px; }
-        .select2-container--default .select2-selection--single .select2-selection__arrow b {
-            border-color: #9ca3af transparent transparent transparent; border-width: 6px 5px 0 5px;
-        }
-        
-        .select2-dropdown {
-            border: none; border-radius: 12px; font-family: 'Google Sans', sans-serif; font-size: 0.95rem; z-index: 9999;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12); margin-top: 8px; overflow: hidden;
-            background-color: #ffffff;
-        }
-        .select2-search--dropdown { padding: 12px; }
-        .select2-search--dropdown .select2-search__field { 
-            border: 2px solid #e5e7eb; border-radius: 8px; padding: 0.6rem 1rem; outline: none; transition: border 0.3s;
-        }
-        .select2-search--dropdown .select2-search__field:focus { border-color: #022648 !important; }
-        
-        .select2-results__options { padding: 4px; }
-        .select2-results__option { 
-            padding: 10px 16px !important; margin: 4px !important; border-radius: 8px !important; transition: all 0.2s ease;
-        }
-        .select2-container--default .select2-results__option--highlighted[aria-selected],
-        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable { 
-            background-color: #f0f4f8 !important; color: #022648 !important; font-weight: 600 !important; transform: translateX(4px);
-        }
-        .select2-container--default .select2-results__option[aria-selected=true] { 
-            background-color: #022648 !important; color: #ffffff !important; font-weight: 600 !important; 
-        }
-        .select2-results__group {
-            padding: 8px 12px !important; font-size: 0.8rem !important; text-transform: uppercase !important; letter-spacing: 1px !important; color: #6b7280 !important; font-weight: 700 !important;
-        }
-
         /* Custom Profile Modal */
         .custom-profile-modal {
             display: none;

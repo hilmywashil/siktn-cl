@@ -293,7 +293,7 @@
             position: absolute;
             top: 120%;
             right: -10px;
-            width: 360px;
+            width: 410px;
             background: white;
             border-radius: 12px;
             box-shadow: 0 12px 40px rgba(0,0,0,0.15);
@@ -324,7 +324,7 @@
         .surat-tab-item {
             flex: 1;
             text-align: center;
-            padding: 8px 4px;
+            padding: 8px 6px;
             font-size: 0.75rem;
             font-weight: 700;
             color: #6b7280;
@@ -332,6 +332,7 @@
             cursor: pointer;
             transition: all 0.2s;
             user-select: none;
+            white-space: nowrap;
         }
         .surat-tab-item.active {
             color: #022648;
@@ -1115,6 +1116,11 @@
         </div>
 
         <div class="surat-drawer-footer">
+            <a id="btnOpenDrive" href="#" target="_blank" class="modal-btn" style="background: #2563eb; color: white; display: none; align-items: center; gap: 6px; text-decoration: none;">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                Buka Google Drive
+            </a>
+
             <button type="button" id="btnDownloadSurat" class="modal-btn modal-btn-cancel" style="display: inline-flex; align-items: center; gap: 6px;" onclick="downloadSuratFile()">
                 <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 Download File
@@ -1370,6 +1376,16 @@
                     if (surat.status === 'Terbit') statusBadge.style.background = '#10b981';
                     else if (surat.status === 'Revisi') statusBadge.style.background = '#dc2626';
                     else statusBadge.style.background = '#f59e0b';
+
+                    const btnDrive = document.getElementById('btnOpenDrive');
+                    if (btnDrive) {
+                        if (surat.link_drive) {
+                            btnDrive.href = surat.link_drive;
+                            btnDrive.style.display = 'inline-flex';
+                        } else {
+                            btnDrive.style.display = 'none';
+                        }
+                    }
 
                     const fileLabel = document.getElementById('drawerFileTypeLabel');
                     

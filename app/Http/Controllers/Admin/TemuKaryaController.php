@@ -28,7 +28,7 @@ class TemuKaryaController extends Controller
         $this->checkAuthorization();
         $admin = Auth::guard('admin')->user();
 
-        $query = TemuKarya::query();
+        $query = TemuKarya::with('suratKeputusan');
 
         // Regional filter for PPKT / PKKT
         if (in_array($admin->category, ['ppkt', 'pkkt']) && !empty($admin->domisili)) {
@@ -60,6 +60,7 @@ class TemuKaryaController extends Controller
         }
 
         $temuKaryas = $query->latest()->get();
+        $masterSks = \App\Models\SuratKeputusan::orderBy('created_at', 'desc')->get();
 
         // Summary Statistics
         $totalSelesai = TemuKarya::where('status', 'selesai')->count();
@@ -74,6 +75,7 @@ class TemuKaryaController extends Controller
             'activeMenu' => 'organisasi',
             'activeSubMenu' => $request->jenis === 'caretaker' ? 'caretaker' : 'temu-karya',
             'temuKaryas' => $temuKaryas,
+            'masterSks' => $masterSks,
             'totalSelesai' => $totalSelesai,
             'totalCaretaker' => $totalCaretaker,
             'totalPending' => $totalPending,
@@ -97,6 +99,7 @@ class TemuKaryaController extends Controller
             'foto_dokumentasi' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:5120',
             'link_drive' => 'nullable|url|max:500',
+            'surat_keputusan_id' => 'nullable|exists:surat_keputusans,id',
         ]);
 
         if ($request->hasFile('foto_dokumentasi')) {
@@ -145,6 +148,7 @@ class TemuKaryaController extends Controller
             'foto_dokumentasi' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:5120',
             'link_drive' => 'nullable|url|max:500',
+            'surat_keputusan_id' => 'nullable|exists:surat_keputusans,id',
         ]);
 
         if ($request->hasFile('foto_dokumentasi')) {
