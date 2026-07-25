@@ -412,7 +412,7 @@ class AnggotaController extends Controller
                 ->with('info', 'Anda sudah terdaftar dan login sebagai anggota.');
         }
 
-        return view('pages.member-register');
+        return view('pages.asita.member-register');
     }
 
     /**

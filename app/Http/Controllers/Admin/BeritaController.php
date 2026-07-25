@@ -93,9 +93,14 @@ class BeritaController extends Controller
             $path = $gambar->storeAs('berita', $filename, 'public');
         }
 
-        // Tentukan wilayah & is_populer berdasarkan role
+        // Tentukan wilayah, status & is_populer berdasarkan role
         $wilayahValue = $admin->isPPKT() ? ($admin->domisili ?? 'Nasional') : ($validated['wilayah'] ?? 'Nasional');
         $isPopulerValue = $admin->isPPKT() ? false : $request->has('is_populer');
+
+        $statusValue = $validated['status'];
+        if ($admin->isPPKT() && $statusValue === 'Published') {
+            $statusValue = 'Pending_Review';
+        }
 
         Berita::create([
             'admin_id' => $admin->id,
@@ -105,13 +110,25 @@ class BeritaController extends Controller
             'kategori' => $validated['kategori'],
             'wilayah' => $wilayahValue,
             'tags' => $tagsArray,
-            'status' => $validated['status'],
+            'status' => $statusValue,
             'tanggal_publish' => $validated['tanggal_publish'],
             'is_populer' => $isPopulerValue,
         ]);
 
         $berita = Berita::latest()->first();
-        $this->logActivity('berita', 'Tambah', $berita?->id, $validated['judul'], 'Status: ' . $validated['status']);
+        $this->logActivity('berita', 'Tambah', $berita?->id, $validated['judul'], 'Status: ' . $statusValue);
+
+        if ($statusValue === 'Pending_Review') {
+            $pnktAdmins = \App\Models\Admin::whereIn('category', ['super_admin', 'pimpinan', 'pnkt'])->get();
+            if ($pnktAdmins->count() > 0) {
+                \Illuminate\Support\Facades\Notification::send($pnktAdmins, new \App\Notifications\AdminNotification(
+                    'berita_pending',
+                    'Pengajuan Berita PPKT Menunggu ACC',
+                    "Berita baru '{$validated['judul']}' dari PPKT {$wilayahValue} membutuhkan verifikasi dan persetujuan publikasi."
+                ));
+            }
+            return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil diajukan dan sedang menunggu persetujuan/ACC dari PNKT.');
+        }
 
         return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil ditambahkan!');
     }
@@ -151,7 +168,7 @@ class BeritaController extends Controller
             'kategori' => 'required|string',
             'wilayah' => 'nullable|string|max:255',
             'tags' => 'nullable|string',
-            'status' => 'required|in:Draft,Published,Archived',
+            'status' => 'required|in:Draft,Published,Archived,Pending_Review',
             'tanggal_publish' => 'required|date',
             'is_populer' => 'nullable|boolean',
         ]);
@@ -175,6 +192,11 @@ class BeritaController extends Controller
         $wilayahValue = $admin->isPPKT() ? ($admin->domisili ?? $berita->wilayah) : ($validated['wilayah'] ?? 'Nasional');
         $isPopulerValue = $admin->isPPKT() ? false : $request->has('is_populer');
 
+        $statusValue = $validated['status'];
+        if ($admin->isPPKT() && $statusValue === 'Published') {
+            $statusValue = 'Pending_Review';
+        }
+
         $berita->update([
             'judul' => $validated['judul'],
             'konten' => $validated['konten'],
@@ -182,14 +204,29 @@ class BeritaController extends Controller
             'kategori' => $validated['kategori'],
             'wilayah' => $wilayahValue,
             'tags' => $tagsArray,
-            'status' => $validated['status'],
+            'status' => $statusValue,
             'tanggal_publish' => $validated['tanggal_publish'],
             'is_populer' => $isPopulerValue,
         ]);
 
-        $this->logActivity('berita', 'Edit', $berita->id, $berita->judul, 'Status: ' . $validated['status']);
+        $this->logActivity('berita', 'Edit', $berita->id, $berita->judul, 'Status: ' . $statusValue);
 
         return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil diupdate!');
+    }
+
+    public function approve($id)
+    {
+        $admin = auth()->guard('admin')->user();
+        if (!$admin || !($admin->isSuperAdmin() || $admin->isPimpinan() || $admin->isPNKT())) {
+            abort(403, 'Akses ditolak: Hanya Pengurus Nasional yang dapat menyetujui berita.');
+        }
+
+        $berita = Berita::findOrFail($id);
+        $berita->update(['status' => 'Published']);
+
+        $this->logActivity('berita', 'Approve', $berita->id, $berita->judul, 'Status diubah ke Published');
+
+        return redirect()->back()->with('success', 'Berita PPKT berhasil disetujui dan dipublikasikan!');
     }
 
     public function destroy($id)

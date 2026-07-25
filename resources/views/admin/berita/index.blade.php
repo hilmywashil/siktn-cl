@@ -332,7 +332,11 @@ $activeMenu = 'berita';
                         </td>
                         <td>
                             <div style="display: flex; flex-direction: column; gap: 0.4rem; align-items: flex-start;">
-                                <span class="badge badge-{{ $berita->status }}">● {{ $berita->status }}</span>
+                                @if($berita->status === 'Pending_Review')
+                                    <span class="badge" style="background: #f59e0b; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">⏳ Pending ACC</span>
+                                @else
+                                    <span class="badge badge-{{ $berita->status }}">● {{ $berita->status }}</span>
+                                @endif
                                 @if($berita->is_populer)
                                     <span class="badge badge-populer">Populer</span>
                                 @endif
@@ -355,6 +359,18 @@ $activeMenu = 'berita';
                                 </button>
 
                                 <div class="aksi-dropdown" id="dropdown-berita-{{ $berita->id }}">
+                                    @if($berita->status === 'Pending_Review' && !auth()->guard('admin')->user()->isPPKT())
+                                        <form action="{{ route('admin.berita.approve', $berita->id) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" class="aksi-item" style="color: #059669; font-weight: 700;">
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                Approve & Publish
+                                            </button>
+                                        </form>
+                                        <div class="aksi-divider"></div>
+                                    @endif
+
                                     <a href="{{ route('admin.berita.edit', $berita->id) }}" class="aksi-item aksi-edit">
                                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                         Edit Berita

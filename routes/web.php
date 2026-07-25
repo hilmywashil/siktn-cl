@@ -190,6 +190,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('berita', [AdminBeritaController::class, 'store'])->name('berita.store');
         Route::get('berita/{id}/edit', [AdminBeritaController::class, 'edit'])->name('berita.edit');
         Route::put('berita/{id}', [AdminBeritaController::class, 'update'])->name('berita.update');
+        Route::put('berita/{id}/approve', [AdminBeritaController::class, 'approve'])->name('berita.approve');
         Route::delete('berita/{id}', [AdminBeritaController::class, 'destroy'])->name('berita.destroy');
 
         // Anggota Management
