@@ -424,16 +424,33 @@ class AnggotaController extends Controller
             }
         }
 
-        $provincesJsonPath = public_path('provinces.json');
+        // Cari file JSON dengan beberapa fallback path (hosting vs local bisa beda)
+        $possiblePaths = [
+            public_path('provinces.json'),
+            base_path('public/provinces.json'),
+            base_path('../provinces.json'),       // hosting: public_html/index.php → siktn-cl/ → ../provinces.json = public_html/provinces.json
+            base_path('../public/provinces.json'),
+        ];
         $provinces = [];
-        if (file_exists($provincesJsonPath)) {
-            $provinces = json_decode(file_get_contents($provincesJsonPath), true) ?? [];
+        foreach ($possiblePaths as $p) {
+            if (file_exists($p)) {
+                $provinces = json_decode(file_get_contents($p), true) ?? [];
+                break;
+            }
         }
 
-        $regenciesJsonPath = public_path('regencies.json');
+        $possibleRegPaths = [
+            public_path('regencies.json'),
+            base_path('public/regencies.json'),
+            base_path('../regencies.json'),
+            base_path('../public/regencies.json'),
+        ];
         $regenciesList = [];
-        if (file_exists($regenciesJsonPath)) {
-            $regenciesList = json_decode(file_get_contents($regenciesJsonPath), true) ?? [];
+        foreach ($possibleRegPaths as $rp) {
+            if (file_exists($rp)) {
+                $regenciesList = json_decode(file_get_contents($rp), true) ?? [];
+                break;
+            }
         }
 
         $regencies = array_values(array_unique(array_merge($provinces, $regenciesList)));
