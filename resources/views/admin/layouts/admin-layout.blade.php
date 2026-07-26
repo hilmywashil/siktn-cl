@@ -120,6 +120,19 @@
             border-color: #ffd700;
             color: #0a2540;
         }
+
+        /* Fix Giant Laravel Pagination SVG Icons */
+        nav[role="navigation"] svg,
+        .pagination svg,
+        svg.w-5,
+        svg.h-5 {
+            width: 1.25rem !important;
+            height: 1.25rem !important;
+            max-width: 20px !important;
+            max-height: 20px !important;
+            display: inline-block !important;
+            flex-shrink: 0 !important;
+        }
     </style>
 
     <style>
