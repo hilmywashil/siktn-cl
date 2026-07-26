@@ -713,9 +713,16 @@
                     activeDropdown = null;
                 } else {
                     const rect = this.getBoundingClientRect();
-                    dropdown.style.top = (rect.bottom + 4) + 'px';
-                    dropdown.style.left = Math.min(window.innerWidth - 190, rect.right - 180) + 'px';
                     dropdown.classList.add('is-open');
+                    const dropdownHeight = dropdown.offsetHeight || 220;
+                    const spaceBelow = window.innerHeight - rect.bottom;
+
+                    if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
+                        dropdown.style.top = (rect.top - dropdownHeight - 4) + 'px';
+                    } else {
+                        dropdown.style.top = (rect.bottom + 4) + 'px';
+                    }
+                    dropdown.style.left = Math.min(window.innerWidth - 190, rect.right - 180) + 'px';
                     activeDropdown = dropdown;
                 }
             });

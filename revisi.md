@@ -18,7 +18,7 @@
 ---
 
 ## 📁 3. Dokumen & Viewer Google Drive
-- [ ] **Interactive Drive Preview**: Tautan Google Drive pada modal/drawer harus mendukung pratinjau langsung (*embedded iframe*), tombol perbesar (fullscreen), serta tombol akses sumber asli/download.
+- [x] **Interactive Drive Preview**: Tautan Google Drive pada modal/drawer harus mendukung pratinjau langsung (*embedded iframe*), tombol perbesar (fullscreen), serta tombol akses sumber asli/download.
 
 ---
 

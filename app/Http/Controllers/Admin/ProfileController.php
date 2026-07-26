@@ -61,12 +61,12 @@ class ProfileController extends Controller
         $admin = auth()->guard('admin')->user();
 
         $request->validate([
-            'photo' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'photo' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:10240'],
         ], [
             'photo.required' => 'Silakan pilih foto terlebih dahulu.',
             'photo.image' => 'File harus berupa gambar.',
             'photo.mimes' => 'Format foto harus jpeg, png, atau jpg.',
-            'photo.max' => 'Ukuran foto maksimal 2MB.',
+            'photo.max' => 'Ukuran foto maksimal 10MB.',
         ]);
 
         // Delete old photo if exists

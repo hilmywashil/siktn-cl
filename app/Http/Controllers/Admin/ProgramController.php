@@ -116,13 +116,13 @@ class ProgramController extends Controller
             'anggaran' => 'nullable|numeric|min:0',
             'mitra' => 'required_if:kategori,CSR|nullable|string|max:255',
             'jabatan_id' => 'required_if:kategori,Bidang|nullable|exists:jabatans,id',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
         ], [
             'mitra.required_if' => 'Nama Mitra wajib diisi untuk program CSR.',
             'jabatan_id.required_if' => 'Bidang wajib dipilih untuk program Bidang.',
             'periode_selesai.after_or_equal' => 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.',
             'gambar.image' => 'File harus berupa gambar.',
-            'gambar.max' => 'Ukuran gambar maksimal 5MB.',
+            'gambar.max' => 'Ukuran gambar maksimal 10MB.',
         ]);
 
         if ($validator->fails()) {
@@ -216,13 +216,13 @@ class ProgramController extends Controller
             'anggaran' => 'nullable|numeric|min:0',
             'mitra' => 'required_if:kategori,CSR|nullable|string|max:255',
             'jabatan_id' => 'required_if:kategori,Bidang|nullable|exists:jabatans,id',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
         ], [
             'mitra.required_if' => 'Nama Mitra wajib diisi untuk program CSR.',
             'jabatan_id.required_if' => 'Bidang wajib dipilih untuk program Bidang.',
             'periode_selesai.after_or_equal' => 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.',
             'gambar.image' => 'File harus berupa gambar.',
-            'gambar.max' => 'Ukuran gambar maksimal 5MB.',
+            'gambar.max' => 'Ukuran gambar maksimal 10MB.',
         ]);
 
         if ($validator->fails()) {

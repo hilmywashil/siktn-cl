@@ -432,23 +432,25 @@
         --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
         --gray-500: #6b7280; --gray-700: #374151; --gray-900: #111827;
         --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px;
-        position: fixed;
+        position: fixed !important;
         top: 0; left: 0; right: 0; bottom: 0;
         background: rgba(2, 38, 72, 0.48);
         backdrop-filter: blur(4px);
-        display: flex;
+        display: none !important;
         align-items: center;
         justify-content: center;
         z-index: 9999;
         padding: 1.5rem;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
     }
-    
+
     .modal-overlay.active {
-        opacity: 1;
-        visibility: visible;
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
     }
 
     .modal-content-lg {
@@ -648,7 +650,7 @@
                 Surat Eksternal <span class="tab-badge">{{ $countEksternal }}</span>
             </a>
             <a href="{{ route('admin.sekretariat.surat.index', ['tipe' => $tipe, 'klasifikasi' => 'penting']) }}" class="filter-tab {{ $klasifikasi == 'penting' ? 'active' : '' }}">
-                Surat Penting 
+                Surat Penting
                 <span class="tab-badge">{{ $countPenting }}</span>
                 @if($countPentingPending > 0)
                     <span class="tab-badge-danger">{{ $countPentingPending }} Pending</span>
@@ -675,7 +677,6 @@
                         <th>PERIHAL & {{ $tipe == 'masuk' ? 'PENGIRIM' : 'TUJUAN' }}</th>
                         <th>TANGGAL</th>
                         <th>STATUS</th>
-                        <th>LAMPIRAN (PDF/WORD)</th>
                         <th style="text-align: center; width: 80px;">AKSI</th>
                     </tr>
                 </thead>
@@ -704,41 +705,6 @@
                                 <span class="status-badge draft">● Draft</span>
                             @endif
                         </td>
-                        <td>
-                            @if($item->file_lampiran)
-                                <div style="display: flex; flex-direction: column; gap: 5px;">
-                                    <button type="button"
-                                        onclick="previewSuratLampiran('{{ Storage::url($item->file_lampiran) }}', '{{ addslashes($item->perihal) }}')"
-                                        style="display: inline-flex; align-items: center; gap: 5px; background: #022648; color: white; border: none; border-radius: 4px; padding: 4px 10px; font-size: 0.775rem; font-weight: 700; cursor: pointer; width: fit-content;">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                                        Pratinjau File
-                                    </button>
-                                    <a href="{{ Storage::url($item->file_lampiran) }}" target="_blank"
-                                        class="btn-outline-secondary"
-                                        style="padding: 3px 10px; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 5px; width: fit-content;"
-                                        onclick="Toast.fire({ icon: 'success', title: 'Berkas surat sedang diunduh...' })">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                        Unduh File
-                                    </a>
-                                </div>
-                            @elseif($item->link_drive)
-                                <div style="display: flex; flex-direction: column; gap: 5px;">
-                                    <button type="button"
-                                        onclick="previewSuratDrive('{{ $item->link_drive }}', '{{ addslashes($item->perihal) }}')"
-                                        style="display: inline-flex; align-items: center; gap: 5px; background: #022648; color: white; border: none; border-radius: 4px; padding: 4px 10px; font-size: 0.775rem; font-weight: 700; cursor: pointer; width: fit-content;">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                                        Pratinjau Drive
-                                    </button>
-                                    <a href="{{ $item->link_drive }}" target="_blank"
-                                        style="color: var(--blue); text-decoration: none; font-size: 0.775rem; display: inline-flex; align-items: center; gap: 4px;">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                                        Buka Drive
-                                    </a>
-                                </div>
-                            @else
-                                <span style="color: var(--gray-500); font-size: 0.8rem;">-</span>
-                            @endif
-                        </td>
                         <td style="text-align: center;">
                             <!-- Action Dropdown Trigger (⋮) -->
                             <div class="aksi-wrapper">
@@ -751,11 +717,32 @@
                                 </button>
 
                                 <div class="aksi-dropdown" id="dropdown-surat-{{ $item->id }}">
-                                    <button type="button" class="aksi-item aksi-view" onclick="viewAuditTrail({{ $item->id }})">
-                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                        Audit Trail
+                                    @if($item->file_lampiran)
+                                    <button type="button" class="aksi-item aksi-view" onclick="previewSuratLampiran('{{ Storage::url($item->file_lampiran) }}', '{{ addslashes($item->perihal) }}')">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        Pratinjau File
                                     </button>
-                                    
+                                    <a href="{{ Storage::url($item->file_lampiran) }}" target="_blank" class="aksi-item aksi-view">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                        Unduh File
+                                    </a>
+                                    @endif
+
+                                    @if($item->link_drive)
+                                    <button type="button" class="aksi-item aksi-view" onclick="previewSuratDrive('{{ $item->link_drive }}', '{{ addslashes($item->perihal) }}')">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        Pratinjau Drive
+                                    </button>
+                                    <a href="{{ $item->link_drive }}" target="_blank" class="aksi-item aksi-view">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                        Buka Drive
+                                    </a>
+                                    @endif
+
+                                    @if($item->file_lampiran || $item->link_drive)
+                                    <div class="aksi-divider"></div>
+                                    @endif
+
                                     <button type="button" class="aksi-item aksi-edit" onclick="openStatusModal({{ $item->id }}, '{{ $item->status }}')">
                                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                         Edit Status
@@ -777,7 +764,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 3rem; color: var(--gray-500);">Belum ada data {{ $tipe == 'masuk' ? 'Surat Masuk' : 'Surat Keluar' }} pada kriteria ini.</td>
+                        <td colspan="6" style="text-align: center; padding: 3rem; color: var(--gray-500);">Belum ada data {{ $tipe == 'masuk' ? 'Surat Masuk' : 'Surat Keluar' }} pada kriteria ini.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -785,21 +772,11 @@
         </div>
     </div>
 
-    <!-- Modals -->
-    <!-- Modal 1: Audit Trail -->
-    <div class="modal-overlay" id="modalAuditTrail">
-        <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--navy); margin: 0;">Log Audit Trail Surat</h3>
-                <button type="button" onclick="closeModal('modalAuditTrail')" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;">&times;</button>
-            </div>
-            <div id="auditTrailContent">
-                <div style="text-align: center; padding: 2rem; color: var(--gray-500);">Memuat data audit trail...</div>
-            </div>
-        </div>
-    </div>
+    {{ $surats->appends(request()->query())->links() }}
 
-    <!-- Modal 2: Create Surat (Standard & Professional 2-Column Grid) -->
+    <!-- ============================== -->
+    <!-- Modal 1: Create Surat -->
+    <!-- ============================== -->
     <div class="modal-overlay" id="modalCreateSurat" onclick="if(event.target===this) closeModal('modalCreateSurat')">
         <div class="modal-content-lg">
             <div class="modal-header-prof">
@@ -818,7 +795,7 @@
             <form action="{{ route('admin.sekretariat.surat.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="tipe" value="{{ $tipe }}">
-                
+
                 <div class="modal-body-prof">
                     <div class="form-grid-2">
                         <!-- Baris 1: Nomor & Tanggal -->
@@ -836,9 +813,9 @@
                         <div class="form-group">
                             <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Klasifikasi Surat <span style="color: red;">*</span></label>
                             <select name="klasifikasi" class="form-control select2-basic" style="width: 100%;" required>
-                                <option value="internal">Surat Internal</option>
-                                <option value="eksternal">Surat Eksternal</option>
-                                <option value="penting">Surat Penting</option>
+                                <option value="internal" {{ $klasifikasi == 'internal' ? 'selected' : '' }}>Surat Internal</option>
+                                <option value="eksternal" {{ $klasifikasi == 'eksternal' ? 'selected' : '' }}>Surat Eksternal</option>
+                                <option value="penting" {{ $klasifikasi == 'penting' ? 'selected' : '' }}>Surat Penting</option>
                             </select>
                         </div>
 
@@ -875,20 +852,22 @@
 
                         <div class="form-group">
                             <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Link Google Drive (Opsional)</label>
-                            <input type="url" name="link_drive" class="form-control" placeholder="https://drive.google.com/..." style="font-size: 0.85rem; height: 60px;">
+                            <input type="url" name="link_drive" class="form-control" placeholder="https://drive.google.com/..." style="font-size: 0.85rem;">
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer-prof">
-                    <button type="button" onclick="closeModal('modalCreateSurat')" class="btn-outline-secondary" style="padding: 0.5rem 1.25rem;">Batal</button>
-                    <button type="submit" class="btn-solid-navy" style="padding: 0.5rem 1.25rem; font-weight: 700;">Simpan Surat</button>
+                    <button type="button" onclick="closeModal('modalCreateSurat')" class="btn-outline-secondary">Batal</button>
+                    <button type="submit" class="btn-solid-navy" style="font-weight: 700;">Simpan Surat</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal 3: Update Status Surat (Standard & Professional) -->
+    <!-- ============================== -->
+    <!-- Modal 2: Update Status Surat -->
+    <!-- ============================== -->
     <div class="modal-overlay" id="modalStatusSurat" onclick="if(event.target===this) closeModal('modalStatusSurat')">
         <div class="modal-content-lg" style="max-width: 520px;">
             <div class="modal-header-prof">
@@ -907,7 +886,7 @@
             <form id="formUpdateStatus" method="POST">
                 @csrf
                 @method('PATCH')
-                
+
                 <div class="modal-body-prof">
                     <div class="form-group" style="margin-bottom: 1.25rem;">
                         <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Status Baru <span style="color: red;">*</span></label>
@@ -964,9 +943,16 @@
                     activeDropdown = null;
                 } else {
                     const rect = this.getBoundingClientRect();
-                    dropdown.style.top = (rect.bottom + 4) + 'px';
-                    dropdown.style.left = (rect.right - 175) + 'px';
                     dropdown.classList.add('is-open');
+                    const dropdownHeight = dropdown.offsetHeight || 220;
+                    const spaceBelow = window.innerHeight - rect.bottom;
+
+                    if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
+                        dropdown.style.top = (rect.top - dropdownHeight - 4) + 'px';
+                    } else {
+                        dropdown.style.top = (rect.bottom + 4) + 'px';
+                    }
+                    dropdown.style.left = (rect.right - 175) + 'px';
                     activeDropdown = dropdown;
                 }
             });
@@ -991,13 +977,22 @@
 
     function openCreateModal() {
         document.getElementById('modalCreateSurat').classList.add('active');
+        if (typeof $.fn.select2 !== 'undefined') {
+            $('#modalCreateSurat .select2-basic').select2({ width: '100%', dropdownParent: $('#modalCreateSurat') });
+        }
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr('#modalCreateSurat .datepicker', { dateFormat: 'Y-m-d', allowInput: true });
+        }
     }
 
     function openStatusModal(id, currentStatus) {
         const form = document.getElementById('formUpdateStatus');
         form.action = `/admin/sekretariat/surat/${id}/status`;
-        $('#statusSelect').val(currentStatus).trigger('change');
         document.getElementById('modalStatusSurat').classList.add('active');
+        if (typeof $.fn.select2 !== 'undefined') {
+            $('#modalStatusSurat .select2-basic').select2({ width: '100%', dropdownParent: $('#modalStatusSurat') });
+        }
+        $('#statusSelect').val(currentStatus).trigger('change');
     }
 
     function closeModal(modalId) {
@@ -1025,34 +1020,6 @@
         }
     }
 
-    function viewAuditTrail(id) {
-        document.getElementById('modalAuditTrail').classList.add('active');
-        document.getElementById('auditTrailContent').innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--gray-500);">Memuat data audit trail...</div>';
-        
-        fetch(`/admin/sekretariat/surat/${id}/audit-trail`)
-            .then(res => res.json())
-            .then(data => {
-                let html = '<div class="timeline">';
-                if (data.length === 0) {
-                    html += '<p style="color: var(--gray-500);">Belum ada riwayat perubahan status.</p>';
-                } else {
-                    data.forEach(item => {
-                        html += `
-                            <div class="timeline-item">
-                                <div style="font-weight: 700; color: var(--navy);">${item.status_baru}</div>
-                                <div style="font-size: 0.8rem; color: var(--gray-500);">${item.created_at} oleh <strong>${item.user_name}</strong></div>
-                                ${item.catatan ? `<div style="font-size: 0.85rem; background: var(--gray-100); padding: 0.5rem; border-radius: 4px; margin-top: 4px;">${item.catatan}</div>` : ''}
-                            </div>
-                        `;
-                    });
-                }
-                html += '</div>';
-                document.getElementById('auditTrailContent').innerHTML = html;
-            })
-            .catch(() => {
-                document.getElementById('auditTrailContent').innerHTML = '<p style="color: var(--red);">Gagal memuat log audit trail.</p>';
-            });
-    }
     function previewSuratLampiran(url, title) {
         if (!url) return;
         const isImage = /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(url);

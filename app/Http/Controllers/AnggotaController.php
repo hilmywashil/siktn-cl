@@ -56,8 +56,8 @@ class AnggotaController extends Controller
                 'kode_pos' => 'required|string|max:20',
                 'email' => 'required|email|max:255|unique:anggota,email_website_perusahaan',
                 'no_ktp' => 'required|string|max:255',
-                'foto_ktp' => 'required|file|mimes:jpeg,jpg,png,pdf|max:5120',
-                'foto_diri' => 'required|file|mimes:jpeg,jpg,png|max:5120',
+                'foto_ktp' => 'required|file|mimes:jpeg,jpg,png,pdf|max:10240',
+                'foto_diri' => 'required|file|mimes:jpeg,jpg,png|max:10240',
                 
                 // Organisasi
                 'sfc_hipmi' => 'nullable|string|max:255',
@@ -250,8 +250,9 @@ class AnggotaController extends Controller
         }
 
         $jabatans = \App\Models\Jabatan::orderBy('nama_jabatan', 'asc')->get();
+        $programs = $anggota->programs()->orderBy('programs.created_at', 'desc')->get();
 
-        return view('pages.profile-anggota', compact('anggota', 'jabatans'));
+        return view('pages.profile-anggota', compact('anggota', 'jabatans', 'programs'));
     }
 
     /**
@@ -280,10 +281,10 @@ class AnggotaController extends Controller
             'instagram' => 'nullable|string|max:255',
             'tiktok' => 'nullable|string|max:255',
             'twitter' => 'nullable|string|max:255',
-            'foto_diri' => 'nullable|file|mimes:jpeg,jpg,png|max:5120',
+            'foto_diri' => 'nullable|file|mimes:jpeg,jpg,png|max:10240',
         ], [
             '*.mimes' => 'Format foto harus JPG atau PNG',
-            '*.max' => 'Ukuran file maksimal adalah 5MB',
+            '*.max' => 'Ukuran file maksimal adalah 10MB',
             'email.unique' => 'Email sudah terdaftar, silakan gunakan email lain',
         ]);
 

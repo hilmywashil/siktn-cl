@@ -70,7 +70,7 @@ class BeritaController extends Controller
         $validated = $request->validate([
             'judul' => 'required|string|max:255',
             'konten' => 'required|string',
-            'gambar' => 'required|image|mimes:jpeg,jpg,png,webp|max:2048',
+            'gambar' => 'required|image|mimes:jpeg,jpg,png,webp|max:10240',
             'kategori' => 'required|string',
             'wilayah' => 'nullable|string|max:255',
             'tags' => 'nullable|string',
@@ -164,7 +164,7 @@ class BeritaController extends Controller
         $validated = $request->validate([
             'judul' => 'required|string|max:255',
             'konten' => 'required|string',
-            'gambar' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
+            'gambar' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:10240',
             'kategori' => 'required|string',
             'wilayah' => 'nullable|string|max:255',
             'tags' => 'nullable|string',

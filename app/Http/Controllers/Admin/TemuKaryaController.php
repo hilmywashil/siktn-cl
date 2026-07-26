@@ -18,7 +18,7 @@ class TemuKaryaController extends Controller
     private function checkAuthorization()
     {
         $admin = Auth::guard('admin')->user();
-        if (!$admin || !($admin->isSuperAdmin() || $admin->isPimpinan() || $admin->isPNKT() || $admin->isPPKT() || $admin->isPKKT())) {
+        if (!$admin || !($admin->isSuperAdmin() || $admin->isPimpinan() || $admin->isPNKT())) {
             abort(403, 'Akses ditolak: Anda tidak memiliki wewenang untuk mengakses modul ini.');
         }
     }
@@ -98,7 +98,7 @@ class TemuKaryaController extends Controller
             'catatan' => 'nullable|string',
             'status' => 'required|in:selesai,pending,caretaker',
             'foto_dokumentasi' => 'nullable',
-            'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:5120',
+            'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:10240',
             'link_drive' => 'nullable|url|max:500',
             'surat_keputusan_id' => 'nullable|exists:surat_keputusans,id',
         ]);
@@ -152,7 +152,7 @@ class TemuKaryaController extends Controller
             'catatan' => 'nullable|string',
             'status' => 'required|in:selesai,pending,caretaker',
             'foto_dokumentasi' => 'nullable',
-            'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:5120',
+            'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:10240',
             'link_drive' => 'nullable|url|max:500',
             'surat_keputusan_id' => 'nullable|exists:surat_keputusans,id',
         ]);

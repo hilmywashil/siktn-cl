@@ -38,7 +38,7 @@ class MisiController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
             'order' => 'required|integer|min:0',
             'is_active' => 'boolean'
         ], [
@@ -47,7 +47,7 @@ class MisiController extends Controller
             'description.required' => 'Deskripsi misi wajib diisi',
             'image.image' => 'File harus berupa gambar',
             'image.mimes' => 'Format gambar harus jpeg, png, jpg, atau gif',
-            'image.max' => 'Ukuran gambar maksimal 2MB',
+            'image.max' => 'Ukuran gambar maksimal 10MB',
             'order.required' => 'Urutan wajib diisi',
             'order.integer' => 'Urutan harus berupa angka',
             'order.min' => 'Urutan minimal 0'
@@ -98,7 +98,7 @@ class MisiController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
             'order' => 'required|integer|min:0',
             'is_active' => 'boolean'
         ], [
@@ -107,7 +107,7 @@ class MisiController extends Controller
             'description.required' => 'Deskripsi misi wajib diisi',
             'image.image' => 'File harus berupa gambar',
             'image.mimes' => 'Format gambar harus jpeg, png, jpg, atau gif',
-            'image.max' => 'Ukuran gambar maksimal 2MB',
+            'image.max' => 'Ukuran gambar maksimal 10MB',
             'order.required' => 'Urutan wajib diisi',
             'order.integer' => 'Urutan harus berupa angka',
             'order.min' => 'Urutan minimal 0'

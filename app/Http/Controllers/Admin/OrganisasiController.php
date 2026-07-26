@@ -107,7 +107,7 @@ class OrganisasiController extends Controller
             'kabupaten' => 'nullable|string|max:255',
             'atasan_id' => 'nullable|exists:jabatans,id',
             'periode_id' => 'nullable|exists:periode_kepengurusans,id',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:10240',
             'aktif' => 'boolean'
         ]);
 
@@ -212,7 +212,7 @@ class OrganisasiController extends Controller
             'provinsi' => 'nullable|string|max:255',
             'kabupaten' => 'nullable|string|max:255',
             'periode_id' => 'nullable|exists:periode_kepengurusans,id',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:10240',
             'aktif' => 'boolean'
         ]);
 

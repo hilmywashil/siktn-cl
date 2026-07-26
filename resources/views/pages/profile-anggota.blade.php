@@ -1793,6 +1793,9 @@
                     <button class="sidebar-menu-btn" onclick="switchTab('kta-digital', this)">
                         <i class="fas fa-id-card"></i> KTA Digital
                     </button>
+                    <button class="sidebar-menu-btn" onclick="switchTab('program-diikuti', this)">
+                        <i class="fas fa-tasks"></i> Program
+                    </button>
                     @endif
                     
                     @if(in_array($anggota->status, ['pending', 'pending_profile']))
@@ -2060,6 +2063,84 @@
                                 <i class="fas fa-print"></i> Cetak Kartu Anggota (Print / PDF)
                             </button>
                         </div>
+                    @endif
+                </div>
+
+                <!-- ==============================================
+                TAB: PROGRAM DIIKUTI
+                ============================================== -->
+                <div id="program-diikuti" class="content-section">
+                    <h2 class="section-title"><i class="fas fa-tasks"></i> Program Kerja yang Sedang Diikuti</h2>
+                    
+                    @if($anggota->status !== 'approved')
+                        <div class="locked-state-box" style="background-color: #FEFCE8; border-color: #EAB308; margin-top: 20px;">
+                            <div class="locked-icon" style="color: #CA8A04;">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <h3 class="locked-title" style="color: #A16207;">Program Belum Tersedia</h3>
+                            <p class="locked-desc" style="color: #854D0E;">
+                                Fitur Program Kerja yang diikuti hanya tersedia untuk anggota aktif yang telah disetujui.
+                            </p>
+                        </div>
+                    @else
+                        <p style="color: var(--text-grey); font-size: 0.95rem; margin-bottom: 25px;">
+                            Berikut adalah daftar program kerja Karang Taruna Indonesia yang sedang Anda ikuti saat ini.
+                        </p>
+
+                        @if(empty($programs) || $programs->isEmpty())
+                            <div style="text-align: center; padding: 3rem 1.5rem; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                                <div style="width: 64px; height: 64px; background: #f1f5f9; color: #64748b; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                </div>
+                                <h3 style="font-size: 1.1rem; font-weight: 700; color: #022648; margin-bottom: 0.5rem;">Belum Mengikuti Program</h3>
+                                <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1.5rem; max-width: 400px; display: inline-block;">
+                                    Anda belum terdaftar di program kerja manapun. Jelajahi program kerja aktif kami dan mulailah berpartisipasi.
+                                </p>
+                                <div>
+                                    <a href="/program" style="display: inline-flex; align-items: center; gap: 8px; background: #022648; color: white; padding: 10px 20px; border-radius: 6px; font-weight: 700; font-size: 0.875rem; text-decoration: none; transition: background 0.2s;">
+                                        Jelajahi Program Kerja
+                                    </a>
+                                </div>
+                            </div>
+                        @else
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+                                @foreach($programs as $prog)
+                                    @php
+                                        $joinedAt = $prog->pivot->created_at ? \Carbon\Carbon::parse($prog->pivot->created_at)->translatedFormat('d F Y') : '-';
+                                    @endphp
+                                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; flex-direction: column; height: 100%; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(2, 38, 72, 0.08)'" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.03)'">
+                                        <div style="height: 140px; position: relative; background: #cbd5e1; overflow: hidden;">
+                                            <img src="{{ $prog->gambar_url }}" alt="{{ $prog->nama_program }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                            <span style="position: absolute; top: 12px; right: 12px; padding: 4px 10px; font-size: 0.7rem; font-weight: 700; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;
+                                                @if($prog->status === 'aktif') background:#dcfce7; color:#15803d;
+                                                @elseif($prog->status === 'selesai') background:#dbeafe; color:#1d4ed8;
+                                                @else background:#ffedd5; color:#c2410c; @endif">
+                                                {{ strtoupper($prog->status) }}
+                                            </span>
+                                        </div>
+                                        <div style="padding: 1.25rem; flex: 1; display: flex; flex-direction: column;">
+                                            <div style="font-size: 0.725rem; font-weight: 700; color: #a3a3a3; text-transform: uppercase; margin-bottom: 4px;">{{ $prog->kategori ?? 'Program Kerja' }}</div>
+                                            <h3 style="font-size: 1rem; font-weight: 800; color: #022648; line-height: 1.4; margin-bottom: 0.75rem;">{{ $prog->nama_program }}</h3>
+                                            
+                                            <div style="margin-top: auto; border-top: 1px solid #f1f5f9; padding-top: 0.85rem; font-size: 0.775rem; color: #64748b;">
+                                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                                    <span>PIC Program:</span>
+                                                    <strong style="color: #022648;">{{ $prog->pic ?? '-' }}</strong>
+                                                </div>
+                                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                                    <span>Periode:</span>
+                                                    <strong style="color: #022648;">{{ $prog->periode_mulai ? $prog->periode_mulai->translatedFormat('M Y') : '-' }} - {{ $prog->periode_selesai ? $prog->periode_selesai->translatedFormat('M Y') : '-' }}</strong>
+                                                </div>
+                                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px; background: #f8fafc; padding: 4px 6px; border-radius: 4px; border: 1px solid #f1f5f9;">
+                                                    <span>Terdaftar Pada:</span>
+                                                    <strong style="color: #022648;">{{ $joinedAt }}</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     @endif
                 </div>
 
@@ -2465,6 +2546,15 @@
         })();
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Handle URL hash routing on page load
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                const tabBtn = document.querySelector(`.sidebar-menu-btn[onclick*="${hash}"]`);
+                if (tabBtn) {
+                    switchTab(hash, tabBtn);
+                }
+            }
+
             // SIKTN Admin UI Benchmark: Floating Action Dropdown Trigger
             document.addEventListener('click', function(e) {
                 const trigger = e.target.closest('.btn-aksi-trigger');

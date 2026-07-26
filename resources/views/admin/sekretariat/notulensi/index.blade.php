@@ -150,12 +150,17 @@
         --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
         --gray-500: #6b7280; --gray-700: #374151; --gray-900: #111827;
         --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px;
-        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        position: fixed !important;
+        top: 0; left: 0; right: 0; bottom: 0;
         background: rgba(2, 38, 72, 0.48); backdrop-filter: blur(4px);
-        display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 1.5rem;
-        opacity: 0; visibility: hidden; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        display: none !important; align-items: center; justify-content: center;
+        z-index: 9999; padding: 1.5rem;
+        opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
     }
-    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-overlay.active {
+        display: flex !important; visibility: visible !important; opacity: 1 !important;
+        pointer-events: auto !important;
+    }
     .modal-content-lg {
         background: #ffffff; border-radius: 12px; max-width: 680px; width: 100%;
         box-shadow: 0 24px 48px rgba(2, 38, 72, 0.25); border: 1px solid rgba(2, 38, 72, 0.1);
@@ -273,7 +278,6 @@
                         <th>TAUTAN AGENDA</th>
                         <th>TANGGAL & WAKTU</th>
                         <th>PEMIMPIN RAPAT</th>
-                        <th>DOKUMEN (DRIVE)</th>
                         <th style="text-align: center; width: 80px;">AKSI</th>
                     </tr>
                 </thead>
@@ -297,16 +301,6 @@
                         </td>
                         <td>{{ \Carbon\Carbon::parse($item->tanggal_rapat)->format('d M Y, H:i') }} WIB</td>
                         <td>{{ $item->pemimpin_rapat ?? '-' }}</td>
-                        <td>
-                            @if($item->link_drive)
-                                <a href="{{ $item->link_drive }}" target="_blank" style="color: var(--blue); text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 4px;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                                    Buka Drive
-                                </a>
-                            @else
-                                <span style="color: var(--gray-500); font-size: 0.8rem;">-</span>
-                            @endif
-                        </td>
                         <td style="text-align: center;">
                             <!-- Action Dropdown Trigger (⋮) -->
                             <div class="aksi-wrapper">
@@ -319,6 +313,15 @@
                                 </button>
 
                                 <div class="aksi-dropdown" id="dropdown-not-{{ $item->id }}">
+                                    @if($item->link_drive)
+                                    <a href="{{ $item->link_drive }}" target="_blank" class="aksi-item aksi-view">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                        Buka Dokumen Drive
+                                    </a>
+
+                                    <div class="aksi-divider"></div>
+                                    @endif
+
                                     <button type="button" class="aksi-item aksi-edit" onclick="openEditModal({{ json_encode($item) }})">
                                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                         Edit Notulensi
@@ -340,7 +343,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 3rem; color: var(--gray-500);">Belum ada data Notulensi Rapat.</td>
+                        <td colspan="5" style="text-align: center; padding: 3rem; color: var(--gray-500);">Belum ada data Notulensi Rapat.</td>
                     </tr>
                     @endforelse
                 </tbody>
