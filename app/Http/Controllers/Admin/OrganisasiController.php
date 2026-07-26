@@ -15,6 +15,10 @@ class OrganisasiController extends Controller
     use LogsAdminActivity;
     public function index(Request $request)
     {
+        $daftarProvinsi = \App\Helpers\WilayahHelper::getDaftarProvinsi();
+        $selectedProvinsi = $request->get('provinsi', 'Nasional');
+        $selectedKabupaten = $request->get('kabupaten');
+
         $allPeriodes = \App\Models\PeriodeKepengurusan::orderBy('is_aktif', 'desc')
             ->orderBy('tahun_mulai', 'desc')
             ->get();
@@ -22,10 +26,18 @@ class OrganisasiController extends Controller
         $activePeriode = \App\Models\PeriodeKepengurusan::aktif()->first() 
             ?? $allPeriodes->first();
 
-        $selectedPeriodeId = $request->get('periode_id', $activePeriode?->id);
+        $selectedPeriodeId = $request->get('periode_id');
         $selectedPeriode = $allPeriodes->firstWhere('id', $selectedPeriodeId) ?? $activePeriode;
 
         $organisasiQuery = Organisasi::ordered();
+
+        if ($selectedProvinsi && $selectedProvinsi !== 'Semua') {
+            $organisasiQuery->where('provinsi', $selectedProvinsi);
+        }
+
+        if ($selectedKabupaten) {
+            $organisasiQuery->where('kabupaten', 'like', "%{$selectedKabupaten}%");
+        }
 
         if ($selectedPeriodeId) {
             $organisasiQuery->where('periode_id', $selectedPeriodeId);
@@ -68,6 +80,9 @@ class OrganisasiController extends Controller
             'jabatanTree' => $roots,
             'allPeriodes' => $allPeriodes,
             'selectedPeriode' => $selectedPeriode,
+            'daftarProvinsi' => $daftarProvinsi,
+            'selectedProvinsi' => $selectedProvinsi,
+            'selectedKabupaten' => $selectedKabupaten,
         ]);
     }
 
@@ -88,11 +103,17 @@ class OrganisasiController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'jabatan' => 'required|string|max:255',
+            'provinsi' => 'nullable|string|max:255',
+            'kabupaten' => 'nullable|string|max:255',
             'atasan_id' => 'nullable|exists:jabatans,id',
             'periode_id' => 'nullable|exists:periode_kepengurusans,id',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'aktif' => 'boolean'
         ]);
+
+        if (empty($validated['provinsi'])) {
+            $validated['provinsi'] = \App\Helpers\WilayahHelper::getProvinsiFromDomisili($validated['kabupaten'] ?? null);
+        }
 
         if ($request->hasFile('foto')) {
             $validated['foto'] = $request->file('foto')->store('organisasi', 'public');
@@ -188,10 +209,16 @@ class OrganisasiController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'jabatan' => 'required|string|max:255',
+            'provinsi' => 'nullable|string|max:255',
+            'kabupaten' => 'nullable|string|max:255',
             'periode_id' => 'nullable|exists:periode_kepengurusans,id',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'aktif' => 'boolean'
         ]);
+
+        if (empty($validated['provinsi'])) {
+            $validated['provinsi'] = \App\Helpers\WilayahHelper::getProvinsiFromDomisili($validated['kabupaten'] ?? null);
+        }
 
         if ($request->hasFile('foto')) {
             // Delete old photo

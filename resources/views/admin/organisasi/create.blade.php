@@ -201,6 +201,27 @@
                 @enderror
             </div>
             
+            <div class="form-group">
+                <label for="provinsi" class="form-label required">Wilayah Provinsi</label>
+                <select id="provinsi" name="provinsi" class="form-select select2 @error('provinsi') error @enderror">
+                    @foreach(\App\Helpers\WilayahHelper::getDaftarProvinsi() as $provKey => $provVal)
+                        <option value="{{ $provKey }}" {{ old('provinsi', request('provinsi', 'Nasional')) == $provKey ? 'selected' : '' }}>{{ $provVal }}</option>
+                    @endforeach
+                </select>
+                @error('provinsi')
+                    <div class="error-message">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="kabupaten" class="form-label">Kabupaten / Kota (Opsional)</label>
+                <input type="text" id="kabupaten" name="kabupaten" class="form-input @error('kabupaten') error @enderror" 
+                       value="{{ old('kabupaten') }}" placeholder="Contoh: Kabupaten Bandung / Kota Surabaya">
+                @error('kabupaten')
+                    <div class="error-message">{{ $message }}</div>
+                @enderror
+            </div>
+
             <div class="form-group" id="atasan-group">
                 <label for="atasan_id" class="form-label required">Pilih Atasan (Induk)</label>
                 <select id="atasan_id" name="atasan_id" class="form-select select2 @error('atasan_id') error @enderror">

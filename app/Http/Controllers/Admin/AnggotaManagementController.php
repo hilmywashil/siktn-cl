@@ -478,6 +478,8 @@ class AnggotaManagementController extends Controller
 
             // Masukkan ke Struktur Organisasi
             $activePeriodeId = \App\Models\PeriodeKepengurusan::aktif()->first()?->id;
+            $detectedProvinsi = \App\Helpers\WilayahHelper::getProvinsiFromDomisili($anggota->domisili);
+
             Organisasi::updateOrCreate(
                 ['anggota_id' => $anggota->id],
                 [
@@ -488,6 +490,8 @@ class AnggotaManagementController extends Controller
                     'aktif' => true,
                     'urutan' => $masterJabatan->urutan,
                     'periode_id' => $activePeriodeId,
+                    'provinsi' => $detectedProvinsi,
+                    'kabupaten' => $anggota->domisili,
                 ]
             );
         }

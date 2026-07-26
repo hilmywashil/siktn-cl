@@ -226,41 +226,44 @@
     <section class="wrapper-white-1">
         <div class="organisasi-section" data-aos="fade-up" style="width: 100%;">
             {{-- Period Filter Header Bar --}}
-            <div style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; width: 100%;">
+            <div style="background: #ffffff; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; box-shadow: 0 4px 14px rgba(2, 38, 72, 0.06); border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <div style="width: 38px; height: 38px; border-radius: 6px; background: #022648; display: flex; align-items: center; justify-content: center; color: #ffffff; flex-shrink: 0;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <div style="width: 42px; height: 42px; border-radius: 8px; background: #022648; display: flex; align-items: center; justify-content: center; color: #ffd700; flex-shrink: 0; font-size: 1.2rem;">
+                        <i class="fa fa-sitemap"></i>
                     </div>
                     <div>
-                        <div style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Masa Bakti Kepengurusan</div>
-                        <div style="font-size: 1.05rem; font-weight: 800; color: #022648;">
-                            {{ $selectedPeriode ? $selectedPeriode->nama_periode : 'Periode Kepengurusan' }}
-                            @if($selectedPeriode && $selectedPeriode->tahun_mulai)
-                                <span style="font-size: 0.85rem; color: #64748b; font-weight: 600; margin-left: 4px;">({{ $selectedPeriode->tahun_mulai }} – {{ $selectedPeriode->tahun_selesai }})</span>
+                        <div style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Struktur Wilayah</div>
+                        <div style="font-size: 1.1rem; font-weight: 800; color: #022648;">
+                            {{ $daftarProvinsi[$selectedProvinsi] ?? $selectedProvinsi }}
+                            @if(request('kabupaten'))
+                                <span style="font-size: 0.85rem; color: #b7830f; font-weight: 700;">• {{ request('kabupaten') }}</span>
                             @endif
                         </div>
                     </div>
                 </div>
 
-                @if(isset($allPeriodes) && $allPeriodes->count() > 0)
-                <div style="display: flex; align-items: center; gap: 0.6rem;">
-                    <span style="font-size: 0.825rem; font-weight: 700; color: #022648; white-space: nowrap;">Pilih Periode:</span>
-                    <div class="custom-periode-dropdown">
-                        <button type="button" class="custom-dropdown-trigger" onclick="togglePeriodeMenu(event)">
-                            <span>{{ $selectedPeriode ? $selectedPeriode->nama_periode . ' (' . $selectedPeriode->tahun_mulai . ' – ' . $selectedPeriode->tahun_selesai . ')' : 'Pilih Periode' }}</span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                        </button>
-                        <div class="custom-dropdown-menu" id="customPeriodeMenu">
-                            @foreach($allPeriodes as $per)
-                                <a href="{{ route('organisasi', ['periode_id' => $per->id]) }}" class="custom-dropdown-item {{ $selectedPeriode && $selectedPeriode->id == $per->id ? 'selected' : '' }}">
-                                    <div style="font-weight: 700; font-size: 0.85rem;">{{ $per->nama_periode }}</div>
-                                    <div style="font-size: 0.75rem; opacity: 0.85; font-weight: 600;">{{ $per->tahun_mulai }} – {{ $per->tahun_selesai }} {{ $per->is_aktif ? '• (Aktif Saat Ini)' : '' }}</div>
-                                </a>
+                <form action="{{ route('organisasi') }}" method="GET" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                    {{-- Select Provinsi --}}
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <label style="font-size: 0.8125rem; font-weight: 700; color: #022648; margin: 0; white-space: nowrap;">Provinsi:</label>
+                        <select name="provinsi" onchange="this.form.submit()" style="background: #f8fafc; border: 1.5px solid #022648; color: #022648; font-weight: 700; font-size: 0.85rem; padding: 7px 12px; border-radius: 6px; cursor: pointer; outline: none;">
+                            @foreach($daftarProvinsi as $provKey => $provLabel)
+                                <option value="{{ $provKey }}" {{ $selectedProvinsi == $provKey ? 'selected' : '' }}>{{ $provLabel }}</option>
                             @endforeach
-                        </div>
+                        </select>
                     </div>
-                </div>
-                @endif
+
+                    {{-- Search Kabupaten --}}
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="text" name="kabupaten" value="{{ request('kabupaten') }}" placeholder="Cari Kabupaten/Kota..." style="background: #f8fafc; border: 1px solid #cbd5e1; color: #0f172a; font-weight: 600; font-size: 0.85rem; padding: 6.5px 12px; border-radius: 6px; width: 170px;">
+                        <button type="submit" style="background: #022648; color: #ffffff; border: none; font-weight: 700; padding: 7px 14px; border-radius: 6px; font-size: 0.8125rem; cursor: pointer;">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        @if(request('kabupaten'))
+                            <a href="{{ route('organisasi', ['provinsi' => $selectedProvinsi]) }}" style="color: #ef4444; font-weight: 700; font-size: 0.8125rem; text-decoration: none; padding: 4px;">Reset</a>
+                        @endif
+                    </div>
+                </form>
             </div>
 
             @if(isset($organisasiTree) && $organisasiTree->count() > 0)

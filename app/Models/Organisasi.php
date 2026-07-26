@@ -31,9 +31,16 @@ class Organisasi extends Model
         'jabatan',
         'foto',
         'kategori',
+        'provinsi',
+        'kabupaten',
         'urutan',
         'aktif'
     ];
+
+    public function anggota()
+    {
+        return $this->belongsTo(Anggota::class, 'anggota_id');
+    }
 
     protected $casts = [
         'aktif' => 'boolean',
@@ -67,10 +74,6 @@ class Organisasi extends Model
         return $labels[$this->kategori] ?? $this->kategori;
     }
 
-    public function anggota()
-    {
-        return $this->belongsTo(Anggota::class, 'anggota_id');
-    }
 
     // Scope untuk kategori
     public function scopeKategori($query, $kategori)

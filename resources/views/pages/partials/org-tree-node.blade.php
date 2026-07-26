@@ -15,6 +15,11 @@
                 <div>
                     <h3 style="font-size: 1.1rem; color: #022648; margin: 0 0 5px 0;">{{ Str::words($node->nama, 2, '') }}</h3>
                     <p style="margin: 0; color: #6b7280; font-size: 0.85rem;">{{ $node->jabatan }}</p>
+                    @if($node->kabupaten || ($node->provinsi && $node->provinsi !== 'Nasional'))
+                        <div style="margin-top: 6px; font-size: 0.75rem; font-weight: 700; color: #b7830f; background: #fef3c7; padding: 2px 8px; border-radius: 4px; display: inline-block;">
+                            📍 {{ $node->kabupaten ?? $node->provinsi }}
+                        </div>
+                    @endif
                 </div>
             </div>
         </a>

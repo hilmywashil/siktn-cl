@@ -217,7 +217,28 @@
                 @error('jabatan')
                     <div class="error-message">{{ $message }}</div>
                 @enderror
-            </div>            {{-- Hidden input untuk urutan (auto-generated) --}}
+            <div class="form-group">
+                <label for="provinsi" class="form-label required">Wilayah Provinsi</label>
+                <select id="provinsi" name="provinsi" class="form-select select2 @error('provinsi') error @enderror">
+                    @foreach(\App\Helpers\WilayahHelper::getDaftarProvinsi() as $provKey => $provVal)
+                        <option value="{{ $provKey }}" {{ old('provinsi', $organisasi->provinsi ?? 'Nasional') == $provKey ? 'selected' : '' }}>{{ $provVal }}</option>
+                    @endforeach
+                </select>
+                @error('provinsi')
+                    <div class="error-message">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="kabupaten" class="form-label">Kabupaten / Kota (Opsional)</label>
+                <input type="text" id="kabupaten" name="kabupaten" class="form-input @error('kabupaten') error @enderror" 
+                       value="{{ old('kabupaten', $organisasi->kabupaten) }}" placeholder="Contoh: Kabupaten Bandung / Kota Surabaya">
+                @error('kabupaten')
+                    <div class="error-message">{{ $message }}</div>
+                @enderror
+            </div>
+
+            {{-- Hidden input untuk urutan (auto-generated) --}}
             <input type="hidden" id="urutan" name="urutan" value="{{ old('urutan', $organisasi->urutan) }}">
 
             <div class="form-group">

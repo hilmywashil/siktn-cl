@@ -48,7 +48,7 @@ class ProgramController extends Controller
     {
         $this->checkAuthorization(true); // true means viewOnly is allowed
         
-        $query = Program::with('jabatan');
+        $query = Program::with('jabatan')->withCount('peserta');
 
         if ($request->filled('search')) {
             $search = $request->get('search');
@@ -355,5 +355,90 @@ class ProgramController extends Controller
         $this->logActivity('program', 'Ubah Status', $program->id, $program->nama_program, $request->status);
 
         return redirect()->back()->with('success', 'Status program berhasil diubah menjadi ' . $request->status . '.');
+    }
+
+    /**
+     * Export data peserta program ke file Excel (.xls) dengan Styling SIKTN Navy & Gold
+     */
+    public function exportPeserta(Program $program)
+    {
+        $this->checkAuthorization(true);
+
+        $pesertas = $program->peserta()->orderBy('nama_lengkap', 'asc')->get();
+        $colSpan = 8;
+        $fileName = 'Peserta_Program_' . \Str::slug($program->nama_program) . '_' . date('Ymd_His') . '.xls';
+
+        $html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+        $html .= '<head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Peserta Program SIKTN</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
+        $html .= '<body style="font-family: Arial, sans-serif;">';
+        $html .= '<table style="border-collapse: collapse; width: 100%;">';
+        $html .= '<colgroup>';
+        $html .= '<col style="width: 50px;">';
+        $html .= '<col style="width: 180px;">';
+        $html .= '<col style="width: 220px;">';
+        $html .= '<col style="width: 140px;">';
+        $html .= '<col style="width: 200px;">';
+        $html .= '<col style="width: 160px;">';
+        $html .= '<col style="width: 220px;">';
+        $html .= '<col style="width: 150px;">';
+        $html .= '</colgroup>';
+
+        // Title Header Banner SIKTN (Navy Blue & Gold) - Directly on Row 1
+        $html .= '<tr>';
+        $html .= '<td colspan="' . $colSpan . '" style="background-color: #0a2540; color: #ffd700; font-size: 16pt; font-weight: bold; text-align: center; padding: 16px; border: 2px solid #0a2540;">SISTEM INFORMASI KARANG TARUNA NASIONAL (SIKTN)</td>';
+        $html .= '</tr>';
+        $html .= '<tr>';
+        $html .= '<td colspan="' . $colSpan . '" style="background-color: #164e63; color: #ffffff; font-size: 11pt; font-weight: bold; text-align: center; padding: 10px; border: 1px solid #164e63;">DAFTAR PESERTA ANGGOTA - PROGRAM: ' . htmlspecialchars(strtoupper($program->nama_program)) . ' (' . strtoupper($program->kategori) . ')</td>';
+        $html .= '</tr>';
+        $html .= '<tr>';
+        $html .= '<td colspan="' . $colSpan . '" style="font-size: 9pt; color: #64748b; text-align: right; padding: 6px; font-style: italic;">Tanggal Export: ' . date('d F Y H:i:s') . ' WIB</td>';
+        $html .= '</tr>';
+        $html .= '<tr><td colspan="' . $colSpan . '" style="height: 10px;"></td></tr>';
+
+        // Header Table Columns (Navy Blue Header with Gold Text)
+        $html .= '<tr>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: center; font-weight: bold; font-size: 10pt; width: 50px;">NO</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: center; font-weight: bold; font-size: 10pt; width: 180px;">NIA</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt; width: 220px;">NAMA LENGKAP</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt; width: 140px;">USERNAME</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt; width: 200px;">WILAYAH / DOMISILI</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt; width: 160px;">NO WHATSAPP</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: left; font-weight: bold; font-size: 10pt; width: 220px;">EMAIL</th>';
+        $html .= '<th style="background-color: #0a2540; color: #ffd700; border: 1px solid #02182b; padding: 10px; text-align: center; font-weight: bold; font-size: 10pt; width: 150px;">TANGGAL JOIN</th>';
+        $html .= '</tr>';
+
+        // Data Rows
+        if ($pesertas->isEmpty()) {
+            $html .= '<tr><td colspan="' . $colSpan . '" style="text-align: center; padding: 20px; color: #64748b; font-style: italic; border: 1px solid #cbd5e1;">Belum ada peserta terdaftar pada program ini.</td></tr>';
+        } else {
+            foreach ($pesertas as $i => $item) {
+                $rowBg = ($i % 2 == 1) ? '#f8fafc' : '#ffffff';
+
+                $html .= '<tr style="background-color: ' . $rowBg . ';">';
+                $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center;">' . ($i + 1) . '</td>';
+                $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center; font-weight: bold; mso-number-format:\'@\';">' . htmlspecialchars($item->nik ?? '-') . '</td>';
+                $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-weight: bold;">' . htmlspecialchars($item->nama_lengkap) . '</td>';
+                $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px;">' . htmlspecialchars($item->username) . '</td>';
+                $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px;">' . htmlspecialchars($item->domisili ?? '-') . '</td>';
+                $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; mso-number-format:\'@\';">' . htmlspecialchars($item->no_hp ?? '-') . '</td>';
+                $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px;">' . htmlspecialchars($item->email) . '</td>';
+                $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center;">' . ($item->pivot->created_at ? $item->pivot->created_at->format('d/m/Y H:i') : '-') . '</td>';
+                $html .= '</tr>';
+            }
+        }
+
+        // Summary Footer Row
+        $html .= '<tr><td colspan="' . $colSpan . '" style="height: 10px;"></td></tr>';
+        $html .= '<tr>';
+        $html .= '<td colspan="' . $colSpan . '" style="background-color: #f1f5f9; color: #0a2540; font-size: 9.5pt; font-weight: bold; padding: 10px; border: 1px solid #cbd5e1;">TOTAL PESERTA TERDAFTAR: ' . $pesertas->count() . ' ANGGOTA</td>';
+        $html .= '</tr>';
+
+        $html .= '</table>';
+        $html .= '</body></html>';
+
+        return response($html)
+            ->header('Content-Type', 'application/vnd.ms-excel')
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
+            ->header('Cache-Control', 'max-age=0');
     }
 }

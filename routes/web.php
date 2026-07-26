@@ -131,6 +131,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Program CRUD (Khusus PNKT / Sesuai Brief)
         Route::get('program/get-pics', [\App\Http\Controllers\Admin\ProgramController::class, 'getPicsByJabatan'])->name('program.get-pics');
+        Route::get('program/{program}/export-peserta', [\App\Http\Controllers\Admin\ProgramController::class, 'exportPeserta'])->name('program.export-peserta');
         Route::patch('program/{program}/update-status', [\App\Http\Controllers\Admin\ProgramController::class, 'updateStatus'])->name('program.update-status');
         Route::delete('program/bulk-delete', [\App\Http\Controllers\Admin\ProgramController::class, 'bulkDestroy'])->name('program.bulk-delete');
         Route::resource('program', \App\Http\Controllers\Admin\ProgramController::class);
@@ -281,6 +282,10 @@ Route::get('/berita/{slug}', [BeritaController::class, 'show'])->name('berita-de
 
 // Other Public Pages
 Route::get('/organisasi', function (Illuminate\Http\Request $request) {
+    $daftarProvinsi = \App\Helpers\WilayahHelper::getDaftarProvinsi();
+    $selectedProvinsi = $request->get('provinsi', 'Nasional');
+    $selectedKabupaten = $request->get('kabupaten');
+
     $allPeriodes = \App\Models\PeriodeKepengurusan::orderBy('is_aktif', 'desc')
         ->orderBy('tahun_mulai', 'desc')
         ->get();
@@ -288,17 +293,21 @@ Route::get('/organisasi', function (Illuminate\Http\Request $request) {
     $activePeriode = \App\Models\PeriodeKepengurusan::aktif()->first() 
         ?? $allPeriodes->first();
 
-    $selectedPeriodeId = $request->get('periode_id', $activePeriode?->id);
-
+    $selectedPeriodeId = $request->get('periode_id');
     $selectedPeriode = $allPeriodes->firstWhere('id', $selectedPeriodeId) ?? $activePeriode;
 
     $organisasiQuery = \App\Models\Organisasi::aktif();
 
+    if ($selectedProvinsi && $selectedProvinsi !== 'Semua') {
+        $organisasiQuery->where('provinsi', $selectedProvinsi);
+    }
+
+    if ($selectedKabupaten) {
+        $organisasiQuery->where('kabupaten', 'like', "%{$selectedKabupaten}%");
+    }
+
     if ($selectedPeriodeId) {
-        $organisasiQuery->where(function($q) use ($selectedPeriodeId) {
-            $q->where('periode_id', $selectedPeriodeId)
-              ->orWhereNull('periode_id');
-        });
+        $organisasiQuery->where('periode_id', $selectedPeriodeId);
     }
 
     $organisasi = $organisasiQuery->orderBy('urutan', 'asc')->get();
@@ -328,7 +337,7 @@ Route::get('/organisasi', function (Illuminate\Http\Request $request) {
         }
     }
 
-    return view('pages.organisasi', compact('organisasiTree', 'allPeriodes', 'selectedPeriode'));
+    return view('pages.organisasi', compact('organisasiTree', 'allPeriodes', 'selectedPeriode', 'daftarProvinsi', 'selectedProvinsi', 'selectedKabupaten'));
 })->name('organisasi');
 Route::get('/organisasi/{nama}', [PublicOrganisasiController::class, 'show'])
     ->name('organisasi.show');

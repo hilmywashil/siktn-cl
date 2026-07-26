@@ -569,6 +569,8 @@
                         <th>Nama Program</th>
                         <th>Kategori</th>
                         <th>Status</th>
+                        <th>Peserta</th>
+                        <th>Sisa Hari</th>
                         <th>Periode</th>
                         <th>PIC</th>
                         @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPNKT())
@@ -602,6 +604,34 @@
                         <td>
                             <span class="badge-status status-{{ strtolower($program->status) }}">
                                 ● {{ $program->status }}
+                            </span>
+                        </td>
+                        <td>
+                            <span style="font-weight: 700; color: #022648; font-size: 0.85rem;">
+                                <i class="fa fa-users" style="color: #b7830f;"></i> {{ $program->peserta_count ?? 0 }} Orang
+                            </span>
+                        </td>
+                        <td>
+                            @php
+                                $today = \Carbon\Carbon::now()->startOfDay();
+                                $mulai = \Carbon\Carbon::parse($program->periode_mulai)->startOfDay();
+                                $selesai = \Carbon\Carbon::parse($program->periode_selesai)->endOfDay();
+                                
+                                if ($today->gt($selesai)) {
+                                    $sisaText = 'Selesai';
+                                    $sisaColor = '#10b981';
+                                } elseif ($today->lt($mulai)) {
+                                    $diff = $today->diffInDays($mulai);
+                                    $sisaText = $diff . ' Hari Lagi';
+                                    $sisaColor = '#3b82f6';
+                                } else {
+                                    $diff = $today->diffInDays($selesai);
+                                    $sisaText = $diff . ' Hari Sisa';
+                                    $sisaColor = '#f59e0b';
+                                }
+                            @endphp
+                            <span style="font-weight: 700; color: {{ $sisaColor }}; font-size: 0.8125rem;">
+                                <i class="fa fa-clock-o"></i> {{ $sisaText }}
                             </span>
                         </td>
                         <td>
@@ -710,8 +740,13 @@
                     activeDropdown = null;
                 } else {
                     const rect = this.getBoundingClientRect();
-                    dropdown.style.top = (rect.bottom + 4) + 'px';
-                    dropdown.style.left = (rect.right - 175) + 'px';
+                    const dropdownHeight = 120;
+                    if (rect.bottom + dropdownHeight > window.innerHeight) {
+                        dropdown.style.top = (rect.top - dropdownHeight) + 'px';
+                    } else {
+                        dropdown.style.top = (rect.bottom + 4) + 'px';
+                    }
+                    dropdown.style.left = Math.max(10, Math.min(window.innerWidth - 200, rect.right - 185)) + 'px';
                     dropdown.classList.add('is-open');
                     activeDropdown = dropdown;
                 }

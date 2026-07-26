@@ -20,10 +20,10 @@ class BukuAnggotaController extends Controller
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('nama_lengkap', 'like', "%{$search}%")
-                  ->orWhere('nrp', 'like', "%{$search}%")
-                  ->orWhere('angkatan', 'like', "%{$search}%")
-                  ->orWhere('nama_perusahaan', 'like', "%{$search}%")
-                  ->orWhere('trade_mark', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%")
+                  ->orWhere('nik', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('domisili', 'like', "%{$search}%")
                   ->orWhereHas('katalog', function($kq) use ($search) {
                       $kq->where('business_field', 'like', "%{$search}%")
                         ->orWhere('company_name', 'like', "%{$search}%")

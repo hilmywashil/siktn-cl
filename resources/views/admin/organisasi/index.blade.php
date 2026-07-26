@@ -463,6 +463,41 @@
         background: #fafbfc;
         padding-bottom: 0.5rem;
     }
+
+    /* SIKTN Benchmark Select2 Custom Styling */
+    .select2-container--default .select2-selection--single {
+        background-color: #f8fafc !important;
+        border: 1.5px solid #022648 !important;
+        border-radius: 6px !important;
+        height: 38px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #022648 !important;
+        font-weight: 700 !important;
+        font-size: 0.85rem !important;
+        padding-left: 10px !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px !important;
+    }
+    .select2-dropdown {
+        border: 1.5px solid #022648 !important;
+        border-radius: 6px !important;
+        box-shadow: 0 10px 25px rgba(2, 38, 72, 0.15) !important;
+        animation: select2DropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        overflow: hidden !important;
+    }
+    .select2-results__option--highlighted[aria-selected] {
+        background-color: #022648 !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+    }
+    @keyframes select2DropdownFadeIn {
+        from { opacity: 0; transform: translateY(-6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 </style>
 @endpush
 
@@ -501,18 +536,19 @@
                     Bagan organisasi berdasarkan susunan jabatan. Klik tanda <strong>+</strong> pada node untuk menambah anggota.
                 </p>
             </div>
-            @if(isset($allPeriodes) && $allPeriodes->count() > 0)
-            <form action="{{ route('admin.organisasi.index') }}" method="GET" style="display: flex; align-items: center; gap: 0.6rem;">
-                <label for="admin_periode_filter" style="font-size: 0.85rem; font-weight: 700; color: var(--navy); margin: 0; white-space: nowrap;">Periode:</label>
-                <select name="periode_id" id="admin_periode_filter" onchange="this.form.submit()" class="select2-basic" style="min-width: 220px; height: 38px;">
-                    @foreach($allPeriodes as $per)
-                        <option value="{{ $per->id }}" {{ isset($selectedPeriode) && $selectedPeriode->id == $per->id ? 'selected' : '' }}>
-                            {{ $per->nama_periode }} ({{ $per->tahun_mulai }} – {{ $per->tahun_selesai }}){{ $per->is_aktif ? ' - Aktif' : '' }}
-                        </option>
+            <form action="{{ route('admin.organisasi.index') }}" method="GET" style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                <label style="font-size: 0.85rem; font-weight: 700; color: var(--navy); margin: 0; white-space: nowrap;">Provinsi:</label>
+                <select name="provinsi" onchange="this.form.submit()" class="select2-basic" style="min-width: 200px; height: 38px;">
+                    @foreach($daftarProvinsi as $pKey => $pVal)
+                        <option value="{{ $pKey }}" {{ ($selectedProvinsi ?? 'Nasional') == $pKey ? 'selected' : '' }}>{{ $pVal }}</option>
                     @endforeach
                 </select>
+
+                <input type="text" name="kabupaten" value="{{ $selectedKabupaten ?? '' }}" placeholder="Cari Kab/Kota..." style="height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.85rem; font-weight: 600;">
+                <button type="submit" class="btn-primary-bm" style="height: 38px; padding: 0 14px; font-size: 0.8125rem;">
+                    <i class="fa fa-search"></i> Cari
+                </button>
             </form>
-            @endif
         </div>
         
         <div class="org-tree-wrapper">
@@ -638,8 +674,9 @@
     document.addEventListener('DOMContentLoaded', function () {
         if (typeof $ !== 'undefined' && typeof $.fn.select2 !== 'undefined') {
             $('.select2-basic').select2({
-                minimumResultsForSearch: Infinity,
-                width: 'auto'
+                placeholder: 'Pilih Provinsi...',
+                allowClear: false,
+                width: 'resolve'
             }).on('change', function() {
                 this.form.submit();
             });
