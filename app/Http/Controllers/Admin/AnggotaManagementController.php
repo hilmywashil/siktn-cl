@@ -651,13 +651,15 @@ class AnggotaManagementController extends Controller
     {
         $this->checkRoleAuthorization();
 
-        $path = storage_path('app/templates/TemplateAnggota.xls');
+        $path = public_path('templates/TemplateAnggota.xls');
         if (!file_exists($path)) {
-            $path = public_path('templates/TemplateAnggota.xls');
+            $path = storage_path('app/templates/TemplateAnggota.xls');
         }
 
         if (file_exists($path)) {
-            return response()->download($path, 'Template_Import_Anggota.xls');
+            return response()->download($path, 'TemplateAnggota.xls', [
+                'Content-Type' => 'application/vnd.ms-excel',
+            ]);
         }
 
         $fileName = 'Template_Import_Anggota.xls';
