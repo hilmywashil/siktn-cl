@@ -42,15 +42,17 @@ class NotifyBirthdays extends Command
             return;
         }
 
-        $admins = Admin::all();
-        
         foreach ($birthdayAnggotas as $anggota) {
             $age = $anggota->tanggal_lahir->diffInYears($today);
             
+            $admins = Admin::whereIn('category', ['super_admin', 'pimpinan', 'pnkt'])
+                ->orWhere('domisili', $anggota->domisili)
+                ->get();
+
             Notification::send($admins, new AdminNotification(
                 'birthday',
                 'Ulang Tahun Anggota',
-                "Hari ini adalah ulang tahun {$anggota->nama_lengkap} yang ke-{$age}. Jangan lupa beri ucapan selamat!"
+                "Hari ini adalah ulang tahun {$anggota->nama_lengkap} yang ke-{$age}. Jangan lupa untuk memberikan ucapan selamat!"
             ));
         }
 

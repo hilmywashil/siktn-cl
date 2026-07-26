@@ -154,7 +154,9 @@ class AnggotaController extends Controller
                 DB::commit();
 
                 // Beritahu Admin
-                $admins = Admin::all();
+                $admins = Admin::whereIn('category', ['super_admin', 'pimpinan', 'pnkt'])
+                    ->orWhere('domisili', $anggota->domisili)
+                    ->get();
                 Notification::send($admins, new AdminNotification(
                     'new_anggota',
                     'Pendaftaran Anggota Baru',
@@ -359,7 +361,9 @@ class AnggotaController extends Controller
         $anggota->save();
 
         if ($needsVerification || in_array($anggota->getOriginal('status'), ['pending', 'pending_profile'])) {
-            $admins = Admin::all();
+            $admins = Admin::whereIn('category', ['super_admin', 'pimpinan', 'pnkt'])
+                ->orWhere('domisili', $anggota->domisili)
+                ->get();
             Notification::send($admins, new AdminNotification(
                 'new_anggota',
                 'Pembaruan Profil Anggota',
