@@ -415,7 +415,7 @@
                     <div style="margin-top: 24px; margin-bottom: 24px;">
                         <label class="form-label" for="domisili">Pilih Wilayah / Domisili (Provinsi / Kab / Kota) <span class="req">*</span></label>
                         <select id="domisili" name="domisili" class="select2-basic" style="width: 100%;" required>
-                            <option value="">-- Ketik untuk mencari provinsi / kabupaten / kota --</option>
+                            <option></option>
                             @foreach($regencies as $reg)
                                 <option value="{{ $reg }}" {{ old('domisili') == $reg ? 'selected' : '' }}>{{ $reg }}</option>
                             @endforeach

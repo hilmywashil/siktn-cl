@@ -436,7 +436,7 @@ class AnggotaController extends Controller
             $regenciesList = json_decode(file_get_contents($regenciesJsonPath), true) ?? [];
         }
 
-        $regencies = array_unique(array_merge($provinces, $regenciesList));
+        $regencies = array_values(array_unique(array_merge($provinces, $regenciesList)));
 
         return view('pages.asita.member-register', compact('invite', 'isValidInvite', 'provinces', 'regencies'));
     }
