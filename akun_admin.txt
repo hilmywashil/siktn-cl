@@ -1,0 +1,88 @@
+DAFTAR AKUN ADMIN SIKTN
+
+URL Login: https://siktn.alcomedia.id/admin/login
+
+---
+1. SUPER ADMIN
+---
+- Super Admin 1
+  Username: superadmin
+  Email: superadmin@siktn.com
+  Password: superadmin@2025
+
+- Super Admin 2
+  Username: superadmin2
+  Email: superadmin2@siktn.com
+  Password: password123
+
+---
+2. PIMPINAN / KETUA UMUM
+---
+- Username: pimpinan
+  Email: pimpinan@siktn.com
+  Password: password123
+
+---
+3. ADMIN PNKT (NASIONAL)
+---
+- Username: admin.pnkt
+  Email: pnkt@siktn.com
+  Password: password123
+
+---
+4. ADMIN PPKT (PROVINSI)
+---
+Password default seluruh akun PPKT: password123
+
+- Jawa Barat
+  Username: admin.ppkt.jabar
+  Email: ppkt.jabar@siktn.com
+
+- Jawa Tengah
+  Username: admin.ppkt.jateng
+  Email: ppkt.jateng@siktn.com
+
+- Jawa Timur
+  Username: admin.ppkt.jatim
+  Email: ppkt.jatim@siktn.com
+
+- DKI Jakarta
+  Username: admin.ppkt.dkijakarta
+  Email: ppkt.dkijakarta@siktn.com
+
+- Banten
+  Username: admin.ppkt.banten
+  Email: ppkt.banten@siktn.com
+
+- Sumatera Utara
+  Username: admin.ppkt.sumut
+  Email: ppkt.sumut@siktn.com
+
+---
+5. ADMIN PKKT (KABUPATEN / KOTA)
+---
+Password default seluruh akun PKKT: password123
+
+- Kota Bandung
+  Username: admin.pkkt.bandung
+  Email: pkkt.bandung@siktn.com
+
+- Kabupaten Bandung
+  Username: admin.pkkt.kabbandung
+  Email: pkkt.kabbandung@siktn.com
+
+- Kota Surabaya
+  Username: admin.pkkt.surabaya
+  Email: pkkt.surabaya@siktn.com
+
+- Kota Semarang
+  Username: admin.pkkt.semarang
+  Email: pkkt.semarang@siktn.com
+
+- Kota Medan
+  Username: admin.pkkt.medan
+  Email: pkkt.medan@siktn.com
+
+- Jakarta Selatan
+  Username: admin.pkkt.jaksel
+  Email: pkkt.jaksel@siktn.com
