@@ -90,7 +90,7 @@ class AdminDashboardController extends Controller
         }
 
         // --- MAP WILAYAH INDONESIA DATA ---
-        $temuKaryaMapData = TemuKarya::all(['id', 'wilayah', 'level', 'status', 'jenis', 'lokasi', 'tanggal_pelaksanaan']);
+        $temuKaryaMapData = TemuKarya::with('suratKeputusan')->get();
         $temuKaryaProvinsi = TemuKarya::where('level', 'provinsi')->get();
         $temuKaryaKabKota = TemuKarya::where('level', 'kab_kota')->get();
 

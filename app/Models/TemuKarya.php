@@ -11,6 +11,8 @@ class TemuKarya extends Model
 
     protected $table = 'temu_karyas';
 
+    protected $appends = ['foto_dokumentasi_list'];
+
     protected $fillable = [
         'jenis',
         'wilayah',

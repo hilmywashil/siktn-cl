@@ -527,6 +527,17 @@ $activeMenu = 'dashboard';
                         <option value="kab_kota">Kabupaten / Kota</option>
                     </select>
                 </div>
+
+                {{-- Status Filter Selector --}}
+                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                    <label for="mapStatusFilter" style="font-size: 0.85rem; font-weight: 700; color: var(--navy); margin: 0;">Status:</label>
+                    <select id="mapStatusFilter" class="form-control select2-basic" style="width: 160px;" onchange="filterMapStatus(this.value)">
+                        <option value="all">Semua Status</option>
+                        <option value="selesai">Sudah Temu Karya</option>
+                        <option value="caretaker">Caretaker</option>
+                        <option value="belum">Belum Temu Karya</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -560,8 +571,11 @@ $activeMenu = 'dashboard';
                 <small id="mapLevelSubtitle" style="color: var(--gray-500); font-weight: 700; font-size: 0.85rem;">38 Provinsi Karang Taruna Indonesia</small>
             </div>
 
-            <!-- REAL OPENLAYERS MAP CONTAINER FULL WIDTH -->
-            <div id="openLayersRealMap" style="height: 420px; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1;"></div>
+            <!-- REAL OPENLAYERS MAP CONTAINER FULL WIDTH WITH FLOATING TOOLTIP -->
+            <div style="position: relative;">
+                <div id="openLayersRealMap" style="height: 420px; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1;"></div>
+                <div id="olMapTooltip" style="position: absolute; display: none; background: #022648; color: #ffffff; padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; pointer-events: none; z-index: 10000; box-shadow: 0 4px 14px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); white-space: nowrap;"></div>
+            </div>
         </div>
     </div>
 
@@ -642,33 +656,51 @@ $activeMenu = 'dashboard';
 
     const temuKaryaRecords = @json($temuKaryaMapData);
 
-    // KELOMPOKKAN TEMU KARYA (MULTI-TEMU KARYA PER WILAYAH)
+    // KELOMPOKKAN TEMU KARYA (MULTI-TEMU KARYA PER WILAYAH WITH FLEXIBLE MATCHING)
     temuKaryaRecords.forEach(rec => {
         if (rec.wilayah) {
-            const foundProv = dataProvinsi.find(p => p.name.toLowerCase() === rec.wilayah.toLowerCase());
-            if (foundProv) {
+            const wLower = rec.wilayah.toLowerCase().trim();
+
+            // Match Province
+            const foundProv = dataProvinsi.find(p => {
+                const pName = p.name.toLowerCase();
+                return pName === wLower || pName.includes(wLower) || wLower.includes(pName);
+            });
+            if (foundProv && (rec.level === 'provinsi' || !rec.level)) {
                 foundProv.records.push(rec);
-                const count = foundProv.records.length;
-                if (rec.status === 'selesai') {
-                    foundProv.status = count > 1 ? `Selesai (${count})` : 'Selesai';
-                    foundProv.badgeClass = 'badge-selesai';
-                } else if (rec.jenis === 'caretaker' || rec.status === 'caretaker') {
-                    foundProv.status = count > 1 ? `Caretaker (${count})` : 'Caretaker';
-                    foundProv.badgeClass = 'badge-caretaker';
-                }
             }
 
-            const foundKab = dataKabKota.find(k => k.name.toLowerCase() === rec.wilayah.toLowerCase());
+            // Match Kab/Kota
+            const foundKab = dataKabKota.find(k => {
+                const kName = k.name.toLowerCase().replace('kota ', '').replace('kab. ', '').replace('kabupaten ', '').trim();
+                const cleanW = wLower.replace('kota ', '').replace('kab. ', '').replace('kabupaten ', '').trim();
+                return kName === cleanW || kName.includes(cleanW) || cleanW.includes(kName);
+            });
             if (foundKab) {
                 foundKab.records.push(rec);
-                const count = foundKab.records.length;
-                if (rec.status === 'selesai') {
-                    foundKab.status = count > 1 ? `Selesai (${count})` : 'Selesai';
-                    foundKab.badgeClass = 'badge-selesai';
-                } else if (rec.jenis === 'caretaker' || rec.status === 'caretaker') {
-                    foundKab.status = count > 1 ? `Caretaker (${count})` : 'Caretaker';
-                    foundKab.badgeClass = 'badge-caretaker';
-                }
+            }
+        }
+    });
+
+    // UPDATE STATUS LABELS & BADGES AFTER ACCUMULATING ALL RECORDS
+    [...dataProvinsi, ...dataKabKota].forEach(item => {
+        if (item.records && item.records.length > 0) {
+            const ctCount = item.records.filter(r => r.jenis === 'caretaker' || r.status === 'caretaker').length;
+            const slCount = item.records.filter(r => r.status === 'selesai' && r.jenis !== 'caretaker').length;
+            const total = item.records.length;
+
+            if (ctCount > 0 && slCount > 0) {
+                item.status = `Caretaker (${ctCount}) / Selesai (${slCount})`;
+                item.badgeClass = 'badge-caretaker';
+            } else if (ctCount > 0) {
+                item.status = total > 1 ? `Caretaker (${total})` : 'Caretaker';
+                item.badgeClass = 'badge-caretaker';
+            } else if (slCount > 0) {
+                item.status = total > 1 ? `Selesai (${total})` : 'Selesai';
+                item.badgeClass = 'badge-selesai';
+            } else {
+                item.status = total > 1 ? `Pending (${total})` : 'Pending';
+                item.badgeClass = 'badge-pending';
             }
         }
     });
@@ -677,9 +709,9 @@ $activeMenu = 'dashboard';
     let vectorSource = null;
 
     document.addEventListener('DOMContentLoaded', function () {
-        // Init Select2 on #mapLevelFilter
+        // Init Select2 on #mapLevelFilter & #mapStatusFilter
         if (typeof $.fn.select2 !== 'undefined') {
-            $('#mapLevelFilter').select2({
+            $('#mapLevelFilter, #mapStatusFilter').select2({
                 minimumResultsForSearch: -1
             });
         }
@@ -856,16 +888,79 @@ $activeMenu = 'dashboard';
             })
         });
 
+        const tooltipEl = document.getElementById('olMapTooltip');
+
+        // Hover tooltip on dots
+        olMapInstance.on('pointermove', function (evt) {
+            if (evt.dragging) {
+                if (tooltipEl) tooltipEl.style.display = 'none';
+                return;
+            }
+            const pixel = olMapInstance.getEventPixel(evt.originalEvent);
+            const feature = olMapInstance.forEachFeatureAtPixel(pixel, function (ft) {
+                return ft;
+            });
+
+            if (feature && tooltipEl) {
+                const name = feature.get('name');
+                const status = feature.get('status');
+                const records = feature.get('records') || [];
+                const recText = records.length > 0 ? ` (${records.length} Laporan)` : '';
+
+                tooltipEl.innerHTML = `<strong>${name}</strong> &bull; ${status}${recText}`;
+                
+                const mapRect = document.getElementById('openLayersRealMap').getBoundingClientRect();
+                const relX = evt.originalEvent.clientX - mapRect.left;
+                const relY = evt.originalEvent.clientY - mapRect.top;
+
+                tooltipEl.style.left = Math.min(mapRect.width - 220, relX + 15) + 'px';
+                tooltipEl.style.top = Math.max(10, relY - 30) + 'px';
+                tooltipEl.style.display = 'block';
+                olMapInstance.getTargetElement().style.cursor = 'pointer';
+            } else if (tooltipEl) {
+                tooltipEl.style.display = 'none';
+                olMapInstance.getTargetElement().style.cursor = '';
+            }
+        });
+
+        // Click dot on map to open popup details
+        olMapInstance.on('singleclick', function (evt) {
+            const pixel = olMapInstance.getEventPixel(evt.originalEvent);
+            const feature = olMapInstance.forEachFeatureAtPixel(pixel, function (ft) {
+                return ft;
+            });
+
+            if (feature) {
+                const level = $('#mapLevelFilter').val() || 'provinsi';
+                const items = level === 'provinsi' ? dataProvinsi : dataKabKota;
+                const idx = items.findIndex(item => item.name === feature.get('name'));
+                if (idx !== -1) {
+                    showWilayahDetails(level, idx);
+                }
+            }
+        });
+
         renderOpenLayersFeatures('provinsi');
+    }
+
+    function isItemMatchingStatus(item, statusFilter) {
+        if (!statusFilter || statusFilter === 'all') return true;
+        if (statusFilter === 'selesai') return item.status.includes('Selesai');
+        if (statusFilter === 'caretaker') return item.status.includes('Caretaker');
+        if (statusFilter === 'belum') return item.status === 'Belum';
+        return true;
     }
 
     function renderOpenLayersFeatures(level) {
         if (!vectorSource) return;
         vectorSource.clear();
 
+        const statusFilter = $('#mapStatusFilter').val() || 'all';
         const items = level === 'provinsi' ? dataProvinsi : dataKabKota;
 
         items.forEach(item => {
+            if (!isItemMatchingStatus(item, statusFilter)) return;
+
             let colorHex = '#64748b'; // Gray for Belum
             if (item.status.includes('Selesai')) colorHex = '#059669'; // Green
             if (item.status.includes('Caretaker')) colorHex = '#d97706'; // Amber
@@ -909,12 +1004,14 @@ $activeMenu = 'dashboard';
 
     function populateMapRegionSearchSelect(level) {
         const select = $('#searchMapRegionSelect');
+        const statusFilter = $('#mapStatusFilter').val() || 'all';
         const items = level === 'provinsi' ? dataProvinsi : dataKabKota;
         
         select.empty();
         select.append('<option value="">-- Pilih / Ketik Wilayah --</option>');
         
         items.forEach((item, idx) => {
+            if (!isItemMatchingStatus(item, statusFilter)) return;
             select.append(`<option value="${idx}">${item.name} (${item.status})</option>`);
         });
 
@@ -969,6 +1066,24 @@ $activeMenu = 'dashboard';
         }
     }
 
+    function filterMapStatus(status) {
+        const level = $('#mapLevelFilter').val() || 'provinsi';
+        renderMapGrid(level);
+        renderOpenLayersFeatures(level);
+        if (typeof Toast !== 'undefined') {
+            const selectedText = $('#mapStatusFilter option:selected').text();
+            Toast.fire({ icon: 'info', title: 'Filter Status Map: ' + selectedText });
+        }
+    }
+
+    function formatDateClean(dateStr) {
+        if (!dateStr) return '-';
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
     function showWilayahDetails(level, idx) {
         const items = level === 'provinsi' ? dataProvinsi : dataKabKota;
         const item = items[idx];
@@ -976,33 +1091,44 @@ $activeMenu = 'dashboard';
         if (!item) return;
 
         if (item.records && item.records.length > 0) {
-            let listHtml = `<div style="text-align: left; font-size: 0.85rem; padding: 0.5rem 0;">`;
+            let listHtml = `<div style="text-align: left; font-size: 0.85rem; padding: 0.5rem 0; max-height: 360px; overflow-y: auto;">`;
             item.records.forEach((rec, i) => {
+                const jenisLabel = rec.jenis === 'caretaker' || rec.status === 'caretaker' ? 'CARETAKER' : 'TEMU KARYA';
+                const statusLabel = rec.status ? rec.status.toUpperCase() : '-';
+                const dateClean = formatDateClean(rec.tanggal_pelaksanaan);
+
                 listHtml += `
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid ${rec.status === 'selesai' ? '#059669' : '#d97706'}; padding: 0.75rem; border-radius: 4px; margin-bottom: 0.6rem;">
-                        <div style="font-weight: 700; color: #022648;">#${i+1} ${rec.jenis ? rec.jenis.toUpperCase() : 'TEMU KARYA'}</div>
-                        <div style="margin-top: 4px; color: #475569;"><strong>Status:</strong> ${rec.status ? rec.status.toUpperCase() : '-'}</div>
-                        <div style="color: #475569;"><strong>Lokasi:</strong> ${rec.lokasi ?? '-'}</div>
-                        <div style="color: #475569;"><strong>Tanggal:</strong> ${rec.tanggal_pelaksanaan ?? '-'}</div>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid ${rec.jenis === 'caretaker' || rec.status === 'caretaker' ? '#d97706' : '#059669'}; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 0.65rem;">
+                        <div style="font-weight: 800; color: #022648; font-size: 0.9rem;">#${i+1} ${jenisLabel}</div>
+                        <div style="margin-top: 4px; color: #374151;"><strong>Status Pelaporan:</strong> <span style="font-weight: 700; color: ${statusLabel === 'SELESAI' ? '#059669' : '#d97706'};">${statusLabel}</span></div>
+                        <div style="color: #475569;"><strong>Lokasi Pelaksanaan:</strong> ${rec.lokasi ?? '-'}</div>
+                        <div style="color: #475569;"><strong>Tanggal Pelaksanaan:</strong> ${dateClean}</div>
                     </div>
                 `;
             });
             listHtml += `</div>`;
 
-            Swal.fire({
-                title: `<div style="color: #022648; font-weight: 800; font-size: 1.15rem;">Detail Temu Karya - ${item.name} (${item.records.length})</div>`,
-                html: listHtml,
-                confirmButtonText: 'Tutup Rincian',
-                confirmButtonColor: '#022648'
-            });
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: `<div style="color: #022648; font-weight: 800; font-size: 1.15rem;">Detail Pelaporan Wilayah - ${item.name} (${item.records.length})</div>`,
+                    html: listHtml,
+                    width: '600px',
+                    showCloseButton: true,
+                    confirmButtonText: 'Tutup Rincian',
+                    confirmButtonColor: '#022648'
+                });
+            }
         } else {
-            Swal.fire({
-                title: `<div style="color: #022648; font-weight: 800; font-size: 1.15rem;">${item.name}</div>`,
-                text: 'Belum ada catatan pelaksanaan Temu Karya / Caretaker di wilayah ini.',
-                icon: 'info',
-                confirmButtonText: 'Tutup',
-                confirmButtonColor: '#022648'
-            });
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: `<div style="color: #022648; font-weight: 800; font-size: 1.15rem;">${item.name}</div>`,
+                    html: `<div style="padding: 1rem; font-weight: 600; color: #64748b;">Belum ada pelaporan Temu Karya / Caretaker di wilayah ini.</div>`,
+                    width: '500px',
+                    showCloseButton: true,
+                    confirmButtonText: 'Tutup',
+                    confirmButtonColor: '#022648'
+                });
+            }
         }
     }
 </script>
