@@ -41,6 +41,7 @@
 ---
 
 ## 🚀 6. Modul Program Kerja
-- [ ] **Tombol Join Program**: Tambahkan tombol **"Join Program"** pada setiap halaman program.
-  - **Jika sudah Login Anggota**: Memproses pendaftaran/join program.
+- [x] **Tombol Join Program**: Tambahkan tombol **"Join Program"** pada setiap halaman program.
+  - **Jika sudah Login Anggota**: Memproses pendaftaran/join program & menampilkan status "Sudah Terdaftar".
   - **Jika Belum Login**: Otomatis redirect ke halaman **Login**.
+  - **Dashboard Admin**: Menyediakan Tab "Peserta Anggota" di detail program untuk melihat anggota yang mendaftar beserta kontak WA, NIA, email, dan aksi cepat.

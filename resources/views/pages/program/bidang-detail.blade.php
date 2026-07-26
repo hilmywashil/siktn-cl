@@ -214,6 +214,28 @@
                         <div class="detail-desc-title">Target Output</div>
                         <div class="detail-desc-text">{{ $program->target_output }}</div>
                     </div>
+
+                    @php
+                        $isJoined = false;
+                        if (Auth::guard('anggota')->check()) {
+                            $isJoined = $program->peserta()->where('anggota_id', Auth::guard('anggota')->id())->exists();
+                        }
+                    @endphp
+
+                    <div style="margin-top: 1.5rem;">
+                        @if($isJoined)
+                            <button type="button" class="btn" style="background: #10b981; color: white; border: none; padding: 0.75rem 1.75rem; border-radius: 6px; font-weight: 700; cursor: not-allowed;" disabled>
+                                <i class="fas fa-check-circle"></i> Sudah Terdaftar
+                            </button>
+                        @else
+                            <form action="{{ route('program.join', $program->id) }}" method="POST" style="display: inline-block;">
+                                @csrf
+                                <button type="submit" class="btn" style="background: #022648; color: white; border: none; padding: 0.75rem 1.75rem; border-radius: 6px; font-weight: 700; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#18227C'" onmouseout="this.style.background='#022648'">
+                                    <i class="fas fa-paper-plane"></i> Join Program Kerja
+                                </button>
+                            </form>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

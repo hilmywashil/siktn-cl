@@ -412,3 +412,14 @@ Route::middleware('auth:anggota')->group(function () {
         Route::post('{katalog}/toggle-status', [AnggotaKatalogController::class, 'toggleStatus'])->name('toggle-status');
     });
 });
+
+// =====================================================
+// PROGRAM KERJA ROUTES
+// =====================================================
+Route::get('/program/csr', [PublicProgramController::class, 'csr'])->name('program.csr');
+Route::get('/program/csr/{id}', [PublicProgramController::class, 'csrDetail'])->name('program.csr-detail');
+Route::get('/program/csr/{id}', [PublicProgramController::class, 'csrDetail'])->name('program.csr.detail');
+Route::get('/program/bidang', [PublicProgramController::class, 'bidang'])->name('program.bidang');
+Route::get('/program/bidang/{id}', [PublicProgramController::class, 'bidangDetail'])->name('program.bidang-detail');
+Route::get('/program/bidang/{id}', [PublicProgramController::class, 'bidangDetail'])->name('program.bidang.detail');
+Route::post('/program/{id}/join', [PublicProgramController::class, 'join'])->name('program.join');

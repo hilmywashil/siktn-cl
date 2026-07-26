@@ -48,4 +48,12 @@ class Program extends Model
     {
         return $this->belongsTo(Jabatan::class);
     }
+
+    /**
+     * Get the anggota participating in this program.
+     */
+    public function peserta(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Anggota::class, 'program_anggota', 'program_id', 'anggota_id')->withTimestamps();
+    }
 }

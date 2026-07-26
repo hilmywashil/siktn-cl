@@ -74,4 +74,18 @@ class PublicProgramController extends Controller
         ];
         return view('pages.program.bidang-detail', compact('program', 'settings'));
     }
+
+    public function join($id)
+    {
+        if (!\Illuminate\Support\Facades\Auth::guard('anggota')->check()) {
+            return redirect()->route('anggota.login')->with('error', 'Silakan login terlebih dahulu untuk mengikuti program kerja ini.');
+        }
+
+        $anggota = \Illuminate\Support\Facades\Auth::guard('anggota')->user();
+        $program = Program::findOrFail($id);
+
+        $anggota->programs()->syncWithoutDetaching([$program->id]);
+
+        return back()->with('success', 'Selamat! Anda telah berhasil mendaftar pada Program Kerja ' . $program->nama_program);
+    }
 }

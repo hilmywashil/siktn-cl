@@ -122,4 +122,12 @@ class Anggota extends Authenticatable
     {
         return static::where('deleted_at', '<=', now()->subDays(30));
     }
+
+    /**
+     * Get the programs joined by this anggota.
+     */
+    public function programs(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Program::class, 'program_anggota', 'anggota_id', 'program_id')->withTimestamps();
+    }
 }

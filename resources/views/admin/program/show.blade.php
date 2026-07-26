@@ -486,6 +486,10 @@
                 <i class="fa fa-bullseye" style="margin-right: 0.5rem;"></i>
                 Target & Output
             </button>
+            <button class="tab-button" onclick="switchTab('peserta')">
+                <i class="fa fa-users" style="margin-right: 0.5rem;"></i>
+                Peserta Anggota ({{ $program->peserta->count() }})
+            </button>
         </div>
 
         <div class="tabs-content">
@@ -595,6 +599,92 @@
                         <div class="field-value">Rp {{ number_format($program->anggaran ?? 0, 0, ',', '.') }}</div>
                     </div>
                     @endif
+                </div>
+            </div>
+
+            {{-- Tab Peserta Anggota --}}
+            <div class="tab-panel" id="tab-peserta">
+                <div style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
+                    <h3 style="font-size: 1.1rem; font-weight: 700; color: #022648; margin: 0;">
+                        Daftar Peserta Terdaftar ({{ $program->peserta->count() }})
+                    </h3>
+                </div>
+
+                <div style="overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+                        <thead>
+                            <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #022648; text-align: left;">
+                                <th style="padding: 12px 16px; font-weight: 700;">#</th>
+                                <th style="padding: 12px 16px; font-weight: 700;">Anggota</th>
+                                <th style="padding: 12px 16px; font-weight: 700;">NIA / Username</th>
+                                <th style="padding: 12px 16px; font-weight: 700;">Wilayah</th>
+                                <th style="padding: 12px 16px; font-weight: 700;">Kontak WA / Email</th>
+                                <th style="padding: 12px 16px; font-weight: 700;">Tanggal Join</th>
+                                <th style="padding: 12px 16px; font-weight: 700; text-align: center;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($program->peserta as $index => $p)
+                            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                                <td style="padding: 12px 16px; font-weight: 600; color: #64748b;">{{ $index + 1 }}</td>
+                                <td style="padding: 12px 16px;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        @if($p->foto_diri)
+                                            <img src="{{ Storage::url($p->foto_diri) }}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1.5px solid #cbd5e1;">
+                                        @else
+                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: #022648; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;">
+                                                {{ strtoupper(substr($p->nama_lengkap, 0, 1)) }}
+                                            </div>
+                                        @endif
+                                        <div>
+                                            <div style="font-weight: 700; color: #022648;">{{ $p->nama_lengkap }}</div>
+                                            <div style="font-size: 0.75rem; color: #64748b;">{{ $p->email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="padding: 12px 16px; font-weight: 600; color: #334155;">
+                                    <div>{{ $p->nik ?? '-' }}</div>
+                                    <div style="font-size: 0.75rem; color: #64748b;">@ {{ $p->username }}</div>
+                                </td>
+                                <td style="padding: 12px 16px; font-weight: 600; color: #1e293b;">
+                                    <span style="background: #e2e8f0; color: #0f172a; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">
+                                        {{ $p->domisili ?? 'Nasional' }}
+                                    </span>
+                                </td>
+                                <td style="padding: 12px 16px;">
+                                    @if($p->no_hp)
+                                        @php
+                                            $cleanHp = preg_replace('/[^0-9]/', '', $p->no_hp);
+                                            if(str_starts_with($cleanHp, '0')) {
+                                                $cleanHp = '62' . substr($cleanHp, 1);
+                                            }
+                                        @endphp
+                                        <a href="https://wa.me/{{ $cleanHp }}" target="_blank" style="color: #059669; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                            <i class="fa fa-whatsapp"></i> {{ $p->no_hp }}
+                                        </a>
+                                    @else
+                                        <span style="color: #94a3b8;">-</span>
+                                    @endif
+                                </td>
+                                <td style="padding: 12px 16px; color: #64748b; font-size: 0.8rem;">
+                                    {{ $p->pivot->created_at ? $p->pivot->created_at->format('d M Y H:i') : '-' }}
+                                </td>
+                                <td style="padding: 12px 16px; text-align: center;">
+                                    <a href="{{ route('buku-anggota') }}?search={{ $p->username }}" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.75rem; background: #022648; color: white;">
+                                        <i class="fa fa-user"></i> Profil
+                                    </a>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="7" style="padding: 2rem; text-align: center; color: #64748b;">
+                                    <i class="fa fa-info-circle" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block;"></i>
+                                    Belum ada anggota yang mendaftar pada program ini.
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
