@@ -96,14 +96,19 @@ class TemuKaryaController extends Controller
             'jumlah_peserta' => 'nullable|integer|min:0',
             'catatan' => 'nullable|string',
             'status' => 'required|in:selesai,pending,caretaker',
-            'foto_dokumentasi' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_dokumentasi' => 'nullable',
             'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:5120',
             'link_drive' => 'nullable|url|max:500',
             'surat_keputusan_id' => 'nullable|exists:surat_keputusans,id',
         ]);
 
         if ($request->hasFile('foto_dokumentasi')) {
-            $validated['foto_dokumentasi'] = $request->file('foto_dokumentasi')->store('temu_karya/foto', 'public');
+            $files = is_array($request->file('foto_dokumentasi')) ? $request->file('foto_dokumentasi') : [$request->file('foto_dokumentasi')];
+            $paths = [];
+            foreach ($files as $f) {
+                $paths[] = $f->store('temu_karya/foto', 'public');
+            }
+            $validated['foto_dokumentasi'] = json_encode($paths);
         }
 
         if ($request->hasFile('file_sk')) {
@@ -145,7 +150,7 @@ class TemuKaryaController extends Controller
             'jumlah_peserta' => 'nullable|integer|min:0',
             'catatan' => 'nullable|string',
             'status' => 'required|in:selesai,pending,caretaker',
-            'foto_dokumentasi' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_dokumentasi' => 'nullable',
             'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:5120',
             'link_drive' => 'nullable|url|max:500',
             'surat_keputusan_id' => 'nullable|exists:surat_keputusans,id',
@@ -153,9 +158,21 @@ class TemuKaryaController extends Controller
 
         if ($request->hasFile('foto_dokumentasi')) {
             if ($temuKarya->foto_dokumentasi) {
-                Storage::disk('public')->delete($temuKarya->foto_dokumentasi);
+                $oldDecoded = json_decode($temuKarya->foto_dokumentasi, true);
+                if (is_array($oldDecoded)) {
+                    foreach ($oldDecoded as $oldFile) {
+                        Storage::disk('public')->delete($oldFile);
+                    }
+                } else {
+                    Storage::disk('public')->delete($temuKarya->foto_dokumentasi);
+                }
             }
-            $validated['foto_dokumentasi'] = $request->file('foto_dokumentasi')->store('temu_karya/foto', 'public');
+            $files = is_array($request->file('foto_dokumentasi')) ? $request->file('foto_dokumentasi') : [$request->file('foto_dokumentasi')];
+            $paths = [];
+            foreach ($files as $f) {
+                $paths[] = $f->store('temu_karya/foto', 'public');
+            }
+            $validated['foto_dokumentasi'] = json_encode($paths);
         }
 
         if ($request->hasFile('file_sk')) {
@@ -204,5 +221,39 @@ class TemuKaryaController extends Controller
         $this->logActivity('temu-karya', 'Hapus', $tkId, $label);
 
         return redirect()->back()->with('success', 'Data Temu Karya / Caretaker berhasil dihapus.');
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $this->checkAuthorization();
+
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:temu_karyas,id',
+        ]);
+
+        $items = TemuKarya::whereIn('id', $request->ids)->get();
+        $count = $items->count();
+
+        foreach ($items as $item) {
+            if ($item->foto_dokumentasi) {
+                $decoded = json_decode($item->foto_dokumentasi, true);
+                if (is_array($decoded)) {
+                    foreach ($decoded as $path) {
+                        Storage::disk('public')->delete($path);
+                    }
+                } else {
+                    Storage::disk('public')->delete($item->foto_dokumentasi);
+                }
+            }
+            if ($item->file_sk) {
+                Storage::disk('public')->delete($item->file_sk);
+            }
+            $item->delete();
+        }
+
+        $this->logActivity('temu-karya', 'Hapus Masal', 0, "Jumlah: {$count} data");
+
+        return redirect()->back()->with('success', "Sebanyak {$count} data Temu Karya / Caretaker berhasil dihapus secara masal.");
     }
 }

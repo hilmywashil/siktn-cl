@@ -24,9 +24,9 @@
 
 ## 🏛️ 4. Modul Organisasi, Temu Karya & SK
 - [x] **Struktur Organisasi**: Tampilan struktur organisasi dikelompokkan / dibuat per **Provinsi** & auto-mapping Kabupaten.
-- [ ] **Hak Akses Temu Karya**: Fitur Temu Karya/Caretaker wajib dapat diakses oleh role `Superadmin`, `PNKT`, dan `Pimpinan`.
-- [ ] **Keterkaitan SK & Temu Karya**: Menghubungkan data Surat Keputusan (SK) secara langsung dengan laporan Temu Karya / Caretaker.
-- [ ] **Auto Detect Expired SK**: Sistem secara otomatis mendeteksi status masa aktif SK dan memberikan notifikasi pengingat sebelum masa bakti habis.
+- [x] **Hak Akses Temu Karya**: Fitur Temu Karya/Caretaker wajib dapat diakses oleh role `Superadmin`, `PNKT`, dan `Pimpinan`.
+- [x] **Keterkaitan SK & Temu Karya**: Menghubungkan data Surat Keputusan (SK) secara langsung dengan laporan Temu Karya / Caretaker.
+- [x] **Auto Detect Expired SK**: Sistem secara otomatis mendeteksi status masa aktif SK dan memberikan notifikasi pengingat sebelum masa bakti habis.
 
 ---
 

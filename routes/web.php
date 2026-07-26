@@ -125,6 +125,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Organisasi & Temu Karya CRUD
         Route::resource('organisasi', OrganisasiController::class);
         Route::get('temu-karya', [TemuKaryaController::class, 'index'])->name('temu-karya.index');
+        Route::post('temu-karya/bulk-delete', [TemuKaryaController::class, 'bulkDelete'])->name('temu-karya.bulk-delete');
         Route::post('temu-karya', [TemuKaryaController::class, 'store'])->name('temu-karya.store');
         Route::put('temu-karya/{temuKarya}', [TemuKaryaController::class, 'update'])->name('temu-karya.update');
         Route::delete('temu-karya/{temuKarya}', [TemuKaryaController::class, 'destroy'])->name('temu-karya.destroy');

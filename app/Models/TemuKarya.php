@@ -41,4 +41,16 @@ class TemuKarya extends Model
     {
         return $this->belongsTo(SuratKeputusan::class, 'surat_keputusan_id');
     }
+
+    public function getFotoDokumentasiListAttribute(): array
+    {
+        if (empty($this->foto_dokumentasi)) {
+            return [];
+        }
+        $decoded = json_decode($this->foto_dokumentasi, true);
+        if (is_array($decoded)) {
+            return array_map(fn($path) => \Illuminate\Support\Facades\Storage::url($path), $decoded);
+        }
+        return [\Illuminate\Support\Facades\Storage::url($this->foto_dokumentasi)];
+    }
 }

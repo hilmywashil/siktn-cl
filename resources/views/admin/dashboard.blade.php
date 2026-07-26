@@ -505,36 +505,63 @@ $activeMenu = 'dashboard';
 
     <!-- BOTTOM FULL WIDTH: PETA REAL OPENLAYERS INDONESIA -->
     <div class="widget-box" style="margin-bottom: 1.5rem;">
-        <div class="widget-header">
+        <div class="widget-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
             <h3>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
-                Peta OpenLayers Visualisasi Wilayah Temu Karya & Caretaker
+                Peta Visualisasi Wilayah Temu Karya & Caretaker
             </h3>
-            <div style="display: flex; gap: 0.5rem; align-items: center;">
-                <label for="mapLevelFilter" style="font-size: 0.85rem; font-weight: 700; color: var(--navy); margin: 0;">Tingkatan Wilayah:</label>
-                <select id="mapLevelFilter" class="form-control select2-basic" style="width: 170px;" onchange="filterMapLevel(this.value)">
-                    <option value="provinsi">Provinsi</option>
-                    <option value="kab_kota">Kabupaten / Kota</option>
-                </select>
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                {{-- Dropdown Search Region --}}
+                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                    <label for="searchMapRegionSelect" style="font-size: 0.85rem; font-weight: 700; color: var(--navy); margin: 0;">Cari Wilayah:</label>
+                    <select id="searchMapRegionSelect" class="form-control select2-searchable" style="width: 230px;" onchange="onSelectMapRegion(this.value)">
+                        <option value="">-- Pilih / Ketik Wilayah --</option>
+                    </select>
+                </div>
+
+                {{-- Level Selector --}}
+                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                    <label for="mapLevelFilter" style="font-size: 0.85rem; font-weight: 700; color: var(--navy); margin: 0;">Tingkat:</label>
+                    <select id="mapLevelFilter" class="form-control select2-basic" style="width: 150px;" onchange="filterMapLevel(this.value)">
+                        <option value="provinsi">Provinsi</option>
+                        <option value="kab_kota">Kabupaten / Kota</option>
+                    </select>
+                </div>
             </div>
         </div>
-        <div class="widget-body">
-            <div class="map-controls">
-                <div class="map-legend">
-                    <span class="legend-item"><span class="legend-dot" style="background: var(--green);"></span> Sudah Temu Karya</span>
-                    <span class="legend-item"><span class="legend-dot" style="background: var(--amber);"></span> Caretaker</span>
-                    <span class="legend-item"><span class="legend-dot" style="background: var(--gray-500);"></span> Belum Temu Karya</span>
+
+        <div class="widget-body" style="padding: 1.25rem;">
+            <!-- STAT INDICATORS RINGKAS BERDASARKAN STATUS -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-left: 4px solid #022648; border-radius: 8px; padding: 0.85rem 1.1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="font-size: 0.725rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Total Wilayah</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #022648;" id="indicatorTotalWilayah">38</div>
+                </div>
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-left: 4px solid #059669; border-radius: 8px; padding: 0.85rem 1.1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="font-size: 0.725rem; font-weight: 700; color: #059669; text-transform: uppercase;">Sudah Temu Karya</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #059669;" id="indicatorSudahTemuKarya">0</div>
+                </div>
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-left: 4px solid #d97706; border-radius: 8px; padding: 0.85rem 1.1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="font-size: 0.725rem; font-weight: 700; color: #d97706; text-transform: uppercase;">Caretaker</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #d97706;" id="indicatorCaretaker">0</div>
+                </div>
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; padding: 0.85rem 1.1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="font-size: 0.725rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Belum Temu Karya</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #64748b;" id="indicatorBelumTemuKarya">38</div>
+                </div>
+            </div>
+
+            <div class="map-controls" style="margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+                <div class="map-legend" style="display: flex; gap: 1rem; align-items: center; font-size: 0.825rem; font-weight: 700;">
+                    <span class="legend-item" style="display: flex; align-items: center; gap: 5px;"><span class="legend-dot" style="width: 10px; height: 10px; border-radius: 50%; background: #059669; display: inline-block;"></span> Sudah Temu Karya</span>
+                    <span class="legend-item" style="display: flex; align-items: center; gap: 5px;"><span class="legend-dot" style="width: 10px; height: 10px; border-radius: 50%; background: #d97706; display: inline-block;"></span> Caretaker</span>
+                    <span class="legend-item" style="display: flex; align-items: center; gap: 5px;"><span class="legend-dot" style="width: 10px; height: 10px; border-radius: 50%; background: #64748b; display: inline-block;"></span> Belum Temu Karya</span>
                 </div>
                 <small id="mapLevelSubtitle" style="color: var(--gray-500); font-weight: 700; font-size: 0.85rem;">38 Provinsi Karang Taruna Indonesia</small>
             </div>
 
             <!-- REAL OPENLAYERS MAP CONTAINER FULL WIDTH -->
-            <div id="openLayersRealMap"></div>
-
-            <!-- DYNAMIC REGIONS GRID -->
-            <div class="prov-grid-list" id="provGridContainer">
-                <!-- Loaded dynamically via JS -->
-            </div>
+            <div id="openLayersRealMap" style="height: 420px; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1;"></div>
         </div>
     </div>
 
@@ -667,12 +694,12 @@ $activeMenu = 'dashboard';
         const ctx = document.getElementById('suratTrendChart').getContext('2d');
         
         const gradMasuk = ctx.createLinearGradient(0, 0, 0, 300);
-        gradMasuk.addColorStop(0, '#2563eb');
-        gradMasuk.addColorStop(1, '#3b82f6');
+        gradMasuk.addColorStop(0, '#022648');
+        gradMasuk.addColorStop(1, '#0284c7');
 
         const gradKeluar = ctx.createLinearGradient(0, 0, 0, 300);
-        gradKeluar.addColorStop(0, '#f59e0b');
-        gradKeluar.addColorStop(1, '#d97706');
+        gradKeluar.addColorStop(0, '#b7830f');
+        gradKeluar.addColorStop(1, '#f59e0b');
 
         new Chart(ctx, {
             type: 'bar',
@@ -862,25 +889,76 @@ $activeMenu = 'dashboard';
         });
     }
 
+    function updateStatCounters(level) {
+        const items = level === 'provinsi' ? dataProvinsi : dataKabKota;
+        let selesaiCount = 0;
+        let caretakerCount = 0;
+        let belumCount = 0;
+
+        items.forEach(item => {
+            if (item.status.includes('Selesai')) selesaiCount++;
+            else if (item.status.includes('Caretaker')) caretakerCount++;
+            else belumCount++;
+        });
+
+        document.getElementById('indicatorTotalWilayah').textContent = items.length;
+        document.getElementById('indicatorSudahTemuKarya').textContent = selesaiCount;
+        document.getElementById('indicatorCaretaker').textContent = caretakerCount;
+        document.getElementById('indicatorBelumTemuKarya').textContent = belumCount;
+    }
+
+    function populateMapRegionSearchSelect(level) {
+        const select = $('#searchMapRegionSelect');
+        const items = level === 'provinsi' ? dataProvinsi : dataKabKota;
+        
+        select.empty();
+        select.append('<option value="">-- Pilih / Ketik Wilayah --</option>');
+        
+        items.forEach((item, idx) => {
+            select.append(`<option value="${idx}">${item.name} (${item.status})</option>`);
+        });
+
+        if (typeof $.fn.select2 !== 'undefined') {
+            select.select2({
+                placeholder: "-- Pilih / Ketik Wilayah --",
+                allowClear: true,
+                width: '230px'
+            });
+        }
+    }
+
+    function onSelectMapRegion(idxVal) {
+        if (idxVal === '' || idxVal === null || idxVal === undefined) return;
+        const idx = parseInt(idxVal);
+        const level = $('#mapLevelFilter').val() || 'provinsi';
+        const items = level === 'provinsi' ? dataProvinsi : dataKabKota;
+        const item = items[idx];
+
+        if (!item || !olMapInstance) return;
+
+        // Fly to location on OpenLayers map
+        olMapInstance.getView().animate({
+            center: ol.proj.fromLonLat([item.lng, item.lat]),
+            zoom: level === 'provinsi' ? 8 : 10,
+            duration: 800
+        });
+
+        // Show details popup modal
+        showWilayahDetails(level, idx);
+    }
+
     function renderMapGrid(level) {
-        const container = document.getElementById('provGridContainer');
         const subtitle = document.getElementById('mapLevelSubtitle');
         const items = level === 'provinsi' ? dataProvinsi : dataKabKota;
 
-        subtitle.textContent = level === 'provinsi' 
-            ? '38 Provinsi Karang Taruna Indonesia' 
-            : `${items.length} Kabupaten / Kota Utama Karang Taruna`;
+        if (subtitle) {
+            subtitle.textContent = level === 'provinsi' 
+                ? '38 Provinsi Karang Taruna Indonesia' 
+                : `${items.length} Kabupaten / Kota Utama Karang Taruna`;
+        }
 
-        let html = '';
-        items.forEach((item, idx) => {
-            html += `
-                <div class="prov-item" onclick="showWilayahDetails('${level}', ${idx})" title="Klik untuk rincian ${item.name}">
-                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--navy);">${item.name}</span>
-                    <span class="status-badge-pill ${item.badgeClass}">${item.status}</span>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
+        updateStatCounters(level);
+        populateMapRegionSearchSelect(level);
     }
 
     function filterMapLevel(level) {
