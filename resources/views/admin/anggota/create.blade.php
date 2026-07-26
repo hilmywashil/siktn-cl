@@ -357,7 +357,7 @@
 
 {{-- Tombol Import --}}
 <div style="margin-bottom: 1.5rem; display: flex; gap: 0.75rem; justify-content: flex-end;">
-    <a href="{{ route('admin.anggota.download-template') }}" onclick="Toast.fire({ icon: 'success', title: 'Template berhasil diunduh!' })" style="background: #059669; color: white; padding: 0.625rem 1.25rem; border-radius: 8px; font-weight: 600; font-size: 0.875rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+    <a href="{{ route('admin.anggota.download-template') }}" onclick="if(typeof Toast !== 'undefined'){ Toast.fire({ icon: 'success', title: 'Template Import Anggota sedang diunduh...' }); } else if(typeof Swal !== 'undefined'){ Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Template Import Anggota sedang diunduh...', showConfirmButton: false, timer: 3000 }); }" style="background: #059669; color: white; padding: 0.625rem 1.25rem; border-radius: 8px; font-weight: 600; font-size: 0.875rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
         Download Template
     </a>

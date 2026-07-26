@@ -1541,7 +1541,7 @@
     
     {{-- Global Toast Setup --}}
     <script>
-        const Toast = Swal.mixin({
+        window.Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
@@ -1552,6 +1552,7 @@
                 toast.addEventListener('mouseleave', Swal.resumeTimer)
             }
         });
+        const Toast = window.Toast;
     </script>
 
     {{-- Flash Messages Notification --}}

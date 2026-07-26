@@ -267,7 +267,7 @@
 
     @stack('scripts')
     <script>
-        const Toast = Swal.mixin({
+        window.Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
@@ -278,6 +278,7 @@
                 toast.addEventListener('mouseleave', Swal.resumeTimer)
             }
         });
+        const Toast = window.Toast;
 
         document.addEventListener('DOMContentLoaded', function() {
             const notifBtn = document.getElementById('notificationBtn');
