@@ -76,6 +76,7 @@ class TemuKaryaController extends Controller
             'activeSubMenu' => $request->jenis === 'caretaker' ? 'caretaker' : 'temu-karya',
             'temuKaryas' => $temuKaryas,
             'masterSks' => $masterSks,
+            'daftarProvinsi' => \App\Helpers\WilayahHelper::getDaftarProvinsi(),
             'totalSelesai' => $totalSelesai,
             'totalCaretaker' => $totalCaretaker,
             'totalPending' => $totalPending,

@@ -510,7 +510,16 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
                     <div class="form-group" style="grid-column: 1 / -1;">
                         <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Nama Wilayah (Provinsi / Kab / Kota) <span style="color: red;">*</span></label>
-                        <input type="text" name="wilayah" id="wilayah" class="form-control" placeholder="Contoh: Provinsi Jawa Barat / Kab. Bogor" required style="font-size: 0.85rem; font-weight: 600;">
+                        <select name="wilayah" id="wilayah" class="form-control select2-basic-tags" required style="width: 100%;">
+                            <option value="">-- Pilih atau Ketik Nama Wilayah --</option>
+                            @if(isset($daftarProvinsi))
+                                @foreach($daftarProvinsi as $key => $name)
+                                    @if($key !== 'Semua' && $key !== 'Nasional')
+                                        <option value="{{ $key }}">{{ $name }}</option>
+                                    @endif
+                                @endforeach
+                            @endif
+                        </select>
                     </div>
 
                     <div class="form-group">
@@ -717,6 +726,25 @@
                 dropdownParent: $('#temuKaryaModal'),
                 width: '100%'
             });
+            $('.select2-basic-tags').select2({
+                tags: true,
+                dropdownParent: $('#temuKaryaModal'),
+                width: '100%',
+                placeholder: '-- Pilih atau Ketik Nama Wilayah --'
+            });
+
+            const provinceList = @json(array_keys($daftarProvinsi ?? [])).filter(p => p !== 'Semua' && p !== 'Nasional').map(p => p.toLowerCase());
+            
+            $('#wilayah').on('change', function() {
+                const val = $(this).val();
+                if (!val) return;
+
+                if (provinceList.includes(val.trim().toLowerCase())) {
+                    $('#level').val('provinsi').trigger('change');
+                } else {
+                    $('#level').val('kab_kota').trigger('change');
+                }
+            });
         }
 
         document.addEventListener('click', function () {
@@ -893,7 +921,7 @@
         document.getElementById('modalTitle').innerText = 'Tambah Data {{ request()->get('jenis') === 'caretaker' ? 'Caretaker' : 'Temu Karya' }}';
         
         if (typeof $.fn.select2 !== 'undefined') {
-            $('#level, #status, #surat_keputusan_id').val('').trigger('change');
+            $('#wilayah, #level, #status, #surat_keputusan_id').val('').trigger('change');
         }
 
         document.getElementById('temuKaryaModal').classList.add('show');
@@ -908,7 +936,6 @@
         document.getElementById('formMethod').value = 'PUT';
         document.getElementById('modalTitle').innerText = 'Edit Data ' + data.wilayah;
 
-        document.getElementById('wilayah').value = data.wilayah;
         document.getElementById('level').value = data.level;
         document.getElementById('status').value = data.status;
         document.getElementById('tanggal_pelaksanaan').value = data.tanggal_pelaksanaan ? data.tanggal_pelaksanaan.substring(0, 10) : '';
@@ -919,6 +946,12 @@
         document.getElementById('catatan').value = data.catatan || '';
 
         if (typeof $.fn.select2 !== 'undefined') {
+            if ($('#wilayah option[value="' + data.wilayah + '"]').length === 0) {
+                var newOption = new Option(data.wilayah, data.wilayah, true, true);
+                $('#wilayah').append(newOption).trigger('change');
+            } else {
+                $('#wilayah').val(data.wilayah).trigger('change');
+            }
             $('#level').val(data.level).trigger('change');
             $('#status').val(data.status).trigger('change');
             $('#surat_keputusan_id').val(data.surat_keputusan_id || '').trigger('change');
