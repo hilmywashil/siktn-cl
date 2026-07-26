@@ -757,37 +757,65 @@
 
     function previewDoc(url, title) {
         if (!url) return;
-        let embedUrl = url;
-        if (url.includes('drive.google.com') && url.includes('/file/d/')) {
+
+        const isDrive = url.includes('drive.google.com');
+        const isDriveFolder = isDrive && (url.includes('/folders/') || !url.includes('/file/d/'));
+        const isImage = /\.(jpg|jpeg|png|gif|webp|bmp)(\?|$)/i.test(url);
+        const isPdf = url.endsWith('.pdf');
+
+        let viewerContent = '';
+
+        if (isDriveFolder) {
+            // Drive folder — iframe will always 403, show a card with open button
+            viewerContent = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2.5rem 1rem; background: #f8fafc; border-radius: 10px; border: 2px dashed #cbd5e1; gap: 1rem;">
+                    <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#022648" stroke-width="1.5">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <div style="font-weight: 700; color: #022648; font-size: 1rem;">Folder Google Drive</div>
+                    <div style="color: #64748b; font-size: 0.85rem; text-align: center;">Folder Google Drive tidak dapat di-embed langsung.<br>Klik tombol di bawah untuk membuka folder dokumentasi.</div>
+                    <a href="${url}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; background: #022648; color: white; padding: 9px 20px; border-radius: 6px; font-weight: 700; font-size: 0.875rem; text-decoration: none;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        Buka Folder Drive
+                    </a>
+                </div>`;
+        } else if (isDrive && url.includes('/file/d/')) {
+            // Drive file — try embed with /preview
             const matches = url.match(/\/file\/d\/([^\/]+)/);
-            if (matches && matches[1]) {
-                embedUrl = `https://drive.google.com/file/d/${matches[1]}/preview`;
-            }
+            const embedUrl = matches ? `https://drive.google.com/file/d/${matches[1]}/preview` : url;
+            viewerContent = `<iframe src="${embedUrl}" style="width: 100%; height: 68vh; border: none; border-radius: 8px;" allow="autoplay"></iframe>`;
+        } else if (isImage) {
+            viewerContent = `<img src="${url}" style="max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: 8px;">`;
+        } else if (isPdf) {
+            viewerContent = `<iframe src="${url}" style="width: 100%; height: 70vh; border: none; border-radius: 8px;"></iframe>`;
+        } else {
+            viewerContent = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2.5rem 1rem; background: #f8fafc; border-radius: 10px; border: 2px dashed #cbd5e1; gap: 1rem;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#022648" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <div style="font-weight: 700; color: #022648;">Pratinjau tidak tersedia</div>
+                    <a href="${url}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; background: #022648; color: white; padding: 9px 20px; border-radius: 6px; font-weight: 700; font-size: 0.875rem; text-decoration: none;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        Buka / Download File
+                    </a>
+                </div>`;
         }
-        
-        let isPdfOrDoc = url.endsWith('.pdf') || embedUrl.includes('drive.google.com');
-        let viewerContent = isPdfOrDoc 
-            ? `<iframe src="${embedUrl}" style="width: 100%; height: 70vh; border: none; border-radius: 8px;"></iframe>`
-            : `<img src="${url}" style="max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: 8px;">`;
 
         Swal.fire({
             title: `<div style="color: #022648; font-weight: 800; font-size: 1.1rem;">${title}</div>`,
             html: `
-                <div style="margin-bottom: 0.75rem; display: flex; justify-content: flex-end; gap: 8px;">
-                    <a href="${url}" target="_blank" class="btn-solid-navy" style="font-size: 0.75rem; padding: 5px 12px; text-decoration: none; border-radius: 4px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                ${!isDriveFolder ? `<div style="margin-bottom: 0.75rem; display: flex; justify-content: flex-end; gap: 8px;">
+                    <a href="${url}" target="_blank" style="font-size: 0.75rem; padding: 5px 12px; text-decoration: none; border-radius: 4px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; background: #022648; color: white;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                         Buka Sumber Asli / Download
                     </a>
-                </div>
+                </div>` : ''}
                 ${viewerContent}
             `,
             width: '900px',
             showCloseButton: true,
             confirmButtonText: 'Tutup Pratinjau',
             confirmButtonColor: '#022648',
-            customClass: {
-                container: 'swal-high-zindex'
-            }
+            customClass: { container: 'swal-high-zindex' }
         });
     }
 

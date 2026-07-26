@@ -1084,6 +1084,53 @@ $activeMenu = 'dashboard';
         return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
     }
 
+    function openDrivePreview(url, title) {
+        if (!url) return;
+        const isDriveFolder = url.includes('/folders/') || (url.includes('drive.google.com') && !url.includes('/file/d/'));
+        if (isDriveFolder) {
+            window.open(url, '_blank');
+            return;
+        }
+        const matches = url.match(/\/file\/d\/([^\/]+)/);
+        const embedUrl = matches ? `https://drive.google.com/file/d/${matches[1]}/preview` : url;
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: `<div style="color: #022648; font-weight: 800; font-size: 1rem;">${title}</div>`,
+                html: `<iframe src="${embedUrl}" style="width:100%;height:65vh;border:none;border-radius:8px;" allow="autoplay"></iframe>`,
+                width: '880px',
+                showCloseButton: true,
+                confirmButtonText: 'Tutup',
+                confirmButtonColor: '#022648',
+                customClass: { container: 'swal-high-zindex' }
+            });
+        }
+    }
+
+    function openLocalFilePreview(url, title) {
+        if (!url) return;
+        const isImage = /\.(jpg|jpeg|png|gif|webp|bmp)(\?|$)/i.test(url);
+        const isPdf = /\.pdf(\?|$)/i.test(url);
+        let content = '';
+        if (isImage) {
+            content = `<img src="${url}" style="max-width:100%;max-height:68vh;object-fit:contain;border-radius:8px;">`;
+        } else if (isPdf) {
+            content = `<iframe src="${url}" style="width:100%;height:68vh;border:none;border-radius:8px;"></iframe>`;
+        } else {
+            content = `<div style="padding:2rem;text-align:center;color:#64748b;font-weight:600;">Pratinjau tidak tersedia.<br><a href="${url}" target="_blank" style="color:#022648;font-weight:700;">Buka / Download File</a></div>`;
+        }
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: `<div style="color: #022648; font-weight: 800; font-size: 1rem;">${title}</div>`,
+                html: `<div style="margin-bottom:0.5rem;text-align:right;"><a href="${url}" target="_blank" style="font-size:0.75rem;padding:4px 10px;background:#022648;color:white;border-radius:4px;text-decoration:none;font-weight:700;">Buka/Download</a></div>${content}`,
+                width: '880px',
+                showCloseButton: true,
+                confirmButtonText: 'Tutup',
+                confirmButtonColor: '#022648',
+                customClass: { container: 'swal-high-zindex' }
+            });
+        }
+    }
+
     function showWilayahDetails(level, idx) {
         const items = level === 'provinsi' ? dataProvinsi : dataKabKota;
         const item = items[idx];
@@ -1091,18 +1138,86 @@ $activeMenu = 'dashboard';
         if (!item) return;
 
         if (item.records && item.records.length > 0) {
-            let listHtml = `<div style="text-align: left; font-size: 0.85rem; padding: 0.5rem 0; max-height: 360px; overflow-y: auto;">`;
+            let listHtml = `<div style="text-align: left; font-size: 0.85rem; padding: 0.5rem 0; max-height: 440px; overflow-y: auto;">`;
             item.records.forEach((rec, i) => {
                 const jenisLabel = rec.jenis === 'caretaker' || rec.status === 'caretaker' ? 'CARETAKER' : 'TEMU KARYA';
                 const statusLabel = rec.status ? rec.status.toUpperCase() : '-';
+                const accentColor = (rec.jenis === 'caretaker' || rec.status === 'caretaker') ? '#d97706' : '#059669';
                 const dateClean = formatDateClean(rec.tanggal_pelaksanaan);
+                const fotos = rec.foto_dokumentasi_list || [];
+                const fileSk = rec.file_sk ? `/storage/${rec.file_sk}` : null;
+                const linkDrive = rec.link_drive || null;
+
+                // Build foto thumbnails
+                let fotoHtml = '';
+                if (fotos.length > 0) {
+                    fotoHtml = `<div style="margin-top:0.6rem;">
+                        <div style="font-size:0.75rem;font-weight:700;color:#475569;margin-bottom:4px;">Foto Dokumentasi (${fotos.length}):</div>
+                        <div style="display:flex;flex-wrap:wrap;gap:6px;">`;
+                    fotos.forEach((fotoUrl, fi) => {
+                        fotoHtml += `<img src="${fotoUrl}" onclick="openLocalFilePreview('${fotoUrl}','Foto Dokumentasi #${fi+1} - ${rec.wilayah ?? ''}')" 
+                            style="width:60px;height:60px;object-fit:cover;border-radius:5px;cursor:pointer;border:2px solid #e2e8f0;transition:transform 0.15s;"
+                            onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'"
+                            title="Klik untuk perbesar">`;
+                    });
+                    fotoHtml += `</div></div>`;
+                }
+
+                // Build SK Card (Surat Keputusan)
+                let skHtml = '';
+                if (rec.surat_keputusan) {
+                    const sk = rec.surat_keputusan;
+                    const skDriveLink = sk.link_drive || null;
+                    const skBerlaku = formatDateClean(sk.tanggal_berlaku);
+                    const skBerakhir = formatDateClean(sk.tanggal_berakhir);
+                    skHtml = `
+                        <div style="margin-top:0.75rem; background:#eef3ff; border:1px solid #c7d7fd; border-radius:6px; padding:0.6rem 0.85rem; display:flex; align-items:flex-start; gap:0.6rem;">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#022648" stroke-width="1.8" style="flex-shrink:0; margin-top:2px;">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                            </svg>
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-size:0.7rem;font-weight:700;color:#3b5bdb;text-transform:uppercase;letter-spacing:0.5px;">Surat Keputusan</div>
+                                <div style="font-weight:800;color:#022648;font-size:0.8rem;margin-top:2px;">${sk.nomor_sk ?? '-'}</div>
+                                <div style="color:#475569;font-size:0.75rem;">${sk.judul_sk ?? '-'}</div>
+                                <div style="color:#64748b;font-size:0.7rem;margin-top:3px;">Berlaku: ${skBerlaku} – ${skBerakhir}</div>
+                            </div>
+                            ${skDriveLink ? `<button onclick="openDrivePreview('${skDriveLink}','Surat Keputusan - ${sk.nomor_sk ?? ''}')" style="flex-shrink:0;display:inline-flex;align-items:center;gap:4px;background:#022648;color:white;border:none;border-radius:5px;padding:5px 10px;font-size:0.7rem;font-weight:700;cursor:pointer;white-space:nowrap;">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Lihat SK
+                            </button>` : ''}
+                        </div>`;
+                }
+
+                // Build action buttons
+                let btnHtml = '';
+                if (fileSk || linkDrive) {
+                    btnHtml = `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:0.65rem;">`;
+                    if (fileSk) {
+                        btnHtml += `<button onclick="openLocalFilePreview('${fileSk}','File SK - ${rec.wilayah ?? ''}')" style="display:inline-flex;align-items:center;gap:5px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:5px;padding:4px 10px;font-size:0.72rem;font-weight:700;color:#022648;cursor:pointer;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            Lihat File SK
+                        </button>`;
+                    }
+                    if (linkDrive) {
+                        btnHtml += `<button onclick="openDrivePreview('${linkDrive}','Drive Dokumentasi - ${rec.wilayah ?? ''}')" style="display:inline-flex;align-items:center;gap:5px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:5px;padding:4px 10px;font-size:0.72rem;font-weight:700;color:#022648;cursor:pointer;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                            Drive Dokumentasi
+                        </button>`;
+                    }
+                    btnHtml += `</div>`;
+                }
 
                 listHtml += `
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid ${rec.jenis === 'caretaker' || rec.status === 'caretaker' ? '#d97706' : '#059669'}; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 0.65rem;">
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid ${accentColor}; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
                         <div style="font-weight: 800; color: #022648; font-size: 0.9rem;">#${i+1} ${jenisLabel}</div>
-                        <div style="margin-top: 4px; color: #374151;"><strong>Status Pelaporan:</strong> <span style="font-weight: 700; color: ${statusLabel === 'SELESAI' ? '#059669' : '#d97706'};">${statusLabel}</span></div>
-                        <div style="color: #475569;"><strong>Lokasi Pelaksanaan:</strong> ${rec.lokasi ?? '-'}</div>
-                        <div style="color: #475569;"><strong>Tanggal Pelaksanaan:</strong> ${dateClean}</div>
+                        <div style="margin-top: 4px; color: #374151;"><strong>Status:</strong> <span style="font-weight: 700; color: ${statusLabel === 'SELESAI' ? '#059669' : accentColor};">${statusLabel}</span></div>
+                        <div style="color: #475569;"><strong>Lokasi:</strong> ${rec.lokasi ?? '-'}</div>
+                        <div style="color: #475569;"><strong>Tanggal:</strong> ${dateClean}</div>
+                        ${skHtml}
+                        ${fotoHtml}
+                        ${btnHtml}
                     </div>
                 `;
             });
@@ -1112,10 +1227,11 @@ $activeMenu = 'dashboard';
                 Swal.fire({
                     title: `<div style="color: #022648; font-weight: 800; font-size: 1.15rem;">Detail Pelaporan Wilayah - ${item.name} (${item.records.length})</div>`,
                     html: listHtml,
-                    width: '600px',
+                    width: '650px',
                     showCloseButton: true,
                     confirmButtonText: 'Tutup Rincian',
-                    confirmButtonColor: '#022648'
+                    confirmButtonColor: '#022648',
+                    customClass: { container: 'swal-high-zindex' }
                 });
             }
         } else {

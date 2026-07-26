@@ -706,15 +706,35 @@
                         </td>
                         <td>
                             @if($item->file_lampiran)
-                                <a href="{{ Storage::url($item->file_lampiran) }}" target="_blank" class="btn-outline-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="Toast.fire({ icon: 'success', title: 'Berkas surat sedang diunduh...' })">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                                    Unduh File PDF/Word
-                                </a>
+                                <div style="display: flex; flex-direction: column; gap: 5px;">
+                                    <button type="button"
+                                        onclick="previewSuratLampiran('{{ Storage::url($item->file_lampiran) }}', '{{ addslashes($item->perihal) }}')"
+                                        style="display: inline-flex; align-items: center; gap: 5px; background: #022648; color: white; border: none; border-radius: 4px; padding: 4px 10px; font-size: 0.775rem; font-weight: 700; cursor: pointer; width: fit-content;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        Pratinjau File
+                                    </button>
+                                    <a href="{{ Storage::url($item->file_lampiran) }}" target="_blank"
+                                        class="btn-outline-secondary"
+                                        style="padding: 3px 10px; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 5px; width: fit-content;"
+                                        onclick="Toast.fire({ icon: 'success', title: 'Berkas surat sedang diunduh...' })">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                        Unduh File
+                                    </a>
+                                </div>
                             @elseif($item->link_drive)
-                                <a href="{{ $item->link_drive }}" target="_blank" style="color: var(--blue); text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 4px;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                                    Drive Link
-                                </a>
+                                <div style="display: flex; flex-direction: column; gap: 5px;">
+                                    <button type="button"
+                                        onclick="previewSuratDrive('{{ $item->link_drive }}', '{{ addslashes($item->perihal) }}')"
+                                        style="display: inline-flex; align-items: center; gap: 5px; background: #022648; color: white; border: none; border-radius: 4px; padding: 4px 10px; font-size: 0.775rem; font-weight: 700; cursor: pointer; width: fit-content;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        Pratinjau Drive
+                                    </button>
+                                    <a href="{{ $item->link_drive }}" target="_blank"
+                                        style="color: var(--blue); text-decoration: none; font-size: 0.775rem; display: inline-flex; align-items: center; gap: 4px;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                        Buka Drive
+                                    </a>
+                                </div>
                             @else
                                 <span style="color: var(--gray-500); font-size: 0.8rem;">-</span>
                             @endif
@@ -1032,6 +1052,81 @@
             .catch(() => {
                 document.getElementById('auditTrailContent').innerHTML = '<p style="color: var(--red);">Gagal memuat log audit trail.</p>';
             });
+    }
+    function previewSuratLampiran(url, title) {
+        if (!url) return;
+        const isImage = /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(url);
+        const isPdf = /\.pdf(\?|$)/i.test(url);
+        const isWord = /\.(doc|docx)(\?|$)/i.test(url);
+
+        let content = '';
+        if (isImage) {
+            content = `<img src="${url}" style="max-width:100%;max-height:70vh;object-fit:contain;border-radius:8px;">`;
+        } else if (isPdf) {
+            content = `<iframe src="${url}" style="width:100%;height:72vh;border:none;border-radius:8px;"></iframe>`;
+        } else if (isWord) {
+            // Office Online viewer for Word documents
+            const encoded = encodeURIComponent(url.startsWith('http') ? url : window.location.origin + url);
+            content = `<iframe src="https://view.officeapps.live.com/op/embed.aspx?src=${encoded}" style="width:100%;height:72vh;border:none;border-radius:8px;"></iframe>`;
+        } else {
+            content = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2.5rem 1rem;gap:1rem;background:#f8fafc;border-radius:10px;border:2px dashed #cbd5e1;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#022648" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <div style="font-weight:700;color:#022648;">Pratinjau tidak tersedia untuk format ini</div>
+                <a href="${url}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#022648;color:white;padding:8px 18px;border-radius:6px;font-weight:700;text-decoration:none;font-size:0.875rem;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Unduh File
+                </a>
+            </div>`;
+        }
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: `<div style="color:#022648;font-weight:800;font-size:1.05rem;text-align:left;padding-bottom:4px;border-bottom:2px solid #022648;">${title || 'Pratinjau Lampiran'}</div>`,
+                html: `
+                    <div style="margin-bottom:0.6rem;display:flex;justify-content:flex-end;">
+                        <a href="${url}" target="_blank" style="font-size:0.75rem;padding:4px 12px;background:#022648;color:white;border-radius:4px;text-decoration:none;font-weight:700;display:inline-flex;align-items:center;gap:5px;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Unduh / Buka Tab Baru
+                        </a>
+                    </div>
+                    ${content}`,
+                width: '920px',
+                showCloseButton: true,
+                confirmButtonText: 'Tutup Pratinjau',
+                confirmButtonColor: '#022648',
+                customClass: { container: 'swal-high-zindex' }
+            });
+        }
+    }
+
+    function previewSuratDrive(url, title) {
+        if (!url) return;
+        const isDriveFolder = url.includes('/folders/') || (url.includes('drive.google.com') && !url.includes('/file/d/'));
+        if (isDriveFolder) {
+            window.open(url, '_blank');
+            return;
+        }
+        const matches = url.match(/\/file\/d\/([^\/]+)/);
+        const embedUrl = matches ? `https://drive.google.com/file/d/${matches[1]}/preview` : url;
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: `<div style="color:#022648;font-weight:800;font-size:1.05rem;text-align:left;padding-bottom:4px;border-bottom:2px solid #022648;">${title || 'Pratinjau Drive'}</div>`,
+                html: `
+                    <div style="margin-bottom:0.6rem;display:flex;justify-content:flex-end;">
+                        <a href="${url}" target="_blank" style="font-size:0.75rem;padding:4px 12px;background:#022648;color:white;border-radius:4px;text-decoration:none;font-weight:700;display:inline-flex;align-items:center;gap:5px;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            Buka di Drive
+                        </a>
+                    </div>
+                    <iframe src="${embedUrl}" style="width:100%;height:72vh;border:none;border-radius:8px;" allow="autoplay"></iframe>`,
+                width: '920px',
+                showCloseButton: true,
+                confirmButtonText: 'Tutup Pratinjau',
+                confirmButtonColor: '#022648',
+                customClass: { container: 'swal-high-zindex' }
+            });
+        }
     }
 </script>
 @endpush
