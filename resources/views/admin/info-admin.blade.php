@@ -668,15 +668,15 @@
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#022648" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                         Masa Berlaku Link Undangan
                     </label>
-                    <select name="duration" class="form-control" style="width: 100%; padding: 0.65rem 0.85rem; font-size: 0.875rem; font-weight: 600; color: #022648; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px;" required>
-                        <option value="30m">⏱️ 30 Menit</option>
-                        <option value="1h">⏱️ 1 Jam</option>
-                        <option value="6h">⏱️ 6 Jam</option>
-                        <option value="12h">⏱️ 12 Jam</option>
-                        <option value="1d" selected>📅 1 Hari (24 Jam)</option>
-                        <option value="3d">📅 3 Hari</option>
-                        <option value="7d">📅 7 Hari</option>
-                        <option value="30d">📅 30 Hari</option>
+                    <select name="duration" class="form-control select2-invite" style="width: 100%;" required>
+                        <option value="30m">30 Menit</option>
+                        <option value="1h">1 Jam</option>
+                        <option value="6h">6 Jam</option>
+                        <option value="12h">12 Jam</option>
+                        <option value="1d" selected>1 Hari (24 Jam)</option>
+                        <option value="3d">3 Hari</option>
+                        <option value="7d">7 Hari</option>
+                        <option value="30d">30 Hari</option>
                     </select>
                 </div>
 
@@ -685,13 +685,13 @@
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#022648" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                         Batas Jumlah Penggunaan (Pendaftar)
                     </label>
-                    <select name="max_uses" class="form-control" style="width: 100%; padding: 0.65rem 0.85rem; font-size: 0.875rem; font-weight: 600; color: #022648; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px;" required>
-                        <option value="1" selected>👤 1x Penggunaan (Single Use / Private)</option>
-                        <option value="5">👥 5x Penggunaan</option>
-                        <option value="10">👥 10x Penggunaan</option>
-                        <option value="50">👥 50x Penggunaan</option>
-                        <option value="100">👥 100x Penggunaan</option>
-                        <option value="999">🌐 Tanpa Batas (Berdasarkan Waktu Saja)</option>
+                    <select name="max_uses" class="form-control select2-invite" style="width: 100%;" required>
+                        <option value="1" selected>1x Penggunaan (Single Use / Private)</option>
+                        <option value="5">5x Penggunaan</option>
+                        <option value="10">10x Penggunaan</option>
+                        <option value="50">50x Penggunaan</option>
+                        <option value="100">100x Penggunaan</option>
+                        <option value="999">Tanpa Batas (Berdasarkan Waktu Saja)</option>
                     </select>
                 </div>
 
@@ -714,6 +714,13 @@
 <script>
     function openGenerateInviteModal() {
         document.getElementById('generateInviteModal').classList.add('active');
+        if (typeof $ !== 'undefined' && $.fn.select2) {
+            $('.select2-invite').select2({
+                dropdownParent: $('#generateInviteModal'),
+                minimumResultsForSearch: -1,
+                width: '100%'
+            });
+        }
     }
 
     function closeGenerateInviteModal() {
