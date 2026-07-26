@@ -393,7 +393,7 @@
                     <div class="form-row">
                         <div>
                             <label class="form-label" for="username">Username <span class="req">*</span></label>
-                            <input type="text" id="username" name="username" class="form-input" value="{{ old('username') }}" placeholder="Contoh: zaki123" required>
+                            <input type="text" id="username" name="username" class="form-input" value="{{ old('username') }}" placeholder="Masukkan username unik" required>
                         </div>
                         <div>
                             <label class="form-label" for="nama_lengkap">Nama Lengkap <span class="req">*</span></label>
@@ -412,30 +412,17 @@
                         </div>
                     </div>
 
-                    <div class="form-group-title" style="margin-top: 24px;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                        Wilayah Domisili (Provinsi & Kabupaten/Kota)
-                    </div>
-
-                    <div class="form-row">
-                        <div>
-                            <label class="form-label" for="provinsi">Pilih Provinsi <span class="req">*</span></label>
-                            <select id="provinsi" name="provinsi" class="select2-basic" style="width: 100%;" required>
-                                <option value="">-- Pilih Provinsi --</option>
-                                @foreach($provinces as $prov)
-                                    <option value="{{ $prov }}" {{ old('provinsi') == $prov ? 'selected' : '' }}>{{ $prov }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="form-label" for="kabupaten">Pilih Kabupaten / Kota <span class="req">*</span></label>
-                            <select id="kabupaten" name="kabupaten" class="select2-basic" style="width: 100%;" required>
-                                <option value="">-- Pilih Kabupaten/Kota --</option>
-                                @foreach($regencies as $reg)
-                                    <option value="{{ $reg }}" {{ old('kabupaten') == $reg ? 'selected' : '' }}>{{ $reg }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                    <div style="margin-top: 24px; margin-bottom: 24px;">
+                        <label class="form-label" for="domisili">Pilih Wilayah / Domisili (Provinsi / Kab / Kota) <span class="req">*</span></label>
+                        <select id="domisili" name="domisili" class="select2-basic" style="width: 100%;" required>
+                            <option value="">-- Ketik untuk mencari provinsi / kabupaten / kota --</option>
+                            @foreach($regencies as $reg)
+                                <option value="{{ $reg }}" {{ old('domisili') == $reg ? 'selected' : '' }}>{{ $reg }}</option>
+                            @endforeach
+                        </select>
+                        <span style="display: block; font-size: 0.78rem; color: var(--text-grey); margin-top: 6px;">
+                            Verifikasi pendaftaran Anda akan diproses oleh Admin PPKT/PKKT Wilayah ini.
+                        </span>
                     </div>
 
                     <button type="submit" class="btn-submit-register">
@@ -450,14 +437,15 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof $ !== 'undefined' && $.fn.select2) {
             $('.select2-basic').select2({
-                placeholder: '-- Pilih --',
+                placeholder: '-- Ketik untuk mencari provinsi / kabupaten --',
                 allowClear: true,
-                dropdownAutoWidth: true
+                width: '100%'
             });
         }
     });

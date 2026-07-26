@@ -464,19 +464,17 @@ class AnggotaController extends Controller
                 'token'         => 'required|string',
                 'username'      => 'required|string|max:255|unique:anggota,username',
                 'nama_lengkap'  => 'required|string|max:255',
-                'provinsi'      => 'required|string|max:255',
-                'kabupaten'     => 'required|string|max:255',
+                'domisili'      => 'required|string|max:255',
                 'email'         => 'required|email|max:255|unique:anggota,email',
                 'password'      => 'required|string|min:6',
             ], [
-                'username.unique'    => 'Username ini sudah digunakan, silakan pilih username lain.',
-                'email.unique'       => 'Email ini sudah terdaftar, silakan gunakan email lain.',
-                'password.min'       => 'Password minimal terdiri dari 6 karakter.',
-                'provinsi.required'  => 'Provinsi domisili wajib dipilih.',
-                'kabupaten.required' => 'Kabupaten / Kota domisili wajib dipilih.',
+                'username.unique'   => 'Username ini sudah digunakan, silakan pilih username lain.',
+                'email.unique'      => 'Email ini sudah terdaftar, silakan gunakan email lain.',
+                'password.min'      => 'Password minimal terdiri dari 6 karakter.',
+                'domisili.required' => 'Wilayah domisili wajib dipilih.',
             ]);
 
-            $domisili = $validated['kabupaten'] . ', ' . $validated['provinsi'];
+            $domisili = $validated['domisili'];
 
             Log::info('Member register validation passed');
 
