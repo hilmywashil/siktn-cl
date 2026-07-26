@@ -431,10 +431,12 @@ class AnggotaController extends Controller
         }
 
         $regenciesJsonPath = public_path('regencies.json');
-        $regencies = [];
+        $regenciesList = [];
         if (file_exists($regenciesJsonPath)) {
-            $regencies = json_decode(file_get_contents($regenciesJsonPath), true) ?? [];
+            $regenciesList = json_decode(file_get_contents($regenciesJsonPath), true) ?? [];
         }
+
+        $regencies = array_unique(array_merge($provinces, $regenciesList));
 
         return view('pages.asita.member-register', compact('invite', 'isValidInvite', 'provinces', 'regencies'));
     }
