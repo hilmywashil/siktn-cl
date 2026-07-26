@@ -21,7 +21,11 @@ class AnggotaManagementController extends Controller
     {
         $admin = auth()->guard('admin')->user();
         if (in_array($admin->category, ['ppkt', 'pkkt']) && !empty($admin->domisili)) {
-            $query->where('domisili', $admin->domisili);
+            $domisiliClean = str_replace(['Provinsi ', 'Kabupaten ', 'Kota '], '', $admin->domisili);
+            $query->where(function($q) use ($admin, $domisiliClean) {
+                $q->where('domisili', $admin->domisili)
+                  ->orWhere('domisili', 'LIKE', "%{$domisiliClean}%");
+            });
         }
         return $query;
     }
@@ -39,7 +43,9 @@ class AnggotaManagementController extends Controller
         }
 
         if (in_array($admin->category, ['ppkt', 'pkkt']) && !empty($admin->domisili)) {
-            if ($anggota->domisili !== $admin->domisili) {
+            $domisiliClean = str_replace(['Provinsi ', 'Kabupaten ', 'Kota '], '', $admin->domisili);
+            $match = ($anggota->domisili === $admin->domisili) || (stripos($anggota->domisili, $domisiliClean) !== false);
+            if (!$match) {
                 abort(403, 'Akses Ditolak: Anda hanya dapat mengelola data anggota dari wilayah Anda sendiri (' . $admin->domisili . ').');
             }
         }

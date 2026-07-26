@@ -528,17 +528,26 @@
                         </div>
 
                         <div class="form-group full-width">
-                            <label for="domisili">Pilih Wilayah / Domisili Provinsi <span>*</span></label>
+                            <label for="domisili">Pilih Wilayah / Domisili (Provinsi / Kab / Kota) <span>*</span></label>
                             <select name="domisili" id="domisili" class="form-control select2-basic" required>
-                                <option value="">-- Pilih Wilayah Provinsi --</option>
+                                <option value="">-- Pilih Wilayah (Provinsi atau Kab/Kota) --</option>
                                 @php
                                     $provinces = ["Aceh","Sumatera Utara","Sumatera Barat","Riau","Jambi","Sumatera Selatan","Bengkulu","Lampung","Kepulauan Bangka Belitung","Kepulauan Riau","DKI Jakarta","Jawa Barat","Jawa Tengah","DI Yogyakarta","Jawa Timur","Banten","Bali","Nusa Tenggara Barat","Nusa Tenggara Timur","Kalimantan Barat","Kalimantan Tengah","Kalimantan Selatan","Kalimantan Timur","Kalimantan Utara","Sulawesi Utara","Sulawesi Tengah","Sulawesi Selatan","Sulawesi Tenggara","Gorontalo","Sulawesi Barat","Maluku","Maluku Utara","Papua Barat","Papua"];
                                 @endphp
-                                @foreach($provinces as $prov)
-                                    <option value="{{ $prov }}" {{ old('domisili') == $prov ? 'selected' : '' }}>{{ $prov }}</option>
-                                @endforeach
+                                <optgroup label="── TINGKAT PROVINSI (PPKT) ──">
+                                    @foreach($provinces as $prov)
+                                        <option value="{{ $prov }}" {{ old('domisili') == $prov ? 'selected' : '' }}>Provinsi {{ $prov }}</option>
+                                    @endforeach
+                                </optgroup>
+                                @if(!empty($regencies))
+                                    <optgroup label="── TINGKAT KABUPATEN / KOTA (PKKT) ──">
+                                        @foreach($regencies as $reg)
+                                            <option value="{{ $reg }}" {{ old('domisili') == $reg ? 'selected' : '' }}>{{ $reg }}</option>
+                                        @endforeach
+                                    </optgroup>
+                                @endif
                             </select>
-                            <span class="help-text">Verifikasi pendaftaran Anda akan diproses oleh Admin PPKT Wilayah ini</span>
+                            <span class="help-text">Verifikasi pendaftaran Anda akan diproses oleh Admin PPKT/PKKT Wilayah ini</span>
                         </div>
                     </div>
 

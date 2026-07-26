@@ -412,7 +412,13 @@ class AnggotaController extends Controller
                 ->with('info', 'Anda sudah terdaftar dan login sebagai anggota.');
         }
 
-        return view('pages.asita.member-register');
+        $regenciesJsonPath = public_path('regencies.json');
+        $regencies = [];
+        if (file_exists($regenciesJsonPath)) {
+            $regencies = json_decode(file_get_contents($regenciesJsonPath), true) ?? [];
+        }
+
+        return view('pages.asita.member-register', compact('regencies'));
     }
 
     /**

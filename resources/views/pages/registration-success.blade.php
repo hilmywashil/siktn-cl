@@ -398,68 +398,47 @@
             
             <h1 class="success-title">Pendaftaran Berhasil!</h1>
             <p class="success-subtitle">
-                Terima kasih telah mendaftar di Corps Alumni Akademi Ilmu Pelayaran (Karang Taruna). Akun pendaftaran Anda telah berhasil dibuat dan saat ini sedang dalam proses verifikasi oleh tim administrator.
+                Terima kasih telah mendaftar di <strong>Karang Taruna Indonesia</strong>. Akun pendaftaran Anda telah berhasil dibuat dan saat ini sedang dalam proses verifikasi oleh tim Admin Wilayah (PPKT / PKKT).
             </p>
 
-            <h3 class="kta-section-title">Kartu Anggota Digital Sementara</h3>
-            
-            <div class="kta-card-wrapper">
-                <div class="kta-card">
-                    <div class="kta-header">
-                        <img src="{{ asset('assets/img/logo.png') }}" class="kta-logo" alt="Karang Taruna" onerror="this.src='https://ui-avatars.com/api/?name=Karang Taruna&background=090b62&color=fff'">
-                        <div class="kta-title">
-                            <h2>Corps Alumni Akademi Ilmu Pelayaran</h2>
-                            <p>KARTU TANDA ANGGOTA DIGITAL SEMENTARA</p>
-                        </div>
+            <div style="background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; padding: 25px; margin: 25px 0; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 15px;">
+                    <div style="font-weight: 700; color: #022648; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-id-card" style="color: #b7830f;"></i> Ringkasan Pendaftaran
                     </div>
-                    
-                    <div class="kta-body">
-                        <div class="kta-photo-wrapper">
-                            @if($anggota->foto_diri)
-                                <img src="{{ Storage::url($anggota->foto_diri) }}" class="kta-photo" alt="{{ $anggota->nama_lengkap }}">
-                            @else
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($anggota->nama_lengkap) }}&background=2A348D&color=fff&size=120" class="kta-photo" alt="Photo">
-                            @endif
-                        </div>
-                        
-                        <div class="kta-details">
-                            <div class="kta-field">
-                                <div class="kta-label">Nama Lengkap</div>
-                                <div class="kta-value name">{{ $anggota->nama_lengkap }}</div>
-                            </div>
-                            
-                            <div class="kta-field" style="display: inline-block; width: 55%;">
-                                <div class="kta-label">NRP</div>
-                                <div class="kta-value">{{ $anggota->nrp }}</div>
-                            </div>
-                            
-                            <div class="kta-field" style="display: inline-block; width: 40%;">
-                                <div class="kta-label">Angkatan</div>
-                                <div class="kta-value">Angkatan {{ $anggota->angkatan }}</div>
-                            </div>
+                    <span style="background: #fef3c7; color: #b45309; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fas fa-clock"></i> ⏳ Menunggu Verifikasi Admin
+                    </span>
+                </div>
 
-                            <div class="kta-field">
-                                <div class="kta-label">Status Keanggotaan</div>
-                                <div class="kta-value" style="color: var(--accent-yellow); font-size: 11px;">
-                                    <i class="fas fa-clock"></i> PENDING VERIFICATION
-                                </div>
-                            </div>
-                        </div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Username</div>
+                        <div style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-top: 2px;">{{ $anggota->username ?? '-' }}</div>
                     </div>
-                    
-                    <div class="kta-footer">
-                        <span class="kta-footer-text">Corps Alumni Akademi Ilmu Pelayaran - STIP Jakarta</span>
-                        <span class="kta-barcode">Karang Taruna-{{ str_pad($anggota->id, 4, '0', STR_PAD_LEFT) }}</span>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Nama Lengkap</div>
+                        <div style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-top: 2px;">{{ $anggota->nama_lengkap }}</div>
                     </div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Wilayah / Domisili</div>
+                        <div style="font-size: 0.95rem; font-weight: 700; color: #022648; margin-top: 2px;">📍 {{ $anggota->domisili ?? '-' }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Email</div>
+                        <div style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-top: 2px;">{{ $anggota->email }}</div>
+                    </div>
+                </div>
+
+                <div style="background: #eff6ff; border-left: 4px solid #2563eb; padding: 12px 15px; border-radius: 6px; font-size: 0.85rem; color: #1e40af; line-height: 1.5;">
+                    <i class="fas fa-info-circle" style="margin-right: 5px;"></i>
+                    <strong>Informasi KTA Digital:</strong> Kartu Tanda Anggota (KTA Digital) resmi akan diterbitkan secara otomatis setelah pendaftaran Anda diverifikasi dan di-ACC oleh Admin PPKT/PKKT.
                 </div>
             </div>
 
-            <div class="kta-actions">
-                <button type="button" class="btn-action btn-print" onclick="printKTA()">
-                    <i class="fas fa-print"></i> Cetak Kartu Anggota
-                </button>
-                <a href="{{ route('profile-anggota') }}" class="btn-action btn-dashboard">
-                    <i class="fas fa-tachometer-alt"></i> Masuk ke Dashboard
+            <div class="kta-actions" style="margin-bottom: 25px;">
+                <a href="{{ route('profile-anggota') }}" class="btn-action btn-dashboard" style="background: #022648; color: #ffffff; width: 100%; justify-content: center; font-weight: 700; padding: 12px 24px; border-radius: 8px;">
+                    <i class="fas fa-user-circle"></i> Masuk ke Profil Anggota →
                 </a>
             </div>
 

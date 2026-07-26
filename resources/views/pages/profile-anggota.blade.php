@@ -15,9 +15,74 @@
             --bg-light: #F8F9FC;
         }
 
-        body {
-            font-family: 'Google Sans', 'Outfit', sans-serif !important;
-            background-color: var(--bg-light) !important;
+        /* ==============================================
+        SELECT2 BENCHMARK STYLING (NAVY #022648 & MICRO-ANIMATION)
+        ============================================== */
+        @keyframes select2DropdownFadeIn {
+            from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .select2-container--default .select2-selection--single {
+            height: 42px !important;
+            padding: 0.35rem 0.75rem !important;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
+            color: #022648 !important;
+            background-color: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 6px !important;
+            display: flex !important;
+            align-items: center !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            width: 100% !important;
+        }
+
+        .select2-container--default .select2-selection--single:hover {
+            border-color: #022648 !important;
+            box-shadow: 0 3px 8px rgba(2, 38, 72, 0.1) !important;
+        }
+
+        .select2-dropdown {
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 6px !important;
+            font-size: 0.875rem !important;
+            z-index: 99999 !important;
+            box-shadow: 0 12px 28px rgba(2, 38, 72, 0.15) !important;
+            margin-top: 4px !important;
+            overflow: hidden !important;
+            background-color: #ffffff !important;
+        }
+
+        .select2-container--open .select2-dropdown {
+            animation: select2DropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 4px !important;
+            padding: 6px 10px !important;
+            font-size: 0.875rem !important;
+            outline: none !important;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+            border-color: #022648 !important;
+            box-shadow: 0 0 0 2px rgba(2, 38, 72, 0.15) !important;
+        }
+
+        .select2-container--default .select2-results__option--selectable {
+            color: #111827 !important;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            padding: 0.5rem 0.75rem !important;
+        }
+
+        .select2-results__option--highlighted[aria-selected],
+        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+            background-color: #022648 !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            padding-left: 1.15rem !important;
         }
 
         /* Force Sticky Header to show at the top of the dashboard */
@@ -410,14 +475,13 @@
 
         .kta-member-nik-badge {
             display: inline-block;
-            background: #f1f5f9;
+            background: transparent;
             color: #022648;
             font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 3px 10px;
-            border-radius: 4px;
-            border: 1px solid #e2e8f0;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 0;
+            border: none;
             letter-spacing: 0.5px;
         }
 
@@ -1875,7 +1939,7 @@
                             </div>
                             <h3 class="locked-title" style="color: #A16207;">KTA Belum Tersedia</h3>
                             <p class="locked-desc" style="color: #854D0E;">
-                                Kartu Tanda Anggota (KTA) baru akan diterbitkan secara otomatis setelah Anda melengkapi profil dan <strong>divalidasi oleh Sekretariat (PNKT)</strong>.
+                                Kartu Tanda Anggota (KTA Digital) resmi Karang Taruna Indonesia akan diterbitkan secara otomatis setelah status pendaftaran Anda diverifikasi dan <strong>di-ACC oleh Admin Wilayah (PPKT / PKKT)</strong>.
                             </p>
                         </div>
                     @else
@@ -1883,7 +1947,7 @@
                             Berikut adalah Kartu Tanda Anggota Digital resmi Anda. Silakan unduh atau cetak KTA untuk digunakan sebagai bukti tanda keanggotaan.
                         </p>
 
-                        <div class="kta-card-wrapper">
+                        <div class="kta-card-wrapper" id="ktaCardToPrint">
                         <!-- Front Side KTA -->
                         <div class="kta-card" id="ktaCardFront">
                             <div class="kta-header-front">
@@ -1900,7 +1964,7 @@
 
                             <div class="kta-member-name">{{ $anggota->nama_lengkap }}</div>
                             <div class="kta-member-nik-container">
-                                <span class="kta-member-nik-badge">NIK: {{ $anggota->nik ?? '-' }}</span>
+                                <span class="kta-member-nik-badge">NIA: {{ $anggota->nik ?? $anggota->nrp ?? $anggota->username ?? '-' }}</span>
                             </div>
 
                             <div class="kta-anchor-divider">
@@ -1918,20 +1982,20 @@
 
                                 <div class="kta-details-list">
                                     <div class="kta-detail-row">
-                                        <div class="kta-detail-label">TGL LAHIR</div>
-                                        <div class="kta-detail-value">: {{ $anggota->tanggal_lahir ? $anggota->tanggal_lahir->format('d F Y') : '-' }}</div>
+                                        <div class="kta-detail-label">USERNAME</div>
+                                        <div class="kta-detail-value">: {{ $anggota->username ?? '-' }}</div>
                                     </div>
                                     <div class="kta-detail-row">
-                                        <div class="kta-detail-label">JABATAN</div>
-                                        <div class="kta-detail-value">: {{ $anggota->jabatan ?? '-' }}</div>
+                                        <div class="kta-detail-label">NAMA</div>
+                                        <div class="kta-detail-value">: {{ $anggota->nama_lengkap }}</div>
                                     </div>
                                     <div class="kta-detail-row">
-                                        <div class="kta-detail-label">DOMISILI</div>
+                                        <div class="kta-detail-label">WILAYAH</div>
                                         <div class="kta-detail-value">: {{ $anggota->domisili ?? '-' }}</div>
                                     </div>
                                     <div class="kta-detail-row">
-                                        <div class="kta-detail-label">STATUS</div>
-                                        <div class="kta-detail-value">: ANGGOTA AKTIF</div>
+                                        <div class="kta-detail-label">E-MAIL</div>
+                                        <div class="kta-detail-value">: {{ $anggota->email ?? '-' }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -2052,7 +2116,7 @@
                                             <button type="button" class="foto-btn foto-btn-file" onclick="document.getElementById('foto_diri').click()">
                                                 <i class="fas fa-folder-open"></i> Pilih dari File
                                             </button>
-                                            <button type="button" class="foto-btn foto-btn-camera foto-btn-camera hidden" id="btnOpenCamera">
+                                            <button type="button" class="foto-btn foto-btn-camera" id="btnOpenCamera" style="background: #022648; color: #ffffff; padding: 8px 16px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                                                 <i class="fas fa-camera"></i> Ambil Foto Kamera
                                             </button>
                                         </div>
@@ -2061,16 +2125,11 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="nik">NIK (Nomor Induk Kependudukan) <span style="color:red;">*</span></label>
+                                <label for="nik">NIA (Nomor Induk Anggota) <span style="color:red;">*</span></label>
                                 <input type="text" name="nik" id="nik" class="form-control" 
                                     value="{{ old('nik', $anggota->nik) }}" 
                                     required 
-                                    maxlength="16" 
-                                    minlength="16" 
-                                    pattern="\d{16}" 
-                                    title="NIK harus tepat 16 angka"
-                                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16);"
-                                    placeholder="Masukkan 16 digit NIK">
+                                    placeholder="Masukkan Nomor Induk Anggota (NIA)">
                             </div>
 
                             <div class="form-group">
@@ -2125,23 +2184,48 @@
                             <div class="form-group">
                                 <label for="domisili">Domisili <span style="color:red;">*</span></label>
                                 @php
-                                    $currentDomisili = old('domisili', $anggota->domisili ?? '');
-                                    $provinces = ["Aceh","Sumatera Utara","Sumatera Barat","Riau","Jambi","Sumatera Selatan","Bengkulu","Lampung","Kepulauan Bangka Belitung","Kepulauan Riau","Dki Jakarta","Jawa Barat","Jawa Tengah","Di Yogyakarta","Jawa Timur","Banten","Bali","Nusa Tenggara Barat","Nusa Tenggara Timur","Kalimantan Barat","Kalimantan Tengah","Kalimantan Selatan","Kalimantan Timur","Kalimantan Utara","Sulawesi Utara","Sulawesi Tengah","Sulawesi Selatan","Sulawesi Tenggara","Gorontalo","Sulawesi Barat","Maluku","Maluku Utara","Papua Barat","Papua"];
+                                    $currentDomisili = trim(old('domisili', $anggota->domisili ?? ''));
+                                    $provinces = ["Aceh","Sumatera Utara","Sumatera Barat","Riau","Jambi","Sumatera Selatan","Bengkulu","Lampung","Kepulauan Bangka Belitung","Kepulauan Riau","DKI Jakarta","Jawa Barat","Jawa Tengah","DI Yogyakarta","Jawa Timur","Banten","Bali","Nusa Tenggara Barat","Nusa Tenggara Timur","Kalimantan Barat","Kalimantan Tengah","Kalimantan Selatan","Kalimantan Timur","Kalimantan Utara","Sulawesi Utara","Sulawesi Tengah","Sulawesi Selatan","Sulawesi Tenggara","Gorontalo","Sulawesi Barat","Maluku","Maluku Utara","Papua Barat","Papua"];
                                     $regenciesJson = public_path('regencies.json');
                                     $regencies = file_exists($regenciesJson) ? json_decode(file_get_contents($regenciesJson), true) : [];
+                                    
+                                    $foundMatch = false;
+                                    foreach($provinces as $p) {
+                                        if (strcasecmp($currentDomisili, $p) === 0 || strcasecmp("Provinsi " . $currentDomisili, $p) === 0) {
+                                            $foundMatch = true; break;
+                                        }
+                                    }
+                                    if (!$foundMatch && !empty($regencies)) {
+                                        foreach($regencies as $r) {
+                                            if (strcasecmp($currentDomisili, $r) === 0) {
+                                                $foundMatch = true; break;
+                                            }
+                                        }
+                                    }
                                 @endphp
                                 <select name="domisili" id="domisiliSelect" class="form-control select2-basic" required style="width: 100%;">
                                     <option value="">-- Pilih Domisili --</option>
-                                    <optgroup label="Tingkat Provinsi">
+                                    @if(!empty($currentDomisili) && !$foundMatch)
+                                        <option value="{{ $currentDomisili }}" selected>{{ $currentDomisili }}</option>
+                                    @endif
+                                    <optgroup label="── TINGKAT PROVINSI (PPKT) ──">
                                         @foreach($provinces as $prov)
-                                            <option value="{{ $prov }}" {{ $currentDomisili === $prov ? 'selected' : '' }}>{{ $prov }}</option>
+                                            @php
+                                                $isSelected = strcasecmp($currentDomisili, $prov) === 0 || strcasecmp("Provinsi " . $currentDomisili, $prov) === 0;
+                                            @endphp
+                                            <option value="{{ $prov }}" {{ $isSelected ? 'selected' : '' }}>Provinsi {{ $prov }}</option>
                                         @endforeach
                                     </optgroup>
-                                    <optgroup label="Tingkat Kabupaten/Kota">
-                                        @foreach($regencies as $reg)
-                                            <option value="{{ $reg }}" {{ $currentDomisili === $reg ? 'selected' : '' }}>{{ $reg }}</option>
-                                        @endforeach
-                                    </optgroup>
+                                    @if(!empty($regencies))
+                                        <optgroup label="── TINGKAT KABUPATEN / KOTA (PKKT) ──">
+                                            @foreach($regencies as $reg)
+                                                @php
+                                                    $isSelected = strcasecmp($currentDomisili, $reg) === 0;
+                                                @endphp
+                                                <option value="{{ $reg }}" {{ $isSelected ? 'selected' : '' }}>{{ $reg }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endif
                                 </select>
                             </div>
 
@@ -2347,13 +2431,28 @@
     </script>
 
     <!-- Dependencies (Local Assets for Maximum Speed) -->
-    <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('vendor/jquery/jquery-3.7.1.min.js') }}"></script>
     <link href="{{ asset('vendor/select2/select2.min.css') }}" rel="stylesheet" />
     <script src="{{ asset('vendor/select2/select2.min.js') }}"></script>
     <script src="{{ asset('vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
     <script src="{{ asset('vendor/qrcode/qrcode.min.js') }}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+    {{-- SIKTN Benchmark: Select2 init langsung tanpa wrapper jQuery ready --}}
+    <script>
+        // Inisialisasi Select2 langsung setelah script di-load
+        window.addEventListener('load', function() {
+            if (typeof jQuery !== 'undefined' && typeof jQuery.fn.select2 !== 'undefined') {
+                jQuery('.select2-basic').select2({
+                    placeholder: '-- Pilih --',
+                    allowClear: true,
+                    width: '100%',
+                    dropdownParent: jQuery('body')
+                });
+            }
+        });
+    </script>
 
 
 
@@ -2519,11 +2618,17 @@
                 stopCam();
             }
 
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                document.getElementById('btnOpenCamera').classList.remove('hidden');
-            }
-
             document.getElementById('btnOpenCamera').addEventListener('click', function() {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Akses Kamera Tidak Didukung',
+                        text: 'Kamera tidak dapat diakses di browser atau koneksi HTTP Anda. Silakan gunakan opsi "Pilih dari File".',
+                        confirmButtonColor: '#022648'
+                    });
+                    return;
+                }
+
                 floatingCam.classList.add('active');
                 navigator.mediaDevices.getUserMedia({
                     video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 720 } },
@@ -2532,8 +2637,13 @@
                     camStream = stream;
                     camVideo.srcObject = stream;
                 }).catch(err => {
-                    alert('Tidak dapat mengakses kamera: ' + err.message);
                     closeFloatingCam();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Tidak Dapat Mengakses Kamera',
+                        text: 'Silakan izinkan akses kamera di browser Anda atau gunakan tombol "Pilih dari File". (Error: ' + err.message + ')',
+                        confirmButtonColor: '#022648'
+                    });
                 });
             });
 
