@@ -651,6 +651,15 @@ class AnggotaManagementController extends Controller
     {
         $this->checkRoleAuthorization();
 
+        $path = storage_path('app/templates/TemplateAnggota.xls');
+        if (!file_exists($path)) {
+            $path = public_path('templates/TemplateAnggota.xls');
+        }
+
+        if (file_exists($path)) {
+            return response()->download($path, 'Template_Import_Anggota.xls');
+        }
+
         $fileName = 'Template_Import_Anggota.xls';
 
         $html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
@@ -658,38 +667,16 @@ class AnggotaManagementController extends Controller
         $html .= '<body>';
 
         $html .= '<table style="font-family: Arial, sans-serif; border-collapse: collapse;">';
-
-        // Baris kosong di atas
         $html .= '<tr><td colspan="2" style="height: 30px;"></td></tr>';
+        $html .= '<tr><td colspan="2" style="text-align: center; font-size: 16pt; font-weight: bold; padding: 15px; color: #0a2540;">TEMPLATE IMPORT ANGGOTA KARANG TARUNA</td></tr>';
+        $html .= '<tr><td colspan="2" style="text-align: center; font-size: 10pt; color: #666; padding-bottom: 20px;"><b>Petunjuk:</b> Isi kolom Username saja. Password dibuat otomatis oleh sistem.</td></tr>';
+        $html .= '<tr><th width="60" style="background-color: #0a2540; color: #ffd700; border: 1px solid #000; padding: 12px; text-align: center; font-weight: bold;">No</th><th width="300" style="background-color: #0a2540; color: #ffd700; border: 1px solid #000; padding: 12px; text-align: left; font-weight: bold;">Username</th></tr>';
 
-        // Baris: Judul
-        $html .= '<tr>';
-        $html .= '<td colspan="2" style="text-align: center; font-size: 16pt; font-weight: bold; padding: 15px; color: #0a2540;">TEMPLATE IMPORT ANGGOTA KARANG TARUNA</td>';
-        $html .= '</tr>';
-
-        // Baris: Petunjuk
-        $html .= '<tr>';
-        $html .= '<td colspan="2" style="text-align: center; font-size: 10pt; color: #666; padding-bottom: 20px;">
-            <b>Petunjuk:</b> Isi kolom Username saja. Password dibuat otomatis oleh sistem.
-        </td>';
-        $html .= '</tr>';
-
-        // Baris: Header Tabel
-        $html .= '<tr>';
-        $html .= '<th width="60" style="background-color: #0a2540; color: #ffd700; border: 1px solid #000; padding: 12px; text-align: center; font-weight: bold;">No</th>';
-        $html .= '<th width="300" style="background-color: #0a2540; color: #ffd700; border: 1px solid #000; padding: 12px; text-align: left; font-weight: bold;">Username</th>';
-        $html .= '</tr>';
-
-        // 50 baris kosong untuk diisi
         for ($i = 1; $i <= 50; $i++) {
-            $html .= '<tr>';
-            $html .= '<td style="border: 1px solid #d1d5db; padding: 10px; text-align: center; height: 25px; background-color: #f9fafb;">' . $i . '</td>';
-            $html .= '<td style="border: 1px solid #d1d5db; padding: 10px; height: 25px;"></td>';
-            $html .= '</tr>';
+            $html .= '<tr><td style="border: 1px solid #d1d5db; padding: 10px; text-align: center; height: 25px; background-color: #f9fafb;">' . $i . '</td><td style="border: 1px solid #d1d5db; padding: 10px; height: 25px;"></td></tr>';
         }
 
-        $html .= '</table>';
-        $html .= '</body></html>';
+        $html .= '</table></body></html>';
 
         return response($html)
             ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
