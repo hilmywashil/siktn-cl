@@ -598,79 +598,112 @@
 
 {{-- Modal Reset Password --}}
 <div class="modal-overlay" id="resetPasswordModal">
-    <div class="modal-content-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-            <h3 style="color: var(--navy); margin: 0; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; font-size: 1.1rem;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                Reset Password Admin
-            </h3>
-            <button type="button" onclick="closeResetPasswordModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray-500);">&times;</button>
+    <div class="modal-content-card" style="padding: 0; overflow: hidden; max-width: 480px; border-radius: 12px; box-shadow: 0 20px 40px rgba(2, 38, 72, 0.25); border: 1px solid rgba(2, 38, 72, 0.1);">
+        <div style="background: linear-gradient(135deg, #022648 0%, #0a3a6b 100%); padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid #b7830f;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 38px; height: 38px; background: rgba(255, 255, 255, 0.12); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ffd700;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <div>
+                    <h3 style="color: #ffffff; margin: 0; font-weight: 700; font-size: 1.05rem;">Reset Password Admin</h3>
+                    <p style="color: rgba(255, 255, 255, 0.75); margin: 0; font-size: 0.75rem;">Atur kata sandi baru untuk akun administrator.</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeResetPasswordModal()" style="background: rgba(255,255,255,0.1); border: none; font-size: 1.25rem; cursor: pointer; color: #ffffff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">&times;</button>
         </div>
 
-        <form id="resetPasswordForm" method="POST">
-            @csrf
-            <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--gray-700);">Nama Administrator</label>
-                <input type="text" id="modalAdminName" class="form-control" style="width: 100%; background: var(--gray-100);" readonly>
-            </div>
+        <div style="padding: 24px; background: #ffffff;">
+            <form id="resetPasswordForm" method="POST">
+                @csrf
+                <div style="margin-bottom: 1.25rem;">
+                    <label style="display: block; font-size: 0.8125rem; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Nama Administrator</label>
+                    <input type="text" id="modalAdminName" class="form-control" style="width: 100%; padding: 0.65rem 0.85rem; font-size: 0.875rem; font-weight: 600; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 8px;" readonly>
+                </div>
 
-            <div style="margin-bottom: 1.25rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--gray-700);">Password Baru (Minimal 8 Karakter)</label>
-                <input type="password" name="password" class="form-control" style="width: 100%;" placeholder="Masukkan password baru..." required minlength="8">
-            </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-size: 0.8125rem; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Password Baru (Minimal 8 Karakter)</label>
+                    <input type="password" name="password" class="form-control" style="width: 100%; padding: 0.65rem 0.85rem; font-size: 0.875rem; font-weight: 600; color: #022648; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px;" placeholder="Masukkan password baru..." required minlength="8">
+                </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                <button type="button" class="btn-outline-secondary" onclick="closeResetPasswordModal()">Batal</button>
-                <button type="submit" class="btn-solid-navy">Simpan Password</button>
-            </div>
-        </form>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; padding-top: 12px; border-top: 1px solid #f1f5f9;">
+                    <button type="button" class="btn-outline-secondary" style="padding: 0.65rem 1.25rem; border-radius: 8px; font-weight: 600;" onclick="closeResetPasswordModal()">Batal</button>
+                    <button type="submit" class="btn-solid-navy" style="padding: 0.65rem 1.35rem; border-radius: 8px; font-weight: 700;">Simpan Password</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 {{-- Modal Generate Link Undangan Pendaftaran --}}
 <div class="modal-overlay" id="generateInviteModal">
-    <div class="modal-content-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-            <h3 style="color: var(--navy); margin: 0; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; font-size: 1.1rem;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                Generate Link Undangan Pendaftaran
-            </h3>
-            <button type="button" onclick="closeGenerateInviteModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray-500);">&times;</button>
+    <div class="modal-content-card" style="padding: 0; overflow: hidden; max-width: 520px; border-radius: 12px; box-shadow: 0 20px 40px rgba(2, 38, 72, 0.25); border: 1px solid rgba(2, 38, 72, 0.1);">
+        {{-- Modal Header --}}
+        <div style="background: linear-gradient(135deg, #022648 0%, #0a3a6b 100%); padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid #b7830f;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 38px; height: 38px; background: rgba(255, 255, 255, 0.12); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ffd700;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                </div>
+                <div>
+                    <h3 style="color: #ffffff; margin: 0; font-weight: 700; font-size: 1.05rem; letter-spacing: -0.2px;">Generate Link Undangan</h3>
+                    <p style="color: rgba(255, 255, 255, 0.75); margin: 0; font-size: 0.75rem;">Buat link pendaftaran anggota khusus dengan masa berlaku.</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeGenerateInviteModal()" style="background: rgba(255,255,255,0.1); border: none; font-size: 1.25rem; cursor: pointer; color: #ffffff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">&times;</button>
         </div>
 
-        <form action="{{ route('admin.invites.generate') }}" method="POST">
-            @csrf
-            <div style="margin-bottom: 1.25rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--gray-700);">Masa Berlaku Link Undangan</label>
-                <select name="duration" class="form-control" style="width: 100%;" required>
-                    <option value="30m">30 Menit</option>
-                    <option value="1h">1 Jam</option>
-                    <option value="6h">6 Jam</option>
-                    <option value="12h">12 Jam</option>
-                    <option value="1d" selected>1 Hari (24 Jam)</option>
-                    <option value="3d">3 Hari</option>
-                    <option value="7d">7 Hari</option>
-                    <option value="30d">30 Hari</option>
-                </select>
+        {{-- Modal Body --}}
+        <div style="padding: 24px; background: #ffffff;">
+            {{-- Info Alert --}}
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 14px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                <span style="font-size: 0.8125rem; color: #166534; line-height: 1.45; font-weight: 500;">
+                    Hanya pendaftar dengan link resmi ini yang dapat mengakses formulir pendaftaran anggota.
+                </span>
             </div>
 
-            <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--gray-700);">Batas Jumlah Penggunaan (Pendaftar)</label>
-                <select name="max_uses" class="form-control" style="width: 100%;" required>
-                    <option value="1" selected>1x Penggunaan (Single Use / Private)</option>
-                    <option value="5">5x Penggunaan</option>
-                    <option value="10">10x Penggunaan</option>
-                    <option value="50">50x Penggunaan</option>
-                    <option value="100">100x Penggunaan</option>
-                    <option value="999">Tanpa Batas (Berdasarkan Waktu Saja)</option>
-                </select>
-            </div>
+            <form action="{{ route('admin.invites.generate') }}" method="POST">
+                @csrf
+                <div style="margin-bottom: 1.25rem;">
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 0.8125rem; font-weight: 700; color: #1e293b; margin-bottom: 6px;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#022648" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        Masa Berlaku Link Undangan
+                    </label>
+                    <select name="duration" class="form-control" style="width: 100%; padding: 0.65rem 0.85rem; font-size: 0.875rem; font-weight: 600; color: #022648; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                        <option value="30m">⏱️ 30 Menit</option>
+                        <option value="1h">⏱️ 1 Jam</option>
+                        <option value="6h">⏱️ 6 Jam</option>
+                        <option value="12h">⏱️ 12 Jam</option>
+                        <option value="1d" selected>📅 1 Hari (24 Jam)</option>
+                        <option value="3d">📅 3 Hari</option>
+                        <option value="7d">📅 7 Hari</option>
+                        <option value="30d">📅 30 Hari</option>
+                    </select>
+                </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                <button type="button" class="btn-outline-secondary" onclick="closeGenerateInviteModal()">Batal</button>
-                <button type="submit" class="btn-solid-navy" style="background: #059669; border-color: #059669;">Generate & Buat Link</button>
-            </div>
-        </form>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 0.8125rem; font-weight: 700; color: #1e293b; margin-bottom: 6px;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#022648" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        Batas Jumlah Penggunaan (Pendaftar)
+                    </label>
+                    <select name="max_uses" class="form-control" style="width: 100%; padding: 0.65rem 0.85rem; font-size: 0.875rem; font-weight: 600; color: #022648; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                        <option value="1" selected>👤 1x Penggunaan (Single Use / Private)</option>
+                        <option value="5">👥 5x Penggunaan</option>
+                        <option value="10">👥 10x Penggunaan</option>
+                        <option value="50">👥 50x Penggunaan</option>
+                        <option value="100">👥 100x Penggunaan</option>
+                        <option value="999">🌐 Tanpa Batas (Berdasarkan Waktu Saja)</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; padding-top: 12px; border-top: 1px solid #f1f5f9;">
+                    <button type="button" class="btn-outline-secondary" style="padding: 0.65rem 1.25rem; border-radius: 8px; font-weight: 600;" onclick="closeGenerateInviteModal()">Batal</button>
+                    <button type="submit" class="btn-solid-navy" style="background: #059669; border: none; padding: 0.65rem 1.35rem; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        Generate & Buat Link
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 @endsection
