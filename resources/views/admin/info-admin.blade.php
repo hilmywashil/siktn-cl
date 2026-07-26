@@ -565,7 +565,7 @@
         </div>
 
         <div style="margin-top: 1.25rem;">
-            {{ $admins->links() }}
+            {{ $admins->appends(request()->query())->links() }}
         </div>
     </div>
 </div>

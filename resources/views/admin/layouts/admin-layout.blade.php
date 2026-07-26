@@ -121,17 +121,71 @@
             color: #0a2540;
         }
 
-        /* Fix Giant Laravel Pagination SVG Icons */
+        /* Fix Laravel Tailwind Pagination View in Admin Scope */
+        nav[role="navigation"] > div:first-child {
+            display: none !important;
+        }
+        nav[role="navigation"] > div:last-child {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            flex-wrap: wrap !important;
+            gap: 1rem !important;
+        }
+        nav[role="navigation"] > div:last-child p {
+            margin: 0 !important;
+            font-size: 0.8125rem !important;
+            color: #6b7280 !important;
+        }
+
         nav[role="navigation"] svg,
         .pagination svg,
         svg.w-5,
         svg.h-5 {
-            width: 1.25rem !important;
-            height: 1.25rem !important;
-            max-width: 20px !important;
-            max-height: 20px !important;
+            width: 1rem !important;
+            height: 1rem !important;
+            max-width: 16px !important;
+            max-height: 16px !important;
             display: inline-block !important;
             flex-shrink: 0 !important;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .pagination .page-item .page-link,
+        nav[role="navigation"] a,
+        nav[role="navigation"] span[aria-disabled],
+        nav[role="navigation"] span[aria-current="page"] > span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.4rem 0.75rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #022648;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+        .pagination .page-item.active .page-link,
+        nav[role="navigation"] span[aria-current="page"] > span {
+            background: #022648 !important;
+            color: #ffffff !important;
+            border-color: #022648 !important;
+        }
+        .pagination .page-item .page-link:hover,
+        nav[role="navigation"] a:hover {
+            background: #f3f4f6;
+            border-color: #022648;
         }
     </style>
 
