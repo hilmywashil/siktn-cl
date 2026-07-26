@@ -456,6 +456,13 @@
             </form>
 
             <div style="display: flex; gap: 0.75rem;">
+                @if(in_array(auth()->guard('admin')->user()->category, ['super_admin', 'pnkt']))
+                <button type="button" class="btn-solid-navy" style="background: #059669; border-color: #059669;" onclick="openGenerateInviteModal()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    Generate Link Undangan
+                </button>
+                @endif
+
                 <a href="{{ route('admin.export-admin', request()->query()) }}" class="btn-outline-secondary" onclick="Toast.fire({ icon: 'success', title: 'File Excel Data Administrator sedang diunduh...' })">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     Export Excel
@@ -467,6 +474,25 @@
                 </a>
             </div>
         </div>
+
+        @if(session('generated_invite_url'))
+        <div style="margin: 1.25rem 1.5rem 0; padding: 1.25rem; background: #ecfdf5; border: 2px solid #059669; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <div>
+                <div style="font-weight: 700; color: #065f46; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    Link Undangan Pendaftaran Berhasil Di-generate!
+                </div>
+                <div style="font-size: 0.8125rem; color: #047857;">
+                    Berlaku s/d: <b>{{ session('invite_expires_at') }}</b>
+                </div>
+                <input type="text" id="generatedInviteUrlInput" readonly value="{{ session('generated_invite_url') }}" style="width: 100%; max-width: 480px; margin-top: 8px; padding: 6px 12px; font-size: 0.8125rem; font-weight: 600; color: #022648; background: #ffffff; border: 1px solid #a7f3d0; border-radius: 6px;">
+            </div>
+            <button type="button" class="btn-solid-navy" style="background: #059669; border: none; white-space: nowrap;" onclick="copyGeneratedInviteUrl()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Salin Link Undangan
+            </button>
+        </div>
+        @endif
 
         {{-- Table List Admin --}}
         <div class="table-container">
@@ -600,12 +626,81 @@
         </form>
     </div>
 </div>
+
+{{-- Modal Generate Link Undangan Pendaftaran --}}
+<div class="modal-overlay" id="generateInviteModal">
+    <div class="modal-content-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="color: var(--navy); margin: 0; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; font-size: 1.1rem;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                Generate Link Undangan Pendaftaran
+            </h3>
+            <button type="button" onclick="closeGenerateInviteModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray-500);">&times;</button>
+        </div>
+
+        <form action="{{ route('admin.invites.generate') }}" method="POST">
+            @csrf
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--gray-700);">Masa Berlaku Link Undangan</label>
+                <select name="duration" class="form-control" style="width: 100%;" required>
+                    <option value="30m">30 Menit</option>
+                    <option value="1h">1 Jam</option>
+                    <option value="6h">6 Jam</option>
+                    <option value="12h">12 Jam</option>
+                    <option value="1d" selected>1 Hari (24 Jam)</option>
+                    <option value="3d">3 Hari</option>
+                    <option value="7d">7 Hari</option>
+                    <option value="30d">30 Hari</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--gray-700);">Batas Jumlah Penggunaan (Pendaftar)</label>
+                <select name="max_uses" class="form-control" style="width: 100%;" required>
+                    <option value="1" selected>1x Penggunaan (Single Use / Private)</option>
+                    <option value="5">5x Penggunaan</option>
+                    <option value="10">10x Penggunaan</option>
+                    <option value="50">50x Penggunaan</option>
+                    <option value="100">100x Penggunaan</option>
+                    <option value="999">Tanpa Batas (Berdasarkan Waktu Saja)</option>
+                </select>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                <button type="button" class="btn-outline-secondary" onclick="closeGenerateInviteModal()">Batal</button>
+                <button type="submit" class="btn-solid-navy" style="background: #059669; border-color: #059669;">Generate & Buat Link</button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
+    function openGenerateInviteModal() {
+        document.getElementById('generateInviteModal').classList.add('active');
+    }
+
+    function closeGenerateInviteModal() {
+        document.getElementById('generateInviteModal').classList.remove('active');
+    }
+
+    function copyGeneratedInviteUrl() {
+        const input = document.getElementById('generatedInviteUrlInput');
+        if (input) {
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value);
+            if (typeof Toast !== 'undefined') {
+                Toast.fire({ icon: 'success', title: 'Link Undangan Pendaftaran disalin ke clipboard!' });
+            } else {
+                alert('Link Undangan Pendaftaran disalin ke clipboard!');
+            }
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         // Init Select2 Basic
         if (typeof $ !== 'undefined' && $.fn.select2) {

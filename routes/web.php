@@ -56,6 +56,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('toggle-active-admin/{admin}', [AdminDashboardController::class, 'toggleActiveAdmin'])->name('toggle-active-admin');
         Route::post('reset-password-admin/{admin}', [AdminDashboardController::class, 'resetPasswordAdmin'])->name('reset-password-admin');
 
+        // Registration Invites Generator (Superadmin & PNKT)
+        Route::post('invites/generate', [\App\Http\Controllers\Admin\RegistrationInviteController::class, 'generate'])->name('invites.generate');
+        Route::delete('invites/{invite}', [\App\Http\Controllers\Admin\RegistrationInviteController::class, 'destroy'])->name('invites.destroy');
+
         // Strategic Plan CRUD (Admin)
         Route::resource('strategic-plan', StrategicPlanController::class);
 

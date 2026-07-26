@@ -406,11 +406,28 @@ class AnggotaController extends Controller
      * SHOW FORM — MEMBER YANG SUDAH ADA, BELUM DAFTAR WEB
      * =============================================
      */
-    public function showMemberRegister()
+    public function showMemberRegister(Request $request)
     {
         if (Auth::guard('anggota')->check()) {
             return redirect()->route('profile-anggota')
                 ->with('info', 'Anda sudah terdaftar dan login sebagai anggota.');
+        }
+
+        $token = $request->query('token');
+        $invite = null;
+        $isValidInvite = false;
+
+        if ($token) {
+            $invite = \App\Models\RegistrationInvite::where('token', $token)->first();
+            if ($invite && $invite->isValid()) {
+                $isValidInvite = true;
+            }
+        }
+
+        $provincesJsonPath = public_path('provinces.json');
+        $provinces = [];
+        if (file_exists($provincesJsonPath)) {
+            $provinces = json_decode(file_get_contents($provincesJsonPath), true) ?? [];
         }
 
         $regenciesJsonPath = public_path('regencies.json');
@@ -419,7 +436,7 @@ class AnggotaController extends Controller
             $regencies = json_decode(file_get_contents($regenciesJsonPath), true) ?? [];
         }
 
-        return view('pages.asita.member-register', compact('regencies'));
+        return view('pages.asita.member-register', compact('invite', 'isValidInvite', 'provinces', 'regencies'));
     }
 
     /**
@@ -433,17 +450,33 @@ class AnggotaController extends Controller
         try {
             Log::info('=== MEMBER REGISTER FORM SUBMITTED ===');
 
+            $token = $request->input('token');
+            $invite = null;
+            if ($token) {
+                $invite = \App\Models\RegistrationInvite::where('token', $token)->first();
+            }
+
+            if (!$invite || !$invite->isValid()) {
+                return redirect()->back()->withInput()->with('error', 'Link pendaftaran tidak valid atau telah kadaluarsa. Silakan hubungi Admin PNKT untuk mendapatkan link pendaftaran resmi yang baru.');
+            }
+
             $validated = $request->validate([
+                'token'         => 'required|string',
                 'username'      => 'required|string|max:255|unique:anggota,username',
                 'nama_lengkap'  => 'required|string|max:255',
-                'domisili'      => 'required|string|max:255',
+                'provinsi'      => 'required|string|max:255',
+                'kabupaten'     => 'required|string|max:255',
                 'email'         => 'required|email|max:255|unique:anggota,email',
                 'password'      => 'required|string|min:6',
             ], [
-                'username.unique'  => 'Username ini sudah digunakan, silakan pilih username lain.',
-                'email.unique'     => 'Email ini sudah terdaftar, silakan gunakan email lain.',
-                'password.min'     => 'Password minimal terdiri dari 6 karakter.',
+                'username.unique'    => 'Username ini sudah digunakan, silakan pilih username lain.',
+                'email.unique'       => 'Email ini sudah terdaftar, silakan gunakan email lain.',
+                'password.min'       => 'Password minimal terdiri dari 6 karakter.',
+                'provinsi.required'  => 'Provinsi domisili wajib dipilih.',
+                'kabupaten.required' => 'Kabupaten / Kota domisili wajib dipilih.',
             ]);
+
+            $domisili = $validated['kabupaten'] . ', ' . $validated['provinsi'];
 
             Log::info('Member register validation passed');
 
@@ -456,7 +489,7 @@ class AnggotaController extends Controller
                     'username'                  => $validated['username'],
                     'nama_lengkap'              => $validated['nama_lengkap'],
                     'nama_perusahaan'           => $validated['nama_lengkap'],
-                    'domisili'                  => $validated['domisili'],
+                    'domisili'                  => $domisili,
                     'email'                     => $validated['email'],
                     'email_website_perusahaan'  => $validated['email'],
                     'email_pimpinan'            => $validated['email'],
