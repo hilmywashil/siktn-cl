@@ -9,7 +9,6 @@ $activeMenu = 'berita';
 @endphp
 
 @push('styles')
-<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 <style>
     .form-container {
         background: white;
@@ -20,7 +19,7 @@ $activeMenu = 'berita';
     }
 
     .form-group {
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .form-label {
@@ -36,7 +35,6 @@ $activeMenu = 'berita';
     }
 
     .form-input,
-    .form-textarea,
     .form-select {
         width: 100%;
         padding: 0.75rem;
@@ -48,16 +46,10 @@ $activeMenu = 'berita';
     }
 
     .form-input:focus,
-    .form-textarea:focus,
     .form-select:focus {
         outline: none;
         border-color: #022648;
         box-shadow: 0 0 0 3px rgba(11, 19, 84, 0.1);
-    }
-
-    .form-textarea {
-        min-height: 200px;
-        resize: vertical;
     }
 
     .form-help {
@@ -160,6 +152,30 @@ $activeMenu = 'berita';
         color: #022648;
     }
 
+    /* CKEditor Custom Styling & Spacious Height */
+    .ck-editor__editable_inline {
+        min-height: 480px;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        border-bottom-left-radius: 6px !important;
+        border-bottom-right-radius: 6px !important;
+        padding: 1.25rem !important;
+    }
+    .ck-toolbar {
+        border-top-left-radius: 6px !important;
+        border-top-right-radius: 6px !important;
+        border-color: #d1d5db !important;
+        background: #f9fafb !important;
+    }
+    .ck.ck-editor__main>.ck-editor__editable:not(.ck-focused) {
+        border-color: #d1d5db !important;
+    }
+    .ck.ck-editor__main>.ck-editor__editable.ck-focused {
+        border-color: #022648 !important;
+        box-shadow: 0 0 0 3px rgba(2, 38, 72, 0.1) !important;
+    }
+
     @media (max-width: 1024px) {
         .form-container {
             padding: 1.5rem;
@@ -179,11 +195,7 @@ $activeMenu = 'berita';
 
 @section('content')
 <a href="{{ route('admin.berita.index') }}" class="back-link">
-    <svg viewBox="0 0 24 24" width="20" height="20" style="stroke: currentColor; fill: none; stroke-width: 2;">
-        <line x1="19" y1="12" x2="5" y2="12" />
-        <polyline points="12 19 5 12 12 5" />
-    </svg>
-    Kembali ke Daftar Berita
+    <i class="fa fa-arrow-left"></i> Kembali ke Daftar Berita
 </a>
 
 <div class="form-container">
@@ -195,7 +207,7 @@ $activeMenu = 'berita';
                 Judul Berita <span class="required">*</span>
             </label>
             <input type="text" name="judul" class="form-input" value="{{ old('judul') }}" required
-                placeholder="Masukkan judul berita">
+                placeholder="Masukkan judul berita yang menarik...">
             @error('judul')
             <div class="error-message">{{ $message }}</div>
             @enderror
@@ -227,8 +239,7 @@ $activeMenu = 'berita';
             <label class="form-label">
                 Konten Berita <span class="required">*</span>
             </label>
-            <textarea name="konten" class="form-textarea" required
-                placeholder="Tulis konten berita lengkap...">{{ old('konten') }}</textarea>
+            <textarea name="konten" id="editorKonten" class="form-textarea" placeholder="Tulis konten berita lengkap...">{{ old('konten') }}</textarea>
             @error('konten')
             <div class="error-message">{{ $message }}</div>
             @enderror
@@ -307,7 +318,7 @@ $activeMenu = 'berita';
 </div>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 <script>
     function previewImage(event) {
         const preview = document.getElementById('imagePreview');
@@ -322,6 +333,47 @@ $activeMenu = 'berita';
             }
             reader.readAsDataURL(file);
         }
+    }
+
+    class MyUploadAdapter {
+        constructor(loader) {
+            this.loader = loader;
+        }
+
+        upload() {
+            return this.loader.file
+                .then(file => new Promise((resolve, reject) => {
+                    const data = new FormData();
+                    data.append('file', file);
+                    data.append('_token', '{{ csrf_token() }}');
+
+                    $.ajax({
+                        url: "{{ route('admin.berita.upload_image') }}",
+                        type: "POST",
+                        data: data,
+                        contentType: false,
+                        processData: false,
+                        success: function(response) {
+                            if (response.url) {
+                                resolve({ default: response.url });
+                            } else {
+                                reject(response.error || 'Upload gagal');
+                            }
+                        },
+                        error: function() {
+                            reject('Gagal mengunggah gambar ke server');
+                        }
+                    });
+                }));
+        }
+
+        abort() {}
+    }
+
+    function MyCustomUploadAdapterPlugin(editor) {
+        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+            return new MyUploadAdapter(loader);
+        };
     }
     
     document.addEventListener('DOMContentLoaded', function() {
@@ -357,50 +409,25 @@ $activeMenu = 'berita';
             });
         }
 
-        // Initialize Summernote
-        $('.form-textarea').summernote({
-            placeholder: 'Tulis konten berita lengkap di sini...',
-            tabsize: 2,
-            height: 300,
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'underline', 'clear']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['table', ['table']],
-                ['insert', ['link', 'picture', 'video']],
-                ['view', ['fullscreen', 'codeview', 'help']]
-            ],
-            callbacks: {
-                onImageUpload: function(files) {
-                    for(let i=0; i < files.length; i++) {
-                        uploadImage(files[i], this);
-                    }
+        // Initialize CKEditor 5
+        ClassicEditor
+            .create(document.querySelector('#editorKonten'), {
+                extraPlugins: [MyCustomUploadAdapterPlugin],
+                toolbar: {
+                    items: [
+                        'heading', '|',
+                        'bold', 'italic', 'underline', 'strikethrough', 'link', '|',
+                        'bulletedList', 'numberedList', 'outdent', 'indent', '|',
+                        'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo'
+                    ]
                 }
-            }
-        });
-
-        function uploadImage(file, editor) {
-            var data = new FormData();
-            data.append("file", file);
-            data.append("_token", "{{ csrf_token() }}");
-            
-            $.ajax({
-                url: "{{ route('admin.berita.upload_image') }}",
-                cache: false,
-                contentType: false,
-                processData: false,
-                data: data,
-                type: "POST",
-                success: function(response) {
-                    $(editor).summernote('insertImage', response.url);
-                },
-                error: function(data) {
-                    console.log(data);
-                    alert("Terjadi kesalahan saat mengunggah gambar.");
-                }
+            })
+            .then(editor => {
+                window.editor = editor;
+            })
+            .catch(error => {
+                console.error('CKEditor error:', error);
             });
-        }
     });
 </script>
 @endpush
