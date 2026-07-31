@@ -191,6 +191,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('misi', MisiController::class);
 
         // Berita CRUD (BPD only)
+        Route::post('berita/upload-image', [AdminBeritaController::class, 'uploadImage'])->name('berita.upload_image');
         Route::get('berita', [AdminBeritaController::class, 'index'])->name('berita.index');
         Route::get('berita/create', [AdminBeritaController::class, 'create'])->name('berita.create');
         Route::post('berita', [AdminBeritaController::class, 'store'])->name('berita.store');

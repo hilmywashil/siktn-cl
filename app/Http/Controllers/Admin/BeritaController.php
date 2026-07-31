@@ -248,4 +248,24 @@ class BeritaController extends Controller
 
         return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil dihapus!');
     }
+
+    public function uploadImage(Request $request)
+    {
+        $admin = auth()->guard('admin')->user();
+        if (!$admin || !$admin->canManageContent()) {
+            return response()->json(['error' => 'Akses ditolak'], 403);
+        }
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('berita/konten', $filename, 'public');
+            
+            return response()->json([
+                'url' => asset('storage/' . $path)
+            ]);
+        }
+
+        return response()->json(['error' => 'File tidak ditemukan'], 400);
+    }
 }

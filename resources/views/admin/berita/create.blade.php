@@ -9,6 +9,7 @@ $activeMenu = 'berita';
 @endphp
 
 @push('styles')
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 <style>
     .form-container {
         background: white;
@@ -306,6 +307,7 @@ $activeMenu = 'berita';
 </div>
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 <script>
     function previewImage(event) {
         const preview = document.getElementById('imagePreview');
@@ -352,6 +354,51 @@ $activeMenu = 'berita';
             $('#statusSelect').select2({
                 minimumResultsForSearch: Infinity,
                 width: '100%'
+            });
+        }
+
+        // Initialize Summernote
+        $('.form-textarea').summernote({
+            placeholder: 'Tulis konten berita lengkap di sini...',
+            tabsize: 2,
+            height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ],
+            callbacks: {
+                onImageUpload: function(files) {
+                    for(let i=0; i < files.length; i++) {
+                        uploadImage(files[i], this);
+                    }
+                }
+            }
+        });
+
+        function uploadImage(file, editor) {
+            var data = new FormData();
+            data.append("file", file);
+            data.append("_token", "{{ csrf_token() }}");
+            
+            $.ajax({
+                url: "{{ route('admin.berita.upload_image') }}",
+                cache: false,
+                contentType: false,
+                processData: false,
+                data: data,
+                type: "POST",
+                success: function(response) {
+                    $(editor).summernote('insertImage', response.url);
+                },
+                error: function(data) {
+                    console.log(data);
+                    alert("Terjadi kesalahan saat mengunggah gambar.");
+                }
             });
         }
     });
