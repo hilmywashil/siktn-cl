@@ -47,8 +47,8 @@
                         </div>
                         <div class="content">
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                                <span style="font-size: 0.72rem; font-weight: 700; color: #022648; background: #e0f2fe; padding: 2px 8px; border-radius: 4px;">
-                                    📍 {{ $item->wilayah ?? 'Nasional' }}
+                                <span style="font-size: 0.72rem; font-weight: 700; color: #022648; background: #e0f2fe; padding: 2px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                                    <i class="fa fa-map-marker-alt" style="color: #022648;"></i> {{ $item->wilayah ?? 'Nasional' }}
                                 </span>
                                 <span style="font-size: 0.72rem; font-weight: 700; color: #6b7280; background: #f3f4f6; padding: 2px 8px; border-radius: 4px;">
                                     {{ $item->kategori }}
@@ -58,7 +58,7 @@
                                 <h2>{{ $item->judul }}</h2>
                             </a>
                             <p class="date">{{ $item->tanggal_format }}</p>
-                            <p>{{ Str::limit(strip_tags($item->konten), 200) }}</p>
+                            <p>{{ Str::limit(trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags($item->konten)))), 200) }}</p>
                             <a href="{{ route('berita-detail', $item->slug) }}" class="btn">Baca Selengkapnya <i
                                     class="fa fa-arrow-right"></i></a>
                         </div>
@@ -79,7 +79,7 @@
                                 <h2>{{ $item->judul }}</h2>
                             </a>
                             <p class="date">{{ $item->tanggal_format }}</p>
-                            <p>{{ Str::limit(strip_tags($item->konten), 150) }}</p>
+                            <p>{{ Str::limit(trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags($item->konten)))), 150) }}</p>
                             <a href="{{ route('berita-detail', $item->slug) }}" class="btn">Baca Selengkapnya <i
                                     class="fa fa-arrow-right"></i></a>
                         </div>
