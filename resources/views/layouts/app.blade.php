@@ -196,7 +196,7 @@
                                 <span class="notification-badge">{{ $unreadNotifications->count() }}</span>
                             @endif
                         </button>
-                        <div class="notification-dropdown {{ ($unreadNotifications && $unreadNotifications->count() > 0) ? 'show' : '' }}" id="notificationDropdown">
+                        <div class="notification-dropdown {{ (request()->routeIs('profile-anggota') && $unreadNotifications && $unreadNotifications->count() > 0) ? 'show' : '' }}" id="notificationDropdown">
                             <div class="notification-header">
                                 <h4>Notifikasi</h4>
                                 @if($unreadNotifications->count() > 0)
@@ -304,7 +304,7 @@
             const notifBtn = document.getElementById('notificationBtn');
             const notifDropdown = document.getElementById('notificationDropdown');
             if(notifBtn && notifDropdown) {
-                @if(isset($unreadNotifications) && $unreadNotifications->count() > 0)
+                @if(request()->routeIs('profile-anggota') && isset($unreadNotifications) && $unreadNotifications->count() > 0)
                     notifDropdown.classList.add('show');
                 @endif
 
