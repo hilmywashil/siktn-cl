@@ -83,11 +83,11 @@
                                 <i class="fa fa-map-marker-alt" style="color: #c59217;"></i> Wilayah:
                             </label>
                             <select name="wilayah" id="wilayahSelect" class="select2-basic" style="width: 100%;">
-                                <option value="">-- Semua Wilayah --</option>
-                                @if(isset($listWilayah))
-                                    @foreach($listWilayah as $wil)
-                                        <option value="{{ $wil }}" {{ ($wilayahSelected ?? '') === $wil ? 'selected' : '' }}>
-                                            {{ $wil }}
+                                @if(isset($daftarProvinsi))
+                                    @foreach($daftarProvinsi as $pKey => $pVal)
+                                        @php $val = ($pKey === 'Semua') ? '' : $pKey; @endphp
+                                        <option value="{{ $val }}" {{ ($wilayahSelected ?? '') === $val ? 'selected' : '' }}>
+                                            {{ $pVal }}
                                         </option>
                                     @endforeach
                                 @endif

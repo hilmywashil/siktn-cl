@@ -71,8 +71,9 @@ class BeritaController extends Controller
             $kategorisDb = [];
         }
         $kategoris = array_values(array_unique(array_merge(['Pengumuman', 'Kegiatan', 'Regulasi'], $kategorisDb)));
+        $daftarProvinsi = \App\Helpers\WilayahHelper::getDaftarProvinsi();
 
-        return view('admin.berita.create', compact('admin', 'kategoris'));
+        return view('admin.berita.create', compact('admin', 'kategoris', 'daftarProvinsi'));
     }
 
     public function store(Request $request)
@@ -162,9 +163,9 @@ class BeritaController extends Controller
         } catch (\Throwable $e) {
             $kategorisDb = [];
         }
-        $kategoris = array_values(array_unique(array_merge(['Pengumuman', 'Kegiatan', 'Regulasi'], $kategorisDb)));
+        $daftarProvinsi = \App\Helpers\WilayahHelper::getDaftarProvinsi();
 
-        return view('admin.berita.edit', compact('admin', 'berita', 'kategoris'));
+        return view('admin.berita.edit', compact('admin', 'berita', 'kategoris', 'daftarProvinsi'));
     }
 
     public function update(Request $request, $id)

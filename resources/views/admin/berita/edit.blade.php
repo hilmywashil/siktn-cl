@@ -297,8 +297,18 @@ $activeMenu = 'berita';
                 <input type="hidden" name="wilayah" value="{{ $admin->domisili }}">
                 <div class="form-help">Wilayah otomatis dikunci sesuai Domisili Sekretariat Provinsi Anda</div>
             @else
-                <input type="text" name="wilayah" class="form-input" value="{{ old('wilayah', $berita->wilayah ?? 'Nasional') }}" placeholder="Contoh: Nasional / Jawa Barat / DKI Jakarta">
-                <div class="form-help">Ketik 'Nasional' atau nama Provinsi spesifik</div>
+                <select name="wilayah" id="wilayahSelect" class="form-select select2-basic" required>
+                    @if(isset($daftarProvinsi))
+                        @foreach($daftarProvinsi as $pKey => $pVal)
+                            @if($pKey !== 'Semua')
+                                <option value="{{ $pKey }}" {{ old('wilayah', $berita->wilayah ?? 'Nasional') == $pKey ? 'selected' : '' }}>
+                                    {{ $pVal }}
+                                </option>
+                            @endif
+                        @endforeach
+                    @endif
+                </select>
+                <div class="form-help">Pilih tingkat wilayah berita (Nasional atau Provinsi spesifik)</div>
             @endif
         </div>
 
@@ -422,6 +432,11 @@ $activeMenu = 'berita';
             
             $('#statusSelect').select2({
                 minimumResultsForSearch: Infinity,
+                width: '100%'
+            });
+
+            $('#wilayahSelect').select2({
+                placeholder: 'Pilih Wilayah Berita...',
                 width: '100%'
             });
         }

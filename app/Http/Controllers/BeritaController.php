@@ -53,9 +53,7 @@ class BeritaController extends Controller
             ->take(5)
             ->get();
 
-        $listWilayahDb = Berita::active()->whereNotNull('wilayah')->distinct()->pluck('wilayah')->toArray();
-        $provinces = ["Nasional", "Aceh","Sumatera Utara","Sumatera Barat","Riau","Jambi","Sumatera Selatan","Bengkulu","Lampung","Kepulauan Bangka Belitung","Kepulauan Riau","Dki Jakarta","Jawa Barat","Jawa Tengah","Di Yogyakarta","Jawa Timur","Banten","Bali","Nusa Tenggara Barat","Nusa Tenggara Timur","Kalimantan Barat","Kalimantan Tengah","Kalimantan Selatan","Kalimantan Timur","Kalimantan Utara","Sulawesi Utara","Sulawesi Tengah","Sulawesi Selatan","Sulawesi Tenggara","Gorontalo","Sulawesi Barat","Maluku","Maluku Utara","Papua Barat","Papua"];
-        $listWilayah = array_unique(array_merge($provinces, $listWilayahDb));
+        $daftarProvinsi = \App\Helpers\WilayahHelper::getDaftarProvinsi();
 
         return view('pages.berita', compact(
             'beritaUtama',
@@ -64,7 +62,7 @@ class BeritaController extends Controller
             'beritaTerbaru',
             'search',
             'wilayahSelected',
-            'listWilayah'
+            'daftarProvinsi'
         ));
     }
 
