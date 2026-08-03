@@ -615,17 +615,17 @@
                             @php
                                 $today = \Carbon\Carbon::now()->startOfDay();
                                 $mulai = \Carbon\Carbon::parse($program->periode_mulai)->startOfDay();
-                                $selesai = \Carbon\Carbon::parse($program->periode_selesai)->endOfDay();
+                                $selesai = \Carbon\Carbon::parse($program->periode_selesai)->startOfDay();
                                 
                                 if ($today->gt($selesai)) {
                                     $sisaText = 'Selesai';
                                     $sisaColor = '#10b981';
                                 } elseif ($today->lt($mulai)) {
-                                    $diff = $today->diffInDays($mulai);
+                                    $diff = (int) round($today->diffInDays($mulai));
                                     $sisaText = $diff . ' Hari Lagi';
                                     $sisaColor = '#3b82f6';
                                 } else {
-                                    $diff = $today->diffInDays($selesai);
+                                    $diff = (int) round($today->diffInDays($selesai)) + 1;
                                     $sisaText = $diff . ' Hari Sisa';
                                     $sisaColor = '#f59e0b';
                                 }

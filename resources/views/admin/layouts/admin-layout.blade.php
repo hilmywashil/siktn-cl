@@ -245,6 +245,12 @@
             padding: 2px 6px;
             border-radius: 50%;
             border: 2px solid white;
+            animation: badgePulse 2s infinite;
+        }
+        @keyframes badgePulse {
+            0% { transform: translate(25%, -25%) scale(1); box-shadow: 0 0 0 0 rgba(214, 11, 28, 0.7); }
+            70% { transform: translate(25%, -25%) scale(1.1); box-shadow: 0 0 0 6px rgba(214, 11, 28, 0); }
+            100% { transform: translate(25%, -25%) scale(1); box-shadow: 0 0 0 0 rgba(214, 11, 28, 0); }
         }
         .notification-dropdown {
             position: absolute;
@@ -253,17 +259,18 @@
             width: 320px;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
-            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 14px 40px rgba(0,0,0,0.14);
+            border: 1px solid rgba(0,0,0,0.08);
             display: flex;
             flex-direction: column;
             z-index: 1000;
             overflow: hidden;
             opacity: 0;
             visibility: hidden;
-            transform: translateY(-10px) scale(0.98);
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(-16px) scale(0.94);
+            transition: all 0.48s cubic-bezier(0.22, 1, 0.36, 1);
             pointer-events: none;
+            transform-origin: top right;
         }
         .notification-dropdown.show {
             opacity: 1;
@@ -933,7 +940,7 @@
                             <span class="notification-badge">{{ $unreadNotifications->count() }}</span>
                         @endif
                     </button>
-                    <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-dropdown {{ ($unreadNotifications && $unreadNotifications->count() > 0) ? 'show' : '' }}" id="notificationDropdown">
                         <div class="notification-header">
                             <h4>Notifikasi</h4>
                             <div style="display: flex; align-items: center; gap: 10px;">
