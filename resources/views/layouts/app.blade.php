@@ -192,12 +192,14 @@
                                 @forelse($user->notifications->take(10) as $notification)
                                     <div class="notification-item {{ $notification->read_at ? '' : 'unread' }}">
                                         <div class="notification-item-title">
-                                            @if($notification->data['status'] == 'approved')
+                                            @if(($notification->data['status'] ?? '') == 'approved')
                                                 <i class="fa fa-check-circle" style="color:#10b981;margin-right:4px;"></i>
-                                            @elseif($notification->data['status'] == 'rejected')
+                                            @elseif(($notification->data['status'] ?? '') == 'rejected')
                                                 <i class="fa fa-times-circle" style="color:#ef4444;margin-right:4px;"></i>
-                                            @elseif($notification->data['status'] == 'revision')
+                                            @elseif(($notification->data['status'] ?? '') == 'revision')
                                                 <i class="fa fa-exclamation-circle" style="color:#f59e0b;margin-right:4px;"></i>
+                                            @elseif(($notification->data['status'] ?? '') == 'program')
+                                                <i class="fa fa-bullhorn" style="color:#022648;margin-right:4px;"></i>
                                             @endif
                                             {{ $notification->data['title'] }}
                                         </div>

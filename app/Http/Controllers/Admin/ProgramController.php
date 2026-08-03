@@ -157,6 +157,18 @@ class ProgramController extends Controller
         $newProgram = Program::latest()->first();
         $this->logActivity('program', 'Tambah', $newProgram?->id, $request->nama_program, 'Kategori: ' . $request->kategori);
 
+        // Notifikasi ke Seluruh Anggota Aktif saat Program Baru Diterbitkan
+        try {
+            if ($newProgram) {
+                $anggotas = Anggota::where('status', 'approved')->get();
+                if ($anggotas->count() > 0) {
+                    \Illuminate\Support\Facades\Notification::send($anggotas, new \App\Notifications\ProgramNotification($newProgram));
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal mengirim notifikasi program baru: ' . $e->getMessage());
+        }
+
         return redirect()->route('admin.program.index')->with('success', 'Program berhasil ditambahkan.');
     }
 
