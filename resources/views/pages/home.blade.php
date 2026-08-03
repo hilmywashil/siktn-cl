@@ -141,7 +141,9 @@
         <div class="katalog-section" data-aos="fade-up">
             <div>
                 <h2>E-Catalog Preview</h2>
-                <p>Jelajahi direktori produk, jasa, dan lini usaha karya anggota Karang Taruna yang terintegrasi secara profesional dalam E-Katalog SIKTN.
+                <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Alias nesciunt culpa earum rem perspiciatis
+                    saepe nostrum nisi fugiat laudantium beatae, aspernatur, eos libero fugit maxime dolorum tempora atque
+                    voluptatibus amet!
                 </p>
             </div>
             <div class="grid">
