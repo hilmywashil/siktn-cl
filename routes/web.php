@@ -323,30 +323,53 @@ Route::get('/organisasi', function (Illuminate\Http\Request $request) {
 
     $organisasi = $organisasiQuery->ordered()->get();
 
-    $nodesByUrutan = [];
-    foreach ($organisasi as $org) {
-        $org->children = collect();
-        if (!isset($nodesByUrutan[$org->urutan])) {
-            $nodesByUrutan[$org->urutan] = [];
+    // Build Master Jabatan tree with members mapped
+    $jabatans = \App\Models\Jabatan::orderBy('urutan')->get();
+    $orgByUrutan = $organisasi->groupBy('urutan');
+    $orgByJabatan = $organisasi->groupBy(function($item) {
+        return strtolower(trim($item->jabatan));
+    });
+
+    $jabatanNodes = $jabatans->map(function ($jab) use ($orgByUrutan, $orgByJabatan) {
+        $members = $orgByUrutan->get($jab->urutan, collect());
+        if ($members->isEmpty()) {
+            $members = $orgByJabatan->get(strtolower(trim($jab->nama_jabatan)), collect());
         }
-        $nodesByUrutan[$org->urutan][] = $org;
+        
+        $node = clone $jab;
+        $node->members = $members;
+        $node->children = collect();
+        return $node;
+    })->keyBy('urutan');
+
+    $allJabatanTree = collect();
+    foreach ($jabatanNodes as $urutan => $node) {
+        $parts = explode('.', $urutan);
+        array_pop($parts);
+        $parentUrutan = implode('.', $parts);
+
+        if ($parentUrutan && isset($jabatanNodes[$parentUrutan])) {
+            $jabatanNodes[$parentUrutan]->children->push($node);
+        } else {
+            $allJabatanTree->push($node);
+        }
     }
 
-    $organisasiTree = collect();
-    foreach ($organisasi as $org) {
-        $parts = explode('.', $org->urutan);
-        if (count($parts) > 1) {
-            array_pop($parts);
-            $parentUrutan = implode('.', $parts);
-            if (isset($nodesByUrutan[$parentUrutan]) && count($nodesByUrutan[$parentUrutan]) > 0) {
-                $nodesByUrutan[$parentUrutan][0]->children->push($org);
-            } else {
-                $organisasiTree->push($org);
+    // Prune nodes that have NO members and NO children with members
+    $pruneEmptyNodes = function ($nodes) use (&$pruneEmptyNodes) {
+        return $nodes->filter(function ($node) use ($pruneEmptyNodes) {
+            if ($node->children && $node->children->count() > 0) {
+                $node->children = $pruneEmptyNodes($node->children);
             }
-        } else {
-            $organisasiTree->push($org);
-        }
-    }
+            
+            $hasMembers = isset($node->members) && $node->members->count() > 0;
+            $hasActiveChildren = isset($node->children) && $node->children->count() > 0;
+
+            return $hasMembers || $hasActiveChildren;
+        })->values();
+    };
+
+    $organisasiTree = $pruneEmptyNodes($allJabatanTree);
 
     return view('pages.organisasi', compact('organisasiTree', 'allPeriodes', 'selectedPeriode', 'daftarProvinsi', 'daftarKabupaten', 'selectedProvinsi', 'selectedKabupaten'));
 })->name('organisasi');
