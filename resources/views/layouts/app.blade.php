@@ -178,7 +178,7 @@
                                 <span class="notification-badge">{{ $unreadNotifications->count() }}</span>
                             @endif
                         </button>
-                        <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-dropdown {{ ($unreadNotifications && $unreadNotifications->count() > 0) ? 'show' : '' }}" id="notificationDropdown">
                             <div class="notification-header">
                                 <h4>Notifikasi</h4>
                                 @if($unreadNotifications->count() > 0)
