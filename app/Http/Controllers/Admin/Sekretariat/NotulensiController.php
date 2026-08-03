@@ -28,7 +28,9 @@ class NotulensiController extends Controller
         }
 
         $notulensis = $query->orderBy('tanggal_rapat', 'desc')->paginate(10)->appends($request->query());
-        $agendas = Agenda::orderBy('waktu_mulai', 'desc')->get();
+        $agendas = Agenda::where('waktu_mulai', '>=', \Carbon\Carbon::now()->startOfDay())
+            ->orderBy('waktu_mulai', 'asc')
+            ->get();
 
         return view('admin.sekretariat.notulensi.index', [
             'activeMenu' => 'sekretariat_notulensi',
@@ -89,11 +91,12 @@ class NotulensiController extends Controller
 
     public function destroy($id)
     {
+        $notulensi = Notulensi::findOrFail($id);
         $label = $notulensi->judul_rapat;
-        $id = $notulensi->id;
+        $notId = $notulensi->id;
         $notulensi->delete();
 
-        $this->logActivity('notulensi', 'Hapus', $id, $label);
+        $this->logActivity('notulensi', 'Hapus', $notId, $label);
 
         return redirect()->route('admin.sekretariat.notulensi.index')->with('success', 'Notulensi Rapat berhasil dihapus.');
     }
