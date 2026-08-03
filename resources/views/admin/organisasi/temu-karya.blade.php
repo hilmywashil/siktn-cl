@@ -595,8 +595,8 @@
                     </div>
 
                     <div class="form-group" style="grid-column: 1 / -1;">
-                        <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Link Tautan Dokumen (Google Drive)</label>
-                        <input type="url" name="link_drive" id="link_drive" class="form-control" placeholder="https://drive.google.com/file/d/..." style="font-size: 0.85rem;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Link Tautan Dokumen (Google Drive / ID Berkas)</label>
+                        <input type="text" name="link_drive" id="link_drive" class="form-control" placeholder="https://drive.google.com/file/d/... atau ID Berkas Drive" style="font-size: 0.85rem;">
                     </div>
 
                     <div class="form-group" style="grid-column: 1 / -1;">

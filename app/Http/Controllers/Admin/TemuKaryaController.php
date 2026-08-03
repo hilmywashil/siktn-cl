@@ -133,13 +133,17 @@ class TemuKaryaController extends Controller
 
         // Notifikasi ke Pimpinan jika status Pending
         if ($tk->status === 'pending') {
-            $pimpinans = Admin::whereIn('category', ['pimpinan', 'super_admin'])->get();
-            if ($pimpinans->count() > 0) {
-                Notification::send($pimpinans, new AdminNotification(
-                    'surat_pending', // Using generic pending type so it shows in notif badge
-                    'Pelaporan Temu Karya Pending',
-                    "Laporan Temu Karya/Caretaker untuk wilayah {$tk->wilayah} berstatus Pending dan menunggu peninjauan."
-                ));
+            try {
+                $pimpinans = Admin::whereIn('category', ['pimpinan', 'super_admin'])->get();
+                if ($pimpinans->count() > 0) {
+                    Notification::send($pimpinans, new AdminNotification(
+                        'surat_pending',
+                        'Pelaporan Temu Karya Pending',
+                        "Laporan Temu Karya/Caretaker untuk wilayah {$tk->wilayah} berstatus Pending dan menunggu peninjauan."
+                    ));
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('TemuKarya Notification failed: ' . $e->getMessage());
             }
         }
 
@@ -206,13 +210,17 @@ class TemuKaryaController extends Controller
 
         // Notifikasi ke Pimpinan jika status diubah ke Pending
         if ($temuKarya->status === 'pending') {
-            $pimpinans = Admin::whereIn('category', ['pimpinan', 'super_admin'])->get();
-            if ($pimpinans->count() > 0) {
-                Notification::send($pimpinans, new AdminNotification(
-                    'surat_pending', // Using generic pending type so it shows in notif badge
-                    'Pelaporan Temu Karya Pending',
-                    "Laporan Temu Karya/Caretaker untuk wilayah {$temuKarya->wilayah} berstatus Pending dan menunggu peninjauan."
-                ));
+            try {
+                $pimpinans = Admin::whereIn('category', ['pimpinan', 'super_admin'])->get();
+                if ($pimpinans->count() > 0) {
+                    Notification::send($pimpinans, new AdminNotification(
+                        'surat_pending',
+                        'Pelaporan Temu Karya Pending',
+                        "Laporan Temu Karya/Caretaker untuk wilayah {$temuKarya->wilayah} berstatus Pending dan menunggu peninjauan."
+                    ));
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('TemuKarya Notification failed: ' . $e->getMessage());
             }
         }
 
