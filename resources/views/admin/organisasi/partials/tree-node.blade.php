@@ -16,8 +16,8 @@
                         <h4 class="org-name-mini">{{ Str::words($member->nama, 2, '') }}</h4>
                         <p class="org-jabatan-mini">{{ $node->nama_jabatan }}</p>
                         @if($member->kabupaten || ($member->provinsi && $member->provinsi !== 'Nasional'))
-                            <div style="font-size: 0.65rem; font-weight: 700; color: #b7830f; margin-top: 2px;">
-                                📍 {{ $member->kabupaten ?? $member->provinsi }}
+                            <div style="font-size: 0.75rem; font-weight: 600; color: #b7830f; margin-top: 2px;">
+                                {{ trim(str_replace(["\r\n", "\r", "\n", '\r', '\n', '📍'], '', $member->kabupaten ?? $member->provinsi)) }}
                             </div>
                         @endif
                     </div>
