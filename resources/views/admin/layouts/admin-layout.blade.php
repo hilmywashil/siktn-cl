@@ -875,7 +875,8 @@
                     $recentActivityLogs = \App\Models\AdminActivityLog::orderBy('created_at', 'desc')->take(20)->get();
                 @endphp
 
-                {{-- Surat Keluar Notification Icon (3 Kategori Klasifikasi) --}}
+                {{-- Surat Keluar Notification Icon (Hanya untuk Super Admin, Pimpinan, & PNKT) --}}
+                @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPimpinan() || auth()->guard('admin')->user()->isPNKT())
                 <div class="surat-notif-wrapper">
                     <button class="surat-notif-btn" id="suratNotifBtn" title="Notifikasi Surat Keluar">
                         <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -916,6 +917,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
                 <div class="notification-wrapper">
                     <button class="notification-btn" id="notificationBtn">
