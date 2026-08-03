@@ -89,160 +89,190 @@ class TemuKaryaController extends Controller
     {
         $this->checkAuthorization();
 
-        if ($request->has('jenis')) {
-            $request->merge(['jenis' => str_replace('-', '_', $request->get('jenis'))]);
-        }
-
-        $validated = $request->validate([
-            'jenis' => 'required|in:temu_karya,caretaker',
-            'wilayah' => 'required|string|max:255',
-            'level' => 'required|in:provinsi,kab_kota',
-            'tanggal_pelaksanaan' => 'nullable|date',
-            'lokasi' => 'nullable|string|max:255',
-            'jumlah_peserta' => 'nullable|integer|min:0',
-            'catatan' => 'nullable|string',
-            'status' => 'required|in:selesai,pending,caretaker',
-            'foto_dokumentasi' => 'nullable',
-            'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:10240',
-            'link_drive' => 'nullable|string|max:500',
-            'surat_keputusan_id' => 'nullable',
-        ]);
-
-        $validated['surat_keputusan_id'] = !empty($validated['surat_keputusan_id']) ? $validated['surat_keputusan_id'] : null;
-        $validated['tanggal_pelaksanaan'] = !empty($validated['tanggal_pelaksanaan']) ? $validated['tanggal_pelaksanaan'] : null;
-
-        if (!empty($validated['link_drive'])) {
-            $link = trim($validated['link_drive']);
-            if (!preg_match('~^https?://~i', $link)) {
-                $validated['link_drive'] = 'https://drive.google.com/open?id=' . ltrim($link, '/');
+        try {
+            if ($request->has('jenis')) {
+                $request->merge(['jenis' => str_replace('-', '_', $request->get('jenis'))]);
             }
-        }
 
-        if ($request->hasFile('foto_dokumentasi')) {
-            $files = is_array($request->file('foto_dokumentasi')) ? $request->file('foto_dokumentasi') : [$request->file('foto_dokumentasi')];
-            $paths = [];
-            foreach ($files as $f) {
-                if ($f->isValid()) {
-                    $paths[] = $f->store('temu_karya/foto', 'public');
+            $validated = $request->validate([
+                'jenis' => 'required|in:temu_karya,caretaker',
+                'wilayah' => 'required|string|max:255',
+                'level' => 'required|in:provinsi,kab_kota',
+                'tanggal_pelaksanaan' => 'nullable|date',
+                'lokasi' => 'nullable|string|max:255',
+                'jumlah_peserta' => 'nullable|integer|min:0',
+                'catatan' => 'nullable|string',
+                'status' => 'required|in:selesai,pending,caretaker',
+                'foto_dokumentasi' => 'nullable',
+                'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:10240',
+                'link_drive' => 'nullable|string|max:500',
+                'surat_keputusan_id' => 'nullable',
+            ]);
+
+            $validated['surat_keputusan_id'] = !empty($validated['surat_keputusan_id']) ? $validated['surat_keputusan_id'] : null;
+            $validated['tanggal_pelaksanaan'] = !empty($validated['tanggal_pelaksanaan']) ? $validated['tanggal_pelaksanaan'] : null;
+
+            if (!empty($validated['link_drive'])) {
+                $link = trim($validated['link_drive']);
+                if (!preg_match('~^https?://~i', $link)) {
+                    $validated['link_drive'] = 'https://drive.google.com/open?id=' . ltrim($link, '/');
                 }
             }
-            $validated['foto_dokumentasi'] = json_encode($paths);
-        }
 
-        if ($request->hasFile('file_sk') && $request->file('file_sk')->isValid()) {
-            $validated['file_sk'] = $request->file('file_sk')->store('temu_karya/sk', 'public');
-        }
-
-        $validated['created_by'] = Auth::guard('admin')->id();
-        $validated['jumlah_peserta'] = $validated['jumlah_peserta'] ?? 0;
-
-        $tk = TemuKarya::create($validated);
-
-        $this->logActivity('temu-karya', 'Tambah', $tk->id, $tk->wilayah, 'Jenis: ' . $tk->jenis);
-
-        // Notifikasi ke Pimpinan jika status Pending
-        if ($tk->status === 'pending') {
-            try {
-                $pimpinans = Admin::whereIn('category', ['pimpinan', 'super_admin'])->get();
-                if ($pimpinans->count() > 0) {
-                    Notification::send($pimpinans, new AdminNotification(
-                        'surat_pending',
-                        'Pelaporan Temu Karya Pending',
-                        "Laporan Temu Karya/Caretaker untuk wilayah {$tk->wilayah} berstatus Pending dan menunggu peninjauan."
-                    ));
+            if ($request->hasFile('foto_dokumentasi')) {
+                try {
+                    $files = is_array($request->file('foto_dokumentasi')) ? $request->file('foto_dokumentasi') : [$request->file('foto_dokumentasi')];
+                    $paths = [];
+                    foreach ($files as $f) {
+                        if ($f && $f->isValid()) {
+                            $paths[] = $f->store('temu_karya/foto', 'public');
+                        }
+                    }
+                    if (!empty($paths)) {
+                        $validated['foto_dokumentasi'] = json_encode(array_values($paths));
+                    }
+                } catch (\Throwable $eFile) {
+                    \Illuminate\Support\Facades\Log::warning('Upload foto_dokumentasi warning: ' . $eFile->getMessage());
                 }
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('TemuKarya Notification failed: ' . $e->getMessage());
             }
-        }
 
-        return redirect()->back()->with('success', 'Data Temu Karya / Caretaker berhasil ditambahkan.');
+            if ($request->hasFile('file_sk') && $request->file('file_sk')->isValid()) {
+                try {
+                    $validated['file_sk'] = $request->file('file_sk')->store('temu_karya/sk', 'public');
+                } catch (\Throwable $eSk) {
+                    \Illuminate\Support\Facades\Log::warning('Upload file_sk warning: ' . $eSk->getMessage());
+                }
+            }
+
+            $validated['created_by'] = Auth::guard('admin')->id();
+            $validated['jumlah_peserta'] = $validated['jumlah_peserta'] ?? 0;
+
+            $tk = TemuKarya::create($validated);
+
+            $this->logActivity('temu-karya', 'Tambah', $tk->id, $tk->wilayah, 'Jenis: ' . $tk->jenis);
+
+            // Notifikasi ke Pimpinan jika status Pending
+            if ($tk->status === 'pending') {
+                try {
+                    $pimpinans = Admin::whereIn('category', ['pimpinan', 'super_admin'])->get();
+                    if ($pimpinans->count() > 0) {
+                        Notification::send($pimpinans, new AdminNotification(
+                            'surat_pending',
+                            'Pelaporan Temu Karya Pending',
+                            "Laporan Temu Karya/Caretaker untuk wilayah {$tk->wilayah} berstatus Pending dan menunggu peninjauan."
+                        ));
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('TemuKarya Notification failed: ' . $e->getMessage());
+                }
+            }
+
+            return redirect()->back()->with('success', 'Data Temu Karya / Caretaker berhasil ditambahkan.');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('TemuKarya store error: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
+        }
     }
 
     public function update(Request $request, TemuKarya $temuKarya)
     {
         $this->checkAuthorization();
 
-        if ($request->has('jenis')) {
-            $request->merge(['jenis' => str_replace('-', '_', $request->get('jenis'))]);
-        }
-
-        $validated = $request->validate([
-            'jenis' => 'required|in:temu_karya,caretaker',
-            'wilayah' => 'required|string|max:255',
-            'level' => 'required|in:provinsi,kab_kota',
-            'tanggal_pelaksanaan' => 'nullable|date',
-            'lokasi' => 'nullable|string|max:255',
-            'jumlah_peserta' => 'nullable|integer|min:0',
-            'catatan' => 'nullable|string',
-            'status' => 'required|in:selesai,pending,caretaker',
-            'foto_dokumentasi' => 'nullable',
-            'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:10240',
-            'link_drive' => 'nullable|string|max:500',
-            'surat_keputusan_id' => 'nullable',
-        ]);
-
-        $validated['surat_keputusan_id'] = !empty($validated['surat_keputusan_id']) ? $validated['surat_keputusan_id'] : null;
-        $validated['tanggal_pelaksanaan'] = !empty($validated['tanggal_pelaksanaan']) ? $validated['tanggal_pelaksanaan'] : null;
-
-        if (!empty($validated['link_drive'])) {
-            $link = trim($validated['link_drive']);
-            if (!preg_match('~^https?://~i', $link)) {
-                $validated['link_drive'] = 'https://drive.google.com/open?id=' . ltrim($link, '/');
+        try {
+            if ($request->has('jenis')) {
+                $request->merge(['jenis' => str_replace('-', '_', $request->get('jenis'))]);
             }
-        }
 
-        if ($request->hasFile('foto_dokumentasi')) {
-            if ($temuKarya->foto_dokumentasi) {
-                $oldDecoded = json_decode($temuKarya->foto_dokumentasi, true);
-                if (is_array($oldDecoded)) {
-                    foreach ($oldDecoded as $oldFile) {
-                        Storage::disk('public')->delete($oldFile);
+            $validated = $request->validate([
+                'jenis' => 'required|in:temu_karya,caretaker',
+                'wilayah' => 'required|string|max:255',
+                'level' => 'required|in:provinsi,kab_kota',
+                'tanggal_pelaksanaan' => 'nullable|date',
+                'lokasi' => 'nullable|string|max:255',
+                'jumlah_peserta' => 'nullable|integer|min:0',
+                'catatan' => 'nullable|string',
+                'status' => 'required|in:selesai,pending,caretaker',
+                'foto_dokumentasi' => 'nullable',
+                'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:10240',
+                'link_drive' => 'nullable|string|max:500',
+                'surat_keputusan_id' => 'nullable',
+            ]);
+
+            $validated['surat_keputusan_id'] = !empty($validated['surat_keputusan_id']) ? $validated['surat_keputusan_id'] : null;
+            $validated['tanggal_pelaksanaan'] = !empty($validated['tanggal_pelaksanaan']) ? $validated['tanggal_pelaksanaan'] : null;
+
+            if (!empty($validated['link_drive'])) {
+                $link = trim($validated['link_drive']);
+                if (!preg_match('~^https?://~i', $link)) {
+                    $validated['link_drive'] = 'https://drive.google.com/open?id=' . ltrim($link, '/');
+                }
+            }
+
+            if ($request->hasFile('foto_dokumentasi')) {
+                try {
+                    if ($temuKarya->foto_dokumentasi) {
+                        $oldDecoded = json_decode($temuKarya->foto_dokumentasi, true);
+                        if (is_array($oldDecoded)) {
+                            foreach ($oldDecoded as $oldFile) {
+                                Storage::disk('public')->delete($oldFile);
+                            }
+                        } else {
+                            Storage::disk('public')->delete($temuKarya->foto_dokumentasi);
+                        }
                     }
-                } else {
-                    Storage::disk('public')->delete($temuKarya->foto_dokumentasi);
+                    $files = is_array($request->file('foto_dokumentasi')) ? $request->file('foto_dokumentasi') : [$request->file('foto_dokumentasi')];
+                    $paths = [];
+                    foreach ($files as $f) {
+                        if ($f && $f->isValid()) {
+                            $paths[] = $f->store('temu_karya/foto', 'public');
+                        }
+                    }
+                    if (!empty($paths)) {
+                        $validated['foto_dokumentasi'] = json_encode(array_values($paths));
+                    }
+                } catch (\Throwable $eFile) {
+                    \Illuminate\Support\Facades\Log::warning('Update foto_dokumentasi warning: ' . $eFile->getMessage());
                 }
             }
-            $files = is_array($request->file('foto_dokumentasi')) ? $request->file('foto_dokumentasi') : [$request->file('foto_dokumentasi')];
-            $paths = [];
-            foreach ($files as $f) {
-                if ($f->isValid()) {
-                    $paths[] = $f->store('temu_karya/foto', 'public');
+
+            if ($request->hasFile('file_sk') && $request->file('file_sk')->isValid()) {
+                try {
+                    if ($temuKarya->file_sk) {
+                        Storage::disk('public')->delete($temuKarya->file_sk);
+                    }
+                    $validated['file_sk'] = $request->file('file_sk')->store('temu_karya/sk', 'public');
+                } catch (\Throwable $eSk) {
+                    \Illuminate\Support\Facades\Log::warning('Update file_sk warning: ' . $eSk->getMessage());
                 }
             }
-            $validated['foto_dokumentasi'] = json_encode($paths);
-        }
 
-        if ($request->hasFile('file_sk') && $request->file('file_sk')->isValid()) {
-            if ($temuKarya->file_sk) {
-                Storage::disk('public')->delete($temuKarya->file_sk);
-            }
-            $validated['file_sk'] = $request->file('file_sk')->store('temu_karya/sk', 'public');
-        }
+            $validated['jumlah_peserta'] = $validated['jumlah_peserta'] ?? 0;
 
-        $validated['jumlah_peserta'] = $validated['jumlah_peserta'] ?? 0;
+            $temuKarya->update($validated);
 
-        $temuKarya->update($validated);
+            $this->logActivity('temu-karya', 'Edit', $temuKarya->id, $temuKarya->wilayah, 'Status: ' . $temuKarya->status);
 
-        $this->logActivity('temu-karya', 'Edit', $temuKarya->id, $temuKarya->wilayah, 'Status: ' . $temuKarya->status);
-
-        // Notifikasi ke Pimpinan jika status diubah ke Pending
-        if ($temuKarya->status === 'pending') {
-            try {
-                $pimpinans = Admin::whereIn('category', ['pimpinan', 'super_admin'])->get();
-                if ($pimpinans->count() > 0) {
-                    Notification::send($pimpinans, new AdminNotification(
-                        'surat_pending',
-                        'Pelaporan Temu Karya Pending',
-                        "Laporan Temu Karya/Caretaker untuk wilayah {$temuKarya->wilayah} berstatus Pending dan menunggu peninjauan."
-                    ));
+            // Notifikasi ke Pimpinan jika status diubah ke Pending
+            if ($temuKarya->status === 'pending') {
+                try {
+                    $pimpinans = Admin::whereIn('category', ['pimpinan', 'super_admin'])->get();
+                    if ($pimpinans->count() > 0) {
+                        Notification::send($pimpinans, new AdminNotification(
+                            'surat_pending',
+                            'Pelaporan Temu Karya Pending',
+                            "Laporan Temu Karya/Caretaker untuk wilayah {$temuKarya->wilayah} berstatus Pending dan menunggu peninjauan."
+                        ));
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('TemuKarya Notification failed: ' . $e->getMessage());
                 }
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('TemuKarya Notification failed: ' . $e->getMessage());
             }
-        }
 
-        return redirect()->back()->with('success', 'Data Temu Karya / Caretaker berhasil diperbarui.');
+            return redirect()->back()->with('success', 'Data Temu Karya / Caretaker berhasil diperbarui.');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('TemuKarya update error: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data: ' . $e->getMessage());
+        }
     }
 
     public function destroy(TemuKarya $temuKarya)
