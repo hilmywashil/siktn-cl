@@ -84,6 +84,32 @@
             margin: 0 0 1.25em;
         }
 
+        .detail-berita-body img,
+        .detail-berita-body figure,
+        .detail-berita-body figure img {
+            max-width: 100% !important;
+            height: auto !important;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: block;
+        }
+
+        .detail-berita-body figure.image {
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .detail-berita-body a {
+            color: #022648;
+            font-weight: 600;
+            text-decoration: underline;
+            word-break: break-all;
+        }
+
+        .detail-berita-body a:hover {
+            color: #b7830f;
+        }
+
         /* Share / Back Row */
         .detail-berita-actions {
             display: flex;
@@ -349,7 +375,7 @@
                 <img class="detail-berita-main-image" src="{{ $berita->gambar_url }}" alt="{{ $berita->judul }}">
 
                 <div class="detail-berita-body">
-                    {!! nl2br(e($berita->konten)) !!}
+                    {!! $berita->konten !!}
                 </div>
 
                 {{-- Back + Share ── --}}
