@@ -302,4 +302,26 @@ class OrganisasiController extends Controller
         return redirect()->route('admin.organisasi.index')
             ->with('success', 'Data organisasi berhasil dihapus');
     }
+
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:organisasi,id'
+        ]);
+
+        $ids = $request->input('ids');
+        $organisasis = Organisasi::whereIn('id', $ids)->get();
+
+        foreach ($organisasis as $item) {
+            if ($item->foto) {
+                Storage::disk('public')->delete($item->foto);
+            }
+            $this->logActivity('organisasi', 'Hapus Terpilih', $item->id, $item->nama);
+            $item->delete();
+        }
+
+        return redirect()->route('admin.organisasi.index')
+            ->with('success', count($ids) . ' data pengurus organisasi berhasil dihapus');
+    }
 }

@@ -580,21 +580,35 @@
         <div class="card-header-flex">
             <h3 class="card-title">Daftar Anggota Pengurus Organisasi</h3>
             @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPNKT())
-            <a href="{{ route('admin.organisasi.create') }}" class="btn-solid-navy">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Tambah Anggota
-            </a>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button type="button" id="btn-bulk-delete-org" onclick="triggerBulkDeleteOrg()" style="display: none; background: #dc2626; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 700; font-size: 0.8125rem; cursor: pointer; transition: all 0.2s; align-items: center; gap: 6px;">
+                    <i class="fa fa-trash"></i> Hapus Terpilih (<span id="bulk-count-org">0</span>)
+                </button>
+                <a href="{{ route('admin.organisasi.create') }}" class="btn-solid-navy">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Tambah Anggota
+                </a>
+            </div>
             @endif
         </div>
 
         <div class="table-container">
             @if($organisasi->count() > 0)
+                <form id="bulk-delete-form-org" action="{{ route('admin.organisasi.bulk-delete') }}" method="POST" style="display:none;">
+                    @csrf
+                </form>
+
                 <table class="data-table">
                     <thead>
                         <tr>
+                            @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPNKT())
+                                <th style="width: 40px; text-align: center;">
+                                    <input type="checkbox" id="check-all-org" style="width: 16px; height: 16px; cursor: pointer;">
+                                </th>
+                            @endif
                             <th>No</th>
                             <th>Nama & Jabatan</th>
                             <th>Kategori</th>
@@ -607,6 +621,11 @@
                     <tbody>
                         @foreach($organisasi as $index => $item)
                             <tr>
+                                @if(auth()->guard('admin')->user()->isSuperAdmin() || auth()->guard('admin')->user()->isPNKT())
+                                    <td style="text-align: center;">
+                                        <input type="checkbox" class="check-item-org" value="{{ $item->id }}" style="width: 16px; height: 16px; cursor: pointer;">
+                                    </td>
+                                @endif
                                 <td>{{ $index + 1 }}</td>
                                 <td>
                                     <div class="avatar-cell">
@@ -730,7 +749,78 @@
                 activeDropdown = null;
             }
         }, true);
+
+        // Bulk Delete Checkbox Logic
+        const checkAll = document.getElementById('check-all-org');
+        const checkItems = document.querySelectorAll('.check-item-org');
+        const btnBulk = document.getElementById('btn-bulk-delete-org');
+        const bulkCount = document.getElementById('bulk-count-org');
+
+        function updateBulkButton() {
+            const checkedCount = document.querySelectorAll('.check-item-org:checked').length;
+            if (bulkCount) bulkCount.innerText = checkedCount;
+            if (btnBulk) {
+                btnBulk.style.display = checkedCount > 0 ? 'inline-flex' : 'none';
+            }
+        }
+
+        if (checkAll) {
+            checkAll.addEventListener('change', function() {
+                checkItems.forEach(item => {
+                    item.checked = checkAll.checked;
+                });
+                updateBulkButton();
+            });
+        }
+
+        checkItems.forEach(item => {
+            item.addEventListener('change', function() {
+                if (checkAll) {
+                    checkAll.checked = checkItems.length === document.querySelectorAll('.check-item-org:checked').length;
+                }
+                updateBulkButton();
+            });
+        });
     });
+
+    function triggerBulkDeleteOrg() {
+        const checkedItems = document.querySelectorAll('.check-item-org:checked');
+        if (checkedItems.length === 0) return;
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Hapus Data Terpilih?',
+                text: `Apakah Anda yakin ingin menghapus ${checkedItems.length} data pengurus organisasi yang dipilih?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Ya, Hapus Semua!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    submitBulkDeleteOrgForm(checkedItems);
+                }
+            });
+        } else if (confirm(`Yakin ingin menghapus ${checkedItems.length} data pengurus organisasi yang dipilih?`)) {
+            submitBulkDeleteOrgForm(checkedItems);
+        }
+    }
+
+    function submitBulkDeleteOrgForm(checkedItems) {
+        const form = document.getElementById('bulk-delete-form-org');
+        form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+
+        checkedItems.forEach(item => {
+            const hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = 'ids[]';
+            hidden.value = item.value;
+            form.appendChild(hidden);
+        });
+
+        form.submit();
+    }
 
     function triggerDeleteOrg(id, name) {
         if (typeof Swal !== 'undefined') {

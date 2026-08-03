@@ -127,6 +127,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/profile/photo', [ProfileController::class, 'deletePhoto'])->name('profile.photo.delete');
 
         // Organisasi & Temu Karya CRUD
+        Route::post('organisasi/bulk-delete', [OrganisasiController::class, 'bulkDelete'])->name('organisasi.bulk-delete');
         Route::resource('organisasi', OrganisasiController::class);
         Route::get('temu-karya', [TemuKaryaController::class, 'index'])->name('temu-karya.index');
         Route::post('temu-karya/bulk-delete', [TemuKaryaController::class, 'bulkDelete'])->name('temu-karya.bulk-delete');
