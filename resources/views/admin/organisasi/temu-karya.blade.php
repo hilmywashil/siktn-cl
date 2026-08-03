@@ -512,13 +512,22 @@
                         <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Nama Wilayah (Provinsi / Kab / Kota) <span style="color: red;">*</span></label>
                         <select name="wilayah" id="wilayah" class="form-control select2-basic-tags" required style="width: 100%;">
                             <option value="">-- Pilih atau Ketik Nama Wilayah --</option>
-                            @if(isset($daftarProvinsi))
-                                @foreach($daftarProvinsi as $key => $name)
-                                    @if($key !== 'Semua' && $key !== 'Nasional')
-                                        <option value="{{ $key }}">{{ $name }}</option>
-                                    @endif
-                                @endforeach
-                            @endif
+                            <optgroup label="Tingkat Provinsi">
+                                @if(isset($daftarProvinsi))
+                                    @foreach($daftarProvinsi as $key => $name)
+                                        @if($key !== 'Semua' && $key !== 'Nasional')
+                                            <option value="{{ $key }}">{{ $name }}</option>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </optgroup>
+                            <optgroup label="Tingkat Kabupaten / Kota">
+                                @if(isset($daftarKabupaten))
+                                    @foreach($daftarKabupaten as $kabKey => $kabName)
+                                        <option value="{{ $kabKey }}">{{ $kabName }}</option>
+                                    @endforeach
+                                @endif
+                            </optgroup>
                         </select>
                     </div>
 

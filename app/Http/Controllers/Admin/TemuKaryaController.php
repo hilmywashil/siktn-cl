@@ -77,6 +77,7 @@ class TemuKaryaController extends Controller
             'temuKaryas' => $temuKaryas,
             'masterSks' => $masterSks,
             'daftarProvinsi' => \App\Helpers\WilayahHelper::getDaftarProvinsi(),
+            'daftarKabupaten' => \App\Helpers\WilayahHelper::getDaftarKabupatenKota(),
             'totalSelesai' => $totalSelesai,
             'totalCaretaker' => $totalCaretaker,
             'totalPending' => $totalPending,
