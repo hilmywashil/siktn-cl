@@ -89,6 +89,10 @@ class TemuKaryaController extends Controller
     {
         $this->checkAuthorization();
 
+        if ($request->has('jenis')) {
+            $request->merge(['jenis' => str_replace('-', '_', $request->get('jenis'))]);
+        }
+
         $validated = $request->validate([
             'jenis' => 'required|in:temu_karya,caretaker',
             'wilayah' => 'required|string|max:255',
@@ -101,8 +105,11 @@ class TemuKaryaController extends Controller
             'foto_dokumentasi' => 'nullable',
             'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:10240',
             'link_drive' => 'nullable|string|max:500',
-            'surat_keputusan_id' => 'nullable|exists:surat_keputusans,id',
+            'surat_keputusan_id' => 'nullable',
         ]);
+
+        $validated['surat_keputusan_id'] = !empty($validated['surat_keputusan_id']) ? $validated['surat_keputusan_id'] : null;
+        $validated['tanggal_pelaksanaan'] = !empty($validated['tanggal_pelaksanaan']) ? $validated['tanggal_pelaksanaan'] : null;
 
         if (!empty($validated['link_drive'])) {
             $link = trim($validated['link_drive']);
@@ -115,12 +122,14 @@ class TemuKaryaController extends Controller
             $files = is_array($request->file('foto_dokumentasi')) ? $request->file('foto_dokumentasi') : [$request->file('foto_dokumentasi')];
             $paths = [];
             foreach ($files as $f) {
-                $paths[] = $f->store('temu_karya/foto', 'public');
+                if ($f->isValid()) {
+                    $paths[] = $f->store('temu_karya/foto', 'public');
+                }
             }
             $validated['foto_dokumentasi'] = json_encode($paths);
         }
 
-        if ($request->hasFile('file_sk')) {
+        if ($request->hasFile('file_sk') && $request->file('file_sk')->isValid()) {
             $validated['file_sk'] = $request->file('file_sk')->store('temu_karya/sk', 'public');
         }
 
@@ -154,6 +163,10 @@ class TemuKaryaController extends Controller
     {
         $this->checkAuthorization();
 
+        if ($request->has('jenis')) {
+            $request->merge(['jenis' => str_replace('-', '_', $request->get('jenis'))]);
+        }
+
         $validated = $request->validate([
             'jenis' => 'required|in:temu_karya,caretaker',
             'wilayah' => 'required|string|max:255',
@@ -166,8 +179,11 @@ class TemuKaryaController extends Controller
             'foto_dokumentasi' => 'nullable',
             'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:10240',
             'link_drive' => 'nullable|string|max:500',
-            'surat_keputusan_id' => 'nullable|exists:surat_keputusans,id',
+            'surat_keputusan_id' => 'nullable',
         ]);
+
+        $validated['surat_keputusan_id'] = !empty($validated['surat_keputusan_id']) ? $validated['surat_keputusan_id'] : null;
+        $validated['tanggal_pelaksanaan'] = !empty($validated['tanggal_pelaksanaan']) ? $validated['tanggal_pelaksanaan'] : null;
 
         if (!empty($validated['link_drive'])) {
             $link = trim($validated['link_drive']);
@@ -190,12 +206,14 @@ class TemuKaryaController extends Controller
             $files = is_array($request->file('foto_dokumentasi')) ? $request->file('foto_dokumentasi') : [$request->file('foto_dokumentasi')];
             $paths = [];
             foreach ($files as $f) {
-                $paths[] = $f->store('temu_karya/foto', 'public');
+                if ($f->isValid()) {
+                    $paths[] = $f->store('temu_karya/foto', 'public');
+                }
             }
             $validated['foto_dokumentasi'] = json_encode($paths);
         }
 
-        if ($request->hasFile('file_sk')) {
+        if ($request->hasFile('file_sk') && $request->file('file_sk')->isValid()) {
             if ($temuKarya->file_sk) {
                 Storage::disk('public')->delete($temuKarya->file_sk);
             }

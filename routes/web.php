@@ -134,6 +134,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('temu-karya/{temuKarya}', [TemuKaryaController::class, 'update'])->name('temu-karya.update');
         Route::delete('temu-karya/{temuKarya}', [TemuKaryaController::class, 'destroy'])->name('temu-karya.destroy');
 
+        // Alias URL temu_karya (Underscore support)
+        Route::get('temu_karya', [TemuKaryaController::class, 'index']);
+        Route::post('temu_karya', [TemuKaryaController::class, 'store']);
+
         // Program CRUD (Khusus PNKT / Sesuai Brief)
         Route::get('program/get-pics', [\App\Http\Controllers\Admin\ProgramController::class, 'getPicsByJabatan'])->name('program.get-pics');
         Route::get('program/{program}/export-peserta', [\App\Http\Controllers\Admin\ProgramController::class, 'exportPeserta'])->name('program.export-peserta');
