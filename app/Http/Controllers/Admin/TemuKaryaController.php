@@ -100,9 +100,16 @@ class TemuKaryaController extends Controller
             'status' => 'required|in:selesai,pending,caretaker',
             'foto_dokumentasi' => 'nullable',
             'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:10240',
-            'link_drive' => 'nullable|url|max:500',
+            'link_drive' => 'nullable|string|max:500',
             'surat_keputusan_id' => 'nullable|exists:surat_keputusans,id',
         ]);
+
+        if (!empty($validated['link_drive'])) {
+            $link = trim($validated['link_drive']);
+            if (!preg_match('~^https?://~i', $link)) {
+                $validated['link_drive'] = 'https://drive.google.com/open?id=' . ltrim($link, '/');
+            }
+        }
 
         if ($request->hasFile('foto_dokumentasi')) {
             $files = is_array($request->file('foto_dokumentasi')) ? $request->file('foto_dokumentasi') : [$request->file('foto_dokumentasi')];
@@ -154,9 +161,16 @@ class TemuKaryaController extends Controller
             'status' => 'required|in:selesai,pending,caretaker',
             'foto_dokumentasi' => 'nullable',
             'file_sk' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:10240',
-            'link_drive' => 'nullable|url|max:500',
+            'link_drive' => 'nullable|string|max:500',
             'surat_keputusan_id' => 'nullable|exists:surat_keputusans,id',
         ]);
+
+        if (!empty($validated['link_drive'])) {
+            $link = trim($validated['link_drive']);
+            if (!preg_match('~^https?://~i', $link)) {
+                $validated['link_drive'] = 'https://drive.google.com/open?id=' . ltrim($link, '/');
+            }
+        }
 
         if ($request->hasFile('foto_dokumentasi')) {
             if ($temuKarya->foto_dokumentasi) {
