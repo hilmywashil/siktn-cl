@@ -119,6 +119,7 @@ class SuratKeputusanController extends Controller
 
     public function destroy($id)
     {
+        $sk = SuratKeputusan::findOrFail($id);
         $label = $sk->nomor_sk . ' - ' . $sk->judul_sk;
         $skId = $sk->id;
         $sk->delete();
