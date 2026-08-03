@@ -112,6 +112,19 @@ class SuratKeputusanController extends Controller
 
         $sk->update($validated);
 
+        // Auto mark as read old sk_expired notifications if extended date is safe (>7 days) or inactive
+        $now = Carbon::now()->startOfDay();
+        $endDate = Carbon::parse($sk->tanggal_berakhir)->startOfDay();
+        $daysUntilExpired = (int) $now->diffInDays($endDate, false);
+
+        if ($sk->status === 'Tidak Aktif' || $daysUntilExpired > 7) {
+            \Illuminate\Support\Facades\DB::table('notifications')
+                ->whereNull('read_at')
+                ->where('data', 'like', '%"type":"sk_expired"%')
+                ->where('data', 'like', '%' . $sk->nomor_sk . '%')
+                ->update(['read_at' => now()]);
+        }
+
         $this->logActivity('sk', 'Edit', $sk->id, $sk->nomor_sk . ' - ' . $sk->judul_sk, 'Status: ' . $sk->status);
 
         return redirect()->route('admin.sekretariat.sk.index')->with('success', 'Surat Keputusan berhasil diperbarui.');
