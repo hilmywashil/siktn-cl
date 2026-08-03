@@ -389,12 +389,12 @@
             </a>
             @endif
         </div>
+    </div>
 
-        <div style="padding: 0.85rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.08); text-align: center; margin-top: 1.5rem; background: rgba(0, 0, 0, 0.15);">
-            <span style="font-size: 0.725rem; color: #94a3b8; font-weight: 500; letter-spacing: 0.5px;">
-                Powered by <strong style="color: #ffffff; font-weight: 700;">Alcomedia</strong>
-            </span>
-        </div>
+    <div style="padding: 0.85rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.08); text-align: center; background: rgba(0, 0, 0, 0.15); flex-shrink: 0;">
+        <span style="font-size: 0.725rem; color: #94a3b8; font-weight: 500; letter-spacing: 0.5px;">
+            Powered by <strong style="color: #ffffff; font-weight: 700;">Alcomedia</strong>
+        </span>
     </div>
 </div>
 
