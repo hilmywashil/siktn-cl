@@ -273,9 +273,9 @@
         color: white; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
     }
     #temuKaryaForm {
-        display: flex; flex-direction: column; flex: 1; overflow: hidden; margin: 0;
+        display: flex; flex-direction: column; flex: 1; overflow: hidden; margin: 0; width: 100% !important;
     }
-    .modal-body-prof { padding: 1.5rem; overflow-y: auto; flex: 1; }
+    .modal-body-prof { padding: 1.5rem; overflow-y: auto; flex: 1; width: 100% !important; }
     .modal-footer-prof {
         padding: 1rem 1.5rem; background: #f8f9fc; border-top: 1px solid #e5e7eb;
         display: flex; justify-content: flex-end; gap: 0.75rem; flex-shrink: 0;
