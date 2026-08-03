@@ -178,6 +178,25 @@
                 <input type="hidden" name="urutan" value="{{ request('urutan') }}">
             @endif
 
+            <div class="form-group" style="background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1.5px dashed #cbd5e1;">
+                <label for="anggota_id" class="form-label" style="color: #022648; font-weight: 700;">Ambil Data dari Database Anggota Web (Opsional)</label>
+                <select id="anggota_id" name="anggota_id" class="form-select select2" onchange="autoFillAnggota(this)">
+                    <option value="">-- Ketik Nama Manual atau Pilih Anggota Web --</option>
+                    @if(isset($availableAnggota) && $availableAnggota->count() > 0)
+                        @foreach($availableAnggota as $ang)
+                            <option value="{{ $ang->id }}" 
+                                    data-nama="{{ $ang->nama }}"
+                                    data-kabupaten="{{ $ang->kabupaten_kota ?? $ang->domisili }}"
+                                    data-provinsi="{{ $ang->provinsi }}"
+                                    data-foto="{{ $ang->foto ? Storage::url($ang->foto) : '' }}">
+                                {{ $ang->nama }} ({{ $ang->kabupaten_kota ?? $ang->domisili ?? 'Anggota Web' }})
+                            </option>
+                        @endforeach
+                    @endif
+                </select>
+                <div class="form-helper">Pilih anggota dari database web untuk auto-fill nama, foto, dan domisili, atau isi manual di bawah ini. *(Anggota yang sudah masuk struktur organisasi disembunyikan)*</div>
+            </div>
+
             <div class="form-group">
                 <label for="nama" class="form-label required">Nama Lengkap</label>
                 <input type="text" id="nama" name="nama" class="form-input @error('nama') error @enderror" 
@@ -215,8 +234,12 @@
 
             <div class="form-group">
                 <label for="kabupaten" class="form-label">Kabupaten / Kota (Opsional)</label>
-                <input type="text" id="kabupaten" name="kabupaten" class="form-input @error('kabupaten') error @enderror" 
-                       value="{{ old('kabupaten') }}" placeholder="Contoh: Kabupaten Bandung / Kota Surabaya">
+                <select id="kabupaten" name="kabupaten" class="form-select select2 @error('kabupaten') error @enderror">
+                    <option value="">-- Pilih Kabupaten / Kota --</option>
+                    @foreach(\App\Helpers\WilayahHelper::getDaftarKabupatenKota() as $kabKey => $kabVal)
+                        <option value="{{ $kabKey }}" {{ old('kabupaten') == $kabKey ? 'selected' : '' }}>{{ $kabVal }}</option>
+                    @endforeach
+                </select>
                 @error('kabupaten')
                     <div class="error-message">{{ $message }}</div>
                 @enderror
@@ -310,12 +333,33 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Select2 tanpa placeholder agar opsi pertama (kosong) tetap muncul di list
         $('.select2').select2({
             theme: 'default',
             width: '100%'
         });
     });
+
+    function autoFillAnggota(select) {
+        const selectedOption = select.options[select.selectedIndex];
+        if (selectedOption && selectedOption.value) {
+            const nama = selectedOption.getAttribute('data-nama');
+            const kabupaten = selectedOption.getAttribute('data-kabupaten');
+            const provinsi = selectedOption.getAttribute('data-provinsi');
+            const foto = selectedOption.getAttribute('data-foto');
+
+            if (nama) $('#nama').val(nama);
+            if (kabupaten) {
+                $('#kabupaten').val(kabupaten).trigger('change');
+            }
+            if (provinsi) {
+                $('#provinsi').val(provinsi).trigger('change');
+            }
+            if (foto) {
+                $('#preview').attr('src', foto);
+                $('#imagePreview').show();
+            }
+        }
+    }
 
     function previewImage(event) {
         const preview = document.getElementById('preview');
@@ -331,7 +375,5 @@
             reader.readAsDataURL(file);
         }
     }
-
-
 </script>
 @endpush

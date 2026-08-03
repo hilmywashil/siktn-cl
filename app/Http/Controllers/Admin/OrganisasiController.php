@@ -100,10 +100,15 @@ class OrganisasiController extends Controller
     {
         $jabatans = Jabatan::all();
         $allPeriodes = \App\Models\PeriodeKepengurusan::orderBy('is_aktif', 'desc')->orderBy('tahun_mulai', 'desc')->get();
+        
+        $assignedAnggotaIds = Organisasi::whereNotNull('anggota_id')->pluck('anggota_id')->toArray();
+        $availableAnggota = \App\Models\Anggota::whereNotIn('id', $assignedAnggotaIds)->orderBy('nama')->get();
+
         return view('admin.organisasi.create', [
             'activeMenu' => 'organisasi',
             'jabatans' => $jabatans,
             'allPeriodes' => $allPeriodes,
+            'availableAnggota' => $availableAnggota,
         ]);
     }
 
@@ -112,6 +117,7 @@ class OrganisasiController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'jabatan' => 'required|string|max:255',
+            'anggota_id' => 'nullable|exists:anggota,id',
             'provinsi' => 'nullable|string|max:255',
             'kabupaten' => 'nullable|string|max:255',
             'atasan_id' => 'nullable|exists:jabatans,id',
@@ -205,11 +211,19 @@ class OrganisasiController extends Controller
     {
         $jabatans = Jabatan::all();
         $allPeriodes = \App\Models\PeriodeKepengurusan::orderBy('is_aktif', 'desc')->orderBy('tahun_mulai', 'desc')->get();
+        
+        $assignedAnggotaIds = Organisasi::whereNotNull('anggota_id')
+            ->where('id', '!=', $organisasi->id)
+            ->pluck('anggota_id')
+            ->toArray();
+        $availableAnggota = \App\Models\Anggota::whereNotIn('id', $assignedAnggotaIds)->orderBy('nama')->get();
+
         return view('admin.organisasi.edit', [
             'activeMenu' => 'organisasi',
             'organisasi' => $organisasi,
             'jabatans' => $jabatans,
             'allPeriodes' => $allPeriodes,
+            'availableAnggota' => $availableAnggota,
         ]);
     }
 
@@ -218,6 +232,7 @@ class OrganisasiController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'jabatan' => 'required|string|max:255',
+            'anggota_id' => 'nullable|exists:anggota,id',
             'provinsi' => 'nullable|string|max:255',
             'kabupaten' => 'nullable|string|max:255',
             'periode_id' => 'nullable|exists:periode_kepengurusans,id',

@@ -7,6 +7,47 @@
 @section('page-description', 'Mengenal jajaran kepengurusan dan struktur organisasi SIKTN secara transparan dan profesional.')
 @section('hero-buttons', 'hide')
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    /* SIKTN Select2 Custom Styling for Public Page */
+    .select2-container--default .select2-selection--single {
+        background-color: #f8fafc !important;
+        border: 1.5px solid #022648 !important;
+        border-radius: 6px !important;
+        height: 38px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #022648 !important;
+        font-weight: 700 !important;
+        font-size: 0.85rem !important;
+        padding-left: 10px !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px !important;
+    }
+    .select2-dropdown {
+        border: 1.5px solid #022648 !important;
+        border-radius: 6px !important;
+        box-shadow: 0 10px 25px rgba(2, 38, 72, 0.15) !important;
+        animation: select2DropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        overflow: hidden !important;
+        z-index: 9999 !important;
+    }
+    .select2-results__option--highlighted[aria-selected] {
+        background-color: #022648 !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+    }
+    @keyframes select2DropdownFadeIn {
+        from { opacity: 0; transform: translateY(-4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+@endpush
+
 @section('content')
     @include('layouts.components.hero')
     <style>
@@ -388,3 +429,16 @@
         });
     </script>
 @endsection
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2-basic').select2({
+            theme: 'default',
+            width: '100%'
+        });
+    });
+</script>
+@endpush
