@@ -550,7 +550,7 @@
 
                     <div class="form-group">
                         <label style="font-size: 0.8rem; font-weight: 700; color: #022648;">Tanggal Pelaksanaan</label>
-                        <input type="date" name="tanggal_pelaksanaan" id="tanggal_pelaksanaan" class="form-control" style="font-size: 0.85rem;">
+                        <input type="text" name="tanggal_pelaksanaan" id="tanggal_pelaksanaan" class="form-control datepicker" placeholder="Pilih Tanggal Pelaksanaan" style="font-size: 0.85rem;" readonly>
                     </div>
 
                     <div class="form-group">
@@ -763,6 +763,16 @@
             });
         }
 
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr('#tanggal_pelaksanaan', {
+                dateFormat: 'Y-m-d',
+                altInput: true,
+                altFormat: 'j F Y',
+                locale: 'id',
+                allowInput: true
+            });
+        }
+
         document.addEventListener('click', function () {
             if (activeDropdown) {
                 activeDropdown.classList.remove('is-open');
@@ -907,9 +917,25 @@
         document.getElementById('drawerDocContainer').innerHTML = docHtml;
 
         // Photos gallery container
+        let photoList = [];
+        if (photos && Array.isArray(photos) && photos.length > 0) {
+            photoList = photos;
+        } else if (data && data.foto_dokumentasi_list && Array.isArray(data.foto_dokumentasi_list) && data.foto_dokumentasi_list.length > 0) {
+            photoList = data.foto_dokumentasi_list;
+        } else if (data && data.foto_dokumentasi) {
+            try {
+                let parsed = typeof data.foto_dokumentasi === 'string' ? JSON.parse(data.foto_dokumentasi) : data.foto_dokumentasi;
+                if (Array.isArray(parsed)) {
+                    photoList = parsed.map(p => p.startsWith('http') || p.startsWith('/') ? p : '/storage/' + p);
+                } else if (typeof parsed === 'string' && parsed.length > 0) {
+                    photoList = [parsed.startsWith('http') || parsed.startsWith('/') ? parsed : '/storage/' + parsed];
+                }
+            } catch(e) {}
+        }
+
         let photoHtml = '';
-        if (photos && photos.length > 0) {
-            photos.forEach((fUrl, pIdx) => {
+        if (photoList && photoList.length > 0) {
+            photoList.forEach((fUrl, pIdx) => {
                 photoHtml += `
                     <div class="photo-card" style="position: relative; border-radius: 6px; overflow: hidden; border: 1.5px solid #022648; height: 100px; cursor: pointer;" onclick="previewImageModal('${fUrl}', 'Foto #${pIdx+1} - ${data.wilayah}')">
                         <img src="${fUrl}" onerror="this.closest('.photo-card').style.display='none'" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
