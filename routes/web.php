@@ -321,35 +321,30 @@ Route::get('/organisasi', function (Illuminate\Http\Request $request) {
         $organisasiQuery->where('periode_id', $selectedPeriodeId);
     }
 
-    $organisasi = $organisasiQuery->orderBy('urutan', 'asc')->get();
+    $organisasi = $organisasiQuery->ordered()->get();
 
-    // Build Master Jabatan tree with members mapped
-    $jabatans = \App\Models\Jabatan::orderBy('urutan')->get();
-    $orgByUrutan = $organisasi->groupBy('urutan');
-    $orgByJabatan = $organisasi->groupBy(function($item) {
-        return strtolower(trim($item->jabatan));
-    });
-
-    $jabatanTree = $jabatans->map(function ($jab) use ($orgByUrutan, $orgByJabatan) {
-        $members = $orgByUrutan->get($jab->urutan, collect());
-        if ($members->isEmpty()) {
-            $members = $orgByJabatan->get(strtolower(trim($jab->nama_jabatan)), collect());
+    $nodesByUrutan = [];
+    foreach ($organisasi as $org) {
+        $org->children = collect();
+        if (!isset($nodesByUrutan[$org->urutan])) {
+            $nodesByUrutan[$org->urutan] = [];
         }
-        $jab->members = $members;
-        $jab->children = collect();
-        return $jab;
-    })->keyBy('urutan');
+        $nodesByUrutan[$org->urutan][] = $org;
+    }
 
     $organisasiTree = collect();
-    foreach ($jabatanTree as $urutan => $jab) {
-        $parts = explode('.', $urutan);
-        array_pop($parts);
-        $parentUrutan = implode('.', $parts);
-
-        if ($parentUrutan && isset($jabatanTree[$parentUrutan])) {
-            $jabatanTree[$parentUrutan]->children->push($jab);
+    foreach ($organisasi as $org) {
+        $parts = explode('.', $org->urutan);
+        if (count($parts) > 1) {
+            array_pop($parts);
+            $parentUrutan = implode('.', $parts);
+            if (isset($nodesByUrutan[$parentUrutan]) && count($nodesByUrutan[$parentUrutan]) > 0) {
+                $nodesByUrutan[$parentUrutan][0]->children->push($org);
+            } else {
+                $organisasiTree->push($org);
+            }
         } else {
-            $organisasiTree->push($jab);
+            $organisasiTree->push($org);
         }
     }
 

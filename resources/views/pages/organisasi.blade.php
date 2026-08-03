@@ -332,8 +332,13 @@
                     <button class="zoom-btn-text" onclick="resetZoom()" title="Kembali ke 100%">Reset</button>
                 </div>
             @else
-                <div style="text-align: center; padding: 50px 0; color: #6b7280;">
-                    <p>Belum ada data struktur organisasi yang aktif.</p>
+                <div style="text-align: center; padding: 4rem 2rem; background: #ffffff; border-radius: 12px; border: 1.5px dashed #cbd5e1; color: #64748b; margin: 1rem 0;">
+                    <div style="width: 60px; height: 60px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; color: #022648; font-size: 1.5rem;">
+                        <i class="fa fa-users-slash"></i>
+                    </div>
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: #022648; margin-bottom: 0.5rem;">Belum Ada Data Pengurus</h3>
+                    <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1.25rem;">Belum ada pengurus terdaftar untuk wilayah {{ request('kabupaten') ? request('kabupaten') : ($selectedProvinsi !== 'Semua' ? $selectedProvinsi : 'ini') }}.</p>
+                    <a href="{{ route('organisasi') }}" style="display: inline-block; background: #022648; color: #ffffff; padding: 8px 18px; border-radius: 6px; font-weight: 700; font-size: 0.8125rem; text-decoration: none;">Tampilkan Semua Wilayah</a>
                 </div>
             @endif
         </div>
