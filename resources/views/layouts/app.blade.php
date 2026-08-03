@@ -66,7 +66,7 @@
         @keyframes notifDropdownFade {
             from {
                 opacity: 0;
-                transform: translateY(-12px) scale(0.96);
+                transform: translateY(-16px) scale(0.94);
             }
             to {
                 opacity: 1;
@@ -80,7 +80,7 @@
             width: 320px;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 12px 36px rgba(0,0,0,0.15);
+            box-shadow: 0 14px 40px rgba(0,0,0,0.14);
             border: 1px solid rgba(0,0,0,0.08);
             display: none;
             flex-direction: column;
@@ -91,7 +91,7 @@
         }
         .notification-dropdown.show {
             display: flex;
-            animation: notifDropdownFade 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: notifDropdownFade 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
         .notification-header {
             padding: 15px 20px;
