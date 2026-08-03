@@ -306,16 +306,19 @@ class SuratController extends Controller
     public function notificationFeed()
     {
         $internalSurats = Surat::where('klasifikasi', 'internal')
+            ->where('status', 'Pending TTD')
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
 
         $eksternalSurats = Surat::where('klasifikasi', 'eksternal')
+            ->where('status', 'Pending TTD')
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
 
         $pentingSurats = Surat::where('klasifikasi', 'penting')
+            ->where('status', 'Pending TTD')
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
