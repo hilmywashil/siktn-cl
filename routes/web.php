@@ -323,17 +323,35 @@ Route::get('/organisasi', function (Illuminate\Http\Request $request) {
 
     $organisasi = $organisasiQuery->ordered()->get();
 
-    // Build Master Jabatan tree with members mapped
+    // Build Master Jabatan tree with members mapped uniquely (no duplicates)
     $jabatans = \App\Models\Jabatan::orderBy('urutan')->get();
-    $orgByUrutan = $organisasi->groupBy('urutan');
-    $orgByJabatan = $organisasi->groupBy(function($item) {
-        return strtolower(trim($item->jabatan));
-    });
+    $assignedOrgIds = [];
 
-    $jabatanNodes = $jabatans->map(function ($jab) use ($orgByUrutan, $orgByJabatan) {
-        $members = $orgByUrutan->get($jab->urutan, collect());
-        if ($members->isEmpty()) {
-            $members = $orgByJabatan->get(strtolower(trim($jab->nama_jabatan)), collect());
+    $jabatanNodes = $jabatans->map(function ($jab) use ($organisasi, &$assignedOrgIds) {
+        $members = collect();
+
+        // 1. Match by exact urutan first
+        $matchByUrutan = $organisasi->filter(function ($item) use ($jab, $assignedOrgIds) {
+            return $item->urutan === $jab->urutan && !in_array($item->id, $assignedOrgIds);
+        });
+
+        if ($matchByUrutan->isNotEmpty()) {
+            $members = $matchByUrutan;
+            foreach ($matchByUrutan as $m) {
+                $assignedOrgIds[] = $m->id;
+            }
+        } else {
+            // 2. Fallback match by lowercased jabatan name for unassigned members
+            $matchByName = $organisasi->filter(function ($item) use ($jab, $assignedOrgIds) {
+                return strtolower(trim($item->jabatan)) === strtolower(trim($jab->nama_jabatan)) 
+                    && !in_array($item->id, $assignedOrgIds);
+            });
+
+            if ($matchByName->isNotEmpty()) {
+                $firstMember = $matchByName->first();
+                $members = collect([$firstMember]);
+                $assignedOrgIds[] = $firstMember->id;
+            }
         }
         
         $node = clone $jab;

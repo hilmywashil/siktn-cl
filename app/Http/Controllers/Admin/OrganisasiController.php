@@ -46,21 +46,38 @@ class OrganisasiController extends Controller
 
         $organisasi = $organisasiQuery->get();
 
-        // Build jabatan tree with members
+        // Build jabatan tree with members mapped uniquely (no duplicates)
         $jabatans = Jabatan::orderBy('urutan')->get();
-
-        // Map urutan and jabatan name -> org members
-        $orgByUrutan = $organisasi->groupBy('urutan');
-        $orgByJabatan = $organisasi->groupBy(function($item) {
-            return strtolower(trim($item->jabatan));
-        });
+        $assignedOrgIds = [];
 
         // Build tree: jabatan with their members
-        $jabatanTree = $jabatans->map(function ($jab) use ($orgByUrutan, $orgByJabatan) {
-            $members = $orgByUrutan->get($jab->urutan, collect());
-            if ($members->isEmpty()) {
-                $members = $orgByJabatan->get(strtolower(trim($jab->nama_jabatan)), collect());
+        $jabatanTree = $jabatans->map(function ($jab) use ($organisasi, &$assignedOrgIds) {
+            $members = collect();
+
+            // 1. Match by exact urutan first
+            $matchByUrutan = $organisasi->filter(function ($item) use ($jab, $assignedOrgIds) {
+                return $item->urutan === $jab->urutan && !in_array($item->id, $assignedOrgIds);
+            });
+
+            if ($matchByUrutan->isNotEmpty()) {
+                $members = $matchByUrutan;
+                foreach ($matchByUrutan as $m) {
+                    $assignedOrgIds[] = $m->id;
+                }
+            } else {
+                // 2. Fallback match by lowercased jabatan name for unassigned members
+                $matchByName = $organisasi->filter(function ($item) use ($jab, $assignedOrgIds) {
+                    return strtolower(trim($item->jabatan)) === strtolower(trim($jab->nama_jabatan)) 
+                        && !in_array($item->id, $assignedOrgIds);
+                });
+
+                if ($matchByName->isNotEmpty()) {
+                    $firstMember = $matchByName->first();
+                    $members = collect([$firstMember]);
+                    $assignedOrgIds[] = $firstMember->id;
+                }
             }
+
             $jab->members = $members;
             $jab->children = collect();
             return $jab;
