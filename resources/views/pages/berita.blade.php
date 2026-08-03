@@ -176,14 +176,14 @@
 @endsection
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof jQuery !== 'undefined' && typeof $.fn.select2 !== 'undefined') {
+    $(document).ready(function() {
+        if (typeof $.fn.select2 !== 'undefined') {
             $('#wilayahSelect').select2({
                 placeholder: '-- Semua Wilayah --',
                 allowClear: true,
-                dropdownAutoWidth: true,
                 width: '100%'
             }).on('change', function() {
                 $(this).closest('form').submit();
