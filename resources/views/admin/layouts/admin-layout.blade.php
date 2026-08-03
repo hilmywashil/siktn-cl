@@ -252,31 +252,35 @@
             70% { transform: translate(25%, -25%) scale(1.1); box-shadow: 0 0 0 6px rgba(214, 11, 28, 0); }
             100% { transform: translate(25%, -25%) scale(1); box-shadow: 0 0 0 0 rgba(214, 11, 28, 0); }
         }
+        @keyframes notifDropdownFade {
+            from {
+                opacity: 0;
+                transform: translateY(-16px) scale(0.94);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
         .notification-dropdown {
             position: absolute;
-            top: 120%;
+            top: 100%;
             right: -10px;
             width: 320px;
             background: white;
             border-radius: 12px;
             box-shadow: 0 14px 40px rgba(0,0,0,0.14);
             border: 1px solid rgba(0,0,0,0.08);
-            display: flex;
+            display: none;
             flex-direction: column;
             z-index: 1000;
+            margin-top: 10px;
             overflow: hidden;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-16px) scale(0.94);
-            transition: all 0.48s cubic-bezier(0.22, 1, 0.36, 1);
-            pointer-events: none;
             transform-origin: top right;
         }
         .notification-dropdown.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0) scale(1);
-            pointer-events: auto;
+            display: flex;
+            animation: notifDropdownFade 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
         .notification-header {
             padding: 15px 20px;
@@ -1663,6 +1667,25 @@
             }
         });
         const Toast = window.Toast;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const notifBtn = document.getElementById('notificationBtn');
+            const notifDropdown = document.getElementById('notificationDropdown');
+            if(notifBtn && notifDropdown) {
+                notifBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    notifDropdown.classList.toggle('show');
+                });
+                document.addEventListener('click', function(e) {
+                    if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+                        notifDropdown.classList.remove('show');
+                    }
+                });
+                notifDropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+        });
     </script>
 
     {{-- Flash Messages Notification --}}
