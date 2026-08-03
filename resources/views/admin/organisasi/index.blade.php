@@ -538,16 +538,23 @@
             </div>
             <form action="{{ route('admin.organisasi.index') }}" method="GET" style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
                 <label style="font-size: 0.85rem; font-weight: 700; color: var(--navy); margin: 0; white-space: nowrap;">Provinsi:</label>
-                <select name="provinsi" onchange="this.form.submit()" class="select2-basic" style="min-width: 200px; height: 38px;">
+                <select name="provinsi" onchange="this.form.submit()" class="select2-basic" style="min-width: 180px; height: 38px;">
                     @foreach($daftarProvinsi as $pKey => $pVal)
-                        <option value="{{ $pKey }}" {{ ($selectedProvinsi ?? 'Nasional') == $pKey ? 'selected' : '' }}>{{ $pVal }}</option>
+                        <option value="{{ $pKey }}" {{ ($selectedProvinsi ?? 'Semua') == $pKey ? 'selected' : '' }}>{{ $pVal }}</option>
                     @endforeach
                 </select>
 
-                <input type="text" name="kabupaten" value="{{ $selectedKabupaten ?? '' }}" placeholder="Cari Kab/Kota..." style="height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.85rem; font-weight: 600;">
-                <button type="submit" class="btn-primary-bm" style="height: 38px; padding: 0 14px; font-size: 0.8125rem;">
-                    <i class="fa fa-search"></i> Cari
-                </button>
+                <label style="font-size: 0.85rem; font-weight: 700; color: var(--navy); margin: 0; white-space: nowrap;">Kab/Kota:</label>
+                <select name="kabupaten" onchange="this.form.submit()" class="select2-basic" style="min-width: 180px; height: 38px;">
+                    <option value="">Semua Kab/Kota</option>
+                    @foreach($daftarKabupaten as $kabKey => $kabLabel)
+                        <option value="{{ $kabKey }}" {{ ($selectedKabupaten ?? '') == $kabKey ? 'selected' : '' }}>{{ $kabLabel }}</option>
+                    @endforeach
+                </select>
+
+                @if(!empty($selectedKabupaten) || ($selectedProvinsi ?? 'Semua') !== 'Semua')
+                    <a href="{{ route('admin.organisasi.index') }}" style="color: #ef4444; font-weight: 700; font-size: 0.8125rem; text-decoration: none; padding: 4px 8px;">Reset Filter</a>
+                @endif
             </form>
         </div>
         

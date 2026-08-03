@@ -293,7 +293,8 @@ Route::get('/berita/{slug}', [BeritaController::class, 'show'])->name('berita-de
 // Other Public Pages
 Route::get('/organisasi', function (Illuminate\Http\Request $request) {
     $daftarProvinsi = \App\Helpers\WilayahHelper::getDaftarProvinsi();
-    $selectedProvinsi = $request->get('provinsi', 'Nasional');
+    $daftarKabupaten = \App\Helpers\WilayahHelper::getDaftarKabupatenKota();
+    $selectedProvinsi = $request->get('provinsi', 'Semua');
     $selectedKabupaten = $request->get('kabupaten');
 
     $allPeriodes = \App\Models\PeriodeKepengurusan::orderBy('is_aktif', 'desc')
@@ -322,32 +323,37 @@ Route::get('/organisasi', function (Illuminate\Http\Request $request) {
 
     $organisasi = $organisasiQuery->orderBy('urutan', 'asc')->get();
 
-    $nodesByUrutan = [];
-    foreach ($organisasi as $org) {
-        $org->children = collect();
-        if (!isset($nodesByUrutan[$org->urutan])) {
-            $nodesByUrutan[$org->urutan] = [];
+    // Build Master Jabatan tree with members mapped
+    $jabatans = \App\Models\Jabatan::orderBy('urutan')->get();
+    $orgByUrutan = $organisasi->groupBy('urutan');
+    $orgByJabatan = $organisasi->groupBy(function($item) {
+        return strtolower(trim($item->jabatan));
+    });
+
+    $jabatanTree = $jabatans->map(function ($jab) use ($orgByUrutan, $orgByJabatan) {
+        $members = $orgByUrutan->get($jab->urutan, collect());
+        if ($members->isEmpty()) {
+            $members = $orgByJabatan->get(strtolower(trim($jab->nama_jabatan)), collect());
         }
-        $nodesByUrutan[$org->urutan][] = $org;
-    }
+        $jab->members = $members;
+        $jab->children = collect();
+        return $jab;
+    })->keyBy('urutan');
 
     $organisasiTree = collect();
-    foreach ($organisasi as $org) {
-        $parts = explode('.', $org->urutan);
-        if (count($parts) > 1) {
-            array_pop($parts);
-            $parentUrutan = implode('.', $parts);
-            if (isset($nodesByUrutan[$parentUrutan])) {
-                $nodesByUrutan[$parentUrutan][0]->children->push($org);
-            } else {
-                $organisasiTree->push($org);
-            }
+    foreach ($jabatanTree as $urutan => $jab) {
+        $parts = explode('.', $urutan);
+        array_pop($parts);
+        $parentUrutan = implode('.', $parts);
+
+        if ($parentUrutan && isset($jabatanTree[$parentUrutan])) {
+            $jabatanTree[$parentUrutan]->children->push($jab);
         } else {
-            $organisasiTree->push($org);
+            $organisasiTree->push($jab);
         }
     }
 
-    return view('pages.organisasi', compact('organisasiTree', 'allPeriodes', 'selectedPeriode', 'daftarProvinsi', 'selectedProvinsi', 'selectedKabupaten'));
+    return view('pages.organisasi', compact('organisasiTree', 'allPeriodes', 'selectedPeriode', 'daftarProvinsi', 'daftarKabupaten', 'selectedProvinsi', 'selectedKabupaten'));
 })->name('organisasi');
 Route::get('/organisasi/{nama}', [PublicOrganisasiController::class, 'show'])
     ->name('organisasi.show');

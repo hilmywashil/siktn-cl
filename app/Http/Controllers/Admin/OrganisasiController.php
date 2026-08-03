@@ -16,7 +16,8 @@ class OrganisasiController extends Controller
     public function index(Request $request)
     {
         $daftarProvinsi = \App\Helpers\WilayahHelper::getDaftarProvinsi();
-        $selectedProvinsi = $request->get('provinsi', 'Nasional');
+        $daftarKabupaten = \App\Helpers\WilayahHelper::getDaftarKabupatenKota();
+        $selectedProvinsi = $request->get('provinsi', 'Semua');
         $selectedKabupaten = $request->get('kabupaten');
 
         $allPeriodes = \App\Models\PeriodeKepengurusan::orderBy('is_aktif', 'desc')
@@ -48,13 +49,20 @@ class OrganisasiController extends Controller
         // Build jabatan tree with members
         $jabatans = Jabatan::orderBy('urutan')->get();
 
-        // Map urutan -> org members
-        $orgByUrutan = $organisasi->groupBy('urutan'); // grouped by urutan to be 100% unique per node
+        // Map urutan and jabatan name -> org members
+        $orgByUrutan = $organisasi->groupBy('urutan');
+        $orgByJabatan = $organisasi->groupBy(function($item) {
+            return strtolower(trim($item->jabatan));
+        });
 
         // Build tree: jabatan with their members
-        $jabatanTree = $jabatans->map(function ($jab) use ($orgByUrutan) {
-            $jab->members = $orgByUrutan->get($jab->urutan, collect());
-            $jab->children = collect(); // to be filled below
+        $jabatanTree = $jabatans->map(function ($jab) use ($orgByUrutan, $orgByJabatan) {
+            $members = $orgByUrutan->get($jab->urutan, collect());
+            if ($members->isEmpty()) {
+                $members = $orgByJabatan->get(strtolower(trim($jab->nama_jabatan)), collect());
+            }
+            $jab->members = $members;
+            $jab->children = collect();
             return $jab;
         })->keyBy('urutan');
 
@@ -81,6 +89,7 @@ class OrganisasiController extends Controller
             'allPeriodes' => $allPeriodes,
             'selectedPeriode' => $selectedPeriode,
             'daftarProvinsi' => $daftarProvinsi,
+            'daftarKabupaten' => $daftarKabupaten,
             'selectedProvinsi' => $selectedProvinsi,
             'selectedKabupaten' => $selectedKabupaten,
         ]);

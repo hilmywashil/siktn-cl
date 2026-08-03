@@ -246,21 +246,24 @@
                     {{-- Select Provinsi --}}
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <label style="font-size: 0.8125rem; font-weight: 700; color: #022648; margin: 0; white-space: nowrap;">Provinsi:</label>
-                        <select name="provinsi" onchange="this.form.submit()" style="background: #f8fafc; border: 1.5px solid #022648; color: #022648; font-weight: 700; font-size: 0.85rem; padding: 7px 12px; border-radius: 6px; cursor: pointer; outline: none;">
+                        <select name="provinsi" onchange="this.form.submit()" class="select2-basic" style="min-width: 180px; height: 38px;">
                             @foreach($daftarProvinsi as $provKey => $provLabel)
                                 <option value="{{ $provKey }}" {{ $selectedProvinsi == $provKey ? 'selected' : '' }}>{{ $provLabel }}</option>
                             @endforeach
                         </select>
                     </div>
 
-                    {{-- Search Kabupaten --}}
+                    {{-- Select Kabupaten / Kota --}}
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <input type="text" name="kabupaten" value="{{ request('kabupaten') }}" placeholder="Cari Kabupaten/Kota..." style="background: #f8fafc; border: 1px solid #cbd5e1; color: #0f172a; font-weight: 600; font-size: 0.85rem; padding: 6.5px 12px; border-radius: 6px; width: 170px;">
-                        <button type="submit" style="background: #022648; color: #ffffff; border: none; font-weight: 700; padding: 7px 14px; border-radius: 6px; font-size: 0.8125rem; cursor: pointer;">
-                            <i class="fa fa-search"></i>
-                        </button>
-                        @if(request('kabupaten'))
-                            <a href="{{ route('organisasi', ['provinsi' => $selectedProvinsi]) }}" style="color: #ef4444; font-weight: 700; font-size: 0.8125rem; text-decoration: none; padding: 4px;">Reset</a>
+                        <label style="font-size: 0.8125rem; font-weight: 700; color: #022648; margin: 0; white-space: nowrap;">Kab/Kota:</label>
+                        <select name="kabupaten" onchange="this.form.submit()" class="select2-basic" style="min-width: 180px; height: 38px;">
+                            <option value="">Semua Kab/Kota</option>
+                            @foreach($daftarKabupaten as $kabKey => $kabLabel)
+                                <option value="{{ $kabKey }}" {{ request('kabupaten') == $kabKey ? 'selected' : '' }}>{{ $kabLabel }}</option>
+                            @endforeach
+                        </select>
+                        @if(request('kabupaten') || $selectedProvinsi !== 'Semua')
+                            <a href="{{ route('organisasi') }}" style="color: #ef4444; font-weight: 700; font-size: 0.8125rem; text-decoration: none; padding: 4px;">Reset</a>
                         @endif
                     </div>
                 </form>
