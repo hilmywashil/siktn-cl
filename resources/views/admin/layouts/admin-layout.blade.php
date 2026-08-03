@@ -43,6 +43,10 @@
             font-weight: 700 !important;
         }
         
+        .swal2-container {
+            z-index: 11000 !important;
+        }
+
         .swal2-html-container {
             color: #6b7280 !important;
             font-size: 0.95rem !important;
