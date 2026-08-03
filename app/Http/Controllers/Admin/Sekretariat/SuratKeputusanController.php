@@ -86,7 +86,8 @@ class SuratKeputusanController extends Controller
                 Notification::send($admins, new AdminNotification(
                     'sk_expired',
                     'Pengingat Masa Berlaku SK',
-                    "Surat Keputusan '{$sk->nomor_sk}' ({$sk->judul_sk}) akan habis masa berlakunya dalam {$daysUntilExpired} hari lagi."
+                    "Surat Keputusan '{$sk->nomor_sk}' ({$sk->judul_sk}) akan habis masa berlakunya dalam {$daysUntilExpired} hari lagi.",
+                    ['sk_id' => $sk->id]
                 ));
             }
         }
@@ -118,10 +119,16 @@ class SuratKeputusanController extends Controller
         $daysUntilExpired = (int) $now->diffInDays($endDate, false);
 
         if ($sk->status === 'Tidak Aktif' || $daysUntilExpired > 7) {
+            $escapedNomorSk = str_replace('/', '\\/', $sk->nomor_sk);
             \Illuminate\Support\Facades\DB::table('notifications')
                 ->whereNull('read_at')
                 ->where('data', 'like', '%"type":"sk_expired"%')
-                ->where('data', 'like', '%' . $sk->nomor_sk . '%')
+                ->where(function ($q) use ($sk, $escapedNomorSk) {
+                    $q->where('data', 'like', '%"sk_id":' . $sk->id . '%')
+                      ->orWhere('data', 'like', '%' . $sk->nomor_sk . '%')
+                      ->orWhere('data', 'like', '%' . $escapedNomorSk . '%')
+                      ->orWhere('data', 'like', '%' . $sk->judul_sk . '%');
+                })
                 ->update(['read_at' => now()]);
         }
 
