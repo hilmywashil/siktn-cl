@@ -87,13 +87,45 @@
         <h1>500</h1>
         <h2>Kesalahan Sistem</h2>
         <p>Maaf, terjadi kesalahan internal pada server kami. Tim teknis kami telah diberitahu dan sedang menangani masalah ini.</p>
-        <a href="{{ url()->previous() }}" class="btn-back">Muat Ulang Halaman</a>
-        
-        @if(config('app.debug') && isset($exception))
-        <div class="debug-msg">
-            <strong>Pesan Debug:</strong><br>
-            {{ $exception->getMessage() }}
+        <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem;">
+            <a href="{{ url()->previous() }}" class="btn-back">Muat Ulang Halaman</a>
+            @if(isset($exception))
+            <button type="button" onclick="toggleErrorDetails()" class="btn-back" style="background: #ef4444; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                Lihat Detail Error
+            </button>
+            @endif
         </div>
+        
+        @if(isset($exception))
+        <div id="errorDetailsBox" class="debug-msg" style="display: none; margin-top: 1.5rem;">
+            <div style="font-weight: 800; color: #991b1b; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <span>Detail Pesan Error Sistem:</span>
+                <button type="button" onclick="copyErrorToClipboard()" style="font-size: 0.725rem; background: #991b1b; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    Salin Error
+                </button>
+            </div>
+            <pre id="errCodeText" style="white-space: pre-wrap; word-break: break-all; margin: 0; font-family: monospace; font-size: 0.75rem; color: #7f1d1d; max-height: 250px; overflow-y: auto; background: #fff5f5; padding: 0.75rem; border-radius: 6px; border: 1px dashed #fca5a5;">Pesan: {{ $exception->getMessage() ?: 'Terjadi kesalahan sistem internal.' }}
+File: {{ $exception->getFile() }}:{{ $exception->getLine() }}
+
+Stack Trace:
+{{ $exception->getTraceAsString() }}</pre>
+        </div>
+        <script>
+            function toggleErrorDetails() {
+                var el = document.getElementById('errorDetailsBox');
+                el.style.display = el.style.display === 'none' ? 'block' : 'none';
+            }
+            function copyErrorToClipboard() {
+                var text = document.getElementById('errCodeText').innerText;
+                navigator.clipboard.writeText(text).then(function() {
+                    alert('Pesan error berhasil disalin ke clipboard!');
+                }).catch(function() {
+                    alert('Gagal menyalin. Silakan seleksi teks secara manual.');
+                });
+            }
+        </script>
         @endif
     </div>
 </body>
