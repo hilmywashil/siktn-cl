@@ -1373,7 +1373,21 @@
                 .then(data => {
                     suratNotifFeedData = data;
                     updateSuratBadges(data);
-                    renderSuratNotifList(currentSuratTab);
+
+                    // Smart Auto-Tab Switch: Pindah otomatis ke tab yang memiliki surat pending jika tab saat ini 0
+                    if (!data[currentSuratTab] || data[currentSuratTab].length === 0) {
+                        if (data['internal'] && data['internal'].length > 0) {
+                            switchSuratTab('internal', document.getElementById('suratTabInternal'));
+                        } else if (data['eksternal'] && data['eksternal'].length > 0) {
+                            switchSuratTab('eksternal', document.getElementById('suratTabEksternal'));
+                        } else if (data['penting'] && data['penting'].length > 0) {
+                            switchSuratTab('penting', document.getElementById('suratTabPenting'));
+                        } else {
+                            renderSuratNotifList(currentSuratTab);
+                        }
+                    } else {
+                        renderSuratNotifList(currentSuratTab);
+                    }
                 })
                 .catch(err => {
                     notifBody.innerHTML = '<div class="notification-empty" style="color: #dc2626;">Gagal memuat notifikasi.</div>';
@@ -1383,7 +1397,13 @@
         function switchSuratTab(tab, el) {
             currentSuratTab = tab;
             document.querySelectorAll('.surat-tab-item').forEach(item => item.classList.remove('active'));
-            if (el) el.classList.add('active');
+            if (el) {
+                el.classList.add('active');
+            } else {
+                let tabElId = 'suratTab' + tab.charAt(0).toUpperCase() + tab.slice(1);
+                let targetEl = document.getElementById(tabElId);
+                if (targetEl) targetEl.classList.add('active');
+            }
             renderSuratNotifList(tab);
         }
 
@@ -1392,7 +1412,17 @@
             if (!notifBody) return;
 
             if (!suratNotifFeedData || !suratNotifFeedData[tab] || suratNotifFeedData[tab].length === 0) {
-                notifBody.innerHTML = `<div class="notification-empty">Belum ada surat keluar kategori ${tab}.</div>`;
+                notifBody.innerHTML = `
+                    <div style="text-align: center; padding: 2rem 1rem; color: #94a3b8;">
+                        <svg viewBox="0 0 24 24" width="36" height="36" stroke="#cbd5e1" fill="none" stroke-width="1.5" style="margin: 0 auto 0.5rem; display: block;">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                        <p style="font-size: 0.825rem; font-weight: 600; color: #64748b; margin: 0;">Tidak ada surat pending kategori ${tab}</p>
+                    </div>
+                `;
                 return;
             }
 
