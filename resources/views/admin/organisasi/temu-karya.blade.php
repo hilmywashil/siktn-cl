@@ -306,11 +306,6 @@
 
 @section('content')
 <div class="container-fluid">
-    @if(session('success'))
-        <div style="padding: 1rem; background: #d1fae5; color: #065f46; border-radius: 8px; margin-bottom: 1.5rem; font-weight: 600;">
-            {{ session('success') }}
-        </div>
-    @endif
 
     @if($errors->any())
         <div style="padding: 1rem; background: #fee2e2; color: #991b1b; border-radius: 8px; margin-bottom: 1.5rem; font-weight: 600;">
