@@ -83,12 +83,14 @@
                                 <i class="fa fa-map-marker-alt" style="color: #c59217;"></i> Wilayah:
                             </label>
                             <select name="wilayah" id="wilayahSelect" class="select2-basic" style="width: 100%;">
+                                <option value="">-- Semua Wilayah --</option>
                                 @if(isset($daftarProvinsi))
                                     @foreach($daftarProvinsi as $pKey => $pVal)
-                                        @php $val = ($pKey === 'Semua') ? '' : $pKey; @endphp
-                                        <option value="{{ $val }}" {{ ($wilayahSelected ?? '') === $val ? 'selected' : '' }}>
-                                            {{ $pVal }}
-                                        </option>
+                                        @if($pKey !== 'Semua')
+                                            <option value="{{ $pKey }}" {{ ($wilayahSelected ?? '') === $pKey ? 'selected' : '' }}>
+                                                {{ $pKey }}
+                                            </option>
+                                        @endif
                                     @endforeach
                                 @endif
                             </select>
@@ -183,7 +185,7 @@
         if (typeof $.fn.select2 !== 'undefined') {
             $('#wilayahSelect').select2({
                 placeholder: '-- Semua Wilayah --',
-                allowClear: true,
+                allowClear: false,
                 width: '100%'
             }).on('change', function() {
                 $(this).closest('form').submit();
