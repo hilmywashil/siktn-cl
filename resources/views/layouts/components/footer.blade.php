@@ -25,11 +25,11 @@
         <div class="footer-col">
             <h3 class="footer-heading">Layanan Kami</h3>
             <ul class="footer-links">
-                <li><a href="#">Program CSR</a></li>
-                <li><a href="#">Program Bidang</a></li>
-                <li><a href="#">Struktur Organisasi</a></li>
-                <li><a href="#">Daftar Anggota</a></li>
-                <li><a href="#">Login Member</a></li>
+                <li><a href="{{ route('program.csr') }}">Program CSR</a></li>
+                <li><a href="{{ route('program.bidang') }}">Program Bidang</a></li>
+                <li><a href="{{ route('organisasi') }}">Struktur Organisasi</a></li>
+                <li><a href="{{ route('buku-anggota') }}">Daftar Anggota</a></li>
+                <li><a href="{{ route('anggota.login') }}">Login Member</a></li>
             </ul>
         </div>
 

@@ -41,7 +41,7 @@
                 <div class="buttons">
                     <a href="{{ route('about') }}" class="btn-white">
                         Gabung Organisasi</a>
-                    <a href="#contact" class="btn-yellow">Struktur
+                    <a href="{{ route('organisasi') }}" class="btn-yellow">Struktur
                         Organisasi</a>
                 </div>
             @endif
