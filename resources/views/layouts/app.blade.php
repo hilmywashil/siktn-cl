@@ -286,6 +286,10 @@
             const notifBtn = document.getElementById('notificationBtn');
             const notifDropdown = document.getElementById('notificationDropdown');
             if(notifBtn && notifDropdown) {
+                @if(isset($unreadNotifications) && $unreadNotifications->count() > 0)
+                    notifDropdown.classList.add('show');
+                @endif
+
                 notifBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     notifDropdown.classList.toggle('show');

@@ -26,7 +26,7 @@ class ProgramNotification extends Notification
     {
         return [
             'type' => 'program_baru',
-            'title' => '📢 Program Baru: ' . $this->program->nama_program,
+            'title' => 'Program Baru: ' . $this->program->nama_program,
             'message' => "Terdapat program baru '{$this->program->nama_program}' ({$this->program->kategori}) yang baru saja diterbitkan.",
             'status' => 'program',
             'program_id' => $this->program->id,
