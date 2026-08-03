@@ -285,7 +285,7 @@ $activeMenu = 'berita';
 
         <div class="form-group">
             <label class="form-label">Tingkat Wilayah Berita <span class="required">*</span></label>
-            @if($admin->isPPKT())
+            @if(isset($admin) && $admin->isPPKT())
                 <input type="text" class="form-input" value="{{ $admin->domisili }}" readonly style="background: #f3f4f6; color: #022648; font-weight: 700;">
                 <input type="hidden" name="wilayah" value="{{ $admin->domisili }}">
                 <div class="form-help">Wilayah otomatis dikunci sesuai Domisili Sekretariat Provinsi Anda</div>
@@ -298,7 +298,7 @@ $activeMenu = 'berita';
         <div class="form-group">
             <label class="form-label">Pengaturan Berita</label>
             <div class="checkbox-group">
-                @if($admin->isPPKT())
+                @if(isset($admin) && $admin->isPPKT())
                     <input type="checkbox" disabled id="is_populer_disabled">
                     <label for="is_populer_disabled" style="color: #9ca3af; cursor: not-allowed;">
                         Tandai sebagai Berita Populer <span style="font-size: 0.75rem; color: #dc2626;">(Khusus Tingkat Nasional)</span>

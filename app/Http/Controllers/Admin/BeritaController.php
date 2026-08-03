@@ -14,8 +14,13 @@ class BeritaController extends Controller
     use LogsAdminActivity;
     private function checkAccess($admin)
     {
-        if (!$admin || !$admin->canManageContent()) {
-            abort(403, 'Anda tidak memiliki akses untuk kelola berita.');
+        if (!$admin) {
+            redirect()->route('admin.login')->send();
+            exit;
+        }
+        if (!$admin->canManageContent()) {
+            redirect()->route('admin.dashboard')->with('error', 'Anda tidak memiliki hak akses untuk mengelola berita.')->send();
+            exit;
         }
     }
 
@@ -45,8 +50,12 @@ class BeritaController extends Controller
         }
 
         $beritas = $query->paginate(10);
-        $kategorisDb = Berita::whereNotNull('kategori')->distinct()->pluck('kategori')->toArray();
-        $kategoris = array_unique(array_merge(['Pengumuman', 'Kegiatan', 'Regulasi'], $kategorisDb));
+        try {
+            $kategorisDb = Berita::whereNotNull('kategori')->distinct()->pluck('kategori')->toArray();
+        } catch (\Throwable $e) {
+            $kategorisDb = [];
+        }
+        $kategoris = array_values(array_unique(array_merge(['Pengumuman', 'Kegiatan', 'Regulasi'], $kategorisDb)));
         
         return view('admin.berita.index', compact('admin', 'beritas', 'kategoris'));
     }
@@ -56,8 +65,12 @@ class BeritaController extends Controller
         $admin = auth()->guard('admin')->user();
         $this->checkAccess($admin);
 
-        $kategorisDb = Berita::whereNotNull('kategori')->distinct()->pluck('kategori')->toArray();
-        $kategoris = array_unique(array_merge(['Pengumuman', 'Kegiatan', 'Regulasi'], $kategorisDb));
+        try {
+            $kategorisDb = Berita::whereNotNull('kategori')->distinct()->pluck('kategori')->toArray();
+        } catch (\Throwable $e) {
+            $kategorisDb = [];
+        }
+        $kategoris = array_values(array_unique(array_merge(['Pengumuman', 'Kegiatan', 'Regulasi'], $kategorisDb)));
 
         return view('admin.berita.create', compact('admin', 'kategoris'));
     }
@@ -144,8 +157,12 @@ class BeritaController extends Controller
             abort(403, 'Anda tidak memiliki akses untuk mengedit berita wilayah lain.');
         }
         
-        $kategorisDb = Berita::whereNotNull('kategori')->distinct()->pluck('kategori')->toArray();
-        $kategoris = array_unique(array_merge(['Pengumuman', 'Kegiatan', 'Regulasi'], $kategorisDb));
+        try {
+            $kategorisDb = Berita::whereNotNull('kategori')->distinct()->pluck('kategori')->toArray();
+        } catch (\Throwable $e) {
+            $kategorisDb = [];
+        }
+        $kategoris = array_values(array_unique(array_merge(['Pengumuman', 'Kegiatan', 'Regulasi'], $kategorisDb)));
 
         return view('admin.berita.edit', compact('admin', 'berita', 'kategoris'));
     }
