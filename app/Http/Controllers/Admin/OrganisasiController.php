@@ -217,10 +217,19 @@ class OrganisasiController extends Controller
 
         Organisasi::create($validated);
 
+        $targetAnggota = null;
         if (!empty($validated['anggota_id'])) {
-            \App\Models\Anggota::where('id', $validated['anggota_id'])->update([
-                'jabatan' => $validated['jabatan']
-            ]);
+            $targetAnggota = \App\Models\Anggota::find($validated['anggota_id']);
+        } else if (!empty($validated['nama'])) {
+            $targetAnggota = \App\Models\Anggota::where('nama_lengkap', $validated['nama'])->first();
+        }
+
+        if ($targetAnggota) {
+            $up = ['jabatan' => $validated['jabatan']];
+            if (!empty($validated['foto']) && empty($targetAnggota->foto_diri)) {
+                $up['foto_diri'] = $validated['foto'];
+            }
+            $targetAnggota->update($up);
         }
 
         $org = Organisasi::latest()->first();
@@ -286,10 +295,19 @@ class OrganisasiController extends Controller
 
         $organisasi->update($validated);
 
+        $targetAnggota = null;
         if (!empty($validated['anggota_id'])) {
-            \App\Models\Anggota::where('id', $validated['anggota_id'])->update([
-                'jabatan' => $validated['jabatan']
-            ]);
+            $targetAnggota = \App\Models\Anggota::find($validated['anggota_id']);
+        } else if (!empty($validated['nama'])) {
+            $targetAnggota = \App\Models\Anggota::where('nama_lengkap', $validated['nama'])->first();
+        }
+
+        if ($targetAnggota) {
+            $up = ['jabatan' => $validated['jabatan']];
+            if (!empty($validated['foto']) && empty($targetAnggota->foto_diri)) {
+                $up['foto_diri'] = $validated['foto'];
+            }
+            $targetAnggota->update($up);
         }
 
         $this->logActivity('organisasi', 'Edit', $organisasi->id, $organisasi->nama, $organisasi->jabatan);

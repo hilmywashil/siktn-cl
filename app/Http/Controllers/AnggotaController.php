@@ -251,6 +251,40 @@ class AnggotaController extends Controller
                 ->with('error', 'Silakan login terlebih dahulu.');
         }
 
+        // Auto-detect and sync with Organisasi structure
+        $orgPosition = \App\Models\Organisasi::where('anggota_id', $anggota->id)
+            ->orWhere('nama', $anggota->nama_lengkap)
+            ->first();
+
+        if ($orgPosition) {
+            $updated = false;
+
+            // Link anggota_id if missing
+            if ($orgPosition->anggota_id !== $anggota->id) {
+                $orgPosition->update(['anggota_id' => $anggota->id]);
+            }
+
+            // Sync Jabatan
+            if ($anggota->jabatan !== $orgPosition->jabatan) {
+                $anggota->jabatan = $orgPosition->jabatan;
+                $updated = true;
+            }
+
+            // Sync Foto Diri if anggota has no foto_diri, copy from organisasi foto
+            if (empty($anggota->foto_diri) && !empty($orgPosition->foto)) {
+                $anggota->foto_diri = $orgPosition->foto;
+                $updated = true;
+            }
+            // Or if organisasi has no foto, copy from anggota foto_diri
+            if (empty($orgPosition->foto) && !empty($anggota->foto_diri)) {
+                $orgPosition->update(['foto' => $anggota->foto_diri]);
+            }
+
+            if ($updated) {
+                $anggota->save();
+            }
+        }
+
         $jabatans = \App\Models\Jabatan::orderBy('nama_jabatan', 'asc')->get();
         $programs = $anggota->programs()->orderBy('programs.created_at', 'desc')->get();
 
