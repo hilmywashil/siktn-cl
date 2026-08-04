@@ -246,6 +246,7 @@
             border-radius: 50%;
             border: 2px solid white;
             animation: badgePulse 2s infinite;
+            pointer-events: none;
         }
         @keyframes badgePulse {
             0% { transform: translate(25%, -25%) scale(1); box-shadow: 0 0 0 0 rgba(214, 11, 28, 0.7); }
@@ -370,6 +371,7 @@
             padding: 2px 6px;
             border-radius: 50%;
             border: 2px solid white;
+            pointer-events: none;
         }
         .surat-notif-dropdown {
             position: absolute;
@@ -1667,25 +1669,6 @@
             }
         });
         const Toast = window.Toast;
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const notifBtn = document.getElementById('notificationBtn');
-            const notifDropdown = document.getElementById('notificationDropdown');
-            if(notifBtn && notifDropdown) {
-                notifBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    notifDropdown.classList.toggle('show');
-                });
-                document.addEventListener('click', function(e) {
-                    if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
-                        notifDropdown.classList.remove('show');
-                    }
-                });
-                notifDropdown.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                });
-            }
-        });
     </script>
 
     {{-- Flash Messages Notification --}}
