@@ -2451,8 +2451,48 @@
         </div>
         <div class="floating-camera-actions">
             <button type="button" class="floating-shutter" id="btnFloatingShutter" title="Ambil Foto"></button>
+    <style>
+        /* Custom Profile Modal */
+        .custom-profile-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center; justify-content: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s;
+        }
+        .custom-profile-modal.active { display: flex; }
+        .custom-profile-modal-content {
+            background: white; border-radius: 12px; padding: 30px; max-width: 400px; width: 90%; text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s;
+        }
+        .custom-profile-modal-icon {
+            width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+            background: #fef3c7; color: #d97706;
+        }
+        .custom-profile-modal-title { font-size: 1.25rem; font-weight: 700; color: #022648; margin: 0 0 10px; font-family: 'Google Sans', sans-serif;}
+        .custom-profile-modal-text { font-size: 0.9rem; color: #6b7280; margin-bottom: 25px; line-height: 1.6; }
+        .custom-modal-btn { border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; background: #022648; width: 100%; transition: all 0.2s;}
+        .custom-modal-btn:hover { background: #18227C; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+
+    @if(in_array($anggota->status, ['pending', 'pending_profile']))
+    <div class="custom-profile-modal active" id="profileForceModal" onclick="if(event.target === this) closeProfileForceModal()">
+        <div class="custom-profile-modal-content" onclick="event.stopPropagation()">
+            <div class="custom-profile-modal-icon">
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <h3 class="custom-profile-modal-title">Lengkapi Profil Anda</h3>
+            <p class="custom-profile-modal-text">Halo <strong>{{ $anggota->nama_lengkap }}</strong>, silakan lengkapi biodata Anda terlebih dahulu. Fitur KTA Digital dan Katalog akan terbuka setelah data divalidasi oleh Sekretariat Nasional (PNKT).</p>
+            <button type="button" class="custom-modal-btn" onclick="closeProfileForceModal()">Baik, Mengerti</button>
         </div>
     </div>
+    @endif
 @endsection
 
 @push('scripts')
@@ -2947,55 +2987,12 @@
                 text.textContent = label;
                 text.style.color = color;
             });
+
         function closeProfileForceModal() {
-            const modal = document.getElementById('profileForceModal');
-            if (modal) {
-                modal.classList.remove('active');
-                modal.style.setProperty('display', 'none', 'important');
-            }
+            document.querySelectorAll('#profileForceModal, .custom-profile-modal').forEach(el => {
+                el.classList.remove('active');
+                el.style.setProperty('display', 'none', 'important');
+            });
         }
     </script>
-
-    <style>
-        /* Custom Profile Modal */
-        .custom-profile-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            align-items: center; justify-content: center;
-            z-index: 9999;
-            animation: fadeIn 0.3s;
-        }
-        .custom-profile-modal.active { display: flex; }
-        .custom-profile-modal-content {
-            background: white; border-radius: 12px; padding: 30px; max-width: 400px; width: 90%; text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            animation: slideUp 0.3s;
-        }
-        .custom-profile-modal-icon {
-            width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
-            background: #fef3c7; color: #d97706;
-        }
-        .custom-profile-modal-title { font-size: 1.25rem; font-weight: 700; color: #022648; margin: 0 0 10px; font-family: 'Google Sans', sans-serif;}
-        .custom-profile-modal-text { font-size: 0.9rem; color: #6b7280; margin-bottom: 25px; line-height: 1.6; }
-        .custom-modal-btn { border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; background: #022648; width: 100%; transition: all 0.2s;}
-        .custom-modal-btn:hover { background: #18227C; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    </style>
-
-    @if(in_array($anggota->status, ['pending', 'pending_profile']))
-    <div class="custom-profile-modal active" id="profileForceModal" onclick="if(event.target === this) closeProfileForceModal()">
-        <div class="custom-profile-modal-content" onclick="event.stopPropagation()">
-            <div class="custom-profile-modal-icon">
-                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-            </div>
-            <h3 class="custom-profile-modal-title">Lengkapi Profil Anda</h3>
-            <p class="custom-profile-modal-text">Halo <strong>{{ $anggota->nama_lengkap }}</strong>, silakan lengkapi biodata Anda terlebih dahulu. Fitur KTA Digital dan Katalog akan terbuka setelah data divalidasi oleh Sekretariat Nasional (PNKT).</p>
-            <button type="button" class="custom-modal-btn" onclick="closeProfileForceModal()">Baik, Mengerti</button>
-        </div>
-    </div>
-    @endif
 @endpush
