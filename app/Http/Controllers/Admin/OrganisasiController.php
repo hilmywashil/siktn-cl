@@ -217,6 +217,12 @@ class OrganisasiController extends Controller
 
         Organisasi::create($validated);
 
+        if (!empty($validated['anggota_id'])) {
+            \App\Models\Anggota::where('id', $validated['anggota_id'])->update([
+                'jabatan' => $validated['jabatan']
+            ]);
+        }
+
         $org = Organisasi::latest()->first();
         $this->logActivity('organisasi', 'Tambah', $org?->id, $validated['nama'], $validated['jabatan']);
 
@@ -279,6 +285,12 @@ class OrganisasiController extends Controller
         // Jangan timpa urutannya, biarkan urutan lama tetap dipakai
 
         $organisasi->update($validated);
+
+        if (!empty($validated['anggota_id'])) {
+            \App\Models\Anggota::where('id', $validated['anggota_id'])->update([
+                'jabatan' => $validated['jabatan']
+            ]);
+        }
 
         $this->logActivity('organisasi', 'Edit', $organisasi->id, $organisasi->nama, $organisasi->jabatan);
 
