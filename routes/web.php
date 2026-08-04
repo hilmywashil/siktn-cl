@@ -315,7 +315,12 @@ Route::get('/organisasi', function (Illuminate\Http\Request $request) {
     }
 
     if ($selectedKabupaten) {
-        $organisasiQuery->where('kabupaten', 'like', "%{$selectedKabupaten}%");
+        $cleanKab = trim(str_replace(['Kota ', 'Kabupaten '], '', $selectedKabupaten));
+        $organisasiQuery->where(function($q) use ($selectedKabupaten, $cleanKab) {
+            $q->where('kabupaten', 'like', "%{$selectedKabupaten}%")
+              ->orWhere('kabupaten', 'like', "%{$cleanKab}%")
+              ->orWhere('provinsi', 'like', "%{$cleanKab}%");
+        });
     }
 
     if ($selectedPeriodeId) {

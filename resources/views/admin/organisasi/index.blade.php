@@ -566,14 +566,14 @@
             </div>
             <form action="{{ route('admin.organisasi.index') }}" method="GET" style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
                 <label style="font-size: 0.85rem; font-weight: 700; color: var(--navy); margin: 0; white-space: nowrap;">Provinsi:</label>
-                <select name="provinsi" onchange="this.form.submit()" class="select2-basic" style="min-width: 180px; height: 38px;">
+                <select name="provinsi" id="provinsi-filter" onchange="this.form.submit()" class="select2-basic" style="min-width: 180px; height: 38px;">
                     @foreach($daftarProvinsi as $pKey => $pVal)
                         <option value="{{ $pKey }}" {{ ($selectedProvinsi ?? 'Semua') == $pKey ? 'selected' : '' }}>{{ $pVal }}</option>
                     @endforeach
                 </select>
 
                 <label style="font-size: 0.85rem; font-weight: 700; color: var(--navy); margin: 0; white-space: nowrap;">Kab/Kota:</label>
-                <select name="kabupaten" onchange="this.form.submit()" class="select2-basic" style="min-width: 180px; height: 38px;">
+                <select name="kabupaten" id="kabupaten-filter" onchange="this.form.submit()" class="select2-basic" style="min-width: 180px; height: 38px;">
                     <option value="">Semua Kab/Kota</option>
                     @foreach($daftarKabupaten as $kabKey => $kabLabel)
                         <option value="{{ $kabKey }}" {{ ($selectedKabupaten ?? '') == $kabKey ? 'selected' : '' }}>{{ $kabLabel }}</option>
@@ -727,9 +727,17 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         if (typeof $ !== 'undefined' && typeof $.fn.select2 !== 'undefined') {
-            $('.select2-basic').select2({
-                placeholder: 'Pilih Provinsi...',
+            $('#provinsi-filter').select2({
+                placeholder: 'Semua Provinsi',
                 allowClear: false,
+                width: 'resolve'
+            }).on('change', function() {
+                this.form.submit();
+            });
+
+            $('#kabupaten-filter').select2({
+                placeholder: 'Semua Kab/Kota',
+                allowClear: true,
                 width: 'resolve'
             }).on('change', function() {
                 this.form.submit();
