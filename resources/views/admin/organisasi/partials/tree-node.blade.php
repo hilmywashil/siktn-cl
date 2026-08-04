@@ -23,9 +23,11 @@
                     </div>
                 @endforeach
             @else
-                <a href="{{ route('admin.organisasi.create', ['urutan' => $node->urutan, 'atasan_id' => $node->atasan_id, 'jabatan' => $node->nama_jabatan, 'provinsi' => request('provinsi', 'Nasional')]) }}" style="text-decoration: none; display: block; color: inherit; width: 100%; height: 100%;">
-                    <div class="org-node-jabatan">{{ $node->nama_jabatan }}</div>
-                    <p style="font-size: 0.7rem; color: #022648; margin: 0; font-weight: 700;">Kosong <span style="font-size: 0.65rem; color: #b7830f;">(+ Isi)</span></p>
+                <a href="{{ route('admin.organisasi.create', ['urutan' => $node->urutan, 'atasan_id' => $node->atasan_id, 'jabatan' => $node->nama_jabatan, 'provinsi' => request('provinsi', 'Nasional')]) }}" style="text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: inherit; width: 100%; height: 100%; padding: 4px 0;">
+                    <div class="org-node-jabatan" style="margin-top: 0.25rem;">{{ $node->nama_jabatan }}</div>
+                    <div class="empty-badge-action" style="margin-top: 6px; padding: 4px 10px; border-radius: 20px; background: #e2e8f0; color: #022648; font-size: 0.725rem; font-weight: 700; transition: all 0.2s ease;">
+                        <i class="fa fa-plus-circle" style="color: #b7830f; margin-right: 3px;"></i> Isi Anggota
+                    </div>
                 </a>
             @endif
         </div>

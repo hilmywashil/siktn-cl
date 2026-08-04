@@ -341,23 +341,51 @@
 
     .org-tree-node {
         border: 2px solid #e2e8f0;
-        border-top: 4px solid #0a2540;
+        border-top: 4px solid #022648;
         padding: 0.75rem 1rem 0.75rem 1rem;
         display: inline-block;
         border-radius: 8px;
         background: white;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-        min-width: 160px;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08);
+        min-width: 165px;
         max-width: 220px;
         position: relative;
         z-index: 1;
         margin-bottom: 20px;
         text-align: center;
         vertical-align: top;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+    }
+    .org-tree-node:hover {
+        transform: translateY(-5px) scale(1.04);
+        box-shadow: 0 12px 24px -4px rgba(2, 38, 72, 0.2);
+        border-color: #b7830f;
+        border-top-color: #022648;
     }
     .org-tree-node.empty-node {
-        border-top-color: #cbd5e1;
-        opacity: 0.7;
+        border: 2px dashed #cbd5e1;
+        border-top: 4px dashed #94a3b8;
+        background: #f8fafc;
+        opacity: 0.85;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .org-tree-node.empty-node:hover {
+        border-style: solid;
+        border-color: #022648;
+        border-top: 4px solid #b7830f;
+        background: #f0f7ff;
+        opacity: 1;
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 12px 24px -4px rgba(2, 38, 72, 0.22);
+    }
+    .org-tree-node.empty-node:hover .org-node-jabatan {
+        color: #b7830f;
+    }
+    .org-tree-node.empty-node:hover .empty-badge-action {
+        background: #022648 !important;
+        color: #ffffff !important;
+        transform: scale(1.05);
     }
     .org-node-urutan {
         position: absolute;
