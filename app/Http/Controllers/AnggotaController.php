@@ -394,6 +394,34 @@ class AnggotaController extends Controller
 
         $anggota->save();
 
+        // Sync back to Organisasi structure if this anggota is assigned
+        $orgPosition = \App\Models\Organisasi::where('anggota_id', $anggota->id)
+            ->orWhere('nama', $anggota->nama_lengkap)
+            ->first();
+
+        if ($orgPosition) {
+            $orgUpdate = [];
+            if (!empty($anggota->jabatan) && $orgPosition->jabatan !== $anggota->jabatan) {
+                $orgUpdate['jabatan'] = $anggota->jabatan;
+            }
+            if (!empty($anggota->nama_lengkap) && $orgPosition->nama !== $anggota->nama_lengkap) {
+                $orgUpdate['nama'] = $anggota->nama_lengkap;
+            }
+            if (!empty($anggota->foto_diri)) {
+                $orgUpdate['foto'] = $anggota->foto_diri;
+            }
+            if (!empty($anggota->domisili)) {
+                $orgUpdate['kabupaten'] = $anggota->domisili;
+            }
+            if ($orgPosition->anggota_id !== $anggota->id) {
+                $orgUpdate['anggota_id'] = $anggota->id;
+            }
+
+            if (!empty($orgUpdate)) {
+                $orgPosition->update($orgUpdate);
+            }
+        }
+
         if ($needsVerification || in_array($anggota->getOriginal('status'), ['pending', 'pending_profile'])) {
             $admins = Admin::whereIn('category', ['super_admin', 'pimpinan', 'pnkt'])
                 ->orWhere('domisili', $anggota->domisili)
