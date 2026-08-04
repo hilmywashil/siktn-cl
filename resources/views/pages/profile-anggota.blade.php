@@ -2237,7 +2237,7 @@
                             <div class="form-section-divider">2. Informasi Organisasi & Profesi</div>
 
                             <div class="form-group">
-                                <label for="jabatan">Jabatan <span style="color:red;">*</span></label>
+                                 <label for="jabatan">Jabatan <span style="color:red;">*</span></label>
                                 <select name="jabatan" id="jabatanSelect" class="form-control select2-basic" required style="width: 100%;">
                                     <option value="">-- Pilih Jabatan --</option>
                                     @php 
@@ -2248,10 +2248,13 @@
                                         @foreach($jabatans->unique('nama_jabatan') as $jab)
                                             @php 
                                                 if($currentJabatan == $jab->nama_jabatan) $jabatanFound = true;
+                                                $isKetuaUmum = (strcasecmp($jab->nama_jabatan, 'Ketua Umum') === 0);
                                             @endphp
-                                            <option value="{{ $jab->nama_jabatan }}" {{ $currentJabatan == $jab->nama_jabatan ? 'selected' : '' }}>
-                                                {{ $jab->nama_jabatan }}
-                                            </option>
+                                            @if(!$isKetuaUmum || $currentJabatan == $jab->nama_jabatan)
+                                                <option value="{{ $jab->nama_jabatan }}" {{ $currentJabatan == $jab->nama_jabatan ? 'selected' : '' }}>
+                                                    {{ $jab->nama_jabatan }}
+                                                </option>
+                                            @endif
                                         @endforeach
                                     @endif
                                     
