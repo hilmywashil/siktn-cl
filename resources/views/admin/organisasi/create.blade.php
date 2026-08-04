@@ -333,7 +333,33 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        $('.select2').select2({
+        $('#anggota_id').select2({
+            placeholder: '-- Pilih Anggota Web --',
+            allowClear: true,
+            theme: 'default',
+            width: '100%'
+        });
+        $('#provinsi').select2({
+            placeholder: '-- Pilih Provinsi --',
+            allowClear: false,
+            theme: 'default',
+            width: '100%'
+        });
+        $('#kabupaten').select2({
+            placeholder: '-- Pilih Kabupaten / Kota --',
+            allowClear: true,
+            theme: 'default',
+            width: '100%'
+        });
+        $('#atasan_id').select2({
+            placeholder: '-- Pilih Atasan (Induk) --',
+            allowClear: true,
+            theme: 'default',
+            width: '100%'
+        });
+        $('#periode_id').select2({
+            placeholder: '-- Pilih Periode Kepengurusan --',
+            allowClear: false,
             theme: 'default',
             width: '100%'
         });
