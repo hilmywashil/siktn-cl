@@ -2947,6 +2947,12 @@
                 text.textContent = label;
                 text.style.color = color;
             });
+        function closeProfileForceModal() {
+            const modal = document.getElementById('profileForceModal');
+            if (modal) {
+                modal.classList.remove('active');
+                modal.style.setProperty('display', 'none', 'important');
+            }
         }
     </script>
 
@@ -2979,8 +2985,8 @@
     </style>
 
     @if(in_array($anggota->status, ['pending', 'pending_profile']))
-    <div class="custom-profile-modal active" id="profileForceModal">
-        <div class="custom-profile-modal-content">
+    <div class="custom-profile-modal active" id="profileForceModal" onclick="if(event.target === this) closeProfileForceModal()">
+        <div class="custom-profile-modal-content" onclick="event.stopPropagation()">
             <div class="custom-profile-modal-icon">
                 <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
@@ -2988,7 +2994,7 @@
             </div>
             <h3 class="custom-profile-modal-title">Lengkapi Profil Anda</h3>
             <p class="custom-profile-modal-text">Halo <strong>{{ $anggota->nama_lengkap }}</strong>, silakan lengkapi biodata Anda terlebih dahulu. Fitur KTA Digital dan Katalog akan terbuka setelah data divalidasi oleh Sekretariat Nasional (PNKT).</p>
-            <button type="button" class="custom-modal-btn" onclick="document.getElementById('profileForceModal').classList.remove('active')">Baik, Mengerti</button>
+            <button type="button" class="custom-modal-btn" onclick="closeProfileForceModal()">Baik, Mengerti</button>
         </div>
     </div>
     @endif

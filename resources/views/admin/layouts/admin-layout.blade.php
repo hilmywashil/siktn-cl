@@ -308,6 +308,7 @@
             flex-direction: column;
             gap: 5px;
             text-decoration: none;
+            cursor: pointer;
             transition: background 0.2s;
         }
         .notification-item:hover {
@@ -966,19 +967,34 @@
                         </div>
                         <div class="notification-body">
                             @forelse($filteredNotifications as $notification)
-                                <div class="notification-item {{ $notification->read_at ? '' : 'unread' }}">
+                                @php
+                                    $targetUrl = '#';
+                                    $notifType = $notification->data['type'] ?? '';
+                                    if (!empty($notification->data['url'])) {
+                                        $targetUrl = $notification->data['url'];
+                                    } elseif (in_array($notifType, ['new_anggota', 'pending_profile'])) {
+                                        $targetUrl = route('admin.anggota.index', ['status' => 'pending_profile']);
+                                    } elseif ($notifType === 'new_katalog') {
+                                        $targetUrl = route('admin.katalog.index');
+                                    } elseif (in_array($notifType, ['surat_pending', 'surat_terbit', 'surat_revisi'])) {
+                                        $targetUrl = route('admin.sekretariat.surat.index', ['tipe' => 'masuk']);
+                                    } elseif ($notifType === 'sk_expired') {
+                                        $targetUrl = route('admin.anggota.index');
+                                    }
+                                @endphp
+                                <a href="{{ $targetUrl }}" class="notification-item {{ $notification->read_at ? '' : 'unread' }}">
                                     <div class="notification-item-title">
-                                        @if($notification->data['type'] == 'new_anggota')
+                                        @if($notifType == 'new_anggota')
                                             <svg viewBox="0 0 24 24" width="14" height="14" stroke="#10b981" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                                        @elseif($notification->data['type'] == 'new_katalog')
+                                        @elseif($notifType == 'new_katalog')
                                             <svg viewBox="0 0 24 24" width="14" height="14" stroke="#3b82f6" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
-                                        @elseif($notification->data['type'] == 'surat_pending')
+                                        @elseif($notifType == 'surat_pending')
                                             <svg viewBox="0 0 24 24" width="14" height="14" stroke="#d97706" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                                        @elseif($notification->data['type'] == 'surat_terbit')
+                                        @elseif($notifType == 'surat_terbit')
                                             <svg viewBox="0 0 24 24" width="14" height="14" stroke="#059669" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                                        @elseif($notification->data['type'] == 'surat_revisi')
+                                        @elseif($notifType == 'surat_revisi')
                                             <svg viewBox="0 0 24 24" width="14" height="14" stroke="#dc2626" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                                        @elseif($notification->data['type'] == 'sk_expired')
+                                        @elseif($notifType == 'sk_expired')
                                             <svg viewBox="0 0 24 24" width="14" height="14" stroke="#dc2626" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                                         @else
                                             <svg viewBox="0 0 24 24" width="14" height="14" stroke="#c59217" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
@@ -989,7 +1005,7 @@
                                         {{ $notification->data['message'] ?? '' }}
                                     </div>
                                     <div class="notification-item-time">{{ $notification->created_at->diffForHumans() }}</div>
-                                </div>
+                                </a>
                             @empty
                                 <div class="notification-empty">
                                     Belum ada notifikasi masuk.
