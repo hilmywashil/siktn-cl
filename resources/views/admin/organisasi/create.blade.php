@@ -185,11 +185,11 @@
                     @if(isset($availableAnggota) && $availableAnggota->count() > 0)
                         @foreach($availableAnggota as $ang)
                             <option value="{{ $ang->id }}" 
-                                    data-nama="{{ $ang->nama }}"
-                                    data-kabupaten="{{ $ang->kabupaten_kota ?? $ang->domisili }}"
+                                    data-nama="{{ $ang->nama_lengkap }}"
+                                    data-kabupaten="{{ $ang->domisili }}"
                                     data-provinsi="{{ $ang->provinsi }}"
-                                    data-foto="{{ $ang->foto ? Storage::url($ang->foto) : '' }}">
-                                {{ $ang->nama }} ({{ $ang->kabupaten_kota ?? $ang->domisili ?? 'Anggota Web' }})
+                                    data-foto="{{ $ang->foto_diri ? Storage::url($ang->foto_diri) : '' }}">
+                                {{ $ang->nama_lengkap }} ({{ $ang->domisili ?? 'Anggota Web' }})
                             </option>
                         @endforeach
                     @endif

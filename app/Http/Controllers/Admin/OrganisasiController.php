@@ -119,7 +119,7 @@ class OrganisasiController extends Controller
         $allPeriodes = \App\Models\PeriodeKepengurusan::orderBy('is_aktif', 'desc')->orderBy('tahun_mulai', 'desc')->get();
         
         $assignedAnggotaIds = Organisasi::whereNotNull('anggota_id')->pluck('anggota_id')->toArray();
-        $availableAnggota = \App\Models\Anggota::whereNotIn('id', $assignedAnggotaIds)->orderBy('nama')->get();
+        $availableAnggota = \App\Models\Anggota::whereNotIn('id', $assignedAnggotaIds)->orderBy('nama_lengkap')->get();
 
         return view('admin.organisasi.create', [
             'activeMenu' => 'organisasi',
@@ -233,7 +233,7 @@ class OrganisasiController extends Controller
             ->where('id', '!=', $organisasi->id)
             ->pluck('anggota_id')
             ->toArray();
-        $availableAnggota = \App\Models\Anggota::whereNotIn('id', $assignedAnggotaIds)->orderBy('nama')->get();
+        $availableAnggota = \App\Models\Anggota::whereNotIn('id', $assignedAnggotaIds)->orderBy('nama_lengkap')->get();
 
         return view('admin.organisasi.edit', [
             'activeMenu' => 'organisasi',
