@@ -142,6 +142,34 @@
             border: 1px solid rgba(0,0,0,0.02);
         }
 
+        /* Interactive Calendar Date Cell Hover & Add Button Hint */
+        .fc .fc-daygrid-day {
+            cursor: pointer !important;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease !important;
+            position: relative;
+        }
+        .fc .fc-daygrid-day:hover {
+            background-color: rgba(2, 38, 72, 0.05) !important;
+            box-shadow: inset 0 0 0 2px #022648 !important;
+        }
+        .fc .fc-daygrid-day:hover .fc-daygrid-day-top::after {
+            content: '+ Tambah';
+            background: #022648;
+            color: #ffffff;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            display: inline-block;
+            box-shadow: 0 2px 4px rgba(2, 38, 72, 0.2);
+            animation: fadeInAddHint 0.2s ease;
+        }
+        @keyframes fadeInAddHint {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
         /* Custom Dropdown for Export */
         .export-dropdown {
             position: relative;
