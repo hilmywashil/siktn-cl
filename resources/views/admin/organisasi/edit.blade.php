@@ -361,16 +361,65 @@
         if (selectedOption && selectedOption.value) {
             const nama = selectedOption.getAttribute('data-nama');
             const kabupaten = selectedOption.getAttribute('data-kabupaten');
-            const provinsi = selectedOption.getAttribute('data-provinsi');
+            let provinsi = selectedOption.getAttribute('data-provinsi');
             const foto = selectedOption.getAttribute('data-foto');
 
             if (nama) $('#nama').val(nama);
+
             if (kabupaten) {
-                $('#kabupaten').val(kabupaten).trigger('change');
+                let matchedKab = '';
+                const kabLower = kabupaten.trim().toLowerCase();
+
+                $('#kabupaten option').each(function() {
+                    const optVal = $(this).val();
+                    if (!optVal) return;
+                    const valLower = optVal.trim().toLowerCase();
+
+                    if (valLower === kabLower || valLower.includes(kabLower) || kabLower.includes(valLower)) {
+                        matchedKab = optVal;
+                        return false;
+                    }
+                });
+
+                if (matchedKab) {
+                    $('#kabupaten').val(matchedKab).trigger('change');
+                } else {
+                    $('#kabupaten').val(kabupaten).trigger('change');
+                }
+
+                if (!provinsi) {
+                    if (kabLower.includes('bandung') || kabLower.includes('bogor') || kabLower.includes('cimahi') || 
+                        kabLower.includes('depok') || kabLower.includes('bekasi') || kabLower.includes('cirebon') || 
+                        kabLower.includes('garut') || kabLower.includes('tasik') || kabLower.includes('subang') || 
+                        kabLower.includes('sumedang') || kabLower.includes('sukabumi') || kabLower.includes('purwakarta') || 
+                        kabLower.includes('karawang') || kabLower.includes('indramayu')) {
+                        provinsi = 'Jawa Barat';
+                    }
+                }
             }
+
             if (provinsi) {
-                $('#provinsi').val(provinsi).trigger('change');
+                let matchedProv = '';
+                const provLower = provinsi.trim().toLowerCase();
+
+                $('#provinsi option').each(function() {
+                    const optVal = $(this).val();
+                    if (!optVal) return;
+                    const valLower = optVal.trim().toLowerCase();
+
+                    if (valLower === provLower || valLower.includes(provLower) || provLower.includes(valLower)) {
+                        matchedProv = optVal;
+                        return false;
+                    }
+                });
+
+                if (matchedProv) {
+                    $('#provinsi').val(matchedProv).trigger('change');
+                } else {
+                    $('#provinsi').val(provinsi).trigger('change');
+                }
             }
+
             if (foto) {
                 $('#preview').attr('src', foto);
                 $('#imagePreview').show();
