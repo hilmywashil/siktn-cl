@@ -2451,6 +2451,9 @@
         </div>
         <div class="floating-camera-actions">
             <button type="button" class="floating-shutter" id="btnFloatingShutter" title="Ambil Foto"></button>
+        </div>
+    </div>
+
     <style>
         /* Custom Profile Modal */
         .custom-profile-modal {
