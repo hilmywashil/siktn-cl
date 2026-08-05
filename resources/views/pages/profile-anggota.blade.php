@@ -2088,19 +2088,14 @@
                         </p>
 
                         @if(empty($programs) || $programs->isEmpty())
-                            <div style="text-align: center; padding: 3rem 1.5rem; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
-                                <div style="width: 64px; height: 64px; background: #e0f2fe; color: #022648; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
+                            <div style="text-align: center; padding: 2.5rem 1.5rem; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                                <div style="width: 64px; height: 64px; background: #e0f2fe; color: #022648; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
                                     <i class="fas fa-tasks" style="font-size: 26px; color: #022648;"></i>
                                 </div>
                                 <h3 style="font-size: 1.1rem; font-weight: 700; color: #022648; margin-bottom: 0.5rem;">Belum Mengikuti Program</h3>
-                                <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1.5rem; max-width: 400px; display: inline-block;">
-                                    Anda belum terdaftar di program kerja manapun. Jelajahi program kerja aktif kami dan mulailah berpartisipasi.
+                                <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 0; max-width: 420px; display: inline-block;">
+                                    Anda belum terdaftar di program kerja manapun. Jelajahi program kerja aktif kami di bawah dan mulailah berpartisipasi.
                                 </p>
-                                <div>
-                                    <a href="{{ route('program.bidang') }}" style="display: inline-flex; align-items: center; gap: 8px; background: #022648; color: white; padding: 10px 20px; border-radius: 6px; font-weight: 700; font-size: 0.875rem; text-decoration: none; transition: background 0.2s;">
-                                        <i class="fas fa-search"></i> Jelajahi Program Kerja
-                                    </a>
-                                </div>
                             </div>
                         @else
                             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
@@ -2144,23 +2139,33 @@
 
                         {{-- Section Rekomendasi Program Kerja Terbaru --}}
                         <div style="margin-top: 2.5rem; border-top: 1px dashed #cbd5e1; padding-top: 1.75rem;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 10px;">
-                                <h3 style="font-size: 1.1rem; font-weight: 800; color: #022648; margin: 0; display: flex; align-items: center; gap: 8px;">
-                                    <i class="fas fa-bullhorn" style="color: #c59217;"></i> Program Kerja Terbaru Yang Dapat Anda Ikuti
-                                </h3>
-                                <a href="{{ route('program.bidang') }}" style="font-size: 0.85rem; font-weight: 700; color: #022648; text-decoration: underline;">
-                                    Lihat Semua Program <i class="fas fa-arrow-right"></i>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 12px;">
+                                <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                                    <h3 style="font-size: 1.1rem; font-weight: 800; color: #022648; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-bullhorn" style="color: #c59217;"></i> Program Kerja Terbaru Yang Dapat Anda Ikuti
+                                    </h3>
+                                    
+                                    {{-- Filter Buttons --}}
+                                    <div style="display: inline-flex; background: #f1f5f9; padding: 3px; border-radius: 8px; gap: 2px;">
+                                        <button type="button" class="btn-filter-rekom active" onclick="filterRekomendasi('all', this)" style="border: none; background: #022648; color: white; padding: 5px 12px; border-radius: 6px; font-size: 0.775rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">Semua</button>
+                                        <button type="button" class="btn-filter-rekom" onclick="filterRekomendasi('Bidang', this)" style="border: none; background: transparent; color: #64748b; padding: 5px 12px; border-radius: 6px; font-size: 0.775rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">Program Kerja</button>
+                                        <button type="button" class="btn-filter-rekom" onclick="filterRekomendasi('CSR', this)" style="border: none; background: transparent; color: #64748b; padding: 5px 12px; border-radius: 6px; font-size: 0.775rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">Program CSR</button>
+                                    </div>
+                                </div>
+
+                                <a href="{{ route('program.bidang') }}" style="display: inline-flex; align-items: center; gap: 6px; background: #022648; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-size: 0.825rem; font-weight: 700; text-decoration: none; box-shadow: 0 2px 6px rgba(2, 38, 72, 0.15); transition: all 0.2s;" onmouseover="this.style.background='#01162f'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#022648'; this.style.transform='none'">
+                                    Lihat Semua Program <i class="fas fa-arrow-right" style="font-size: 0.75rem;"></i>
                                 </a>
                             </div>
 
                             @if(isset($programRekomendasi) && $programRekomendasi->count() > 0)
-                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
+                                <div id="rekomendasi-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
                                     @foreach($programRekomendasi as $rekom)
                                         @php
                                             $detailRoute = $rekom->kategori === 'CSR' ? route('program.csr.detail', $rekom->id) : route('program.bidang.detail', $rekom->id);
                                             $categoryBadge = $rekom->kategori === 'CSR' ? 'Program CSR' : ($rekom->jabatan->nama_jabatan ?? 'Program Kerja');
                                         @endphp
-                                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; flex-direction: column; height: 100%;">
+                                        <div class="rekom-card" data-category="{{ $rekom->kategori }}" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; flex-direction: column; height: 100%; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 20px rgba(2, 38, 72, 0.08)'" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.03)'">
                                             <div style="height: 130px; position: relative; background: #f1f5f9; overflow: hidden;">
                                                 <img src="{{ $rekom->gambar_url }}" alt="{{ $rekom->nama_program }}" style="width: 100%; height: 100%; object-fit: cover;">
                                                 <span style="position: absolute; top: 10px; right: 10px; padding: 3px 8px; font-size: 0.68rem; font-weight: 700; border-radius: 4px; background: #022648; color: white;">
@@ -2175,7 +2180,7 @@
                                                 </p>
                                                 <div style="margin-top: auto; border-top: 1px solid #f1f5f9; padding-top: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
                                                     <span style="font-size: 0.75rem; color: #64748b;"><i class="fa fa-user"></i> {{ $rekom->pic ?? '-' }}</span>
-                                                    <a href="{{ $detailRoute }}" style="padding: 5px 12px; background: #022648; color: white; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-decoration: none;">
+                                                    <a href="{{ $detailRoute }}" style="padding: 5px 12px; background: #022648; color: white; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.background='#b7830f'" onmouseout="this.style.background='#022648'">
                                                         Lihat Detail
                                                     </a>
                                                 </div>
@@ -2185,6 +2190,25 @@
                                 </div>
                             @endif
                         </div>
+
+                        <script>
+                        function filterRekomendasi(category, btn) {
+                            document.querySelectorAll('.btn-filter-rekom').forEach(b => {
+                                b.style.background = 'transparent';
+                                b.style.color = '#64748b';
+                            });
+                            btn.style.background = '#022648';
+                            btn.style.color = '#ffffff';
+
+                            document.querySelectorAll('.rekom-card').forEach(card => {
+                                if (category === 'all' || card.getAttribute('data-category') === category) {
+                                    card.style.display = 'flex';
+                                } else {
+                                    card.style.display = 'none';
+                                }
+                            });
+                        }
+                        </script>
                     @endif
                 </div>
 
