@@ -142,6 +142,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Program CRUD (Khusus PNKT / Sesuai Brief)
         Route::get('program/get-pics', [\App\Http\Controllers\Admin\ProgramController::class, 'getPicsByJabatan'])->name('program.get-pics');
         Route::get('program/{program}/export-peserta', [\App\Http\Controllers\Admin\ProgramController::class, 'exportPeserta'])->name('program.export-peserta');
+        Route::get('program/{program}/peserta-list', [\App\Http\Controllers\Admin\ProgramController::class, 'getPesertaList'])->name('program.peserta-list');
+        Route::post('program/{program}/peserta/{anggota}/update-status', [\App\Http\Controllers\Admin\ProgramController::class, 'updatePesertaStatus'])->name('program.update-peserta-status');
         Route::patch('program/{program}/update-status', [\App\Http\Controllers\Admin\ProgramController::class, 'updateStatus'])->name('program.update-status');
         Route::delete('program/bulk-delete', [\App\Http\Controllers\Admin\ProgramController::class, 'bulkDestroy'])->name('program.bulk-delete');
         Route::resource('program', \App\Http\Controllers\Admin\ProgramController::class);

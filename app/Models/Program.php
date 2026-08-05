@@ -71,6 +71,8 @@ class Program extends Model
      */
     public function peserta(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(Anggota::class, 'program_anggota', 'program_id', 'anggota_id')->withTimestamps();
+        return $this->belongsToMany(Anggota::class, 'program_anggota', 'program_id', 'anggota_id')
+            ->withPivot('status')
+            ->withTimestamps();
     }
 }

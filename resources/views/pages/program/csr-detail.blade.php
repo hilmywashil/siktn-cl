@@ -332,17 +332,31 @@
                     @endif
 
                     @php
-                        $isJoined = false;
+                        $participantStatus = null;
                         if (Auth::guard('anggota')->check()) {
-                            $isJoined = $program->peserta()->where('anggota_id', Auth::guard('anggota')->id())->exists();
+                            $pivot = $program->peserta()->where('anggota_id', Auth::guard('anggota')->id())->first();
+                            if ($pivot) {
+                                $participantStatus = $pivot->pivot->status ?? 'approved';
+                            }
                         }
                     @endphp
 
                     <div style="margin-top: 1.75rem;">
-                        @if($isJoined)
-                            <button type="button" class="btn-action-disabled" disabled>
-                                <i class="fas fa-check-circle"></i> Sudah Terdaftar
+                        @if($participantStatus === 'pending')
+                            <button type="button" class="btn-action-disabled" style="background: #d97706; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);" disabled>
+                                <i class="fas fa-hourglass-half"></i> Menunggu ACC Admin
                             </button>
+                        @elseif($participantStatus === 'approved')
+                            <button type="button" class="btn-action-disabled" disabled>
+                                <i class="fas fa-check-circle"></i> Sudah Terdaftar (Disetujui)
+                            </button>
+                        @elseif($participantStatus === 'rejected')
+                            <form id="joinProgramForm" action="{{ route('program.join', $program->id) }}" method="POST" style="display: inline-block;">
+                                @csrf
+                                <button type="button" class="btn-action-primary" style="background: #dc2626;" onclick="confirmJoinProgram('{{ addslashes($program->nama_program) }}')">
+                                    <i class="fas fa-redo"></i> Pendaftaran Ditolak (Daftar Ulang)
+                                </button>
+                            </form>
                         @else
                             <form id="joinProgramForm" action="{{ route('program.join', $program->id) }}" method="POST" style="display: inline-block;">
                                 @csrf

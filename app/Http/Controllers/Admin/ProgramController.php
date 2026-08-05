@@ -463,4 +463,57 @@ class ProgramController extends Controller
             ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
             ->header('Cache-Control', 'max-age=0');
     }
+
+    /**
+     * Get JSON list of peserta for modal management
+     */
+    public function getPesertaList(Program $program)
+    {
+        $peserta = $program->peserta()
+            ->select('anggota.id', 'anggota.nama_lengkap', 'anggota.username', 'anggota.email', 'anggota.no_hp', 'anggota.domisili', 'anggota.foto_diri')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'id' => $item->id,
+                    'nama_lengkap' => $item->nama_lengkap,
+                    'username' => $item->username,
+                    'email' => $item->email,
+                    'no_hp' => $item->no_hp ?? '-',
+                    'domisili' => $item->domisili ?? '-',
+                    'status' => $item->pivot->status ?? 'approved',
+                    'tanggal_daftar' => $item->pivot->created_at ? $item->pivot->created_at->format('d M Y H:i') : '-'
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'program_nama' => $program->nama_program,
+            'peserta' => $peserta
+        ]);
+    }
+
+    /**
+     * Update participant approval status (ACC / Tolak)
+     */
+    public function updatePesertaStatus(\Illuminate\Http\Request $request, Program $program, \App\Models\Anggota $anggota)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,approved,rejected'
+        ]);
+
+        $program->peserta()->updateExistingPivot($anggota->id, [
+            'status' => $request->status
+        ]);
+
+        $statusLabel = [
+            'approved' => 'DISETUJUI (ACC)',
+            'rejected' => 'DITOLAK',
+            'pending' => 'PENDING'
+        ];
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status pendaftaran ' . $anggota->nama_lengkap . ' berhasil diperbarui menjadi ' . ($statusLabel[$request->status] ?? strtoupper($request->status))
+        ]);
+    }
 }

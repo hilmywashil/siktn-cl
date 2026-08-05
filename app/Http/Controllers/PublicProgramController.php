@@ -81,11 +81,12 @@ class PublicProgramController extends Controller
             return redirect()->route('anggota.login')->with('error', 'Silakan login terlebih dahulu untuk mengikuti program kerja ini.');
         }
 
-        $anggota = \Illuminate\Support\Facades\Auth::guard('anggota')->user();
         $program = Program::findOrFail($id);
 
-        $anggota->programs()->syncWithoutDetaching([$program->id]);
+        $anggota->programs()->syncWithoutDetaching([
+            $program->id => ['status' => 'pending']
+        ]);
 
-        return back()->with('success', 'Selamat! Anda telah berhasil mendaftar pada Program Kerja ' . $program->nama_program);
+        return back()->with('success', 'Pendaftaran Anda berhasil dikirim! Pendaftaran Anda sedang menunggu persetujuan / ACC dari Admin.');
     }
 }

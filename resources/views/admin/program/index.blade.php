@@ -607,9 +607,9 @@
                             </span>
                         </td>
                         <td>
-                            <span style="font-weight: 700; color: #022648; font-size: 0.85rem;">
-                                <i class="fa fa-users" style="color: #b7830f;"></i> {{ $program->peserta_count ?? 0 }} Orang
-                            </span>
+                            <button type="button" class="btn btn-sm btn-outline-primary" style="font-weight: 700; border-radius: 6px; font-size: 0.82rem; padding: 0.3rem 0.65rem;" onclick="openPesertaModal({{ $program->id }}, '{{ addslashes($program->nama_program) }}')">
+                                <i class="fa fa-users" style="color: #b7830f; margin-right: 4px;"></i> {{ $program->peserta_count ?? 0 }} Orang
+                            </button>
                         </td>
                         <td>
                             @php
@@ -677,6 +677,11 @@
                                             <div class="aksi-divider"></div>
                                         @endif
                                     @endif
+                                    
+                                    <button type="button" class="aksi-item" onclick="openPesertaModal({{ $program->id }}, '{{ addslashes($program->nama_program) }}')" style="color: #022648; font-weight: 700;">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                        Kelola Peserta
+                                    </button>
                                     
                                     <a href="{{ route('admin.program.edit', $program->id) }}" class="aksi-item aksi-edit">
                                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -866,6 +871,164 @@
         } else if (confirm("Apakah Anda yakin program ini sudah benar-benar selesai?")) {
             document.getElementById('selesai-form-' + id).submit();
         }
+    }
+</script>
+
+<!-- Modal Kelola Peserta Program -->
+<div class="modal fade" id="pesertaModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(2, 38, 72, 0.25);">
+            <div class="modal-header" style="background: linear-gradient(135deg, #022648 0%, #0a3d6d 100%); color: white; border-bottom: 3px solid #b7830f; padding: 1.25rem 1.75rem;">
+                <h5 class="modal-title" style="font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; color: #ffffff;">
+                    <i class="fa fa-users" style="color: #f3c350;"></i> Kelola Peserta & Persetujuan Join: <span id="modalProgramName" style="color: #f3c350; font-weight: 800;"></span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white; opacity: 0.9; text-shadow: none;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem; background: #f8fafc;">
+                <div id="pesertaLoading" style="text-align: center; padding: 2.5rem;">
+                    <i class="fas fa-spinner fa-spin fa-2x" style="color: #022648;"></i>
+                    <p style="margin-top: 10px; font-weight: 700; color: #64748b;">Memuat daftar pendaftar program...</p>
+                </div>
+                <div id="pesertaTableWrapper" style="display: none;">
+                    <div class="table-responsive">
+                        <table class="table" style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; margin: 0;">
+                            <thead style="background: #022648; color: white;">
+                                <tr>
+                                    <th style="color: white; font-size: 0.75rem; text-transform: uppercase;">Anggota</th>
+                                    <th style="color: white; font-size: 0.75rem; text-transform: uppercase;">Kontak & Wilayah</th>
+                                    <th style="color: white; font-size: 0.75rem; text-transform: uppercase;">Tgl Daftar</th>
+                                    <th style="color: white; font-size: 0.75rem; text-transform: uppercase; text-align: center;">Status</th>
+                                    <th style="color: white; font-size: 0.75rem; text-transform: uppercase; text-align: center;">Aksi ACC / Tolak</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pesertaTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="background: #ffffff; border-top: 1px solid #e2e8f0;">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" style="font-weight: 700; border-radius: 6px;">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentProgramId = null;
+
+    function openPesertaModal(programId, programNama) {
+        currentProgramId = programId;
+        $('#modalProgramName').text(programNama);
+        $('#pesertaLoading').show();
+        $('#pesertaTableWrapper').hide();
+        $('#pesertaModal').modal('show');
+
+        fetch(`/admin/program/${programId}/peserta-list`)
+            .then(response => response.json())
+            .then(data => {
+                $('#pesertaLoading').hide();
+                $('#pesertaTableWrapper').show();
+                const tbody = $('#pesertaTableBody');
+                tbody.empty();
+
+                if (data.peserta.length === 0) {
+                    tbody.append(`
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2rem; color: #64748b; font-style: italic; font-weight: 600;">
+                                Belum ada anggota yang mendaftar pada program kerja ini.
+                            </td>
+                        </tr>
+                    `);
+                    return;
+                }
+
+                data.peserta.forEach(p => {
+                    let statusBadge = '';
+                    if (p.status === 'pending') {
+                        statusBadge = `<span class="badge" style="background: #fef3c7; color: #d97706; border: 1px solid #fde68a;">⏳ PENDING</span>`;
+                    } else if (p.status === 'approved') {
+                        statusBadge = `<span class="badge" style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0;">✅ DISETUJUI (ACC)</span>`;
+                    } else if (p.status === 'rejected') {
+                        statusBadge = `<span class="badge" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;">❌ DITOLAK</span>`;
+                    }
+
+                    let actionBtns = `
+                        <div style="display: flex; gap: 6px; justify-content: center;">
+                            <button type="button" class="btn btn-sm btn-success" onclick="updateStatusPeserta(${p.id}, 'approved', '${p.nama_lengkap.replace(/'/g, "\\'")}')" title="Acc / Setujui" style="font-weight: 700; border-radius: 6px; padding: 4px 10px;">
+                                <i class="fas fa-check"></i> ACC
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="updateStatusPeserta(${p.id}, 'rejected', '${p.nama_lengkap.replace(/'/g, "\\'")}')" title="Tolak" style="font-weight: 700; border-radius: 6px; padding: 4px 10px;">
+                                <i class="fas fa-times"></i> Tolak
+                            </button>
+                        </div>
+                    `;
+
+                    tbody.append(`
+                        <tr>
+                            <td>
+                                <strong style="color: #022648;">${p.nama_lengkap}</strong><br>
+                                <small class="text-muted">@${p.username}</small>
+                            </td>
+                            <td>
+                                <small><b>HP:</b> ${p.no_hp}</small><br>
+                                <small><b>Domisili:</b> ${p.domisili}</small>
+                            </td>
+                            <td><small>${p.tanggal_daftar}</small></td>
+                            <td style="text-align: center;">${statusBadge}</td>
+                            <td>${actionBtns}</td>
+                        </tr>
+                    `);
+                });
+            })
+            .catch(err => {
+                $('#pesertaLoading').hide();
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal memuat data peserta.' });
+            });
+    }
+
+    function updateStatusPeserta(anggotaId, newStatus, anggotaNama) {
+        const actionText = newStatus === 'approved' ? 'menyetujui (ACC)' : 'menolak';
+        Swal.fire({
+            title: 'Konfirmasi Persetujuan',
+            text: `Apakah Anda yakin ingin ${actionText} pendaftaran anggota "${anggotaNama}"?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: newStatus === 'approved' ? '#16a34a' : '#dc2626',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: newStatus === 'approved' ? 'Ya, Acc Sekarang' : 'Ya, Tolak Pendaftaran',
+            cancelButtonText: 'Batal',
+            customClass: { popup: 'admin-ui-scope' }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/admin/program/${currentProgramId}/peserta/${anggotaId}/update-status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                })
+                .then(res => res.json())
+                .then(resData => {
+                    if (resData.success) {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3500
+                        });
+                        Toast.fire({ icon: 'success', title: resData.message });
+                        openPesertaModal(currentProgramId, $('#modalProgramName').text());
+                    }
+                })
+                .catch(err => {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal memperbarui status peserta.' });
+                });
+            }
+        });
     }
 </script>
 @endpush
