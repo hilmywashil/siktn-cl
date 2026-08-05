@@ -128,8 +128,10 @@ class Anggota extends Authenticatable
      */
     public function programs(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(Program::class, 'program_anggota', 'anggota_id', 'program_id')
-            ->withPivot('status')
-            ->withTimestamps();
+        $relation = $this->belongsToMany(Program::class, 'program_anggota', 'anggota_id', 'program_id');
+        if (\Illuminate\Support\Facades\Schema::hasColumn('program_anggota', 'status')) {
+            $relation->withPivot('status');
+        }
+        return $relation->withTimestamps();
     }
 }
