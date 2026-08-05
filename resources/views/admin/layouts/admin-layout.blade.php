@@ -1002,7 +1002,7 @@
                                         {{ $notification->data['title'] ?? 'Notifikasi' }}
                                     </div>
                                     <div class="notification-item-message">
-                                        {{ $notification->data['message'] ?? '' }}
+                                        {{ str_replace('(Bidang)', '(Program Kerja)', $notification->data['message'] ?? '') }}
                                     </div>
                                     <div class="notification-item-time">{{ $notification->created_at->diffForHumans() }}</div>
                                 </a>

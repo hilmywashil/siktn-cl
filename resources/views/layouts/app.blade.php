@@ -223,7 +223,7 @@
                                             {{ trim(str_replace(['📢', '📣'], '', $notification->data['title'] ?? '')) }}
                                         </div>
                                         <div class="notification-item-message">
-                                            {{ $notification->data['message'] }}
+                                            {{ str_replace('(Bidang)', '(Program Kerja)', $notification->data['message'] ?? '') }}
                                             @if(!empty($notification->data['notes']))
                                                 <br><strong>Catatan:</strong> {{ $notification->data['notes'] }}
                                             @endif

@@ -24,10 +24,11 @@ class ProgramNotification extends Notification
 
     public function toArray(object $notifiable): array
     {
+        $kategoriLabel = $this->program->kategori == 'Bidang' ? 'Program Kerja' : $this->program->kategori;
         return [
             'type' => 'program_baru',
             'title' => 'Program Baru: ' . $this->program->nama_program,
-            'message' => "Terdapat program baru '{$this->program->nama_program}' ({$this->program->kategori}) yang baru saja diterbitkan.",
+            'message' => "Terdapat program baru '{$this->program->nama_program}' ({$kategoriLabel}) yang baru saja diterbitkan.",
             'status' => 'program',
             'program_id' => $this->program->id,
         ];

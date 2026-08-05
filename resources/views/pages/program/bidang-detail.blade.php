@@ -307,7 +307,7 @@
                             <div class="detail-meta-label">
                                 <i class="fa fa-tag" style="color: #b7830f;"></i> Kategori
                             </div>
-                            <div class="detail-meta-value">Bidang</div>
+                            <div class="detail-meta-value">Program Kerja</div>
                         </div>
                     </div>
 

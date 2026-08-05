@@ -598,7 +598,7 @@
                         </td>
                         <td>
                             <span class="badge {{ $program->kategori == 'CSR' ? 'badge-csr' : 'badge-bidang' }}">
-                                {{ $program->kategori }}
+                                {{ $program->kategori == 'CSR' ? 'CSR' : 'Program Kerja' }}
                             </span>
                         </td>
                         <td>
