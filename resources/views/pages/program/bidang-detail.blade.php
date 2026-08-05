@@ -5,141 +5,229 @@
 @push('styles')
 <style>
     .detail-wrapper {
-        background: white;
-        border-radius: 6px;
+        background: #ffffff;
+        border-radius: 12px;
         overflow: hidden;
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
         border: 1px solid #e5e7eb;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 30px rgba(2, 38, 72, 0.06);
+        transition: all 0.3s ease;
     }
 
     .detail-header {
-        background: #0a2540;
+        background: linear-gradient(135deg, #022648 0%, #0a3d6d 100%);
         color: white;
-        padding: 1.5rem 2rem;
+        padding: 1.75rem 2.25rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        border-bottom: 3px solid #b7830f;
     }
 
     .detail-header h2 {
         margin: 0;
-        font-size: 1.25rem;
-        font-weight: 700;
+        font-size: 1.35rem;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
     }
 
     .back-link {
-        background: rgba(255,255,255,0.2);
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        padding: 0.55rem 1.25rem;
+        border-radius: 8px;
         text-decoration: none;
         font-size: 0.875rem;
-        font-weight: 600;
-        transition: all 0.2s;
-        cursor: pointer;
+        font-weight: 700;
+        transition: all 0.25s ease;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
+        backdrop-filter: blur(4px);
     }
 
     .back-link:hover {
-        background: rgba(255,255,255,0.3);
+        background: rgba(255, 255, 255, 0.3);
+        color: #ffffff;
+        transform: translateX(-3px);
     }
 
     .detail-content {
         padding: 2.5rem;
         display: grid;
-        grid-template-columns: 1fr 1.5fr;
-        gap: 3rem;
+        grid-template-columns: 1fr 1.6fr;
+        gap: 2.5rem;
     }
 
     .detail-image-wrapper {
         position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        border: 1px solid #f1f5f9;
+        background: #f8fafc;
     }
 
     .detail-image-wrapper img {
         width: 100%;
-        height: 300px;
+        height: 320px;
         object-fit: cover;
-        border-radius: 6px;
-        border: 1px solid #e5e7eb;
+        display: block;
+        transition: transform 0.4s ease;
+    }
+
+    .detail-image-wrapper:hover img {
+        transform: scale(1.03);
     }
 
     .detail-status-badge {
         position: absolute;
-        top: 1rem;
-        left: 1rem;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
+        top: 1.25rem;
+        left: 1.25rem;
+        padding: 0.45rem 1.1rem;
+        border-radius: 30px;
         font-size: 0.75rem;
-        font-weight: 700;
+        font-weight: 800;
         color: white;
         text-transform: uppercase;
+        letter-spacing: 0.6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        z-index: 2;
     }
 
-    .status-selesai { background: #10b981; }
-    .status-berjalan { background: #f59e0b; }
-    .status-perencanaan { background: #6b7280; }
+    .detail-status-badge::before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: currentColor;
+        box-shadow: 0 0 8px currentColor;
+    }
+
+    .status-selesai { background: #059669; }
+    .status-berjalan { background: #d97706; }
+    .status-perencanaan { background: #4b5563; }
 
     .detail-info h3 {
-        font-size: 1.75rem;
+        font-size: 1.85rem;
         font-weight: 800;
-        color: #0a2540;
+        color: #022648;
         margin-bottom: 1.5rem;
-        line-height: 1.3;
+        line-height: 1.35;
+        letter-spacing: -0.02em;
     }
 
     .detail-meta-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-        margin-bottom: 2rem;
+        gap: 1.1rem;
+        margin-bottom: 1.75rem;
     }
 
     .detail-meta-item {
-        background: #f9fafb;
-        padding: 1rem;
-        border-radius: 6px;
-        border: 1px solid #e5e7eb;
+        background: #f8fafc;
+        padding: 1.1rem 1.25rem;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid #022648;
+        transition: all 0.25s ease;
+    }
+
+    .detail-meta-item:hover {
+        transform: translateY(-2px);
+        background: #ffffff;
+        box-shadow: 0 6px 16px rgba(2, 38, 72, 0.06);
     }
 
     .detail-meta-label {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: #6b7280;
+        font-size: 0.725rem;
+        font-weight: 800;
+        color: #64748b;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 0.25rem;
+        letter-spacing: 0.7px;
+        margin-bottom: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
 
     .detail-meta-value {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #0a2540;
+        font-size: 0.975rem;
+        font-weight: 700;
+        color: #0f172a;
     }
 
     .detail-desc-box {
-        background: #f9fafb;
+        background: #f8fafc;
         padding: 1.5rem;
-        border-radius: 6px;
-        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid #b7830f;
     }
 
     .detail-desc-title {
-        font-size: 0.875rem;
-        font-weight: 700;
-        color: #0a2540;
-        margin-bottom: 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: #022648;
+        margin-bottom: 0.6rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.7px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
 
     .detail-desc-text {
-        font-size: 0.9375rem;
-        color: #374151;
+        font-size: 0.95rem;
+        color: #334155;
         line-height: 1.7;
+        font-weight: 500;
+    }
+
+    .btn-action-primary {
+        background: linear-gradient(135deg, #022648 0%, #0d3863 100%);
+        color: white;
+        border: none;
+        padding: 0.85rem 2rem;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 14px rgba(2, 38, 72, 0.2);
+    }
+
+    .btn-action-primary:hover {
+        background: linear-gradient(135deg, #0a3d6d 0%, #022648 100%);
+        box-shadow: 0 6px 20px rgba(2, 38, 72, 0.3);
+        transform: translateY(-2px);
+        color: #ffffff;
+    }
+
+    .btn-action-disabled {
+        background: #10b981;
+        color: white;
+        border: none;
+        padding: 0.85rem 2rem;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: not-allowed;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
     }
 
     @media (max-width: 992px) {
@@ -148,7 +236,7 @@
             gap: 2rem;
         }
         .detail-image-wrapper img {
-            height: 250px;
+            height: 260px;
         }
     }
 
@@ -160,7 +248,7 @@
             grid-template-columns: 1fr;
         }
         .detail-info h3 {
-            font-size: 1.5rem;
+            font-size: 1.45rem;
         }
     }
 </style>
@@ -171,7 +259,7 @@
     <div class="tujuan-section">
         <div class="detail-wrapper">
             <div class="detail-header">
-                <h2><i class="fa fa-file-alt" style="margin-right: 0.5rem;"></i> Detail Program Bidang</h2>
+                <h2><i class="fa fa-file-alt"></i> Detail Program Bidang</h2>
                 <a href="{{ route('program.bidang') }}" class="back-link">
                     <i class="fa fa-arrow-left"></i> Kembali
                 </a>
@@ -190,44 +278,55 @@
                     <h3>{{ $program->nama_program }}</h3>
                     <div class="detail-meta-grid">
                         <div class="detail-meta-item">
-                            <div class="detail-meta-label">Periode</div>
+                            <div class="detail-meta-label">
+                                <i class="fa fa-calendar-alt" style="color: #b7830f;"></i> Periode
+                            </div>
                             <div class="detail-meta-value">
                                 {{ \Carbon\Carbon::parse($program->periode_mulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($program->periode_selesai)->format('d M Y') }}
                             </div>
                         </div>
                         @if($program->jabatan)
                         <div class="detail-meta-item">
-                            <div class="detail-meta-label">Bidang</div>
+                            <div class="detail-meta-label">
+                                <i class="fa fa-layer-group" style="color: #b7830f;"></i> Bidang
+                            </div>
                             <div class="detail-meta-value">{{ $program->jabatan->nama_jabatan }}</div>
                         </div>
                         @endif
                         <div class="detail-meta-item">
-                            <div class="detail-meta-label">PIC</div>
+                            <div class="detail-meta-label">
+                                <i class="fa fa-user-tie" style="color: #b7830f;"></i> PIC Program
+                            </div>
                             <div class="detail-meta-value">{{ $program->pic }}</div>
                         </div>
                         <div class="detail-meta-item">
-                            <div class="detail-meta-label">Kategori</div>
+                            <div class="detail-meta-label">
+                                <i class="fa fa-tag" style="color: #b7830f;"></i> Kategori
+                            </div>
                             <div class="detail-meta-value">Bidang</div>
                         </div>
                     </div>
+
                     <div class="detail-desc-box">
-                        <div class="detail-desc-title">Target Output</div>
+                        <div class="detail-desc-title">
+                            <i class="fa fa-bullseye" style="color: #b7830f;"></i> Target Output
+                        </div>
                         <div class="detail-desc-text">{{ $program->target_output }}</div>
                     </div>
 
                     @if($program->csrPrograms && $program->csrPrograms->count() > 0)
-                        <div class="detail-desc-box" style="margin-top: 1.25rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem;">
-                            <div class="detail-desc-title" style="color: #166534; display: flex; align-items: center; gap: 6px; font-weight: 700; margin-bottom: 0.5rem;">
+                        <div class="detail-desc-box" style="margin-top: 1.25rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #16a34a; border-radius: 10px; padding: 1.25rem;">
+                            <div class="detail-desc-title" style="color: #15803d; display: flex; align-items: center; gap: 8px; font-weight: 800; margin-bottom: 0.5rem;">
                                 <i class="fa fa-handshake"></i> Program CSR Pendukung Terkait:
                             </div>
                             <div class="detail-desc-text">
                                 <ul style="margin: 0; padding-left: 1.25rem; list-style-type: disc;">
                                     @foreach($program->csrPrograms as $csr)
-                                        <li style="margin-bottom: 0.35rem;">
-                                            <a href="{{ route('program.csr.detail', $csr->id) }}" style="font-weight: 700; color: #022648; text-decoration: underline;">
+                                        <li style="margin-bottom: 0.4rem;">
+                                            <a href="{{ route('program.csr.detail', $csr->id) }}" style="font-weight: 700; color: #022648; text-decoration: underline; font-size: 0.95rem;">
                                                 {{ $csr->nama_program }}
                                             </a>
-                                            <span style="font-size: 0.85rem; color: #4b5563;">(Mitra: {{ $csr->mitra ?? 'Umum' }})</span>
+                                            <span style="font-size: 0.85rem; color: #475569; font-weight: 600;">(Mitra: {{ $csr->mitra ?? 'Umum' }})</span>
                                         </li>
                                     @endforeach
                                 </ul>
@@ -242,15 +341,15 @@
                         }
                     @endphp
 
-                    <div style="margin-top: 1.5rem;">
+                    <div style="margin-top: 1.75rem;">
                         @if($isJoined)
-                            <button type="button" class="btn" style="background: #10b981; color: white; border: none; padding: 0.75rem 1.75rem; border-radius: 6px; font-weight: 700; cursor: not-allowed;" disabled>
+                            <button type="button" class="btn-action-disabled" disabled>
                                 <i class="fas fa-check-circle"></i> Sudah Terdaftar
                             </button>
                         @else
                             <form action="{{ route('program.join', $program->id) }}" method="POST" style="display: inline-block;">
                                 @csrf
-                                <button type="submit" class="btn" style="background: #022648; color: white; border: none; padding: 0.75rem 1.75rem; border-radius: 6px; font-weight: 700; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#18227C'" onmouseout="this.style.background='#022648'">
+                                <button type="submit" class="btn-action-primary">
                                     <i class="fas fa-paper-plane"></i> Join Program Kerja
                                 </button>
                             </form>
