@@ -71,6 +71,8 @@
         box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         border: 1px solid #f1f5f9;
         background: #ffffff;
+        height: fit-content;
+        align-self: start;
     }
 
     .detail-image-wrapper img {
@@ -349,9 +351,9 @@
                                 <i class="fas fa-check-circle"></i> Sudah Terdaftar
                             </button>
                         @else
-                            <form action="{{ route('program.join', $program->id) }}" method="POST" style="display: inline-block;">
+                            <form id="joinProgramForm" action="{{ route('program.join', $program->id) }}" method="POST" style="display: inline-block;">
                                 @csrf
-                                <button type="submit" class="btn-action-primary">
+                                <button type="button" class="btn-action-primary" onclick="confirmJoinProgram('{{ addslashes($program->nama_program) }}')">
                                     <i class="fas fa-paper-plane"></i> Join Program Kerja
                                 </button>
                             </form>
@@ -363,3 +365,31 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+    function confirmJoinProgram(programName) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Konfirmasi Pendaftaran',
+                html: `Apakah Anda yakin ingin mendaftar pada Program Kerja <strong>${programName}</strong>?<br><br><small style="color: #64748b;">Data pendaftaran Anda akan diajukan ke Sekretariat / Admin untuk diverifikasi.</small>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#022648',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: '<i class="fas fa-paper-plane"></i> Ya, Daftar Sekarang',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('joinProgramForm').submit();
+                }
+            });
+        } else {
+            if (confirm('Apakah Anda yakin ingin mendaftar pada Program Kerja ' + programName + '?')) {
+                document.getElementById('joinProgramForm').submit();
+            }
+        }
+    }
+</script>
+@endpush
