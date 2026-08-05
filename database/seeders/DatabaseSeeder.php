@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             AnggotaSeeder::class,
             PageSettingSeeder::class,
             StrategicPlanSeeder::class,
+            ProgramSeeder::class,
         ]);
     }
 }
