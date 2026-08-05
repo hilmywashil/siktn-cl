@@ -71,14 +71,14 @@ class PageSettingSeeder extends Seeder
                 ]),
             ],
 
-            // BIDANG PAGE
+            // BIDANG / PROGRAM KERJA PAGE
             [
                 'key' => 'bidang_banner_title',
-                'value' => 'Program Bidang SIKTN: Menggerakkan Organisasi Melalui Aksi Nyata',
+                'value' => 'Program Kerja SIKTN: Menggerakkan Organisasi Melalui Aksi Nyata',
             ],
             [
                 'key' => 'bidang_banner_desc',
-                'value' => 'Program Bidang SIKTN dirancang untuk mendukung pengembangan organisasi, meningkatkan kapasitas anggota, memperkuat kolaborasi, serta mewujudkan program kerja yang terarah, terukur, dan memberikan dampak positif bagi seluruh pemangku kepentingan.',
+                'value' => 'Program Kerja SIKTN dirancang untuk mendukung pengembangan organisasi, meningkatkan kapasitas anggota, memperkuat kolaborasi, serta mewujudkan program kerja yang terarah, terukur, dan memberikan dampak positif bagi seluruh pemangku kepentingan.',
             ],
             [
                 'key' => 'bidang_about_title',
@@ -86,11 +86,11 @@ class PageSettingSeeder extends Seeder
             ],
             [
                 'key' => 'bidang_about_desc1',
-                'value' => 'Program Bidang SIKTN merupakan rangkaian kegiatan strategis yang dirancang untuk mendukung pencapaian visi dan misi organisasi melalui pengembangan kapasitas anggota, penguatan kelembagaan, peningkatan kolaborasi, serta pelaksanaan program kerja yang memberikan manfaat bagi organisasi dan masyarakat. Setiap bidang memiliki peran penting dalam menjalankan fungsi organisasi secara profesional, terstruktur, dan berkelanjutan.',
+                'value' => 'Program Kerja SIKTN merupakan rangkaian kegiatan strategis yang dirancang untuk mendukung pencapaian visi dan misi organisasi melalui pengembangan kapasitas anggota, penguatan kelembagaan, peningkatan kolaborasi, serta pelaksanaan program kerja yang memberikan manfaat bagi organisasi dan masyarakat. Setiap bidang memiliki peran penting dalam menjalankan fungsi organisasi secara profesional, terstruktur, dan berkelanjutan.',
             ],
             [
                 'key' => 'bidang_about_desc2',
-                'value' => '<p>Program Bidang menjadi wadah bagi pengurus dan anggota untuk berkontribusi secara aktif sesuai dengan tugas, fungsi, dan keahlian masing-masing. Melalui berbagai program kerja yang terencana, setiap bidang berupaya menciptakan inovasi, memperkuat sinergi, dan meningkatkan kualitas organisasi secara keseluruhan.</p><p>Program ini dilaksanakan mulai dari tingkat nasional, provinsi, hingga kabupaten/kota guna memastikan pemerataan manfaat dan keterlibatan seluruh anggota.</p>',
+                'value' => '<p>Program Kerja menjadi wadah bagi pengurus dan anggota untuk berkontribusi secara aktif sesuai dengan tugas, fungsi, dan keahlian masing-masing. Melalui berbagai program kerja yang terencana, setiap bidang berupaya menciptakan inovasi, memperkuat sinergi, dan meningkatkan kualitas organisasi secara keseluruhan.</p><p>Program ini dilaksanakan mulai dari tingkat nasional, provinsi, hingga kabupaten/kota guna memastikan pemerataan manfaat dan keterlibatan seluruh anggota.</p>',
             ],
             [
                 'key' => 'bidang_tujuan_json',
