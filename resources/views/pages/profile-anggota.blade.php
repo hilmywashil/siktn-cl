@@ -1700,7 +1700,7 @@
                             <div class="hero-avatar-initial">{{ strtoupper(substr($anggota->nama_lengkap ?? 'A', 0, 2)) }}</div>
                         @endif
                     </div>
-                    <button type="button" class="avatar-edit-badge" onclick="document.getElementById('foto_diri').click();" title="Ubah Foto Profil">
+                    <button type="button" class="avatar-edit-badge" onclick="var inp=document.getElementById('foto_diri'); if(inp){inp.removeAttribute('capture');inp.click();}" title="Ubah Foto Profil">
                         <i class="fas fa-camera"></i>
                     </button>
                 </div>
@@ -2180,8 +2180,6 @@
 
                             <div class="form-group" style="grid-column: span 2;">
                                 <label>Foto Profil <span style="color:red;">*</span></label>
-                                <input type="file" name="foto_diri" id="foto_diri" accept="image/jpeg,image/png,image/jpg" style="display:none;" data-required="{{ !$anggota->foto_diri ? 'true' : 'false' }}">
-                                <input type="file" id="foto_kamera_direct" accept="image/*" capture="user" style="display:none;">
                                 <input type="hidden" name="foto_diri_base64" id="foto_diri_base64">
 
                                 <div class="foto-upload-wrapper">
@@ -2195,9 +2193,9 @@
                                     <div class="foto-upload-actions">
                                         <p>Unggah foto profil Anda. Format: JPG, PNG. Setelah dipilih, Anda bisa menyesuaikan area potong (crop) menjadi persegi.</p>
                                         <div class="foto-btn-group">
-                                            <button type="button" class="foto-btn foto-btn-file" onclick="document.getElementById('foto_diri').click()">
+                                            <label for="foto_diri" class="foto-btn foto-btn-file" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;" id="labelPilihFile">
                                                 <i class="fas fa-folder-open"></i> Pilih dari File
-                                            </button>
+                                            </label>
                                             <button type="button" class="foto-btn foto-btn-camera" id="btnOpenCamera" style="background: #022648; color: #ffffff; padding: 8px 16px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                                                 <i class="fas fa-camera"></i> Ambil Foto Kamera
                                             </button>
@@ -2421,6 +2419,11 @@
             </main>
         </div>
     </div>
+
+    <!-- Hidden File Inputs at body level so they are always accessible even when tab is display:none -->
+    <!-- Use visibility:hidden NOT display:none/pointer-events:none so .click() works on all browsers -->
+    <input type="file" name="foto_diri" id="foto_diri" accept="image/jpeg,image/png,image/jpg" style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;" data-required="{{ !$anggota->foto_diri ? 'true' : 'false' }}">
+    <input type="file" id="foto_kamera_direct" accept="image/*" capture="user" style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;">
 
     <!-- Modal Cropper (file-crop only) -->
     <div id="cropperModal" class="custom-crop-modal">
