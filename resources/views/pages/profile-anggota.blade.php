@@ -2181,6 +2181,7 @@
                             <div class="form-group" style="grid-column: span 2;">
                                 <label>Foto Profil <span style="color:red;">*</span></label>
                                 <input type="file" name="foto_diri" id="foto_diri" accept="image/jpeg,image/png,image/jpg" style="display:none;" data-required="{{ !$anggota->foto_diri ? 'true' : 'false' }}">
+                                <input type="file" id="foto_kamera_direct" accept="image/*" capture="user" style="display:none;">
                                 <input type="hidden" name="foto_diri_base64" id="foto_diri_base64">
 
                                 <div class="foto-upload-wrapper">
@@ -2632,43 +2633,82 @@
             let cropper;
             let camStream = null;
 
-            const image        = document.getElementById('image_to_crop');
-            const fileInput    = document.getElementById('foto_diri');
-            const cropperModal = document.getElementById('cropperModal');
-            const floatingCam  = document.getElementById('floatingCamera');
-            const camVideo     = document.getElementById('floatingCamVideo');
+            const image           = document.getElementById('image_to_crop');
+            const fileInput       = document.getElementById('foto_diri');
+            const directCamInput  = document.getElementById('foto_kamera_direct');
+            const cropperModal    = document.getElementById('cropperModal');
+            const floatingCam     = document.getElementById('floatingCamera');
+            const camVideo        = document.getElementById('floatingCamVideo');
 
             function closeCropperModal(clearFile = true) {
                 cropperModal.classList.remove('active');
-                if (cropper) { cropper.destroy(); cropper = null; }
-                if (clearFile === true) fileInput.value = '';
+                if (cropper) { 
+                    try { cropper.destroy(); } catch(e){} 
+                    cropper = null; 
+                }
+                if (clearFile === true && fileInput) fileInput.value = '';
             }
 
             function openCropperWithSrc(src) {
                 cropperModal.classList.add('active');
-                if (cropper) cropper.destroy();
-                // Tunggu image load sebelum init Cropper agar dimensinya akurat
-                image.onload = function() {
-                    cropper = new Cropper(image, {
-                        aspectRatio: NaN, // Bebas ukuran crop (custom ratio)
-                        viewMode: 1,
-                        autoCropArea: 0.9, guides: true,
-                        movable: true, zoomable: true, background: false,
-                    });
+                
+                const initCropper = function() {
+                    if (cropper) {
+                        try { cropper.destroy(); } catch(e){}
+                        cropper = null;
+                    }
+                    if (typeof Cropper !== 'undefined') {
+                        cropper = new Cropper(image, {
+                            aspectRatio: 1, // 1:1 square for avatar profile
+                            viewMode: 1,
+                            autoCropArea: 0.9, 
+                            guides: true,
+                            movable: true, 
+                            zoomable: true, 
+                            background: false,
+                        });
+                    } else {
+                        // Fallback without Cropper.js
+                        document.getElementById('foto_diri_base64').value = src;
+                        const prev = document.getElementById('preview_image');
+                        const wrap = document.querySelector('.foto-avatar-preview');
+                        if (prev) { prev.src = src; }
+                        else if (wrap) { wrap.innerHTML = '<img id="preview_image" src="' + src + '" alt="Preview">'; }
+                    }
                 };
+
+                image.onload = initCropper;
                 image.src = src;
+                if (image.complete || image.readyState === 4) {
+                    initCropper();
+                }
             }
 
-            fileInput.addEventListener('change', function(e) {
-                if (e.target.files && e.target.files.length > 0) {
-                    const reader = new FileReader();
-                    reader.onload = evt => openCropperWithSrc(evt.target.result);
-                    reader.readAsDataURL(e.target.files[0]);
-                }
-            });
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    if (e.target.files && e.target.files.length > 0) {
+                        const reader = new FileReader();
+                        reader.onload = evt => openCropperWithSrc(evt.target.result);
+                        reader.readAsDataURL(e.target.files[0]);
+                    }
+                });
+            }
 
-            document.getElementById('btnCancelCrop').addEventListener('click', function() { closeCropperModal(true); });
-            document.getElementById('btnCancelCropFooter').addEventListener('click', function() { closeCropperModal(true); });
+            if (directCamInput) {
+                directCamInput.addEventListener('change', function(e) {
+                    if (e.target.files && e.target.files.length > 0) {
+                        const reader = new FileReader();
+                        reader.onload = evt => openCropperWithSrc(evt.target.result);
+                        reader.readAsDataURL(e.target.files[0]);
+                    }
+                });
+            }
+
+            const btnCancelCrop = document.getElementById('btnCancelCrop');
+            if (btnCancelCrop) btnCancelCrop.addEventListener('click', function() { closeCropperModal(true); });
+            
+            const btnCancelCropFooter = document.getElementById('btnCancelCropFooter');
+            if (btnCancelCropFooter) btnCancelCropFooter.addEventListener('click', function() { closeCropperModal(true); });
 
             // Helper function to convert base64 to File object
             function dataURLtoFile(dataurl, filename) {
@@ -2699,89 +2739,109 @@
                 else if (wrap) { wrap.innerHTML = '<img id="preview_image" src="' + savedPhoto + '" alt="Preview">'; }
             }
 
-            document.getElementById('btnCrop').addEventListener('click', function() {
-                if (!cropper) return;
-                const btn = this;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
-                btn.disabled = true;
-                
-                // Simpan base64 string untuk preview & restore
-                const base64data = cropper.getCroppedCanvas({ width: 600, height: 600 }).toDataURL('image/jpeg', 0.92);
-                
-                cropper.getCroppedCanvas({ width: 600, height: 600 }).toBlob(function(blob) {
-                    // Simpan ke hidden input
-                    document.getElementById('foto_diri_base64').value = base64data;
+            const btnCrop = document.getElementById('btnCrop');
+            if (btnCrop) {
+                btnCrop.addEventListener('click', function() {
+                    const btn = this;
                     
-                    try {
-                        const file = new File([blob], 'cropped_profile.jpg', { type: 'image/jpeg' });
-                        const dt = new DataTransfer();
-                        dt.items.add(file);
-                        fileInput.files = dt.files;
-                    } catch (e) { console.warn("Browser tidak support DataTransfer"); }
-                    
-                    // Simpan ke localStorage agar tidak hilang saat reload validasi
-                    localStorage.setItem('temp_cropped_photo_{{ $anggota->id }}', base64data);
-
-                    const prev = document.getElementById('preview_image');
-                    const wrap = document.querySelector('.foto-avatar-preview');
-                    if (prev) { prev.src = base64data; }
-                    else if (wrap) { wrap.innerHTML = '<img id="preview_image" src="' + base64data + '" alt="Preview">'; }
-                    closeCropperModal(false); // Jangan clear file input karena ini save success!
-                    btn.innerHTML = '<i class="fas fa-check"></i> Crop & Simpan';
-                    btn.disabled = false;
-                    
-                    // Notifikasi sukses setelah crop (Toast Notification Custom)
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'Foto profil berhasil disiapkan!',
-                        showConfirmButton: false,
-                        timer: 3500,
-                        timerProgressBar: true,
-                        customClass: {
-                            popup: 'custom-toast'
+                    if (!cropper) {
+                        // If Cropper is null, fallback to image.src directly
+                        const currentSrc = image.src;
+                        if (currentSrc) {
+                            document.getElementById('foto_diri_base64').value = currentSrc;
+                            const prev = document.getElementById('preview_image');
+                            const wrap = document.querySelector('.foto-avatar-preview');
+                            if (prev) { prev.src = currentSrc; }
+                            else if (wrap) { wrap.innerHTML = '<img id="preview_image" src="' + currentSrc + '" alt="Preview">'; }
                         }
-                    });
-                }, 'image/jpeg', 0.92);
-            });
+                        closeCropperModal(false);
+                        return;
+                    }
+
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+                    btn.disabled = true;
+                    
+                    // Simpan base64 string untuk preview & restore
+                    const base64data = cropper.getCroppedCanvas({ width: 600, height: 600 }).toDataURL('image/jpeg', 0.92);
+                    
+                    cropper.getCroppedCanvas({ width: 600, height: 600 }).toBlob(function(blob) {
+                        // Simpan ke hidden input
+                        document.getElementById('foto_diri_base64').value = base64data;
+                        
+                        try {
+                            const file = new File([blob], 'cropped_profile.jpg', { type: 'image/jpeg' });
+                            const dt = new DataTransfer();
+                            dt.items.add(file);
+                            fileInput.files = dt.files;
+                        } catch (e) { console.warn("Browser tidak support DataTransfer"); }
+                        
+                        // Simpan ke localStorage agar tidak hilang saat reload validasi
+                        localStorage.setItem('temp_cropped_photo_{{ $anggota->id }}', base64data);
+
+                        const prev = document.getElementById('preview_image');
+                        const wrap = document.querySelector('.foto-avatar-preview');
+                        if (prev) { prev.src = base64data; }
+                        else if (wrap) { wrap.innerHTML = '<img id="preview_image" src="' + base64data + '" alt="Preview">'; }
+                        closeCropperModal(false); // Jangan clear file input karena ini save success!
+                        btn.innerHTML = '<i class="fas fa-check"></i> Crop & Simpan';
+                        btn.disabled = false;
+                        
+                        // Notifikasi sukses setelah crop (Toast Notification Custom)
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Foto profil berhasil disiapkan!',
+                            showConfirmButton: false,
+                            timer: 3500,
+                            timerProgressBar: true,
+                            customClass: {
+                                popup: 'custom-toast'
+                            }
+                        });
+                    }, 'image/jpeg', 0.92);
+                });
+            }
 
             function stopCam() {
                 if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
             }
             function closeFloatingCam() {
-                floatingCam.classList.remove('active');
+                if (floatingCam) floatingCam.classList.remove('active');
                 stopCam();
             }
 
-            document.getElementById('btnOpenCamera').addEventListener('click', function() {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Akses Kamera Tidak Didukung',
-                        text: 'Kamera tidak dapat diakses di browser atau koneksi HTTP Anda. Silakan gunakan opsi "Pilih dari File".',
-                        confirmButtonColor: '#022648'
-                    });
-                    return;
-                }
+            const btnOpenCamera = document.getElementById('btnOpenCamera');
+            if (btnOpenCamera) {
+                btnOpenCamera.addEventListener('click', function() {
+                    // Fallback jika diakses via HTTP / getUserMedia tidak didukung browser
+                    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                        if (directCamInput) {
+                            directCamInput.click();
+                        } else if (fileInput) {
+                            fileInput.click();
+                        }
+                        return;
+                    }
 
-                floatingCam.classList.add('active');
-                navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 720 } },
-                    audio: false
-                }).then(stream => {
-                    camStream = stream;
-                    camVideo.srcObject = stream;
-                }).catch(err => {
-                    closeFloatingCam();
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Tidak Dapat Mengakses Kamera',
-                        text: 'Silakan izinkan akses kamera di browser Anda atau gunakan tombol "Pilih dari File". (Error: ' + err.message + ')',
-                        confirmButtonColor: '#022648'
+                    if (floatingCam) floatingCam.classList.add('active');
+                    navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 720 } },
+                        audio: false
+                    }).then(stream => {
+                        camStream = stream;
+                        if (camVideo) camVideo.srcObject = stream;
+                    }).catch(err => {
+                        closeFloatingCam();
+                        // Fallback ke input kamera langsung jika izin kamera ditolak / error
+                        if (directCamInput) {
+                            directCamInput.click();
+                        } else if (fileInput) {
+                            fileInput.click();
+                        }
                     });
                 });
-            });
+            }
 
             document.getElementById('btnCloseFloatingCam').addEventListener('click', closeFloatingCam);
 
