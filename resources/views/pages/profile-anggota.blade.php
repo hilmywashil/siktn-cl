@@ -3053,6 +3053,7 @@
                 text.textContent = label;
                 text.style.color = color;
             });
+        }
 
         function closeProfileForceModal() {
             document.querySelectorAll('#profileForceModal, .custom-profile-modal').forEach(el => {
