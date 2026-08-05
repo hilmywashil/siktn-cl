@@ -287,7 +287,7 @@ class AnggotaController extends Controller
 
         $jabatans = \App\Models\Jabatan::orderBy('nama_jabatan', 'asc')->get();
         $programs = $anggota->programs()->orderBy('programs.created_at', 'desc')->get();
-        $programRekomendasi = \App\Models\Program::where('kategori', 'Bidang')->with('jabatan')->orderBy('periode_mulai', 'desc')->take(6)->get();
+        $programRekomendasi = \App\Models\Program::with(['jabatan', 'programKerja'])->orderBy('created_at', 'desc')->take(6)->get();
 
         return view('pages.profile-anggota', compact('anggota', 'jabatans', 'programs', 'programRekomendasi'));
     }

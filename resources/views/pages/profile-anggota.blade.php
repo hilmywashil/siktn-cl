@@ -2156,23 +2156,27 @@
                             @if(isset($programRekomendasi) && $programRekomendasi->count() > 0)
                                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
                                     @foreach($programRekomendasi as $rekom)
+                                        @php
+                                            $detailRoute = $rekom->kategori === 'CSR' ? route('program.csr.detail', $rekom->id) : route('program.bidang.detail', $rekom->id);
+                                            $categoryBadge = $rekom->kategori === 'CSR' ? 'Program CSR' : ($rekom->jabatan->nama_jabatan ?? 'Program Kerja');
+                                        @endphp
                                         <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; flex-direction: column; height: 100%;">
                                             <div style="height: 130px; position: relative; background: #f1f5f9; overflow: hidden;">
                                                 <img src="{{ $rekom->gambar_url }}" alt="{{ $rekom->nama_program }}" style="width: 100%; height: 100%; object-fit: cover;">
                                                 <span style="position: absolute; top: 10px; right: 10px; padding: 3px 8px; font-size: 0.68rem; font-weight: 700; border-radius: 4px; background: #022648; color: white;">
-                                                    {{ $rekom->status }}
+                                                    {{ strtoupper($rekom->status) }}
                                                 </span>
                                             </div>
                                             <div style="padding: 1rem; flex: 1; display: flex; flex-direction: column;">
-                                                <span style="font-size: 0.7rem; font-weight: 700; color: #c59217; text-transform: uppercase;">{{ $rekom->jabatan->nama_jabatan ?? 'Program Kerja' }}</span>
+                                                <span style="font-size: 0.7rem; font-weight: 700; color: #c59217; text-transform: uppercase;">{{ $categoryBadge }}</span>
                                                 <h4 style="font-size: 0.95rem; font-weight: 700; color: #022648; margin: 4px 0 8px; line-height: 1.3;">{{ $rekom->nama_program }}</h4>
                                                 <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                                                     {{ $rekom->target_output }}
                                                 </p>
                                                 <div style="margin-top: auto; border-top: 1px solid #f1f5f9; padding-top: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
-                                                    <span style="font-size: 0.75rem; color: #64748b;"><i class="fa fa-user"></i> {{ $rekom->pic }}</span>
-                                                    <a href="{{ route('program.bidang.detail', $rekom->id) }}" style="padding: 5px 12px; background: #022648; color: white; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-decoration: none;">
-                                                        Ikuti Program
+                                                    <span style="font-size: 0.75rem; color: #64748b;"><i class="fa fa-user"></i> {{ $rekom->pic ?? '-' }}</span>
+                                                    <a href="{{ $detailRoute }}" style="padding: 5px 12px; background: #022648; color: white; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-decoration: none;">
+                                                        Lihat Detail
                                                     </a>
                                                 </div>
                                             </div>
