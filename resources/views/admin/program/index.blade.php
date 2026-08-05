@@ -319,7 +319,7 @@
         left: 0;
         width: 100vw;
         height: 100vh;
-        background: rgba(2, 38, 72, 0.65);
+        background: rgba(2, 38, 72, 0.7);
         backdrop-filter: blur(4px);
         z-index: 999999;
         display: none;
@@ -336,15 +336,88 @@
     .siktn-modal-box {
         background: #ffffff;
         width: 100%;
-        max-width: 800px;
-        max-height: 85vh;
-        border-radius: 12px;
+        max-width: 900px;
+        max-height: 88vh;
+        border-radius: var(--radius-lg);
         overflow: hidden;
-        box-shadow: 0 20px 50px rgba(2, 38, 72, 0.4);
+        box-shadow: 0 25px 60px rgba(2, 38, 72, 0.45);
         display: flex;
         flex-direction: column;
-        border: 1px solid rgba(2, 38, 72, 0.15);
-        animation: siktnModalScale 0.25s ease forwards;
+        border: 1px solid var(--navy-light);
+        animation: siktnModalScale 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .table-peserta-modal {
+        width: 100% !important;
+        table-layout: fixed !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        border: 1px solid var(--gray-200) !important;
+        border-radius: var(--radius-md) !important;
+        overflow: hidden !important;
+    }
+
+    .table-peserta-modal th {
+        background: var(--navy) !important;
+        color: #ffffff !important;
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        padding: 0.75rem 0.85rem !important;
+        border: none !important;
+    }
+
+    .table-peserta-modal td {
+        padding: 0.85rem 0.85rem !important;
+        vertical-align: middle !important;
+        border-bottom: 1px solid var(--gray-200) !important;
+        font-size: 0.8125rem !important;
+        color: var(--gray-900) !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+
+    .btn-acc-action {
+        background: var(--green);
+        color: #ffffff;
+        border: none;
+        border-radius: var(--radius-md);
+        padding: 5px 12px;
+        font-weight: 700;
+        font-size: 0.78rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        box-shadow: 0 1px 3px rgba(5, 150, 105, 0.2);
+    }
+    .btn-acc-action:hover {
+        background: #047857;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(5, 150, 105, 0.3);
+    }
+
+    .btn-tolak-action {
+        background: var(--red);
+        color: #ffffff;
+        border: none;
+        border-radius: var(--radius-md);
+        padding: 5px 12px;
+        font-weight: 700;
+        font-size: 0.78rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        box-shadow: 0 1px 3px rgba(220, 38, 38, 0.2);
+    }
+    .btn-tolak-action:hover {
+        background: #b91c1c;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
     }
 
     @keyframes siktnModalScale {
@@ -917,29 +990,30 @@
 <!-- Modal Kelola Peserta Program -->
 <div class="siktn-modal-overlay" id="pesertaModal" onclick="if(event.target === this) closePesertaModal()">
     <div class="siktn-modal-box">
-        <div style="background: linear-gradient(135deg, #022648 0%, #0a3d6d 100%); color: white; border-bottom: 3px solid #b7830f; padding: 1.25rem 1.75rem; display: flex; justify-content: space-between; align-items: center;">
-            <h5 style="margin: 0; font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; color: #ffffff;">
-                <i class="fa fa-users" style="color: #f3c350;"></i> Kelola Peserta & Persetujuan Join: <span id="modalProgramName" style="color: #f3c350; font-weight: 800;"></span>
+        <div style="background: linear-gradient(135deg, #022648 0%, #0a3a6b 100%); color: white; border-bottom: 3px solid #b7830f; padding: 1.25rem 1.75rem; display: flex; justify-content: space-between; align-items: center;">
+            <h5 style="margin: 0; font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 8px; color: #ffffff;">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="#b7830f" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Kelola Peserta & Persetujuan Join: <span id="modalProgramName" style="color: #f3c350; font-weight: 800;"></span>
             </h5>
-            <button type="button" onclick="closePesertaModal()" style="background: transparent; border: none; color: white; opacity: 0.8; font-size: 1.5rem; cursor: pointer; line-height: 1;">
+            <button type="button" onclick="closePesertaModal()" style="background: transparent; border: none; color: #ffffff; opacity: 0.8; font-size: 1.5rem; cursor: pointer; line-height: 1;" title="Tutup Modal">
                 &times;
             </button>
         </div>
-        <div style="padding: 1.5rem; background: #f8fafc; overflow-y: auto; flex-grow: 1;">
+        <div style="padding: 1.5rem; background: #f9fafb; overflow-y: auto; flex-grow: 1;">
             <div id="pesertaLoading" style="text-align: center; padding: 2.5rem;">
                 <i class="fas fa-spinner fa-spin fa-2x" style="color: #022648;"></i>
-                <p style="margin-top: 10px; font-weight: 700; color: #64748b;">Memuat daftar pendaftar program...</p>
+                <p style="margin-top: 10px; font-weight: 700; color: #6b7280; font-size: 0.875rem;">Memuat daftar pendaftar program...</p>
             </div>
             <div id="pesertaTableWrapper" style="display: none;">
-                <div class="table-responsive">
-                    <table class="table" style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; margin: 0; width: 100%;">
-                        <thead style="background: #022648; color: white;">
+                <div class="table-responsive" style="overflow-x: hidden;">
+                    <table class="table table-peserta-modal">
+                        <thead>
                             <tr>
-                                <th style="color: white; font-size: 0.75rem; text-transform: uppercase;">Anggota</th>
-                                <th style="color: white; font-size: 0.75rem; text-transform: uppercase;">Kontak & Wilayah</th>
-                                <th style="color: white; font-size: 0.75rem; text-transform: uppercase;">Tgl Daftar</th>
-                                <th style="color: white; font-size: 0.75rem; text-transform: uppercase; text-align: center;">Status</th>
-                                <th style="color: white; font-size: 0.75rem; text-transform: uppercase; text-align: center;">Aksi ACC / Tolak</th>
+                                <th style="width: 26%;">Anggota</th>
+                                <th style="width: 26%;">Kontak & Wilayah</th>
+                                <th style="width: 20%;">Tgl Daftar</th>
+                                <th style="width: 14%; text-align: center;">Status</th>
+                                <th style="width: 14%; text-align: center;">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="pesertaTableBody">
@@ -948,8 +1022,8 @@
                 </div>
             </div>
         </div>
-        <div style="background: #ffffff; border-top: 1px solid #e2e8f0; padding: 1rem 1.5rem; text-align: right;">
-            <button type="button" onclick="closePesertaModal()" class="btn btn-secondary" style="font-weight: 700; border-radius: 6px; padding: 0.45rem 1.25rem;">Tutup</button>
+        <div style="background: #ffffff; border-top: 1px solid #e5e7eb; padding: 0.875rem 1.5rem; text-align: right;">
+            <button type="button" onclick="closePesertaModal()" style="background: #022648; color: #ffffff; border: none; border-radius: 6px; padding: 0.5rem 1.25rem; font-weight: 700; font-size: 0.8125rem; cursor: pointer; transition: all 0.2s;">Tutup</button>
         </div>
     </div>
 </div>
@@ -962,7 +1036,7 @@
         $('#modalProgramName').text(programNama);
         $('#pesertaLoading').html(`
             <i class="fas fa-spinner fa-spin fa-2x" style="color: #022648;"></i>
-            <p style="margin-top: 10px; font-weight: 700; color: #64748b;">Memuat daftar pendaftar program...</p>
+            <p style="margin-top: 10px; font-weight: 700; color: #6b7280; font-size: 0.875rem;">Memuat daftar pendaftar program...</p>
         `).show();
         $('#pesertaTableWrapper').hide();
         $('#pesertaModal').addClass('active');
@@ -978,7 +1052,7 @@
             .then(data => {
                 if (!data.success) {
                     $('#pesertaLoading').html(`
-                        <div class="alert alert-warning" style="margin: 0; font-weight: 700; text-align: left;">
+                        <div class="alert alert-warning" style="margin: 0; font-weight: 700; text-align: left; font-size: 0.875rem;">
                             <i class="fas fa-exclamation-triangle"></i> ${data.message || 'Gagal memuat data.'}
                         </div>
                     `);
@@ -993,7 +1067,7 @@
                 if (data.peserta.length === 0) {
                     tbody.append(`
                         <tr>
-                            <td colspan="5" style="text-align: center; padding: 2rem; color: #64748b; font-style: italic; font-weight: 600;">
+                            <td colspan="5" style="text-align: center; padding: 2rem; color: #6b7280; font-style: italic; font-weight: 600;">
                                 Belum ada anggota yang mendaftar pada program kerja ini.
                             </td>
                         </tr>
@@ -1004,20 +1078,20 @@
                 data.peserta.forEach(p => {
                     let statusBadge = '';
                     if (p.status === 'pending') {
-                        statusBadge = `<span class="badge" style="background: #fef3c7; color: #d97706; border: 1px solid #fde68a;">⏳ PENDING</span>`;
+                        statusBadge = `<span style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a; font-weight: 700; font-size: 0.72rem; padding: 4px 8px; border-radius: 4px; display: inline-block;">PENDING</span>`;
                     } else if (p.status === 'approved') {
-                        statusBadge = `<span class="badge" style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0;">✅ DISETUJUI (ACC)</span>`;
+                        statusBadge = `<span style="background: #d1fae5; color: #047857; border: 1px solid #a7f3d0; font-weight: 700; font-size: 0.72rem; padding: 4px 8px; border-radius: 4px; display: inline-block;">DISETUJUI</span>`;
                     } else if (p.status === 'rejected') {
-                        statusBadge = `<span class="badge" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;">❌ DITOLAK</span>`;
+                        statusBadge = `<span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; font-weight: 700; font-size: 0.72rem; padding: 4px 8px; border-radius: 4px; display: inline-block;">DITOLAK</span>`;
                     }
 
                     let actionBtns = `
-                        <div style="display: flex; gap: 6px; justify-content: center;">
-                            <button type="button" class="btn btn-sm btn-success" onclick="updateStatusPeserta(${p.id}, 'approved', '${p.nama_lengkap.replace(/'/g, "\\'")}')" title="Acc / Setujui" style="font-weight: 700; border-radius: 6px; padding: 4px 10px;">
-                                <i class="fas fa-check"></i> ACC
+                        <div style="display: flex; gap: 5px; justify-content: center;">
+                            <button type="button" class="btn-acc-action" onclick="updateStatusPeserta(${p.id}, 'approved', '${p.nama_lengkap.replace(/'/g, "\\'")}')" title="Acc / Setujui">
+                                <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> ACC
                             </button>
-                            <button type="button" class="btn btn-sm btn-danger" onclick="updateStatusPeserta(${p.id}, 'rejected', '${p.nama_lengkap.replace(/'/g, "\\'")}')" title="Tolak" style="font-weight: 700; border-radius: 6px; padding: 4px 10px;">
-                                <i class="fas fa-times"></i> Tolak
+                            <button type="button" class="btn-tolak-action" onclick="updateStatusPeserta(${p.id}, 'rejected', '${p.nama_lengkap.replace(/'/g, "\\'")}')" title="Tolak">
+                                <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Tolak
                             </button>
                         </div>
                     `;
@@ -1025,23 +1099,23 @@
                     tbody.append(`
                         <tr>
                             <td>
-                                <strong style="color: #022648;">${p.nama_lengkap}</strong><br>
-                                <small class="text-muted">@${p.username}</small>
+                                <strong style="color: #022648; font-size: 0.85rem;">${p.nama_lengkap}</strong><br>
+                                <span style="color: #6b7280; font-size: 0.75rem;">@${p.username}</span>
                             </td>
                             <td>
-                                <small><b>HP:</b> ${p.no_hp}</small><br>
-                                <small><b>Domisili:</b> ${p.domisili}</small>
+                                <span style="font-size: 0.78rem;"><b>HP:</b> ${p.no_hp}</span><br>
+                                <span style="font-size: 0.75rem; color: #4b5563;"><b>Domisili:</b> ${p.domisili}</span>
                             </td>
-                            <td><small>${p.tanggal_daftar}</small></td>
+                            <td><span style="font-size: 0.78rem; color: #4b5563;">${p.tanggal_daftar}</span></td>
                             <td style="text-align: center;">${statusBadge}</td>
-                            <td>${actionBtns}</td>
+                            <td style="text-align: center;">${actionBtns}</td>
                         </tr>
                     `);
                 });
             })
             .catch(err => {
                 $('#pesertaLoading').html(`
-                    <div class="alert alert-danger" style="margin: 0; font-weight: 700; text-align: left;">
+                    <div class="alert alert-danger" style="margin: 0; font-weight: 700; text-align: left; font-size: 0.85rem;">
                         <i class="fas fa-exclamation-triangle"></i> Gagal Memuat Data Peserta Program.<br>
                         <small style="font-weight: 500;">Penyebab: Migrasi tabel database di server belum dijalankan.<br>
                         Silakan jalankan perintah ini di SSH server: <code>php artisan migrate --force && php artisan view:clear</code></small>

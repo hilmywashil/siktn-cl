@@ -88,6 +88,16 @@ class PublicProgramController extends Controller
             $program->id => ['status' => 'pending']
         ]);
 
+        // Send notification to all admins
+        try {
+            $admins = \App\Models\Admin::all();
+            foreach ($admins as $admin) {
+                $admin->notify(new \App\Notifications\ProgramJoinNotification($anggota, $program));
+            }
+        } catch (\Throwable $e) {
+            // Ignore notification error gracefully
+        }
+
         return back()->with('success', 'Pendaftaran Anda berhasil dikirim! Pendaftaran Anda sedang menunggu persetujuan / ACC dari Admin.');
     }
 }
