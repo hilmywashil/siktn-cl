@@ -487,7 +487,7 @@
     <!-- PAGE HEADER -->
     <div class="page-header">
         <h1 class="page-title">Pengaturan Halaman Program</h1>
-        <p class="page-desc">Kelola teks statis untuk halaman publik Program CSR dan Program Bidang.</p>
+        <p class="page-desc">Kelola teks statis untuk halaman publik Program CSR dan Program Kerja.</p>
     </div>
 
     <!-- STAT CARDS -->
@@ -533,7 +533,7 @@
                 </button>
                 <button type="button" class="settings-tab-btn" onclick="switchTab('bidang')">
                     <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                    Halaman Bidang
+                    Halaman Program Kerja
                 </button>
 
                 <div class="tab-divider"></div>

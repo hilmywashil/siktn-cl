@@ -278,7 +278,7 @@
         <span class="breadcrumb-current">Tambah Program</span>
     </div>
     <h1 class="page-title">Tambah Program Baru</h1>
-    <p class="page-desc">Lengkapi formulir di bawah untuk menambahkan data program kerja CSR atau Bidang Karang Taruna.</p>
+    <p class="page-desc">Lengkapi formulir di bawah untuk menambahkan data program kerja CSR atau Program Kerja Karang Taruna.</p>
 </div>
 
 <form action="{{ route('admin.program.store') }}" method="POST" enctype="multipart/form-data">

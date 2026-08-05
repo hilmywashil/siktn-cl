@@ -278,7 +278,7 @@
         <span class="breadcrumb-current">Edit Program</span>
     </div>
     <h1 class="page-title">Edit Program: {{ $program->nama_program }}</h1>
-    <p class="page-desc">Ubah detail program kerja CSR atau Bidang Karang Taruna.</p>
+    <p class="page-desc">Ubah detail program kerja CSR atau Program Kerja Karang Taruna.</p>
 </div>
 
 <form action="{{ route('admin.program.update', $program->id) }}" method="POST" enctype="multipart/form-data">

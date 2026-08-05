@@ -1,6 +1,6 @@
 @extends('admin.layouts.admin-layout')
 
-@section('title', 'Kelola Program (CSR & Bidang)')
+@section('title', 'Kelola Program (CSR & Program Kerja)')
 @section('page-title', 'Kelola Program')
 
 @push('styles')
@@ -499,7 +499,7 @@
                     <select name="kategori" id="kategori" class="form-control select2-basic">
                         <option value="">-- Semua Kategori --</option>
                         <option value="CSR" {{ request('kategori') == 'CSR' ? 'selected' : '' }}>CSR</option>
-                        <option value="Bidang" {{ request('kategori') == 'Bidang' ? 'selected' : '' }}>Bidang</option>
+                        <option value="Bidang" {{ request('kategori') == 'Bidang' ? 'selected' : '' }}>Program Kerja</option>
                     </select>
                 </div>
 
