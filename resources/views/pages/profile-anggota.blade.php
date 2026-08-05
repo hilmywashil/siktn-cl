@@ -2153,7 +2153,7 @@
                                     </div>
                                 </div>
 
-                                <a href="{{ route('program.bidang') }}#daftar-program" style="display: inline-flex; align-items: center; gap: 6px; background: #022648; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-size: 0.825rem; font-weight: 700; text-decoration: none; box-shadow: 0 2px 6px rgba(2, 38, 72, 0.15); transition: all 0.2s;" onmouseover="this.style.background='#01162f'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#022648'; this.style.transform='none'">
+                                <a id="btn-lihat-semua-program" href="{{ route('program.bidang') }}#daftar-program" style="display: inline-flex; align-items: center; gap: 6px; background: #022648; color: #ffffff; padding: 8px 16px; border-radius: 6px; font-size: 0.825rem; font-weight: 700; text-decoration: none; box-shadow: 0 2px 6px rgba(2, 38, 72, 0.15); transition: all 0.2s;" onmouseover="this.style.background='#01162f'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#022648'; this.style.transform='none'">
                                     Lihat Semua Program <i class="fas fa-arrow-right" style="font-size: 0.75rem;"></i>
                                 </a>
                             </div>
@@ -2199,6 +2199,15 @@
                             });
                             btn.style.background = '#022648';
                             btn.style.color = '#ffffff';
+
+                            const seeAllBtn = document.getElementById('btn-lihat-semua-program');
+                            if (seeAllBtn) {
+                                if (category === 'CSR') {
+                                    seeAllBtn.href = "{{ route('program.csr') }}";
+                                } else {
+                                    seeAllBtn.href = "{{ route('program.bidang') }}#daftar-program";
+                                }
+                            }
 
                             document.querySelectorAll('.rekom-card').forEach(card => {
                                 if (category === 'all' || card.getAttribute('data-category') === category) {
