@@ -81,6 +81,7 @@ class PublicProgramController extends Controller
             return redirect()->route('anggota.login')->with('error', 'Silakan login terlebih dahulu untuk mengikuti program kerja ini.');
         }
 
+        $anggota = \Illuminate\Support\Facades\Auth::guard('anggota')->user();
         $program = Program::findOrFail($id);
 
         $anggota->programs()->syncWithoutDetaching([
