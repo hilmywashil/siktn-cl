@@ -985,8 +985,8 @@
             font-weight: 600; cursor: pointer; border: none; transition: all 0.2s;
             font-family: 'Google Sans', sans-serif;
         }
-        .foto-btn-file { background: var(--primary-blue); color: white; }
-        .foto-btn-file:hover { background: var(--secondary-blue); }
+        .foto-btn-file { background: #022648 !important; color: #ffffff !important; }
+        .foto-btn-file:hover { background: #043666 !important; color: #ffffff !important; }
         .foto-btn-camera { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
         .foto-btn-camera:hover { background: #e5e7eb; }
         .foto-btn-camera.hidden { display: none; }
@@ -2193,11 +2193,11 @@
                                     <div class="foto-upload-actions">
                                         <p>Unggah foto profil Anda. Format: JPG, PNG. Setelah dipilih, Anda bisa menyesuaikan area potong (crop) menjadi persegi.</p>
                                         <div class="foto-btn-group">
-                                            <label for="foto_diri" class="foto-btn foto-btn-file" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;" id="labelPilihFile">
-                                                <i class="fas fa-folder-open"></i> Pilih dari File
+                                            <label for="foto_diri" class="foto-btn foto-btn-file" style="cursor:pointer; display:inline-flex; align-items:center; gap:8px; background: #022648; color: #ffffff !important; padding: 9px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;" id="labelPilihFile">
+                                                <i class="fas fa-folder-open" style="color: #ffffff !important;"></i> <span style="color: #ffffff !important;">Pilih dari File</span>
                                             </label>
-                                            <button type="button" class="foto-btn foto-btn-camera" id="btnOpenCamera" style="background: #022648; color: #ffffff; padding: 8px 16px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                                                <i class="fas fa-camera"></i> Ambil Foto Kamera
+                                            <button type="button" class="foto-btn foto-btn-camera" id="btnOpenCamera" style="background: #022648; color: #ffffff !important; padding: 9px 16px; border-radius: 6px; border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                                                <i class="fas fa-camera" style="color: #ffffff !important;"></i> <span style="color: #ffffff !important;">Ambil Foto Kamera</span>
                                             </button>
                                         </div>
                                     </div>
