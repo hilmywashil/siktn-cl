@@ -61,6 +61,7 @@
         display: grid;
         grid-template-columns: 1fr 1.6fr;
         gap: 2.5rem;
+        align-items: start;
     }
 
     .detail-image-wrapper {
@@ -69,12 +70,13 @@
         overflow: hidden;
         box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         border: 1px solid #f1f5f9;
-        background: #f8fafc;
+        background: #ffffff;
     }
 
     .detail-image-wrapper img {
         width: 100%;
-        height: 320px;
+        height: auto;
+        max-height: 380px;
         object-fit: cover;
         display: block;
         transition: transform 0.4s ease;

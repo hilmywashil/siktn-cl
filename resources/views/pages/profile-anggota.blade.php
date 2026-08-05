@@ -544,10 +544,11 @@
             font-weight: 600;
             color: #1e293b;
             line-height: 1.3;
+            overflow: hidden;
         }
 
         .kta-detail-label {
-            width: 78px;
+            width: 60px;
             flex-shrink: 0;
             color: #64748b;
             font-weight: 700;
@@ -560,6 +561,9 @@
             flex-grow: 1;
             color: #022648;
             font-weight: 700;
+            word-break: break-all;
+            overflow-wrap: anywhere;
+            min-width: 0;
         }
 
         .kta-status-badge {
@@ -2614,21 +2618,69 @@
             });
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
+                <!DOCTYPE html>
                 <html>
                     <head>
-                        <title>Cetak KTA - Karang Taruna</title>
+                        <title>Cetak KTA - Karang Taruna Indonesia</title>
                         ${stylesHtml}
                         <style>
-                            body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #ffffff; }
-                            .kta-card { box-shadow: none !important; transform: scale(1.2); }
-                            @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+                            @page {
+                                size: A4 portrait;
+                                margin: 15mm;
+                            }
+                            body {
+                                margin: 0;
+                                padding: 30px 20px;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center;
+                                min-height: 100vh;
+                                background: #ffffff !important;
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                                box-sizing: border-box;
+                            }
+                            .kta-card-wrapper {
+                                display: flex !important;
+                                flex-direction: row !important;
+                                justify-content: center !important;
+                                align-items: center !important;
+                                gap: 30px !important;
+                                margin: 0 auto !important;
+                                width: 100% !important;
+                                max-width: 800px !important;
+                            }
+                            .kta-card {
+                                box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+                                border: 1.5px solid #022648 !important;
+                                page-break-inside: avoid !important;
+                                transform: scale(1) !important;
+                            }
+                            @media print {
+                                body {
+                                    padding: 0;
+                                    min-height: auto;
+                                }
+                                .no-print {
+                                    display: none !important;
+                                }
+                                .kta-card {
+                                    box-shadow: none !important;
+                                }
+                            }
                         </style>
                     </head>
                     <body>
+                        <div class="no-print" style="margin-bottom: 25px; text-align: center;">
+                            <button onclick="window.print()" style="background: #022648; color: white; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px;">
+                                <i class="fas fa-print"></i> Cetak Dokumen / Simpan PDF
+                            </button>
+                        </div>
                         ${cardHtml}
                         <script>
                             window.onload = function() {
-                                setTimeout(function() { window.print(); window.close(); }, 500);
+                                setTimeout(function() { window.print(); }, 600);
                             };
                         <\/script>
                     </body>
