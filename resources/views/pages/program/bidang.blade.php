@@ -417,7 +417,7 @@
         </div>
     </section>
     <section class="wrapper-white-1">
-        <div class="tujuan-section" data-aos="fade-up">
+        <div id="daftar-program" class="tujuan-section" data-aos="fade-up" style="scroll-margin-top: 100px;">
             <h1>Daftar Program Kerja</h1>
             <p style="text-align: center; color: #6b7280; margin-bottom: 2rem;">Inisiatif dan program kerja internal yang sedang atau telah dilaksanakan.</p>
 
