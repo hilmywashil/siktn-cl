@@ -922,13 +922,32 @@
     function openPesertaModal(programId, programNama) {
         currentProgramId = programId;
         $('#modalProgramName').text(programNama);
-        $('#pesertaLoading').show();
+        $('#pesertaLoading').html(`
+            <i class="fas fa-spinner fa-spin fa-2x" style="color: #022648;"></i>
+            <p style="margin-top: 10px; font-weight: 700; color: #64748b;">Memuat daftar pendaftar program...</p>
+        `).show();
         $('#pesertaTableWrapper').hide();
         $('#pesertaModal').modal('show');
 
-        fetch(`/admin/program/${programId}/peserta-list`)
-            .then(response => response.json())
+        const baseUrl = "{{ url('/admin/program') }}";
+        fetch(`${baseUrl}/${programId}/peserta-list`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Gagal terhubung atau migrasi database belum dijalankan.');
+                }
+                return response.json();
+            })
             .then(data => {
+                if (!data.success) {
+                    $('#pesertaLoading').html(`
+                        <div class="alert alert-warning" style="margin: 0; font-weight: 700; text-align: left;">
+                            <i class="fas fa-exclamation-triangle"></i> ${data.message || 'Gagal memuat data.'}<br>
+                            <small>Silakan jalankan <code>php artisan migrate --force</code> di terminal server.</small>
+                        </div>
+                    `);
+                    return;
+                }
+
                 $('#pesertaLoading').hide();
                 $('#pesertaTableWrapper').show();
                 const tbody = $('#pesertaTableBody');
@@ -984,8 +1003,13 @@
                 });
             })
             .catch(err => {
-                $('#pesertaLoading').hide();
-                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal memuat data peserta.' });
+                $('#pesertaLoading').html(`
+                    <div class="alert alert-danger" style="margin: 0; font-weight: 700; text-align: left;">
+                        <i class="fas fa-exclamation-triangle"></i> Gagal Memuat Data Peserta Program.<br>
+                        <small style="font-weight: 500;">Penyebab: Migrasi tabel database di server belum dijalankan.<br>
+                        Silakan jalankan perintah ini di SSH server: <code>php artisan migrate --force && php artisan view:clear</code></small>
+                    </div>
+                `);
             });
     }
 
@@ -1003,7 +1027,8 @@
             customClass: { popup: 'admin-ui-scope' }
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch(`/admin/program/${currentProgramId}/peserta/${anggotaId}/update-status`, {
+                const baseUrl = "{{ url('/admin/program') }}";
+                fetch(`${baseUrl}/${currentProgramId}/peserta/${anggotaId}/update-status`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1022,6 +1047,8 @@
                         });
                         Toast.fire({ icon: 'success', title: resData.message });
                         openPesertaModal(currentProgramId, $('#modalProgramName').text());
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Gagal', text: resData.message || 'Gagal memperbarui status.' });
                     }
                 })
                 .catch(err => {

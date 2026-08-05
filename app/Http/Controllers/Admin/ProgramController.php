@@ -464,32 +464,36 @@ class ProgramController extends Controller
             ->header('Cache-Control', 'max-age=0');
     }
 
-    /**
-     * Get JSON list of peserta for modal management
-     */
     public function getPesertaList(Program $program)
     {
-        $peserta = $program->peserta()
-            ->select('anggota.id', 'anggota.nama_lengkap', 'anggota.username', 'anggota.email', 'anggota.no_hp', 'anggota.domisili', 'anggota.foto_diri')
-            ->get()
-            ->map(function($item) {
-                return [
-                    'id' => $item->id,
-                    'nama_lengkap' => $item->nama_lengkap,
-                    'username' => $item->username,
-                    'email' => $item->email,
-                    'no_hp' => $item->no_hp ?? '-',
-                    'domisili' => $item->domisili ?? '-',
-                    'status' => $item->pivot->status ?? 'approved',
-                    'tanggal_daftar' => $item->pivot->created_at ? $item->pivot->created_at->format('d M Y H:i') : '-'
-                ];
-            });
+        try {
+            $peserta = $program->peserta()
+                ->select('anggota.id', 'anggota.nama_lengkap', 'anggota.username', 'anggota.email', 'anggota.no_hp', 'anggota.domisili', 'anggota.foto_diri')
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'id' => $item->id,
+                        'nama_lengkap' => $item->nama_lengkap,
+                        'username' => $item->username,
+                        'email' => $item->email,
+                        'no_hp' => $item->no_hp ?? '-',
+                        'domisili' => $item->domisili ?? '-',
+                        'status' => isset($item->pivot->status) ? $item->pivot->status : 'approved',
+                        'tanggal_daftar' => $item->pivot->created_at ? $item->pivot->created_at->format('d M Y H:i') : '-'
+                    ];
+                });
 
-        return response()->json([
-            'success' => true,
-            'program_nama' => $program->nama_program,
-            'peserta' => $peserta
-        ]);
+            return response()->json([
+                'success' => true,
+                'program_nama' => $program->nama_program,
+                'peserta' => $peserta
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
