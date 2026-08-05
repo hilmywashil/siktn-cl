@@ -2089,16 +2089,16 @@
 
                         @if(empty($programs) || $programs->isEmpty())
                             <div style="text-align: center; padding: 3rem 1.5rem; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
-                                <div style="width: 64px; height: 64px; background: #f1f5f9; color: #64748b; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
-                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                <div style="width: 64px; height: 64px; background: #e0f2fe; color: #022648; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
+                                    <i class="fas fa-tasks" style="font-size: 26px; color: #022648;"></i>
                                 </div>
                                 <h3 style="font-size: 1.1rem; font-weight: 700; color: #022648; margin-bottom: 0.5rem;">Belum Mengikuti Program</h3>
                                 <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1.5rem; max-width: 400px; display: inline-block;">
                                     Anda belum terdaftar di program kerja manapun. Jelajahi program kerja aktif kami dan mulailah berpartisipasi.
                                 </p>
                                 <div>
-                                    <a href="/program" style="display: inline-flex; align-items: center; gap: 8px; background: #022648; color: white; padding: 10px 20px; border-radius: 6px; font-weight: 700; font-size: 0.875rem; text-decoration: none; transition: background 0.2s;">
-                                        Jelajahi Program Kerja
+                                    <a href="{{ route('program.bidang') }}" style="display: inline-flex; align-items: center; gap: 8px; background: #022648; color: white; padding: 10px 20px; border-radius: 6px; font-weight: 700; font-size: 0.875rem; text-decoration: none; transition: background 0.2s;">
+                                        <i class="fas fa-search"></i> Jelajahi Program Kerja
                                     </a>
                                 </div>
                             </div>
@@ -2141,6 +2141,47 @@
                                 @endforeach
                             </div>
                         @endif
+
+                        {{-- Section Rekomendasi Program Kerja Terbaru --}}
+                        <div style="margin-top: 2.5rem; border-top: 1px dashed #cbd5e1; padding-top: 1.75rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 10px;">
+                                <h3 style="font-size: 1.1rem; font-weight: 800; color: #022648; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-bullhorn" style="color: #c59217;"></i> Program Kerja Terbaru Yang Dapat Anda Ikuti
+                                </h3>
+                                <a href="{{ route('program.bidang') }}" style="font-size: 0.85rem; font-weight: 700; color: #022648; text-decoration: underline;">
+                                    Lihat Semua Program <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+
+                            @if(isset($programRekomendasi) && $programRekomendasi->count() > 0)
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
+                                    @foreach($programRekomendasi as $rekom)
+                                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; flex-direction: column; height: 100%;">
+                                            <div style="height: 130px; position: relative; background: #f1f5f9; overflow: hidden;">
+                                                <img src="{{ $rekom->gambar_url }}" alt="{{ $rekom->nama_program }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                <span style="position: absolute; top: 10px; right: 10px; padding: 3px 8px; font-size: 0.68rem; font-weight: 700; border-radius: 4px; background: #022648; color: white;">
+                                                    {{ $rekom->status }}
+                                                </span>
+                                            </div>
+                                            <div style="padding: 1rem; flex: 1; display: flex; flex-direction: column;">
+                                                <span style="font-size: 0.7rem; font-weight: 700; color: #c59217; text-transform: uppercase;">{{ $rekom->jabatan->nama_jabatan ?? 'Program Kerja' }}</span>
+                                                <h4 style="font-size: 0.95rem; font-weight: 700; color: #022648; margin: 4px 0 8px; line-height: 1.3;">{{ $rekom->nama_program }}</h4>
+                                                <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                                    {{ $rekom->target_output }}
+                                                </p>
+                                                <div style="margin-top: auto; border-top: 1px solid #f1f5f9; padding-top: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
+                                                    <span style="font-size: 0.75rem; color: #64748b;"><i class="fa fa-user"></i> {{ $rekom->pic }}</span>
+                                                    <a href="{{ route('program.bidang.detail', $rekom->id) }}" style="padding: 5px 12px; background: #022648; color: white; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-decoration: none;">
+                                                        Ikuti Program
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    @endif
                     @endif
                 </div>
 
