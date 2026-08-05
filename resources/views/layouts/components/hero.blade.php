@@ -18,7 +18,7 @@
                         <a href="{{ url('/program') }}" @if(request()->is('program*')) class="active" @endif>Program <i class="fa fa-caret-down" style="margin-left: 4px;"></i></a>
                         <div class="nav-dropdown-content">
                             <a href="{{ route('program.csr') }}">CSR</a>
-                            <a href="{{ route('program.bidang') }}">Bidang</a>
+                            <a href="{{ route('program.bidang') }}">Program Kerja</a>
                         </div>
                     </div>
                     {{-- <a href="{{ url('/agenda') }}" @if(request()->is('agenda*')) class="active" @endif>Agenda</a> --}}

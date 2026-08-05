@@ -26,7 +26,7 @@ class PublicProgramController extends Controller
 
     public function csrDetail($id)
     {
-        $program = Program::where('kategori', 'CSR')->where('id', $id)->firstOrFail();
+        $program = Program::where('kategori', 'CSR')->with('programKerja')->where('id', $id)->firstOrFail();
 
         $settings = [
             'banner_title' => \App\Models\PageSetting::getVal('csr_banner_title', 'Program CSR SIKTN untuk Membangun Dampak yang Berkelanjutan'),
@@ -43,11 +43,11 @@ class PublicProgramController extends Controller
 
     public function bidang()
     {
-        $programs = Program::where('kategori', 'Bidang')->with('jabatan')->orderBy('periode_mulai', 'desc')->get();
+        $programs = Program::where('kategori', 'Bidang')->with(['jabatan', 'csrPrograms'])->orderBy('periode_mulai', 'desc')->get();
 
         $settings = [
-            'banner_title' => \App\Models\PageSetting::getVal('bidang_banner_title', 'Program Bidang SIKTN: Menggerakkan Organisasi Melalui Aksi Nyata'),
-            'banner_desc' => \App\Models\PageSetting::getVal('bidang_banner_desc', 'Program Bidang SIKTN dirancang untuk mendukung pengembangan organisasi...'),
+            'banner_title' => \App\Models\PageSetting::getVal('bidang_banner_title', 'Program Kerja SIKTN: Menggerakkan Organisasi Melalui Aksi Nyata'),
+            'banner_desc' => \App\Models\PageSetting::getVal('bidang_banner_desc', 'Program Kerja SIKTN dirancang untuk mendukung pengembangan organisasi...'),
             'about_image' => \App\Models\PageSetting::getVal('bidang_about_image'),
             'about_title' => \App\Models\PageSetting::getVal('bidang_about_title', 'Menggerakkan Organisasi Melalui Program Kerja yang Terarah dan Berdampak'),
             'about_desc1' => \App\Models\PageSetting::getVal('bidang_about_desc1', ''),
@@ -60,11 +60,11 @@ class PublicProgramController extends Controller
 
     public function bidangDetail($id)
     {
-        $program = Program::where('kategori', 'Bidang')->with('jabatan')->where('id', $id)->firstOrFail();
+        $program = Program::where('kategori', 'Bidang')->with(['jabatan', 'csrPrograms'])->where('id', $id)->firstOrFail();
 
         $settings = [
-            'banner_title' => \App\Models\PageSetting::getVal('bidang_banner_title', 'Program Bidang SIKTN: Menggerakkan Organisasi Melalui Aksi Nyata'),
-            'banner_desc' => \App\Models\PageSetting::getVal('bidang_banner_desc', 'Program Bidang SIKTN dirancang untuk mendukung pengembangan organisasi...'),
+            'banner_title' => \App\Models\PageSetting::getVal('bidang_banner_title', 'Program Kerja SIKTN: Menggerakkan Organisasi Melalui Aksi Nyata'),
+            'banner_desc' => \App\Models\PageSetting::getVal('bidang_banner_desc', 'Program Kerja SIKTN dirancang untuk mendukung pengembangan organisasi...'),
             'about_image' => \App\Models\PageSetting::getVal('bidang_about_image'),
             'about_title' => \App\Models\PageSetting::getVal('bidang_about_title', 'Menggerakkan Organisasi Melalui Program Kerja yang Terarah dan Berdampak'),
             'about_desc1' => \App\Models\PageSetting::getVal('bidang_about_desc1', ''),

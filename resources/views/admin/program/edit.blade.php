@@ -308,14 +308,12 @@
                         <select name="kategori" id="kategori" class="form-select select2-basic @error('kategori') error @enderror" required>
                             <option value="">-- Pilih Kategori --</option>
                             <option value="CSR" {{ old('kategori', $program->kategori) == 'CSR' ? 'selected' : '' }}>Program CSR (Eksternal)</option>
-                            <option value="Bidang" {{ old('kategori', $program->kategori) == 'Bidang' ? 'selected' : '' }}>Program Bidang (Internal)</option>
+                            <option value="Bidang" {{ old('kategori', $program->kategori) == 'Bidang' ? 'selected' : '' }}>Program Kerja (Internal)</option>
                         </select>
                         @error('kategori')
                             <span class="form-error">{{ $message }}</span>
                         @enderror
                     </div>
-
-
 
                     {{-- Dinamis based on Kategori --}}
                     <div id="csr-section" class="dynamic-section" style="display: none;">
@@ -326,6 +324,21 @@
                             @error('mitra')
                                 <span class="form-error">{{ $message }}</span>
                             @enderror
+                        </div>
+
+                        <div class="form-group" style="margin-top: 1rem;">
+                            <label class="form-label">Terkoneksi dengan Program Kerja</label>
+                            <select name="program_kerja_id" id="program_kerja_id" class="form-select select2-basic" style="width: 100%;">
+                                <option value="">-- Pilih Program Kerja Terkait (Opsional) --</option>
+                                @if(isset($programKerjas))
+                                    @foreach($programKerjas as $pk)
+                                        <option value="{{ $pk->id }}" {{ old('program_kerja_id', $program->program_kerja_id) == $pk->id ? 'selected' : '' }}>
+                                            {{ $pk->nama_program }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            <span class="form-help">Hubungkan program CSR ini dengan Program Kerja organisasi yang didukungnya.</span>
                         </div>
                     </div>
 

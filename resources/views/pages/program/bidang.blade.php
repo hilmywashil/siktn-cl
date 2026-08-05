@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Program Bidang')
+@section('title', 'Program Kerja')
 
 @push('styles')
 <style>
@@ -404,7 +404,7 @@
     </section>
     <section class="wrapper-white-1">
         <div class="tujuan-section" data-aos="fade-up">
-            <h1>Fokus Program Bidang</h1>
+            <h1>Fokus Program Kerja</h1>
             <div class="grid">
                 @foreach($settings['fokus'] as $fokus)
                 <div class="item-2">
@@ -418,7 +418,7 @@
     </section>
     <section class="wrapper-white-1">
         <div class="tujuan-section" data-aos="fade-up">
-            <h1>Daftar Program Bidang</h1>
+            <h1>Daftar Program Kerja</h1>
             <p style="text-align: center; color: #6b7280; margin-bottom: 2rem;">Inisiatif dan program kerja internal yang sedang atau telah dilaksanakan.</p>
 
             @if($programs->count() > 0)
@@ -467,7 +467,7 @@
                 </div>
             @else
                 <div class="empty-state">
-                    Belum ada program bidang yang ditambahkan.
+                    Belum ada program kerja yang ditambahkan.
                 </div>
             @endif
         </div>
@@ -478,10 +478,10 @@
                 <img src="{{ asset('assets-front/images/bg_5.jpg') }}" alt="Tentang Karang Taruna">
             </div>
             <div class="right">
-                <h2>Mari Berkontribusi dalam<br>Program Bidang SIKTN
+                <h2>Mari Berkontribusi dalam<br>Program Kerja SIKTN
                 </h2>
                 <p>Setiap ide, inovasi, dan kontribusi anggota menjadi bagian penting dalam kemajuan organisasi.
-                    Bergabunglah dalam berbagai program bidang dan ambil peran aktif dalam membangun organisasi yang lebih
+                    Bergabunglah dalam berbagai program kerja dan ambil peran aktif dalam membangun organisasi yang lebih
                     profesional, modern, dan berdampak.</p>
                 <a href="{{ route('contact') }}" class="btn-yellow-text-black">Hubungi Kami </a>
             </div>

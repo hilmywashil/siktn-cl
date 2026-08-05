@@ -87,16 +87,19 @@ class ProgramController extends Controller
     public function create()
     {
         $this->checkAuthorization();
-        // Ambil data jabatan unik untuk dropdown Bidang
+        // Ambil data jabatan unik untuk dropdown Bidang / Program Kerja
         $jabatans = Jabatan::all()->unique('nama_jabatan');
         
+        // Ambil daftar Program Kerja (kategori Bidang) untuk pilihan link CSR
+        $programKerjas = Program::where('kategori', 'Bidang')->orderBy('nama_program', 'asc')->get();
+
         // Ambil seluruh data anggota untuk dropdown PIC default
         $anggotaNames = Anggota::pluck('nama_lengkap')->toArray();
         $organisasiNames = Organisasi::pluck('nama')->toArray();
         $picOptions = collect(array_merge($anggotaNames, $organisasiNames))->filter()->unique()->values();
         
         $activeMenu = 'program';
-        return view('admin.program.create', compact('jabatans', 'picOptions', 'activeMenu'));
+        return view('admin.program.create', compact('jabatans', 'programKerjas', 'picOptions', 'activeMenu'));
     }
 
     /**
@@ -108,6 +111,7 @@ class ProgramController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_program' => 'required|string|max:255',
             'kategori' => 'required|in:CSR,Bidang',
+            'program_kerja_id' => 'nullable|exists:programs,id',
             'status' => 'required_if:kategori,Bidang|in:Perencanaan,Berjalan,Selesai',
             'periode_mulai' => 'required|date',
             'periode_selesai' => 'required|date|after_or_equal:periode_mulai',
@@ -119,7 +123,7 @@ class ProgramController extends Controller
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
         ], [
             'mitra.required_if' => 'Nama Mitra wajib diisi untuk program CSR.',
-            'jabatan_id.required_if' => 'Bidang wajib dipilih untuk program Bidang.',
+            'jabatan_id.required_if' => 'Bidang wajib dipilih untuk program Kerja.',
             'periode_selesai.after_or_equal' => 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.',
             'gambar.image' => 'File harus berupa gambar.',
             'gambar.max' => 'Ukuran gambar maksimal 10MB.',
@@ -143,6 +147,7 @@ class ProgramController extends Controller
         Program::create([
             'nama_program' => $request->nama_program,
             'kategori' => $request->kategori,
+            'program_kerja_id' => $request->kategori == 'CSR' ? $request->program_kerja_id : null,
             'status' => $request->kategori == 'Bidang' ? $request->status : 'Berjalan',
             'periode_mulai' => $request->periode_mulai,
             'periode_selesai' => $request->periode_selesai,
@@ -193,6 +198,9 @@ class ProgramController extends Controller
         $this->checkAuthorization();
         $jabatans = Jabatan::all()->unique('nama_jabatan');
         
+        // Ambil daftar Program Kerja (kategori Bidang) kecuali program ini sendiri
+        $programKerjas = Program::where('kategori', 'Bidang')->where('id', '!=', $program->id)->orderBy('nama_program', 'asc')->get();
+
         // Cek PIC berdasarkan Kategori/Jabatan
         $picOptions = [];
         if ($program->kategori == 'Bidang' && $program->jabatan_id) {
@@ -208,7 +216,7 @@ class ProgramController extends Controller
         }
         
         $activeMenu = 'program';
-        return view('admin.program.edit', compact('program', 'jabatans', 'picOptions', 'activeMenu'));
+        return view('admin.program.edit', compact('program', 'jabatans', 'programKerjas', 'picOptions', 'activeMenu'));
     }
 
     /**
@@ -220,6 +228,7 @@ class ProgramController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_program' => 'required|string|max:255',
             'kategori' => 'required|in:CSR,Bidang',
+            'program_kerja_id' => 'nullable|exists:programs,id',
             'status' => 'required_if:kategori,Bidang|in:Perencanaan,Berjalan,Selesai',
             'periode_mulai' => 'required|date',
             'periode_selesai' => 'required|date|after_or_equal:periode_mulai',
@@ -261,6 +270,7 @@ class ProgramController extends Controller
         $program->update([
             'nama_program' => $request->nama_program,
             'kategori' => $request->kategori,
+            'program_kerja_id' => $request->kategori == 'CSR' ? $request->program_kerja_id : null,
             'status' => $request->kategori == 'Bidang' ? $request->status : 'Berjalan',
             'periode_mulai' => $request->periode_mulai,
             'periode_selesai' => $request->periode_selesai,

@@ -215,6 +215,26 @@
                         <div class="detail-desc-text">{{ $program->target_output }}</div>
                     </div>
 
+                    @if($program->csrPrograms && $program->csrPrograms->count() > 0)
+                        <div class="detail-desc-box" style="margin-top: 1.25rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem;">
+                            <div class="detail-desc-title" style="color: #166534; display: flex; align-items: center; gap: 6px; font-weight: 700; margin-bottom: 0.5rem;">
+                                <i class="fa fa-handshake"></i> Program CSR Pendukung Terkait:
+                            </div>
+                            <div class="detail-desc-text">
+                                <ul style="margin: 0; padding-left: 1.25rem; list-style-type: disc;">
+                                    @foreach($program->csrPrograms as $csr)
+                                        <li style="margin-bottom: 0.35rem;">
+                                            <a href="{{ route('program.csr.detail', $csr->id) }}" style="font-weight: 700; color: #022648; text-decoration: underline;">
+                                                {{ $csr->nama_program }}
+                                            </a>
+                                            <span style="font-size: 0.85rem; color: #4b5563;">(Mitra: {{ $csr->mitra ?? 'Umum' }})</span>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    @endif
+
                     @php
                         $isJoined = false;
                         if (Auth::guard('anggota')->check()) {

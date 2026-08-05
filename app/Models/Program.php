@@ -13,6 +13,7 @@ class Program extends Model
     protected $fillable = [
         'nama_program',
         'kategori',
+        'program_kerja_id',
         'status',
         'periode_mulai',
         'periode_selesai',
@@ -42,11 +43,27 @@ class Program extends Model
     ];
 
     /**
-     * Get the jabatan associated with the program (khusus kategori Bidang)
+     * Get the jabatan associated with the program (khusus kategori Bidang / Program Kerja)
      */
     public function jabatan(): BelongsTo
     {
         return $this->belongsTo(Jabatan::class);
+    }
+
+    /**
+     * Relasi ke Program Kerja Induk (Khusus Kategori CSR)
+     */
+    public function programKerja(): BelongsTo
+    {
+        return $this->belongsTo(Program::class, 'program_kerja_id');
+    }
+
+    /**
+     * Relasi ke Program CSR Pendukung (Khusus Kategori Bidang / Program Kerja)
+     */
+    public function csrPrograms(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Program::class, 'program_kerja_id');
     }
 
     /**

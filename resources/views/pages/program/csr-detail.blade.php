@@ -215,6 +215,19 @@
                         <div class="detail-desc-text">{{ $program->target_output }}</div>
                     </div>
 
+                    @if($program->programKerja)
+                        <div class="detail-desc-box" style="margin-top: 1.25rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem;">
+                            <div class="detail-desc-title" style="color: #1e40af; display: flex; align-items: center; gap: 6px; font-weight: 700; margin-bottom: 0.35rem;">
+                                <i class="fa fa-link"></i> Terkoneksi Dengan Program Kerja Organisasi:
+                            </div>
+                            <div class="detail-desc-text">
+                                <a href="{{ route('program.bidang.detail', $program->programKerja->id) }}" style="font-weight: 700; color: #022648; text-decoration: underline; font-size: 1rem;">
+                                    <i class="fa fa-angle-right" style="color: #022648;"></i> {{ $program->programKerja->nama_program }}
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+
                     @php
                         $isJoined = false;
                         if (Auth::guard('anggota')->check()) {
