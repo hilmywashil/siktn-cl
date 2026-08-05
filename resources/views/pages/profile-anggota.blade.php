@@ -2203,7 +2203,7 @@
                             const seeAllBtn = document.getElementById('btn-lihat-semua-program');
                             if (seeAllBtn) {
                                 if (category === 'CSR') {
-                                    seeAllBtn.href = "{{ route('program.csr') }}";
+                                    seeAllBtn.href = "{{ route('program.csr') }}#daftar-program";
                                 } else {
                                     seeAllBtn.href = "{{ route('program.bidang') }}#daftar-program";
                                 }
