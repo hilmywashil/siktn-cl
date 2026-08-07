@@ -357,12 +357,13 @@ Route::get('/organisasi', function (Illuminate\Http\Request $request) {
         \App\Models\Organisasi::create([
             'nama' => 'Template Ketum (Belum Diisi)',
             'jabatan' => 'Ketua Umum',
+            'kategori' => 'Pengurus Harian',
             'urutan' => '1',
             'provinsi' => $selectedProvinsi,
             'kabupaten' => $selectedKabupaten,
             'periode_id' => $selectedPeriode ? $selectedPeriode->id : null,
             'foto' => null,
-            'is_aktif' => true,
+            'aktif' => true,
         ]);
         $organisasi = $organisasiQuery->ordered()->get();
     }
