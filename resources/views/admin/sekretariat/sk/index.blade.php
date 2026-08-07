@@ -654,10 +654,21 @@
                 </div>
 
                 <div id="importSkPreviewContainer" style="display: none; margin-top: 1.25rem;">
-                    <div style="font-weight: 700; color: #022648; font-size: 0.85rem; margin-bottom: 0.5rem;">
-                        Pratinjau Data Terbaca (<span id="importSkCount">0</span> baris SK)
+                    <div id="importSkDuplicateAlert" style="display: none; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 10px 14px; border-radius: 8px; margin-bottom: 0.75rem; font-size: 0.8125rem; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                        <div>
+                            <i class="fa fa-exclamation-triangle" style="color: #d97706; margin-right: 6px;"></i>
+                            Terdeteksi <strong id="importSkDupCount" style="color: #dc2626; font-size: 0.9rem;">0</strong> data duplikat!
+                        </div>
+                        <button type="button" onclick="cleanImportSkDuplicates()" style="background: #d97706; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.775rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#b45309'" onmouseout="this.style.background='#d97706'">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            Bersihkan Data Duplikat
+                        </button>
                     </div>
-                    <div style="max-height: 200px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.775rem;">
+
+                    <div style="font-weight: 700; color: #022648; font-size: 0.85rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Pratinjau Data Terbaca (<span id="importSkCount">0</span>)</span>
+                    </div>
+                    <div style="max-height: 220px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.775rem;">
                         <table style="width: 100%; border-collapse: collapse;">
                             <thead>
                                 <tr style="background: #022648; color: white;">
@@ -665,6 +676,7 @@
                                     <th style="padding: 8px 10px; text-align: left;">Judul SK</th>
                                     <th style="padding: 8px 10px; text-align: center;">Berlaku</th>
                                     <th style="padding: 8px 10px; text-align: center;">Status</th>
+                                    <th style="padding: 8px 10px; text-align: center; width: 50px;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="importSkPreviewTableBody"></tbody>
@@ -910,6 +922,97 @@
         form.submit();
     }
 
+    window.currentParsedSkRows = [];
+    window.existingNomorSks = @json($existingNomorSks ?? []);
+
+    function renderSkImportPreview() {
+        const rows = window.currentParsedSkRows || [];
+        if (rows.length === 0) {
+            document.getElementById('importSkPreviewContainer').style.display = 'none';
+            document.getElementById('btnSubmitImportSk').disabled = true;
+            return;
+        }
+
+        const nomorCounts = {};
+        rows.forEach(r => {
+            const key = (r.nomor_sk || '').toLowerCase();
+            nomorCounts[key] = (nomorCounts[key] || 0) + 1;
+        });
+
+        let duplicateCount = 0;
+        rows.forEach(r => {
+            const key = (r.nomor_sk || '').toLowerCase();
+            const isInternalDup = nomorCounts[key] > 1;
+            const isDbDup = window.existingNomorSks.some(n => n.toLowerCase() === key);
+            r.is_duplicate = isInternalDup || isDbDup;
+            r.dup_reason = isDbDup ? 'Sudah Ada di Database' : (isInternalDup ? 'Duplikat di Berkas' : '');
+            if (r.is_duplicate) duplicateCount++;
+        });
+
+        const alertBox = document.getElementById('importSkDuplicateAlert');
+        const dupCountSpan = document.getElementById('importSkDupCount');
+        if (alertBox && dupCountSpan) {
+            if (duplicateCount > 0) {
+                dupCountSpan.innerText = duplicateCount;
+                alertBox.style.display = 'flex';
+            } else {
+                alertBox.style.display = 'none';
+            }
+        }
+
+        document.getElementById('importSkRowsInput').value = JSON.stringify(rows);
+        document.getElementById('importSkCount').innerText = rows.length + (rows.length > 15 ? ' data — menampilkan 15 pertama' : ' data');
+
+        const tbody = document.getElementById('importSkPreviewTableBody');
+        tbody.innerHTML = '';
+
+        rows.slice(0, 15).forEach((r, idx) => {
+            const bgStyle = r.is_duplicate ? 'background: #fef2f2;' : '';
+            const dupBadge = r.is_duplicate ? `<span style="background: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 4px; font-size: 0.6875rem; font-weight: 700; margin-left: 6px;">${r.dup_reason}</span>` : '';
+
+            tbody.innerHTML += `<tr style="${bgStyle}">
+                <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;">
+                    <strong>${r.nomor_sk}</strong> ${dupBadge}
+                </td>
+                <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;">${r.judul_sk}</td>
+                <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:center;">${r.tanggal_berlaku}</td>
+                <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:center;"><span style="color:#059669;font-weight:700;">${r.status}</span></td>
+                <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:center;">
+                    <button type="button" onclick="removeImportSkRow(${idx})" title="Hapus baris ini" style="background:#fee2e2; color:#991b1b; border:none; width:24px; height:24px; border-radius:50%; font-weight:bold; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:0.875rem;">&times;</button>
+                </td>
+            </tr>`;
+        });
+
+        document.getElementById('importSkPreviewContainer').style.display = 'block';
+        document.getElementById('btnSubmitImportSk').disabled = false;
+    }
+
+    window.cleanImportSkDuplicates = function() {
+        if (!window.currentParsedSkRows) return;
+        const seen = new Set();
+        window.currentParsedSkRows = window.currentParsedSkRows.filter(r => {
+            const key = (r.nomor_sk || '').toLowerCase();
+            const isDbDup = window.existingNomorSks.some(n => n.toLowerCase() === key);
+            if (isDbDup || seen.has(key)) {
+                return false;
+            }
+            seen.add(key);
+            return true;
+        });
+
+        if (typeof Toast !== 'undefined') {
+            Toast.fire({ icon: 'success', title: 'Data duplikat berhasil dibersihkan!' });
+        }
+        renderSkImportPreview();
+    };
+
+    window.removeImportSkRow = function(index) {
+        if (window.currentParsedSkRows && window.currentParsedSkRows[index] !== undefined) {
+            window.currentParsedSkRows.splice(index, 1);
+            renderSkImportPreview();
+        }
+    };
+
     function handleImportSkFile(input) {
         const file = input.files[0];
         if (!file) return;
@@ -918,28 +1021,8 @@
 
         function processRows(rows) {
             const validRows = rows.filter(r => r.nomor_sk && r.judul_sk && r.nomor_sk !== '' && r.judul_sk !== '');
-
-            if (validRows.length > 0) {
-                document.getElementById('importSkRowsInput').value = JSON.stringify(validRows);
-                document.getElementById('importSkCount').innerText = validRows.length + (validRows.length > 15 ? ' data — menampilkan 15 pertama' : ' data');
-                const tbody = document.getElementById('importSkPreviewTableBody');
-                tbody.innerHTML = '';
-                validRows.slice(0, 15).forEach(r => {
-                    tbody.innerHTML += `<tr>
-                        <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;"><strong>${r.nomor_sk}</strong></td>
-                        <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;">${r.judul_sk}</td>
-                        <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:center;">${r.tanggal_berlaku}</td>
-                        <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:center;"><span style="color:#059669;font-weight:700;">${r.status}</span></td>
-                    </tr>`;
-                });
-                document.getElementById('importSkPreviewContainer').style.display = 'block';
-                document.getElementById('btnSubmitImportSk').disabled = false;
-            } else {
-                if (typeof Toast !== 'undefined') {
-                    Toast.fire({ icon: 'error', title: 'Tidak dapat membaca baris data SK dari berkas tersebut.' });
-                }
-                document.getElementById('btnSubmitImportSk').disabled = true;
-            }
+            window.currentParsedSkRows = validRows;
+            renderSkImportPreview();
         }
 
         const reader = new FileReader();

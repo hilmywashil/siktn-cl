@@ -42,11 +42,14 @@ class SuratKeputusanController extends Controller
             ->whereBetween('tanggal_berakhir', [Carbon::now(), $sixMonthsLater])
             ->get();
 
+        $existingNomorSks = SuratKeputusan::pluck('nomor_sk')->toArray();
+
         return view('admin.sekretariat.sk.index', [
             'activeMenu' => 'sekretariat_sk',
             'admin' => $admin,
             'sks' => $sks,
             'expiringSks' => $expiringSks,
+            'existingNomorSks' => $existingNomorSks,
         ]);
     }
 
