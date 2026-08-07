@@ -639,9 +639,9 @@
 
                 <div class="form-group-full">
                     <label class="form-label" style="font-weight: 700; color: #022648; font-size: 0.875rem; margin-bottom: 0.5rem; display: block;">Pilih Berkas Excel / CSV (.xls, .xlsx, .csv)</label>
-                    <div class="file-upload-zone" style="position: relative; overflow: hidden; border: 2px dashed #b7830f; background: #fffdf5; padding: 2rem 1.5rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
-                        <input type="file" id="importSkFile" accept=".xls,.xlsx,.csv" onchange="handleImportSkFile(this)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10;">
-                        <div style="pointer-events: none; position: relative; z-index: 1;">
+                    <div class="file-upload-zone" onclick="document.getElementById('importSkFile').click()" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 2rem 1.5rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
+                        <input type="file" id="importSkFile" accept=".xls,.xlsx,.csv" onchange="handleImportSkFile(this)" style="display: none;">
+                        <div style="pointer-events: none;">
                             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                             <div style="font-weight: 700; color: #022648; font-size: 0.95rem; margin-bottom: 4px;" id="importFileLabel">Klik atau Tarik Berkas Excel ke Sini</div>
                             <span style="font-size: 0.775rem; color: #64748b;">Format yang didukung: .xls, .xlsx, .csv</span>
@@ -786,12 +786,14 @@
     }
     function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
 
-    function openImportSkModal() {
-        document.getElementById('modalImportSk').classList.add('active');
-    }
-    function closeImportSkModal() {
-        document.getElementById('modalImportSk').classList.remove('active');
-    }
+    window.openImportSkModal = function() {
+        const modal = document.getElementById('modalImportSk');
+        if (modal) modal.classList.add('active');
+    };
+    window.closeImportSkModal = function() {
+        const modal = document.getElementById('modalImportSk');
+        if (modal) modal.classList.remove('active');
+    };
 
     function confirmDeleteSk(id, nomor) {
         if (typeof Swal !== 'undefined') {
