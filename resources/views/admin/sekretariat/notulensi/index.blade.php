@@ -165,18 +165,75 @@
         background: #ffffff; border-radius: 12px; max-width: 680px; width: 100%;
         box-shadow: 0 24px 48px rgba(2, 38, 72, 0.25); border: 1px solid rgba(2, 38, 72, 0.1);
         overflow: hidden; transform: scale(0.94) translateY(12px);
-        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); max-height: 90vh;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); max-height: 88vh;
         display: flex; flex-direction: column;
+    }
+    .modal-content-lg form {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
     }
     .modal-overlay.active .modal-content-lg { transform: scale(1) translateY(0); }
     .modal-header-prof {
         padding: 1.2rem 1.5rem; background: linear-gradient(135deg, #022648 0%, #01162f 100%);
         color: white; display: flex; justify-content: space-between; align-items: center;
+        flex-shrink: 0;
     }
-    .modal-body-prof { padding: 1.5rem; overflow-y: auto; }
+    .modal-body-prof {
+        padding: 1.5rem;
+        overflow-y: auto;
+        max-height: calc(85vh - 130px);
+        flex: 1 1 auto;
+    }
     .modal-footer-prof {
         padding: 1rem 1.5rem; background: #f8f9fc; border-top: 1px solid #e5e7eb;
         display: flex; justify-content: flex-end; gap: 0.75rem;
+        flex-shrink: 0; margin-top: auto;
+    }
+
+    .notulensi-foto-card {
+        position: relative;
+        width: 88px;
+        height: 88px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #cbd5e1;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        background: #0f172a;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .notulensi-foto-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(2, 38, 72, 0.15);
+    }
+    .notulensi-foto-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .notulensi-foto-card .btn-remove-foto {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        background: #dc2626;
+        color: white;
+        border: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        transition: background 0.2s;
+    }
+    .notulensi-foto-card .btn-remove-foto:hover {
+        background: #991b1b;
     }
     .modal-overlay .form-control {
         border: 1px solid #cbd5e1 !important; border-radius: 6px !important;
@@ -739,8 +796,27 @@
         }
     };
 
+    window.createFotoSelectedFiles = [];
+    window.editFotoSelectedFiles = [];
+
     window.handleCreateFotoChange = function(input) {
-        const files = Array.from(input.files);
+        if (input.files && input.files.length > 0) {
+            window.createFotoSelectedFiles = Array.from(input.files);
+        }
+        renderCreateFotoPreviews();
+    };
+
+    window.removeCreateFoto = function(idx) {
+        window.createFotoSelectedFiles.splice(idx, 1);
+        const dt = new DataTransfer();
+        window.createFotoSelectedFiles.forEach(f => dt.items.add(f));
+        const input = document.getElementById('createFotoInput');
+        if (input) input.files = dt.files;
+        renderCreateFotoPreviews();
+    };
+
+    function renderCreateFotoPreviews() {
+        const files = window.createFotoSelectedFiles || [];
         const label = document.getElementById('createFotoNameLabel');
         const grid = document.getElementById('createFotoPreviewGrid');
         const container = document.getElementById('createFotoThumbnails');
@@ -748,15 +824,17 @@
 
         if (files.length > 0) {
             if (label) label.textContent = `${files.length} foto dokumentasi terpilih`;
-            if (title) title.textContent = `Pratinjau ${files.length} Foto Dokumentasi Terpilih:`;
+            if (title) title.textContent = `Pratinjau ${files.length} Foto Dokumentasi Terpilih (Bisa Dihapus Per Foto):`;
             if (container) {
                 container.innerHTML = '';
                 files.forEach((file, idx) => {
                     const url = URL.createObjectURL(file);
+                    const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
                     container.innerHTML += `
-                        <div style="position: relative; width: 75px; height: 75px; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.06); background: #000;">
-                            <img src="${url}" style="width: 100%; height: 100%; object-fit: cover;">
-                            <span style="position: absolute; bottom: 2px; right: 2px; background: rgba(2,38,72,0.85); color: white; font-size: 0.65rem; padding: 1px 4px; border-radius: 3px; font-weight: 700;">#${idx+1}</span>
+                        <div class="notulensi-foto-card" title="${file.name} (${sizeMb} MB)">
+                            <img src="${url}">
+                            <button type="button" class="btn-remove-foto" onclick="removeCreateFoto(${idx})" title="Hapus foto ini">&times;</button>
+                            <span style="position: absolute; bottom: 3px; left: 3px; background: rgba(2,38,72,0.85); color: white; font-size: 0.65rem; padding: 1px 5px; border-radius: 3px; font-weight: 700;">#${idx+1}</span>
                         </div>
                     `;
                 });
@@ -766,7 +844,7 @@
             if (label) label.textContent = 'Klik / Drag foto-foto dokumentasi (.jpg, .jpeg, .png, .webp)';
             if (grid) grid.style.display = 'none';
         }
-    };
+    }
 
     window.handleEditPdfChange = function(input) {
         const file = input.files[0];
@@ -802,7 +880,23 @@
     };
 
     window.handleEditFotoChange = function(input) {
-        const files = Array.from(input.files);
+        if (input.files && input.files.length > 0) {
+            window.editFotoSelectedFiles = Array.from(input.files);
+        }
+        renderEditFotoPreviews();
+    };
+
+    window.removeEditFoto = function(idx) {
+        window.editFotoSelectedFiles.splice(idx, 1);
+        const dt = new DataTransfer();
+        window.editFotoSelectedFiles.forEach(f => dt.items.add(f));
+        const input = document.getElementById('editFotoInput');
+        if (input) input.files = dt.files;
+        renderEditFotoPreviews();
+    };
+
+    function renderEditFotoPreviews() {
+        const files = window.editFotoSelectedFiles || [];
         const label = document.getElementById('editFotoNameLabel');
         const grid = document.getElementById('editFotoPreviewGrid');
         const container = document.getElementById('editFotoThumbnails');
@@ -810,15 +904,17 @@
 
         if (files.length > 0) {
             if (label) label.textContent = `${files.length} foto tambahan terpilih`;
-            if (title) title.textContent = `Pratinjau ${files.length} Foto Tambahan Terpilih:`;
+            if (title) title.textContent = `Pratinjau ${files.length} Foto Tambahan Terpilih (Bisa Dihapus Per Foto):`;
             if (container) {
                 container.innerHTML = '';
                 files.forEach((file, idx) => {
                     const url = URL.createObjectURL(file);
+                    const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
                     container.innerHTML += `
-                        <div style="position: relative; width: 75px; height: 75px; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.06); background: #000;">
-                            <img src="${url}" style="width: 100%; height: 100%; object-fit: cover;">
-                            <span style="position: absolute; bottom: 2px; right: 2px; background: rgba(2,38,72,0.85); color: white; font-size: 0.65rem; padding: 1px 4px; border-radius: 3px; font-weight: 700;">#${idx+1}</span>
+                        <div class="notulensi-foto-card" title="${file.name} (${sizeMb} MB)">
+                            <img src="${url}">
+                            <button type="button" class="btn-remove-foto" onclick="removeEditFoto(${idx})" title="Hapus foto ini">&times;</button>
+                            <span style="position: absolute; bottom: 3px; left: 3px; background: rgba(2,38,72,0.85); color: white; font-size: 0.65rem; padding: 1px 5px; border-radius: 3px; font-weight: 700;">#${idx+1}</span>
                         </div>
                     `;
                 });
@@ -828,7 +924,7 @@
             if (label) label.textContent = 'Klik / Drag untuk menambah foto dokumentasi';
             if (grid) grid.style.display = 'none';
         }
-    };
+    }
 
     function openCreateModal() {
         document.getElementById('createModal').classList.add('active');
