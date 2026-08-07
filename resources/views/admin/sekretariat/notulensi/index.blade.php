@@ -479,7 +479,14 @@
                         <div class="file-upload-zone" onclick="document.getElementById('createPdfInput').click()" style="border: 2px dashed var(--gray-300); background: #f8fafc; padding: 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#022648" stroke-width="2" style="margin-bottom: 4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
                             <div style="font-size: 0.775rem; font-weight: 600; color: #334155;" id="createPdfFileNameLabel">Klik / Drag berkas risalah format .pdf, .doc, .docx</div>
-                            <input type="file" id="createPdfInput" name="file_pdf" accept=".pdf,.doc,.docx" style="display: none;" onchange="document.getElementById('createPdfFileNameLabel').textContent = this.files[0]?.name || 'Klik / Drag berkas risalah format .pdf, .doc, .docx'">
+                            <input type="file" id="createPdfInput" name="file_pdf" accept=".pdf,.doc,.docx" style="display: none;" onchange="handleCreatePdfChange(this)">
+                        </div>
+                        <div id="createPdfPreviewBox" style="display: none; margin-top: 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #0f172a;">
+                            <div style="background: #022648; color: white; padding: 6px 12px; font-size: 0.75rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center;">
+                                <span>📄 Pratinjau Dokumen Risalah PDF</span>
+                                <button type="button" onclick="toggleCreatePdfPreview()" style="background: rgba(255,255,255,0.15); border: none; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; cursor: pointer;" id="btnToggleCreatePdf">Sembunyikan</button>
+                            </div>
+                            <iframe id="createPdfIframe" style="width: 100%; height: 320px; border: none;" src="about:blank"></iframe>
                         </div>
                     </div>
 
@@ -489,7 +496,11 @@
                         <div class="file-upload-zone" onclick="document.getElementById('createFotoInput').click()" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 4px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                             <div style="font-size: 0.775rem; font-weight: 600; color: #022648;" id="createFotoNameLabel">Klik / Drag foto-foto dokumentasi (.jpg, .jpeg, .png, .webp)</div>
-                            <input type="file" id="createFotoInput" name="foto_dokumentasi[]" multiple accept="image/*" style="display: none;" onchange="document.getElementById('createFotoNameLabel').textContent = `${this.files.length} foto dokumentasi terpilih`">
+                            <input type="file" id="createFotoInput" name="foto_dokumentasi[]" multiple accept="image/*" style="display: none;" onchange="handleCreateFotoChange(this)">
+                        </div>
+                        <div id="createFotoPreviewGrid" style="display: none; margin-top: 0.75rem; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.75rem;">
+                            <div style="font-size: 0.75rem; font-weight: 700; color: #022648; margin-bottom: 0.5rem;" id="createFotoPreviewTitle">Pratinjau Foto Dokumentasi Terpilih:</div>
+                            <div id="createFotoThumbnails" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
                         </div>
                     </div>
 
@@ -566,7 +577,14 @@
                         <div class="file-upload-zone" onclick="document.getElementById('editPdfInput').click()" style="border: 2px dashed var(--gray-300); background: #f8fafc; padding: 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#022648" stroke-width="2" style="margin-bottom: 4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
                             <div style="font-size: 0.775rem; font-weight: 600; color: #334155;" id="editPdfFileNameLabel">Klik / Drag untuk mengganti file risalah PDF</div>
-                            <input type="file" id="editPdfInput" name="file_pdf" accept=".pdf,.doc,.docx" style="display: none;" onchange="document.getElementById('editPdfFileNameLabel').textContent = this.files[0]?.name || 'Klik / Drag untuk mengganti file risalah PDF'">
+                            <input type="file" id="editPdfInput" name="file_pdf" accept=".pdf,.doc,.docx" style="display: none;" onchange="handleEditPdfChange(this)">
+                        </div>
+                        <div id="editPdfPreviewBox" style="display: none; margin-top: 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #0f172a;">
+                            <div style="background: #022648; color: white; padding: 6px 12px; font-size: 0.75rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center;">
+                                <span>📄 Pratinjau Dokumen Risalah PDF Baru</span>
+                                <button type="button" onclick="toggleEditPdfPreview()" style="background: rgba(255,255,255,0.15); border: none; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; cursor: pointer;" id="btnToggleEditPdf">Sembunyikan</button>
+                            </div>
+                            <iframe id="editPdfIframe" style="width: 100%; height: 320px; border: none;" src="about:blank"></iframe>
                         </div>
                     </div>
 
@@ -576,7 +594,11 @@
                         <div class="file-upload-zone" onclick="document.getElementById('editFotoInput').click()" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 4px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                             <div style="font-size: 0.775rem; font-weight: 600; color: #022648;" id="editFotoNameLabel">Klik / Drag untuk menambah foto dokumentasi</div>
-                            <input type="file" id="editFotoInput" name="foto_dokumentasi[]" multiple accept="image/*" style="display: none;" onchange="document.getElementById('editFotoNameLabel').textContent = `${this.files.length} foto tambahan terpilih`">
+                            <input type="file" id="editFotoInput" name="foto_dokumentasi[]" multiple accept="image/*" style="display: none;" onchange="handleEditFotoChange(this)">
+                        </div>
+                        <div id="editFotoPreviewGrid" style="display: none; margin-top: 0.75rem; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.75rem;">
+                            <div style="font-size: 0.75rem; font-weight: 700; color: #022648; margin-bottom: 0.5rem;" id="editFotoPreviewTitle">Pratinjau Foto Tambahan Terpilih:</div>
+                            <div id="editFotoThumbnails" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
                         </div>
                     </div>
 
@@ -682,6 +704,131 @@
             if (activeDropdown) { activeDropdown.classList.remove('is-open'); activeDropdown = null; }
         }, true);
     });
+
+    // Instant Live Preview Handlers in Modal
+    window.handleCreatePdfChange = function(input) {
+        const file = input.files[0];
+        const label = document.getElementById('createPdfFileNameLabel');
+        const box = document.getElementById('createPdfPreviewBox');
+        const iframe = document.getElementById('createPdfIframe');
+
+        if (file) {
+            if (label) label.textContent = file.name;
+            if (file.type === 'application/pdf' && box && iframe) {
+                iframe.src = URL.createObjectURL(file);
+                box.style.display = 'block';
+            } else if (box) {
+                box.style.display = 'none';
+            }
+        } else {
+            if (label) label.textContent = 'Klik / Drag berkas risalah format .pdf, .doc, .docx';
+            if (box) box.style.display = 'none';
+        }
+    };
+
+    window.toggleCreatePdfPreview = function() {
+        const iframe = document.getElementById('createPdfIframe');
+        const btn = document.getElementById('btnToggleCreatePdf');
+        if (!iframe) return;
+        if (iframe.style.display === 'none') {
+            iframe.style.display = 'block';
+            if (btn) btn.innerText = 'Sembunyikan';
+        } else {
+            iframe.style.display = 'none';
+            if (btn) btn.innerText = 'Buka Pratinjau';
+        }
+    };
+
+    window.handleCreateFotoChange = function(input) {
+        const files = Array.from(input.files);
+        const label = document.getElementById('createFotoNameLabel');
+        const grid = document.getElementById('createFotoPreviewGrid');
+        const container = document.getElementById('createFotoThumbnails');
+        const title = document.getElementById('createFotoPreviewTitle');
+
+        if (files.length > 0) {
+            if (label) label.textContent = `${files.length} foto dokumentasi terpilih`;
+            if (title) title.textContent = `Pratinjau ${files.length} Foto Dokumentasi Terpilih:`;
+            if (container) {
+                container.innerHTML = '';
+                files.forEach((file, idx) => {
+                    const url = URL.createObjectURL(file);
+                    container.innerHTML += `
+                        <div style="position: relative; width: 75px; height: 75px; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.06); background: #000;">
+                            <img src="${url}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <span style="position: absolute; bottom: 2px; right: 2px; background: rgba(2,38,72,0.85); color: white; font-size: 0.65rem; padding: 1px 4px; border-radius: 3px; font-weight: 700;">#${idx+1}</span>
+                        </div>
+                    `;
+                });
+            }
+            if (grid) grid.style.display = 'block';
+        } else {
+            if (label) label.textContent = 'Klik / Drag foto-foto dokumentasi (.jpg, .jpeg, .png, .webp)';
+            if (grid) grid.style.display = 'none';
+        }
+    };
+
+    window.handleEditPdfChange = function(input) {
+        const file = input.files[0];
+        const label = document.getElementById('editPdfFileNameLabel');
+        const box = document.getElementById('editPdfPreviewBox');
+        const iframe = document.getElementById('editPdfIframe');
+
+        if (file) {
+            if (label) label.textContent = file.name;
+            if (file.type === 'application/pdf' && box && iframe) {
+                iframe.src = URL.createObjectURL(file);
+                box.style.display = 'block';
+            } else if (box) {
+                box.style.display = 'none';
+            }
+        } else {
+            if (label) label.textContent = 'Klik / Drag untuk mengganti file risalah PDF';
+            if (box) box.style.display = 'none';
+        }
+    };
+
+    window.toggleEditPdfPreview = function() {
+        const iframe = document.getElementById('editPdfIframe');
+        const btn = document.getElementById('btnToggleEditPdf');
+        if (!iframe) return;
+        if (iframe.style.display === 'none') {
+            iframe.style.display = 'block';
+            if (btn) btn.innerText = 'Sembunyikan';
+        } else {
+            iframe.style.display = 'none';
+            if (btn) btn.innerText = 'Buka Pratinjau';
+        }
+    };
+
+    window.handleEditFotoChange = function(input) {
+        const files = Array.from(input.files);
+        const label = document.getElementById('editFotoNameLabel');
+        const grid = document.getElementById('editFotoPreviewGrid');
+        const container = document.getElementById('editFotoThumbnails');
+        const title = document.getElementById('editFotoPreviewTitle');
+
+        if (files.length > 0) {
+            if (label) label.textContent = `${files.length} foto tambahan terpilih`;
+            if (title) title.textContent = `Pratinjau ${files.length} Foto Tambahan Terpilih:`;
+            if (container) {
+                container.innerHTML = '';
+                files.forEach((file, idx) => {
+                    const url = URL.createObjectURL(file);
+                    container.innerHTML += `
+                        <div style="position: relative; width: 75px; height: 75px; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.06); background: #000;">
+                            <img src="${url}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <span style="position: absolute; bottom: 2px; right: 2px; background: rgba(2,38,72,0.85); color: white; font-size: 0.65rem; padding: 1px 4px; border-radius: 3px; font-weight: 700;">#${idx+1}</span>
+                        </div>
+                    `;
+                });
+            }
+            if (grid) grid.style.display = 'block';
+        } else {
+            if (label) label.textContent = 'Klik / Drag untuk menambah foto dokumentasi';
+            if (grid) grid.style.display = 'none';
+        }
+    };
 
     function openCreateModal() {
         document.getElementById('createModal').classList.add('active');
