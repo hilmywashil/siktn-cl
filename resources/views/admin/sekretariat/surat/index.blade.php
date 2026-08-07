@@ -468,6 +468,15 @@
         flex-direction: column;
     }
 
+    .modal-content-lg form {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
+        margin: 0;
+    }
+
     .modal-overlay.active .modal-content-lg {
         transform: scale(1) translateY(0);
     }
@@ -479,11 +488,15 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-shrink: 0;
     }
 
     .modal-body-prof {
         padding: 1.5rem;
         overflow-y: auto;
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: calc(88vh - 130px);
     }
 
     .modal-footer-prof {
@@ -493,6 +506,8 @@
         display: flex;
         justify-content: flex-end;
         gap: 0.75rem;
+        flex-shrink: 0;
+        margin-top: auto;
     }
 
     .modal-overlay .form-control {
@@ -1578,8 +1593,25 @@
     // Bulk Multi-PDF Drag & Drop JS Engine
     // =====================================
     window.bulkPdfSelectedFiles = [];
+    window.bulkPdfCardStates = {};
+
+    function saveBulkPdfCurrentInputs() {
+        if (!window.bulkPdfSelectedFiles) return;
+        window.bulkPdfSelectedFiles.forEach((file, idx) => {
+            const key = file.name + '_' + file.size;
+            window.bulkPdfCardStates[key] = {
+                nomor: document.getElementById(`pdf_nomor_${idx}`)?.value,
+                tanggal: document.getElementById(`pdf_tanggal_${idx}`)?.value,
+                perihal: document.getElementById(`pdf_perihal_${idx}`)?.value,
+                pt: document.getElementById(`pdf_pt_${idx}`)?.value,
+                klasifikasi: document.getElementById(`pdf_klasifikasi_${idx}`)?.value,
+                status: document.getElementById(`pdf_status_${idx}`)?.value
+            };
+        });
+    }
 
     function addBulkPdfFiles(newFiles) {
+        saveBulkPdfCurrentInputs();
         const validFiles = Array.from(newFiles).filter(f => f.name.match(/\.(pdf|doc|docx)$/i));
         if (validFiles.length === 0) return;
 
@@ -1616,9 +1648,16 @@
         const todayStr = new Date().toISOString().split('T')[0];
 
         window.bulkPdfSelectedFiles.forEach((file, idx) => {
-            const cleanName = file.name.replace(/\.[^/.]+$/, "");
+            const key = file.name + '_' + file.size;
+            const state = window.bulkPdfCardStates[key] || {};
+
+            const cleanName = state.perihal || file.name.replace(/\.[^/.]+$/, "");
             const fileSizeMb = (file.size / (1024 * 1024)).toFixed(2);
-            const autoNo = `SRT-${String(idx + 1).padStart(3, '0')}/VIII/2026`;
+            const autoNo = state.nomor || `SRT-${String(idx + 1).padStart(3, '0')}/VIII/2026`;
+            const dateVal = state.tanggal || todayStr;
+            const ptVal = state.pt || 'Sekretariat';
+            const klasVal = state.klasifikasi || 'internal';
+            const statusVal = state.status || 'Terbit';
 
             html += `
                 <div class="bulk-pdf-card" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.25rem; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
@@ -1641,7 +1680,7 @@
 
                         <div class="form-group">
                             <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Tanggal Surat <span style="color: red;">*</span></label>
-                            <input type="date" id="pdf_tanggal_${idx}" class="form-control" value="${todayStr}" required style="font-size: 0.8125rem;">
+                            <input type="date" id="pdf_tanggal_${idx}" class="form-control" value="${dateVal}" required style="font-size: 0.8125rem;">
                         </div>
 
                         <div class="form-group form-group-full">
@@ -1651,24 +1690,24 @@
 
                         <div class="form-group form-group-full">
                             <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">{{ $tipe == 'masuk' ? 'Pengirim (Instansi/Nama)' : 'Tujuan (Instansi/Nama)' }} <span style="color: red;">*</span></label>
-                            <input type="text" id="pdf_pt_${idx}" class="form-control" placeholder="Pengirim / Tujuan..." value="Sekretariat" required style="font-size: 0.8125rem;">
+                            <input type="text" id="pdf_pt_${idx}" class="form-control" placeholder="Pengirim / Tujuan..." value="${ptVal}" required style="font-size: 0.8125rem;">
                         </div>
 
                         <div class="form-group">
                             <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Klasifikasi</label>
                             <select id="pdf_klasifikasi_${idx}" class="form-control" style="font-size: 0.8125rem;">
-                                <option value="internal">Surat Internal</option>
-                                <option value="eksternal">Surat Eksternal</option>
-                                <option value="penting">Surat Penting</option>
+                                <option value="internal" ${klasVal === 'internal' ? 'selected' : ''}>Surat Internal</option>
+                                <option value="eksternal" ${klasVal === 'eksternal' ? 'selected' : ''}>Surat Eksternal</option>
+                                <option value="penting" ${klasVal === 'penting' ? 'selected' : ''}>Surat Penting</option>
                             </select>
                         </div>
 
                         <div class="form-group">
                             <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Status Awal</label>
                             <select id="pdf_status_${idx}" class="form-control" style="font-size: 0.8125rem;">
-                                <option value="Pending TTD">Pending TTD</option>
-                                <option value="Terbit" selected>Terbit</option>
-                                <option value="Draft">Draft</option>
+                                <option value="Pending TTD" ${statusVal === 'Pending TTD' ? 'selected' : ''}>Pending TTD</option>
+                                <option value="Terbit" ${statusVal === 'Terbit' ? 'selected' : ''}>Terbit</option>
+                                <option value="Draft" ${statusVal === 'Draft' ? 'selected' : ''}>Draft</option>
                             </select>
                         </div>
                     </div>
@@ -1680,6 +1719,7 @@
     }
 
     window.removeBulkPdfCard = function(idx) {
+        saveBulkPdfCurrentInputs();
         if (window.bulkPdfSelectedFiles && window.bulkPdfSelectedFiles[idx]) {
             window.bulkPdfSelectedFiles.splice(idx, 1);
             renderBulkPdfCards();
