@@ -985,12 +985,24 @@
                             ket = String(rowArray[6] || '').trim();
                         }
 
+                        function normDate(s, def) {
+                            if (!s) return def;
+                            const m = String(s).trim().match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+                            if (m) {
+                                let p1 = parseInt(m[1]), p2 = parseInt(m[2]), y = parseInt(m[3]);
+                                if (y < 100) y += 2000;
+                                if (p1 > 12) return `${y}-${String(p2).padStart(2,'0')}-${String(p1).padStart(2,'0')}`;
+                                return `${y}-${String(p1).padStart(2,'0')}-${String(p2).padStart(2,'0')}`;
+                            }
+                            return s;
+                        }
+
                         if (nomor && judul && nomor.toLowerCase() !== 'nomor sk' && nomor.toLowerCase() !== 'no') {
                             rows.push({
                                 nomor_sk: nomor,
                                 judul_sk: judul,
-                                tanggal_berlaku: tgl1 || '2026-08-01',
-                                tanggal_berakhir: tgl2 || '2029-08-01',
+                                tanggal_berlaku: normDate(tgl1, '2026-08-01'),
+                                tanggal_berakhir: normDate(tgl2, '2029-08-01'),
                                 link_drive: link,
                                 status: (status === 'Tidak Aktif' ? 'Tidak Aktif' : 'Aktif'),
                                 keterangan: ket

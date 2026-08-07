@@ -404,8 +404,11 @@ class SuratKeputusanController extends Controller
         foreach ($rows as $row) {
             $nomorSk = trim($row['nomor_sk'] ?? $row['nomor'] ?? '');
             $judulSk = trim($row['judul_sk'] ?? $row['judul'] ?? '');
-            $tglBerlaku = trim($row['tanggal_berlaku'] ?? $row['berlaku'] ?? date('Y-m-d'));
-            $tglBerakhir = trim($row['tanggal_berakhir'] ?? $row['berakhir'] ?? date('Y-m-d', strtotime('+3 years')));
+            $rawBerlaku = trim($row['tanggal_berlaku'] ?? $row['berlaku'] ?? '');
+            $rawBerakhir = trim($row['tanggal_berakhir'] ?? $row['berakhir'] ?? '');
+
+            $tglBerlaku = $this->parseDateToYmd($rawBerlaku, date('Y-m-d'));
+            $tglBerakhir = $this->parseDateToYmd($rawBerakhir, date('Y-m-d', strtotime('+3 years')));
             $linkDrive = trim($row['link_drive'] ?? $row['link'] ?? '');
             $status = trim($row['status'] ?? 'Aktif');
             $keterangan = trim($row['keterangan'] ?? '');
@@ -429,5 +432,55 @@ class SuratKeputusanController extends Controller
         $this->logActivity('sk', 'Import Excel', null, "Berhasil mengimport {$importedCount} SK baru");
 
         return redirect()->route('admin.sekretariat.sk.index')->with('success', "Berhasil meng-import {$importedCount} Surat Keputusan baru!");
+    }
+
+    /**
+     * Helper to parse any incoming Excel date format into YYYY-MM-DD
+     */
+    private function parseDateToYmd($dateStr, $default = null)
+    {
+        if (empty($dateStr)) return $default ?: date('Y-m-d');
+        $dateStr = trim($dateStr);
+
+        // Standard YYYY-MM-DD
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateStr)) {
+            return $dateStr;
+        }
+
+        // Serial Excel timestamp (e.g. 46244)
+        if (is_numeric($dateStr) && floatval($dateStr) > 30000) {
+            $unixTimestamp = (floatval($dateStr) - 25569) * 86400;
+            return date('Y-m-d', $unixTimestamp);
+        }
+
+        // Check M/D/YY or M/D/YYYY or D/M/Y or M-D-Y (e.g. 12/31/26, 8/10/26, 12/31/2026)
+        if (preg_match('/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/', $dateStr, $matches)) {
+            $p1 = intval($matches[1]);
+            $p2 = intval($matches[2]);
+            $y = intval($matches[3]);
+            if ($y < 100) $y += 2000;
+
+            // If p1 > 12, p1 is day, p2 is month (D/M/Y)
+            if ($p1 > 12 && $p2 <= 12) {
+                if (checkdate($p2, $p1, $y)) {
+                    return sprintf('%04d-%02d-%02d', $y, $p2, $p1);
+                }
+            } else {
+                // Assume p1 is month, p2 is day (US format M/D/Y)
+                if (checkdate($p1, $p2, $y)) {
+                    return sprintf('%04d-%02d-%02d', $y, $p1, $p2);
+                }
+                if (checkdate($p2, $p1, $y)) {
+                    return sprintf('%04d-%02d-%02d', $y, $p2, $p1);
+                }
+            }
+        }
+
+        $timestamp = strtotime($dateStr);
+        if ($timestamp !== false && $timestamp > 0) {
+            return date('Y-m-d', $timestamp);
+        }
+
+        return $default ?: date('Y-m-d');
     }
 }
