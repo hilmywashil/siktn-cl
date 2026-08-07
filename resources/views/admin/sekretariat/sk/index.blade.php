@@ -179,6 +179,9 @@
         transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); max-height: 85vh;
         display: flex; flex-direction: column; margin: auto;
     }
+    .modal-content-lg form {
+        display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow: hidden; margin: 0;
+    }
     .modal-overlay.active .modal-content-lg { transform: scale(1) translateY(0); }
     .modal-header-prof {
         padding: 1.2rem 1.5rem; background: linear-gradient(135deg, #022648 0%, #01162f 100%);
@@ -187,7 +190,7 @@
     .modal-body-prof { padding: 1.5rem; overflow-y: auto; flex: 1 1 auto; min-height: 0; }
     .modal-footer-prof {
         padding: 1rem 1.5rem; background: #f8f9fc; border-top: 1px solid #e5e7eb;
-        display: flex; justify-content: flex-end; gap: 0.75rem; flex-shrink: 0;
+        display: flex; justify-content: flex-end; gap: 0.75rem; flex-shrink: 0; margin-top: auto;
     }
     .modal-overlay .form-control {
         border: 1px solid #cbd5e1 !important; border-radius: 6px !important;
