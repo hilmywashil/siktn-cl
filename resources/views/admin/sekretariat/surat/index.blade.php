@@ -1155,8 +1155,28 @@
         }, true);
     });
 
+    window.openModalById = function(modalId) {
+        const m = document.getElementById(modalId);
+        if (m) {
+            m.classList.add('active');
+            m.style.setProperty('display', 'flex', 'important');
+            m.style.setProperty('visibility', 'visible', 'important');
+            m.style.setProperty('opacity', '1', 'important');
+        }
+    };
+
+    window.closeModalById = function(modalId) {
+        const m = document.getElementById(modalId);
+        if (m) {
+            m.classList.remove('active');
+            m.style.setProperty('display', 'none', 'important');
+            m.style.setProperty('visibility', 'hidden', 'important');
+            m.style.setProperty('opacity', '0', 'important');
+        }
+    };
+
     function openCreateModal() {
-        document.getElementById('modalCreateSurat').classList.add('active');
+        openModalById('modalCreateSurat');
         if (typeof $.fn.select2 !== 'undefined') {
             $('#modalCreateSurat .select2-basic').select2({ width: '100%', dropdownParent: $('#modalCreateSurat') });
         }
@@ -1168,7 +1188,7 @@
     function openStatusModal(id, currentStatus) {
         const form = document.getElementById('formUpdateStatus');
         form.action = `/admin/sekretariat/surat/${id}/status`;
-        document.getElementById('modalStatusSurat').classList.add('active');
+        openModalById('modalStatusSurat');
         if (typeof $.fn.select2 !== 'undefined') {
             $('#modalStatusSurat .select2-basic').select2({ width: '100%', dropdownParent: $('#modalStatusSurat') });
         }
@@ -1176,7 +1196,7 @@
     }
 
     function closeModal(modalId) {
-        document.getElementById(modalId).classList.remove('active');
+        closeModalById(modalId);
     }
 
     function confirmDeleteSurat(id, nomor) {
