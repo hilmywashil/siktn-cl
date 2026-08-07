@@ -310,7 +310,11 @@ Route::get('/berita/{slug}', [BeritaController::class, 'show'])->name('berita-de
 Route::get('/organisasi', function (Illuminate\Http\Request $request) {
     $daftarProvinsi = \App\Helpers\WilayahHelper::getDaftarProvinsi();
     $daftarKabupaten = \App\Helpers\WilayahHelper::getDaftarKabupatenKota();
-    $selectedProvinsi = $request->get('provinsi', 'Semua');
+    $defaultProv = array_key_first($daftarProvinsi) ?: 'DKI Jakarta';
+    $selectedProvinsi = $request->get('provinsi', $defaultProv);
+    if (!isset($daftarProvinsi[$selectedProvinsi])) {
+        $selectedProvinsi = $defaultProv;
+    }
     $selectedKabupaten = $request->get('kabupaten');
 
     $allPeriodes = \App\Models\PeriodeKepengurusan::orderBy('is_aktif', 'desc')
@@ -325,7 +329,7 @@ Route::get('/organisasi', function (Illuminate\Http\Request $request) {
 
     $organisasiQuery = \App\Models\Organisasi::aktif();
 
-    if ($selectedProvinsi && $selectedProvinsi !== 'Semua') {
+    if ($selectedProvinsi) {
         $organisasiQuery->where('provinsi', $selectedProvinsi);
     }
 
@@ -343,6 +347,25 @@ Route::get('/organisasi', function (Illuminate\Http\Request $request) {
     }
 
     $organisasi = $organisasiQuery->ordered()->get();
+
+    // Otomatisasi 1 Template Ketum jika belum ada untuk wilayah ini
+    $hasKetum = $organisasi->contains(function ($item) {
+        return $item->urutan == 1 || strtolower(trim($item->jabatan)) === 'ketua umum';
+    });
+
+    if (!$hasKetum) {
+        \App\Models\Organisasi::create([
+            'nama' => 'Template Ketum (Belum Diisi)',
+            'jabatan' => 'Ketua Umum',
+            'urutan' => '1',
+            'provinsi' => $selectedProvinsi,
+            'kabupaten' => $selectedKabupaten,
+            'periode_id' => $selectedPeriode ? $selectedPeriode->id : null,
+            'foto' => null,
+            'is_aktif' => true,
+        ]);
+        $organisasi = $organisasiQuery->ordered()->get();
+    }
 
     // Build Master Jabatan tree with members mapped uniquely (no duplicates)
     $jabatans = \App\Models\Jabatan::orderBy('urutan')->get();

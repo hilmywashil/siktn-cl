@@ -303,8 +303,8 @@
                                 <option value="{{ $kabKey }}" {{ request('kabupaten') == $kabKey ? 'selected' : '' }}>{{ $kabLabel }}</option>
                             @endforeach
                         </select>
-                        @if(request('kabupaten') || $selectedProvinsi !== 'Semua')
-                            <a href="{{ route('organisasi') }}" style="color: #ef4444; font-weight: 700; font-size: 0.8125rem; text-decoration: none; padding: 4px;">Reset</a>
+                        @if(request('kabupaten'))
+                            <a href="{{ route('organisasi') }}" style="color: #ef4444; font-weight: 700; font-size: 0.8125rem; text-decoration: none; padding: 4px;">Reset Kab/Kota</a>
                         @endif
                     </div>
                 </form>

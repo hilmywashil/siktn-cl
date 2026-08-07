@@ -568,7 +568,7 @@
                 <label style="font-size: 0.85rem; font-weight: 700; color: var(--navy); margin: 0; white-space: nowrap;">Provinsi:</label>
                 <select name="provinsi" id="provinsi-filter" onchange="this.form.submit()" class="select2-basic" style="min-width: 180px; height: 38px;">
                     @foreach($daftarProvinsi as $pKey => $pVal)
-                        <option value="{{ $pKey }}" {{ ($selectedProvinsi ?? 'Semua') == $pKey ? 'selected' : '' }}>{{ $pVal }}</option>
+                        <option value="{{ $pKey }}" {{ ($selectedProvinsi ?? '') == $pKey ? 'selected' : '' }}>{{ $pVal }}</option>
                     @endforeach
                 </select>
 
@@ -580,8 +580,8 @@
                     @endforeach
                 </select>
 
-                @if(!empty($selectedKabupaten) || ($selectedProvinsi ?? 'Semua') !== 'Semua')
-                    <a href="{{ route('admin.organisasi.index') }}" style="color: #ef4444; font-weight: 700; font-size: 0.8125rem; text-decoration: none; padding: 4px 8px;">Reset Filter</a>
+                @if(!empty($selectedKabupaten))
+                    <a href="{{ route('admin.organisasi.index') }}" style="color: #ef4444; font-weight: 700; font-size: 0.8125rem; text-decoration: none; padding: 4px 8px;">Reset Kab/Kota</a>
                 @endif
             </form>
         </div>

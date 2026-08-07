@@ -10,7 +10,6 @@ class WilayahHelper
     public static function getDaftarProvinsi(): array
     {
         return [
-            'Semua' => 'Semua Provinsi / Wilayah',
             'Nasional' => 'Nasional / Pengurus Pusat (PNKT)',
             'Aceh' => 'Aceh',
             'Sumatera Utara' => 'Sumatera Utara',

@@ -17,7 +17,11 @@ class OrganisasiController extends Controller
     {
         $daftarProvinsi = \App\Helpers\WilayahHelper::getDaftarProvinsi();
         $daftarKabupaten = \App\Helpers\WilayahHelper::getDaftarKabupatenKota();
-        $selectedProvinsi = $request->get('provinsi', 'Semua');
+        $defaultProv = array_key_first($daftarProvinsi) ?: 'DKI Jakarta';
+        $selectedProvinsi = $request->get('provinsi', $defaultProv);
+        if (!isset($daftarProvinsi[$selectedProvinsi])) {
+            $selectedProvinsi = $defaultProv;
+        }
         $selectedKabupaten = $request->get('kabupaten');
 
         $allPeriodes = \App\Models\PeriodeKepengurusan::orderBy('is_aktif', 'desc')
@@ -32,7 +36,7 @@ class OrganisasiController extends Controller
 
         $organisasiQuery = Organisasi::ordered();
 
-        if ($selectedProvinsi && $selectedProvinsi !== 'Semua') {
+        if ($selectedProvinsi) {
             $organisasiQuery->where('provinsi', $selectedProvinsi);
         }
 
@@ -50,6 +54,25 @@ class OrganisasiController extends Controller
         }
 
         $organisasi = $organisasiQuery->get();
+
+        // Otomatisasi 1 Template Ketum dari awal per Wilayah jika belum ada
+        $hasKetum = $organisasi->contains(function ($item) {
+            return $item->urutan == 1 || strtolower(trim($item->jabatan)) === 'ketua umum';
+        });
+
+        if (!$hasKetum) {
+            Organisasi::create([
+                'nama' => 'Template Ketum (Belum Diisi)',
+                'jabatan' => 'Ketua Umum',
+                'urutan' => '1',
+                'provinsi' => $selectedProvinsi,
+                'kabupaten' => $selectedKabupaten,
+                'periode_id' => $selectedPeriode ? $selectedPeriode->id : null,
+                'foto' => null,
+                'is_aktif' => true,
+            ]);
+            $organisasi = $organisasiQuery->get();
+        }
 
         // Build jabatan tree with members mapped uniquely (no duplicates)
         $jabatans = Jabatan::orderBy('urutan')->get();
