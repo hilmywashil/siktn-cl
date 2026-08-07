@@ -51,20 +51,38 @@ class NotulensiController extends Controller
             'pemimpin_rapat' => 'nullable|string|max:255',
             'ringkasan_hasil' => 'nullable|string',
             'link_drive' => 'nullable|url',
+            'file_pdf' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+            'foto_dokumentasi' => 'nullable|array',
+            'foto_dokumentasi.*' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
         ]);
 
-        Notulensi::create([
+        $filePdfPath = null;
+        if ($request->hasFile('file_pdf') && $request->file('file_pdf')->isValid()) {
+            $filePdfPath = $request->file('file_pdf')->store('notulensi_pdf', 'public');
+        }
+
+        $fotoPaths = [];
+        if ($request->hasFile('foto_dokumentasi')) {
+            foreach ($request->file('foto_dokumentasi') as $foto) {
+                if ($foto->isValid()) {
+                    $fotoPaths[] = $foto->store('notulensi_dokumentasi', 'public');
+                }
+            }
+        }
+
+        $notulensi = Notulensi::create([
             'agenda_id' => $validated['agenda_id'] ?? null,
             'judul_rapat' => $validated['judul_rapat'],
             'tanggal_rapat' => $validated['tanggal_rapat'],
             'pemimpin_rapat' => $validated['pemimpin_rapat'] ?? null,
             'ringkasan_hasil' => $validated['ringkasan_hasil'] ?? null,
             'link_drive' => $validated['link_drive'] ?? null,
+            'file_pdf' => $filePdfPath,
+            'foto_dokumentasi' => !empty($fotoPaths) ? $fotoPaths : null,
             'created_by' => $admin->id,
         ]);
 
-        $not = Notulensi::latest()->first();
-        $this->logActivity('notulensi', 'Tambah', $not?->id, $validated['judul_rapat']);
+        $this->logActivity('notulensi', 'Tambah', $notulensi->id, $validated['judul_rapat']);
 
         return redirect()->route('admin.sekretariat.notulensi.index')->with('success', 'Notulensi Rapat berhasil ditambahkan.');
     }
@@ -80,7 +98,27 @@ class NotulensiController extends Controller
             'pemimpin_rapat' => 'nullable|string|max:255',
             'ringkasan_hasil' => 'nullable|string',
             'link_drive' => 'nullable|url',
+            'file_pdf' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+            'foto_dokumentasi' => 'nullable|array',
+            'foto_dokumentasi.*' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
         ]);
+
+        if ($request->hasFile('file_pdf') && $request->file('file_pdf')->isValid()) {
+            if ($notulensi->file_pdf && \Illuminate\Support\Facades\Storage::disk('public')->exists($notulensi->file_pdf)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($notulensi->file_pdf);
+            }
+            $validated['file_pdf'] = $request->file('file_pdf')->store('notulensi_pdf', 'public');
+        }
+
+        if ($request->hasFile('foto_dokumentasi')) {
+            $newFotoPaths = is_array($notulensi->foto_dokumentasi) ? $notulensi->foto_dokumentasi : [];
+            foreach ($request->file('foto_dokumentasi') as $foto) {
+                if ($foto->isValid()) {
+                    $newFotoPaths[] = $foto->store('notulensi_dokumentasi', 'public');
+                }
+            }
+            $validated['foto_dokumentasi'] = $newFotoPaths;
+        }
 
         $notulensi->update($validated);
 
@@ -94,6 +132,18 @@ class NotulensiController extends Controller
         $notulensi = Notulensi::findOrFail($id);
         $label = $notulensi->judul_rapat;
         $notId = $notulensi->id;
+
+        if ($notulensi->file_pdf && \Illuminate\Support\Facades\Storage::disk('public')->exists($notulensi->file_pdf)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($notulensi->file_pdf);
+        }
+        if (is_array($notulensi->foto_dokumentasi)) {
+            foreach ($notulensi->foto_dokumentasi as $foto) {
+                if (\Illuminate\Support\Facades\Storage::disk('public')->exists($foto)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($foto);
+                }
+            }
+        }
+
         $notulensi->delete();
 
         $this->logActivity('notulensi', 'Hapus', $notId, $label);
@@ -115,8 +165,15 @@ class NotulensiController extends Controller
         $count = $items->count();
 
         foreach ($items as $notulensi) {
-            if (isset($notulensi->file_dokumen) && $notulensi->file_dokumen) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($notulensi->file_dokumen);
+            if ($notulensi->file_pdf && \Illuminate\Support\Facades\Storage::disk('public')->exists($notulensi->file_pdf)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($notulensi->file_pdf);
+            }
+            if (is_array($notulensi->foto_dokumentasi)) {
+                foreach ($notulensi->foto_dokumentasi as $foto) {
+                    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($foto)) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($foto);
+                    }
+                }
             }
             $this->logActivity('notulensi', 'Hapus (Bulk)', $notulensi->id, $notulensi->judul_rapat);
             $notulensi->delete();

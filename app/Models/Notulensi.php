@@ -15,8 +15,14 @@ class Notulensi extends Model
         'tanggal_rapat',
         'pemimpin_rapat',
         'ringkasan_hasil',
+        'file_pdf',
+        'foto_dokumentasi',
         'link_drive',
         'created_by',
+    ];
+
+    protected $casts = [
+        'foto_dokumentasi' => 'array',
     ];
 
     public function agenda()

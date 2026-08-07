@@ -278,6 +278,7 @@
                             <input type="checkbox" id="check-all-notulensi" style="cursor: pointer; width: 16px; height: 16px;">
                         </th>
                         <th>JUDUL RAPAT</th>
+                        <th>BERKAS RISALAH & FOTO</th>
                         <th>TAUTAN AGENDA</th>
                         <th>TANGGAL & WAKTU</th>
                         <th>PEMIMPIN RAPAT</th>
@@ -295,6 +296,23 @@
                             @if($item->ringkasan_hasil)
                                 <div style="font-size: 0.8rem; color: var(--gray-500); margin-top: 2px;">{{ Str::limit($item->ringkasan_hasil, 80) }}</div>
                             @endif
+                        </td>
+                        <td>
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                @if($item->file_pdf)
+                                    <button type="button" onclick="previewNotulensiPdf('{{ Storage::url($item->file_pdf) }}', '{{ addslashes($item->judul_rapat) }}')" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.725rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; width: fit-content;">
+                                        📄 Risalah PDF
+                                    </button>
+                                @endif
+                                @if($item->foto_dokumentasi && is_array($item->foto_dokumentasi) && count($item->foto_dokumentasi) > 0)
+                                    <button type="button" onclick="openFotoGallery({{ json_encode(array_map(fn($f) => Storage::url($f), $item->foto_dokumentasi)) }}, '{{ addslashes($item->judul_rapat) }}')" style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.725rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; width: fit-content;">
+                                        🖼️ Dokumentasi ({{ count($item->foto_dokumentasi) }} Foto)
+                                    </button>
+                                @endif
+                                @if(!$item->file_pdf && (!$item->foto_dokumentasi || count($item->foto_dokumentasi) == 0))
+                                    <span style="color: var(--gray-500); font-size: 0.8rem;">-</span>
+                                @endif
+                            </div>
                         </td>
                         <td>
                             @if($item->agenda)
@@ -319,12 +337,28 @@
                                 </button>
 
                                 <div class="aksi-dropdown" id="dropdown-not-{{ $item->id }}">
+                                    @if($item->file_pdf)
+                                    <button type="button" class="aksi-item aksi-view" onclick="previewNotulensiPdf('{{ Storage::url($item->file_pdf) }}', '{{ addslashes($item->judul_rapat) }}')">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        Pratinjau PDF Risalah
+                                    </button>
+                                    @endif
+
+                                    @if($item->foto_dokumentasi && is_array($item->foto_dokumentasi) && count($item->foto_dokumentasi) > 0)
+                                    <button type="button" class="aksi-item aksi-view" onclick="openFotoGallery({{ json_encode(array_map(fn($f) => Storage::url($f), $item->foto_dokumentasi)) }}, '{{ addslashes($item->judul_rapat) }}')">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                        Galeri Dokumentasi ({{ count($item->foto_dokumentasi) }} Foto)
+                                    </button>
+                                    @endif
+
                                     @if($item->link_drive)
                                     <a href="{{ $item->link_drive }}" target="_blank" class="aksi-item aksi-view">
                                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                                         Buka Dokumen Drive
                                     </a>
+                                    @endif
 
+                                    @if($item->file_pdf || ($item->foto_dokumentasi && count($item->foto_dokumentasi) > 0) || $item->link_drive)
                                     <div class="aksi-divider"></div>
                                     @endif
 
@@ -349,7 +383,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 3rem; color: var(--gray-500);">Belum ada data Notulensi Rapat.</td>
+                        <td colspan="7" style="text-align: center; padding: 3rem; color: var(--gray-500);">Belum ada data Notulensi Rapat.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -405,7 +439,7 @@
             <button type="button" onclick="closeCreateModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
         </div>
 
-        <form action="{{ route('admin.sekretariat.notulensi.store') }}" method="POST">
+        <form action="{{ route('admin.sekretariat.notulensi.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="modal-body-prof">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
@@ -436,7 +470,27 @@
 
                     <div class="form-group" style="grid-column: 1 / -1;">
                         <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Ringkasan Hasil Notulensi</label>
-                        <textarea name="ringkasan_hasil" class="form-control" style="height: 95px; font-size: 0.85rem;" placeholder="Poin-poin penting hasil rapat..."></textarea>
+                        <textarea name="ringkasan_hasil" class="form-control" style="height: 85px; font-size: 0.85rem;" placeholder="Poin-poin penting hasil rapat..."></textarea>
+                    </div>
+
+                    <!-- Upload PDF Risalah Notulensi -->
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Upload File Risalah Notulensi (PDF / Word)</label>
+                        <div class="file-upload-zone" onclick="document.getElementById('createPdfInput').click()" style="border: 2px dashed var(--gray-300); background: #f8fafc; padding: 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#022648" stroke-width="2" style="margin-bottom: 4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                            <div style="font-size: 0.775rem; font-weight: 600; color: #334155;" id="createPdfFileNameLabel">Klik / Drag berkas risalah format .pdf, .doc, .docx</div>
+                            <input type="file" id="createPdfInput" name="file_pdf" accept=".pdf,.doc,.docx" style="display: none;" onchange="document.getElementById('createPdfFileNameLabel').textContent = this.files[0]?.name || 'Klik / Drag berkas risalah format .pdf, .doc, .docx'">
+                        </div>
+                    </div>
+
+                    <!-- Upload Foto Dokumentasi Rapat (Multiple) -->
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Upload Gambar Dokumentasi Rapat (Bisa Pilih Banyak Foto)</label>
+                        <div class="file-upload-zone" onclick="document.getElementById('createFotoInput').click()" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 4px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            <div style="font-size: 0.775rem; font-weight: 600; color: #022648;" id="createFotoNameLabel">Klik / Drag foto-foto dokumentasi (.jpg, .jpeg, .png, .webp)</div>
+                            <input type="file" id="createFotoInput" name="foto_dokumentasi[]" multiple accept="image/*" style="display: none;" onchange="document.getElementById('createFotoNameLabel').textContent = `${this.files.length} foto dokumentasi terpilih`">
+                        </div>
                     </div>
 
                     <div class="form-group" style="grid-column: 1 / -1;">
@@ -470,7 +524,7 @@
             <button type="button" onclick="closeEditModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
         </div>
 
-        <form id="editForm" method="POST">
+        <form id="editForm" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
@@ -503,7 +557,27 @@
 
                     <div class="form-group" style="grid-column: 1 / -1;">
                         <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Ringkasan Hasil Notulensi</label>
-                        <textarea name="ringkasan_hasil" id="editRingkasanHasil" class="form-control" style="height: 95px; font-size: 0.85rem;"></textarea>
+                        <textarea name="ringkasan_hasil" id="editRingkasanHasil" class="form-control" style="height: 85px; font-size: 0.85rem;"></textarea>
+                    </div>
+
+                    <!-- Upload PDF Risalah Notulensi Edit -->
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Ganti File Risalah Notulensi (PDF / Word)</label>
+                        <div class="file-upload-zone" onclick="document.getElementById('editPdfInput').click()" style="border: 2px dashed var(--gray-300); background: #f8fafc; padding: 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#022648" stroke-width="2" style="margin-bottom: 4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                            <div style="font-size: 0.775rem; font-weight: 600; color: #334155;" id="editPdfFileNameLabel">Klik / Drag untuk mengganti file risalah PDF</div>
+                            <input type="file" id="editPdfInput" name="file_pdf" accept=".pdf,.doc,.docx" style="display: none;" onchange="document.getElementById('editPdfFileNameLabel').textContent = this.files[0]?.name || 'Klik / Drag untuk mengganti file risalah PDF'">
+                        </div>
+                    </div>
+
+                    <!-- Upload Foto Dokumentasi Edit -->
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Tambah Gambar Dokumentasi (Bisa Pilih Banyak Foto)</label>
+                        <div class="file-upload-zone" onclick="document.getElementById('editFotoInput').click()" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 4px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            <div style="font-size: 0.775rem; font-weight: 600; color: #022648;" id="editFotoNameLabel">Klik / Drag untuk menambah foto dokumentasi</div>
+                            <input type="file" id="editFotoInput" name="foto_dokumentasi[]" multiple accept="image/*" style="display: none;" onchange="document.getElementById('editFotoNameLabel').textContent = `${this.files.length} foto tambahan terpilih`">
+                        </div>
                     </div>
 
                     <div class="form-group" style="grid-column: 1 / -1;">
@@ -518,6 +592,44 @@
                 <button type="submit" class="btn-solid-navy" style="font-weight: 700;" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Notulensi Rapat berhasil diperbarui...' })">Update Notulensi</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Modal Galeri Foto Dokumentasi Rapat -->
+<div class="modal-overlay" id="modalGalleryFoto" onclick="if(event.target===this) closeFotoGallery()">
+    <div class="modal-content-lg" style="max-width: 860px; max-height: 90vh; background: #0f172a; border-color: #334155;">
+        <div class="modal-header-prof" style="background: #022648; padding: 1rem 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(183, 131, 15, 0.2); display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="#b7830f" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.05rem; font-weight: 800; color: white; margin: 0;" id="galleryModalTitle">Dokumentasi Foto Rapat</h3>
+                    <span style="font-size: 0.725rem; color: #94a3b8;" id="galleryCounterLabel">Foto 1 dari 1</span>
+                </div>
+            </div>
+            <button type="button" onclick="closeFotoGallery()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
+        </div>
+
+        <div class="modal-body-prof" style="padding: 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #020617; position: relative; min-height: 420px;">
+            <button type="button" onclick="prevGalleryImage()" id="btnGalleryPrev" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); background: rgba(2, 38, 72, 0.85); color: white; border: 1px solid rgba(255,255,255,0.2); width: 44px; height: 44px; border-radius: 50%; font-size: 1.5rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10;" onmouseover="this.style.background='#b7830f'" onmouseout="this.style.background='rgba(2, 38, 72, 0.85)'">&lsaquo;</button>
+
+            <img id="galleryMainImage" src="" alt="Dokumentasi Rapat" style="max-width: 100%; max-height: 52vh; border-radius: 8px; object-fit: contain; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+
+            <button type="button" onclick="nextGalleryImage()" id="btnGalleryNext" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: rgba(2, 38, 72, 0.85); color: white; border: 1px solid rgba(255,255,255,0.2); width: 44px; height: 44px; border-radius: 50%; font-size: 1.5rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10;" onmouseover="this.style.background='#b7830f'" onmouseout="this.style.background='rgba(2, 38, 72, 0.85)'">&rsaquo;</button>
+            
+            <div id="galleryThumbnailsContainer" style="display: flex; gap: 8px; margin-top: 1.25rem; overflow-x: auto; max-width: 100%; padding: 4px;">
+                <!-- Thumbnail images populated by JS -->
+            </div>
+        </div>
+
+        <div class="modal-footer-prof" style="background: #0f172a; border-top: 1px solid #1e293b; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+            <a id="btnDownloadGalleryImage" href="" target="_blank" download style="background: #059669; color: white; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Unduh Foto Ini
+            </a>
+            <button type="button" onclick="closeFotoGallery()" class="btn-outline-secondary" style="background: #1e293b; color: white; border-color: #334155;">Tutup Galeri</button>
+        </div>
     </div>
 </div>
 
@@ -614,6 +726,85 @@
             document.getElementById('delete-form-' + id).submit();
         }
     }
+
+    // Galeri Foto Dokumentasi Logic
+    window.currentGalleryImages = [];
+    window.currentGalleryIndex = 0;
+
+    window.openFotoGallery = function(images, title) {
+        if (!images || images.length === 0) return;
+        window.currentGalleryImages = images;
+        window.currentGalleryIndex = 0;
+        document.getElementById('galleryModalTitle').innerText = `Dokumentasi Foto: ${title || ''}`;
+        renderGalleryIndex();
+        document.getElementById('modalGalleryFoto').classList.add('active');
+    };
+
+    window.closeFotoGallery = function() {
+        document.getElementById('modalGalleryFoto').classList.remove('active');
+    };
+
+    function renderGalleryIndex() {
+        const total = window.currentGalleryImages.length;
+        const idx = window.currentGalleryIndex;
+        const currentUrl = window.currentGalleryImages[idx];
+
+        document.getElementById('galleryCounterLabel').innerText = `Foto ${idx + 1} dari ${total}`;
+        document.getElementById('galleryMainImage').src = currentUrl;
+        document.getElementById('btnDownloadGalleryImage').href = currentUrl;
+
+        const thumbsContainer = document.getElementById('galleryThumbnailsContainer');
+        thumbsContainer.innerHTML = '';
+
+        if (total > 1) {
+            window.currentGalleryImages.forEach((url, i) => {
+                const border = (i === idx) ? '2px solid #b7830f' : '2px solid transparent';
+                const opacity = (i === idx) ? '1' : '0.4';
+                thumbsContainer.innerHTML += `
+                    <img src="${url}" onclick="setGalleryIndex(${i})" style="width: 56px; height: 42px; object-fit: cover; border-radius: 4px; cursor: pointer; border: ${border}; opacity: ${opacity}; transition: all 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="if(${i}!==${idx}) this.style.opacity='0.4'">
+                `;
+            });
+        }
+    }
+
+    window.setGalleryIndex = function(i) {
+        window.currentGalleryIndex = i;
+        renderGalleryIndex();
+    };
+
+    window.prevGalleryImage = function() {
+        if (window.currentGalleryImages.length === 0) return;
+        window.currentGalleryIndex = (window.currentGalleryIndex - 1 + window.currentGalleryImages.length) % window.currentGalleryImages.length;
+        renderGalleryIndex();
+    };
+
+    window.nextGalleryImage = function() {
+        if (window.currentGalleryImages.length === 0) return;
+        window.currentGalleryIndex = (window.currentGalleryIndex + 1) % window.currentGalleryImages.length;
+        renderGalleryIndex();
+    };
+
+    window.previewNotulensiPdf = function(url, title) {
+        if (!url) return;
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: `<div style="color:#022648;font-weight:800;font-size:1.05rem;text-align:left;padding-bottom:4px;border-bottom:2px solid #022648;">Risalah Notulensi PDF: ${title || ''}</div>`,
+                html: `
+                    <div style="margin-bottom:0.6rem;display:flex;justify-content:flex-end;">
+                        <a href="${url}" target="_blank" style="font-size:0.75rem;padding:4px 12px;background:#022648;color:white;border-radius:4px;text-decoration:none;font-weight:700;display:inline-flex;align-items:center;gap:5px;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Unduh / Buka Tab Baru
+                        </a>
+                    </div>
+                    <iframe src="${url}" style="width:100%;height:72vh;border:none;border-radius:8px;"></iframe>`,
+                width: '920px',
+                showCloseButton: true,
+                confirmButtonText: 'Tutup Pratinjau',
+                confirmButtonColor: '#022648',
+                customClass: { container: 'swal-high-zindex' }
+            });
+        }
+    };
 
     // Bulk Action Script for Notulensi
     document.addEventListener('DOMContentLoaded', function () {
