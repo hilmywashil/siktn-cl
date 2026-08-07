@@ -595,14 +595,15 @@
                         <textarea name="keterangan" id="editKeterangan" class="form-control" style="height: 75px; font-size: 0.85rem;"></textarea>
                     </div>
                 </div>
-            </div>
-
-            <div class="modal-footer-prof">
+              <div class="modal-footer-prof">
                 <button type="button" onclick="closeEditModal()" class="btn-outline-secondary">Batal</button>
                 <button type="submit" class="btn-solid-navy" style="font-weight: 700;" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Surat Keputusan (SK) berhasil diperbarui...' })">Update SK</button>
             </div>
         </form>
- <!-- Modal Import SK -->
+    </div>
+</div>
+
+<!-- Modal Import SK -->
 <div class="modal-overlay" id="modalImportSk" onclick="if(event.target===this) closeImportSkModal()">
     <div class="modal-content-lg">
         <div class="modal-header-prof" style="background: linear-gradient(135deg, #022648 0%, #01162f 100%); padding: 1.25rem 1.5rem; color: white;">
@@ -627,7 +628,7 @@
                     <div style="font-weight: 700; color: #022648; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                         <span style="font-size: 0.9rem;"><i class="fa fa-info-circle" style="color: #b7830f;"></i> Unduh Format Contoh Import SK</span>
                         <a href="{{ route('admin.sekretariat.sk.template-import') }}" onclick="Toast.fire({ icon: 'success', title: 'Mengunduh format contoh Excel SK...' })" style="background: #059669; color: white; padding: 7px 14px; border-radius: 6px; font-size: 0.775rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             Unduh Format Contoh (.xls)
                         </a>
                     </div>
@@ -675,8 +676,6 @@
                 </button>
             </div>
         </form>
-    </div>
-</div>
     </div>
 </div>
 
