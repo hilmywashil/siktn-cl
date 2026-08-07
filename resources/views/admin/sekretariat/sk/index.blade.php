@@ -305,7 +305,7 @@
             Export Excel SK
         </a>
 
-        <button type="button" onclick="document.getElementById('modalImportSk').classList.add('active')" style="background: #b7830f; color: white; border: none; padding: 0.55rem 1.25rem; border-radius: 6px; font-weight: 700; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(183, 131, 15, 0.2); cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#966a0a'" onmouseout="this.style.background='#b7830f'">
+        <button type="button" onclick="openImportSkModal()" style="background: #b7830f; color: white; border: none; padding: 0.55rem 1.25rem; border-radius: 6px; font-weight: 700; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(183, 131, 15, 0.2); cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#966a0a'" onmouseout="this.style.background='#b7830f'">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             Import / Bulk Upload SK
         </button>
@@ -600,11 +600,8 @@
                 <button type="submit" class="btn-solid-navy" style="font-weight: 700;" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Surat Keputusan (SK) berhasil diperbarui...' })">Update SK</button>
             </div>
         </form>
-    </div>
-</div>
-
-<!-- Modal Import SK -->
-<div class="modal-overlay" id="modalImportSk" onclick="if(event.target===this) this.classList.remove('active')">
+ <!-- Modal Import SK -->
+<div class="modal-overlay" id="modalImportSk" onclick="if(event.target===this) closeImportSkModal()">
     <div class="modal-content-lg">
         <div class="modal-header-prof" style="background: linear-gradient(135deg, #022648 0%, #01162f 100%); padding: 1.25rem 1.5rem; color: white;">
             <div style="display: flex; align-items: center; gap: 12px;">
@@ -616,7 +613,7 @@
                     <span style="font-size: 0.775rem; color: #94a3b8;">Unggah berkas data SK secara massal menggunakan format Excel (.xls / .csv)</span>
                 </div>
             </div>
-            <button type="button" onclick="document.getElementById('modalImportSk').classList.remove('active')" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem;">&times;</button>
+            <button type="button" onclick="closeImportSkModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem;">&times;</button>
         </div>
 
         <form action="{{ route('admin.sekretariat.sk.import') }}" method="POST" id="formImportSk">
@@ -628,7 +625,7 @@
                     <div style="font-weight: 700; color: #022648; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                         <span style="font-size: 0.9rem;"><i class="fa fa-info-circle" style="color: #b7830f;"></i> Unduh Format Contoh Import SK</span>
                         <a href="{{ route('admin.sekretariat.sk.template-import') }}" onclick="Toast.fire({ icon: 'success', title: 'Mengunduh format contoh Excel SK...' })" style="background: #059669; color: white; padding: 7px 14px; border-radius: 6px; font-size: 0.775rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             Unduh Format Contoh (.xls)
                         </a>
                     </div>
@@ -670,7 +667,7 @@
             </div>
 
             <div class="modal-footer-prof" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.75rem;">
-                <button type="button" class="btn-outline-secondary" onclick="document.getElementById('modalImportSk').classList.remove('active')">Batal</button>
+                <button type="button" class="btn-outline-secondary" onclick="closeImportSkModal()">Batal</button>
                 <button type="submit" id="btnSubmitImportSk" class="btn-solid-navy" style="background: #022648 !important; color: white !important; font-weight: 700;" disabled>
                     <i class="fa fa-upload"></i> Proses Import Massal
                 </button>
@@ -762,13 +759,35 @@
         });
     });
 
+    function openModalById(id) {
+        var modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.add('active');
+            modal.style.setProperty('display', 'flex', 'important');
+            modal.style.setProperty('opacity', '1', 'important');
+            modal.style.setProperty('visibility', 'visible', 'important');
+            modal.style.setProperty('pointer-events', 'auto', 'important');
+        }
+    }
+
+    function closeModalById(id) {
+        var modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.remove('active');
+            modal.style.setProperty('display', 'none', 'important');
+            modal.style.setProperty('opacity', '0', 'important');
+            modal.style.setProperty('visibility', 'hidden', 'important');
+            modal.style.setProperty('pointer-events', 'none', 'important');
+        }
+    }
+
     function openCreateModal() {
-        document.getElementById('createModal').classList.add('active');
+        openModalById('createModal');
         if (typeof $.fn.select2 !== 'undefined') {
             $('#createModal .select2-basic').select2({ width: '100%', dropdownParent: $('#createModal') });
         }
     }
-    function closeCreateModal() { document.getElementById('createModal').classList.remove('active'); }
+    function closeCreateModal() { closeModalById('createModal'); }
 
     function openEditModal(item) {
         document.getElementById('editForm').action = "/admin/sekretariat/sk/" + item.id;
@@ -779,20 +798,18 @@
         document.getElementById('editStatus').value = item.status;
         document.getElementById('editLinkDrive').value = item.link_drive || '';
         document.getElementById('editKeterangan').value = item.keterangan || '';
-        document.getElementById('editModal').classList.add('active');
+        openModalById('editModal');
         if (typeof $.fn.select2 !== 'undefined') {
             $('#editModal .select2-basic').select2({ width: '100%', dropdownParent: $('#editModal') });
         }
     }
-    function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
+    function closeEditModal() { closeModalById('editModal'); }
 
     window.openImportSkModal = function() {
-        const modal = document.getElementById('modalImportSk');
-        if (modal) modal.classList.add('active');
+        openModalById('modalImportSk');
     };
     window.closeImportSkModal = function() {
-        const modal = document.getElementById('modalImportSk');
-        if (modal) modal.classList.remove('active');
+        closeModalById('modalImportSk');
     };
 
     function confirmDeleteSk(id, nomor) {
