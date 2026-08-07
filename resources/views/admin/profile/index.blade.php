@@ -616,6 +616,71 @@
                 </form>
             </div>
 
+            {{-- Pengajuan Jabatan Form --}}
+            <div class="profile-card" style="border: 1px solid #cbd5e1;">
+                <div class="profile-card-header" style="justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div class="profile-card-icon" style="background: #f0f7ff;">
+                            <svg fill="none" stroke="#022648" viewBox="0 0 24 24" width="20" height="20" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="profile-card-title" style="margin: 0;">Pengajuan & Klaim Jabatan Organisasi</h3>
+                            <span style="font-size: 0.775rem; color: #64748b;">Klaim posisi jabatan di Struktur Organisasi</span>
+                        </div>
+                    </div>
+
+                    @if($admin->status_jabatan === 'pending')
+                        <span style="background: #fef3c7; color: #b7830f; border: 1px solid #fef08a; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px;">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #b7830f;"></span> Menunggu ACC Pusat
+                        </span>
+                    @elseif($admin->status_jabatan === 'approved')
+                        <span style="background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px;">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #166534;"></span> Disetujui / Terpasang
+                        </span>
+                    @elseif($admin->status_jabatan === 'rejected')
+                        <span style="background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px;">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #991b1b;"></span> Pengajuan Ditolak
+                        </span>
+                    @endif
+                </div>
+
+                @if($admin->keterangan_jabatan)
+                    <div style="background: #f8fafc; border-left: 4px solid #022648; padding: 0.75rem 1rem; border-radius: 0 6px 6px 0; margin-bottom: 1.25rem; font-size: 0.8125rem; color: #334155;">
+                        <strong>Catatan Verifikasi:</strong> {{ $admin->keterangan_jabatan }}
+                    </div>
+                @endif
+
+                <form action="{{ route('admin.profile.jabatan') }}" method="POST">
+                    @csrf
+                    <div class="form-group">
+                        <label class="form-label form-label-required">Pilih Jabatan Organisasi</label>
+                        <select name="jabatan_diajukan" class="form-input select2-basic" style="width: 100%;" required>
+                            <option value="">-- Pilih Jabatan Pengurus --</option>
+                            @foreach($jabatans ?? [] as $j)
+                                <option value="{{ $j->nama_jabatan }}" {{ old('jabatan_diajukan', $admin->jabatan_diajukan) == $j->nama_jabatan ? 'selected' : '' }}>
+                                    {{ $j->nama_jabatan }} (Urutan #{{ $j->urutan }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <small style="color: #64748b; font-size: 0.775rem; margin-top: 0.35rem; display: block;">
+                            @if($admin->isPNKT() || $admin->category === 'pnkt')
+                                ℹ️ <em>Untuk Pengurus Pusat (PNKT), pemilihan jabatan selain Ketum akan langsung aktif otomatis. Pilihan Ketua Umum memerlukan ACC Super Admin.</em>
+                            @else
+                                ℹ️ <em>Pengajuan jabatan dari pengurus daerah akan diverifikasi & di-ACC oleh Pengurus Pusat (PNKT) / Super Admin sebelum terpasang di bagan organisasi.</em>
+                            @endif
+                        </small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" style="background: #022648; color: white; border-color: #022648; font-weight: 700;">
+                            Kirim Pengajuan Jabatan
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             {{-- Change Password Form --}}
             <div class="profile-card">
                 <div class="profile-card-header">

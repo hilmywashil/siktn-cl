@@ -135,9 +135,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Profile
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile/jabatan', [ProfileController::class, 'updateJabatan'])->name('profile.jabatan');
         Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
         Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo');
         Route::delete('/profile/photo', [ProfileController::class, 'deletePhoto'])->name('profile.photo.delete');
+
+        // Verifikasi Jabatan Pengurus (PNKT & Super Admin)
+        Route::get('verifikasi-jabatan', [\App\Http\Controllers\Admin\VerifikasiJabatanController::class, 'index'])->name('verifikasi-jabatan.index');
+        Route::post('verifikasi-jabatan/{admin}/acc', [\App\Http\Controllers\Admin\VerifikasiJabatanController::class, 'approve'])->name('verifikasi-jabatan.approve');
+        Route::post('verifikasi-jabatan/{admin}/reject', [\App\Http\Controllers\Admin\VerifikasiJabatanController::class, 'reject'])->name('verifikasi-jabatan.reject');
 
         // Organisasi & Temu Karya CRUD
         Route::post('organisasi/bulk-delete', [OrganisasiController::class, 'bulkDelete'])->name('organisasi.bulk-delete');
