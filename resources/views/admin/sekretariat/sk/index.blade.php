@@ -294,10 +294,20 @@
     </div>
 
     <!-- Page Action -->
-    <div class="page-actions-row">
+    <div class="page-actions-row" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.25rem;">
         <button type="button" class="btn-solid-navy" onclick="openCreateModal()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             Tambah SK Baru
+        </button>
+
+        <a href="{{ route('admin.sekretariat.sk.export', request()->query()) }}" onclick="Toast.fire({ icon: 'success', title: 'Mengunduh data SK ke berkas Excel...' })" style="background: #059669; color: white; border: none; padding: 0.55rem 1.25rem; border-radius: 6px; font-weight: 700; font-size: 0.875rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.2); transition: all 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export Excel SK
+        </a>
+
+        <button type="button" onclick="openImportSkModal()" style="background: #b7830f; color: white; border: none; padding: 0.55rem 1.25rem; border-radius: 6px; font-weight: 700; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(183, 131, 15, 0.2); cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#966a0a'" onmouseout="this.style.background='#b7830f'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import / Bulk Upload SK
         </button>
     </div>
 
@@ -424,6 +434,10 @@
             <strong>Surat Keputusan Terpilih</strong>
         </div>
         <div style="display: flex; gap: 10px;">
+            <button type="button" onclick="executeBulkExportSk()" style="background: #2563eb; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export Excel (Terpilih)
+            </button>
             <button type="button" onclick="executeBulkDownloadSk()" style="background: #059669; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Download Terpilih (ZIP)
@@ -434,6 +448,10 @@
             </button>
         </div>
     </div>
+
+    <form id="bulk-export-sk-form" action="{{ route('admin.sekretariat.sk.export-bulk') }}" method="POST" style="display:none;">
+        @csrf
+    </form>
 
     <form id="bulk-delete-sk-form" action="{{ route('admin.sekretariat.sk.bulk-delete') }}" method="POST" style="display:none;">
         @csrf
@@ -755,6 +773,198 @@
         }
 
         const form = document.getElementById('bulk-download-sk-form');
+        form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+        checked.forEach(item => {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'ids[]';
+            hiddenInput.value = item.value;
+            form.appendChild(hiddenInput);
+        });
+<!-- Modal Import SK -->
+<div class="modal-overlay" id="modalImportSk" onclick="if(event.target===this) closeImportSkModal()">
+    <div class="modal-content-lg">
+        <div class="modal-header-prof" style="background: linear-gradient(135deg, #b7830f 0%, #022648 100%);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.05rem; font-weight: 800; color: white; margin: 0;">Import / Bulk Upload Surat Keputusan (SK)</h3>
+                    <span style="font-size: 0.725rem; color: #f1f5f9;">Unggah data SK secara massal menggunakan file Excel (.xls / .csv)</span>
+                </div>
+            </div>
+            <button type="button" onclick="closeImportSkModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
+        </div>
+
+        <form action="{{ route('admin.sekretariat.sk.import') }}" method="POST" id="formImportSk">
+            @csrf
+            <input type="hidden" name="sk_rows" id="importSkRowsInput">
+
+            <div class="modal-body-prof">
+                <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem;">
+                    <div style="font-weight: 700; color: #022648; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+                        <span><i class="fa fa-info-circle" style="color: #b7830f;"></i> Unduh Format Contoh Import SK</span>
+                        <a href="{{ route('admin.sekretariat.sk.template-import') }}" onclick="Toast.fire({ icon: 'success', title: 'Mengunduh format contoh Excel SK...' })" style="background: #059669; color: white; padding: 6px 14px; border-radius: 6px; font-size: 0.775rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Unduh Format Contoh (.xls)
+                        </a>
+                    </div>
+                    <p style="font-size: 0.8125rem; color: #64748b; margin: 0; line-height: 1.5;">
+                        Silakan unduh berkas contoh di atas untuk melihat susunan kolom: <strong>Nomor SK, Judul Surat Keputusan, Tanggal Berlaku, Tanggal Berakhir, Link Google Drive, Status, Keterangan</strong>.
+                    </p>
+                </div>
+
+                <div class="form-group-full">
+                    <label class="form-label" style="font-weight: 700; color: #022648;">Pilih Berkas Excel / CSV (.xls, .xlsx, .csv)</label>
+                    <div class="file-upload-zone" style="border: 2px dashed #b7830f; background: #fffbeb;">
+                        <input type="file" id="importSkFile" accept=".xls,.xlsx,.csv" onchange="handleImportSkFile(this)">
+                        <div style="pointer-events: none;">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <div style="font-weight: 700; color: #022648; font-size: 0.875rem;" id="importFileLabel">Klik atau Tarik Berkas Excel ke Sini</div>
+                            <span style="font-size: 0.75rem; color: #64748b;">Format yang didukung: .xls, .xlsx, .csv</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="importSkPreviewContainer" style="display: none; margin-top: 1.25rem;">
+                    <div style="font-weight: 700; color: #022648; font-size: 0.85rem; margin-bottom: 0.5rem;">
+                        Pratinjau Data Terbaca (<span id="importSkCount">0</span> baris SK)
+                    </div>
+                    <div style="max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.775rem;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #022648; color: white;">
+                                    <th style="padding: 6px; text-align: left;">No SK</th>
+                                    <th style="padding: 6px; text-align: left;">Judul SK</th>
+                                    <th style="padding: 6px; text-align: center;">Berlaku</th>
+                                    <th style="padding: 6px; text-align: center;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="importSkPreviewTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer-prof">
+                <button type="button" class="btn-outline-secondary" onclick="closeImportSkModal()">Batal</button>
+                <button type="submit" id="btnSubmitImportSk" class="btn-solid-navy" style="background: #b7830f !important;" disabled>
+                    <i class="fa fa-upload"></i> Proses Import Massal
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    function openImportSkModal() {
+        document.getElementById('modalImportSk').classList.add('active');
+    }
+    function closeImportSkModal() {
+        document.getElementById('modalImportSk').classList.remove('active');
+    }
+
+    function handleImportSkFile(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        document.getElementById('importFileLabel').innerText = file.name;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const text = e.target.result;
+            let rows = [];
+
+            if (text.includes('<tr')) {
+                // HTML Table parsing (.xls format)
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const trs = doc.querySelectorAll('table tr');
+                trs.forEach((tr, idx) => {
+                    const tds = tr.querySelectorAll('td, th');
+                    if (tds.length >= 3) {
+                        const col1 = tds[0] ? tds[0].innerText.trim() : '';
+                        const col2 = tds[1] ? tds[1].innerText.trim() : '';
+                        const col3 = tds[2] ? tds[2].innerText.trim() : '';
+                        const col4 = tds[3] ? tds[3].innerText.trim() : '';
+                        const col5 = tds[4] ? tds[4].innerText.trim() : '';
+                        const col6 = tds[5] ? tds[5].innerText.trim() : '';
+                        const col7 = tds[6] ? tds[6].innerText.trim() : '';
+                        const col8 = tds[7] ? tds[7].innerText.trim() : '';
+
+                        if (col2 && col3 && col2.toLowerCase() !== 'nomor sk' && col2.toLowerCase() !== 'no') {
+                            rows.push({
+                                nomor_sk: col2,
+                                judul_sk: col3,
+                                tanggal_berlaku: col4 || '2026-08-01',
+                                tanggal_berakhir: col5 || '2029-08-01',
+                                link_drive: col6,
+                                status: col7 || 'Aktif',
+                                keterangan: col8
+                            });
+                        }
+                    }
+                });
+            } else {
+                // CSV Parsing
+                const lines = text.split(/\r\n|\n/);
+                lines.forEach((line, idx) => {
+                    if (idx === 0) return;
+                    const cols = line.split(',');
+                    if (cols.length >= 2) {
+                        const nomor = cols[0] ? cols[0].replace(/"/g, '').trim() : '';
+                        const judul = cols[1] ? cols[1].replace(/"/g, '').trim() : '';
+                        if (nomor && judul && nomor.toLowerCase() !== 'nomor sk') {
+                            rows.push({
+                                nomor_sk: nomor,
+                                judul_sk: judul,
+                                tanggal_berlaku: cols[2] ? cols[2].replace(/"/g, '').trim() : '2026-08-01',
+                                tanggal_berakhir: cols[3] ? cols[3].replace(/"/g, '').trim() : '2029-08-01',
+                                link_drive: cols[4] ? cols[4].replace(/"/g, '').trim() : '',
+                                status: cols[5] ? cols[5].replace(/"/g, '').trim() : 'Aktif',
+                                keterangan: cols[6] ? cols[6].replace(/"/g, '').trim() : ''
+                            });
+                        }
+                    }
+                });
+            }
+
+            if (rows.length > 0) {
+                document.getElementById('importSkRowsInput').value = JSON.stringify(rows);
+                document.getElementById('importSkCount').innerText = rows.length;
+                const tbody = document.getElementById('importSkPreviewTableBody');
+                tbody.innerHTML = '';
+                rows.slice(0, 5).forEach(r => {
+                    tbody.innerHTML += `<tr>
+                        <td style="padding:4px 6px;border-bottom:1px solid #eee;"><strong>${r.nomor_sk}</strong></td>
+                        <td style="padding:4px 6px;border-bottom:1px solid #eee;">${r.judul_sk}</td>
+                        <td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center;">${r.tanggal_berlaku}</td>
+                        <td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center;"><span style="color:#059669;font-weight:700;">${r.status}</span></td>
+                    </tr>`;
+                });
+                document.getElementById('importSkPreviewContainer').style.display = 'block';
+                document.getElementById('btnSubmitImportSk').disabled = false;
+            } else {
+                if (typeof Toast !== 'undefined') {
+                    Toast.fire({ icon: 'error', title: 'Tidak dapat membaca baris data SK dari file tersebut.' });
+                }
+                document.getElementById('btnSubmitImportSk').disabled = true;
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function executeBulkExportSk() {
+        const checked = document.querySelectorAll('.check-sk-item:checked');
+        if (checked.length === 0) return;
+
+        if (typeof Toast !== 'undefined') {
+            Toast.fire({ icon: 'success', title: `Mengunduh ${checked.length} SK ke berkas Excel...` });
+        }
+
+        const form = document.getElementById('bulk-export-sk-form');
         form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
         checked.forEach(item => {
             const hiddenInput = document.createElement('input');

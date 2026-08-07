@@ -85,6 +85,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
             // Surat Keputusan (SK)
             Route::get('sk', [SuratKeputusanController::class, 'index'])->name('sk.index');
+            Route::get('sk/export', [SuratKeputusanController::class, 'export'])->name('sk.export');
+            Route::post('sk/export-bulk', [SuratKeputusanController::class, 'export'])->name('sk.export-bulk');
+            Route::get('sk/template-import', [SuratKeputusanController::class, 'downloadTemplate'])->name('sk.template-import');
+            Route::post('sk/import', [SuratKeputusanController::class, 'import'])->name('sk.import');
             Route::post('sk', [SuratKeputusanController::class, 'store'])->name('sk.store');
             Route::post('sk/bulk-delete', [SuratKeputusanController::class, 'bulkDelete'])->name('sk.bulk-delete');
             Route::post('sk/bulk-download', [SuratKeputusanController::class, 'bulkDownload'])->name('sk.bulk-download');
