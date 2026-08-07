@@ -439,6 +439,62 @@
         color: #0a2540;
         margin: 0;
     }
+    .org-member-link {
+        text-decoration: none !important;
+        color: inherit !important;
+        display: block;
+        cursor: pointer;
+    }
+    .org-member-mini-card {
+        position: relative;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .org-member-mini-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(2, 38, 72, 0.15);
+        border-color: #022648 !important;
+    }
+    .org-card-overlay-actions {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        display: flex;
+        gap: 4px;
+        opacity: 0;
+        transform: scale(0.9);
+        transition: all 0.2s ease;
+        z-index: 5;
+    }
+    .org-member-mini-card:hover .org-card-overlay-actions {
+        opacity: 1;
+        transform: scale(1);
+    }
+    .btn-overlay-edit, .btn-overlay-delete {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+    .btn-overlay-edit {
+        background: #022648;
+        color: white;
+    }
+    .btn-overlay-edit:hover {
+        background: #0a3a6b;
+    }
+    .btn-overlay-delete {
+        background: #dc2626;
+        color: white;
+    }
+    .btn-overlay-delete:hover {
+        background: #991b1b;
+    }
     .org-jabatan-mini {
         font-size: 0.7rem;
         color: #6b7280;
