@@ -73,6 +73,8 @@ class SuratController extends Controller
         $countPenting = Surat::where('tipe', $tipe)->where('klasifikasi', 'penting')->count();
         $countPentingPending = Surat::where('tipe', $tipe)->where('klasifikasi', 'penting')->where('status', 'Pending TTD')->count();
 
+        $existingNomorSurats = Surat::pluck('nomor_surat')->toArray();
+
         return view('admin.sekretariat.surat.index', [
             'activeMenu' => 'sekretariat_surat_' . $tipe,
             'admin' => $admin,
@@ -87,6 +89,7 @@ class SuratController extends Controller
             'countEksternal' => $countEksternal,
             'countPenting' => $countPenting,
             'countPentingPending' => $countPentingPending,
+            'existingNomorSurats' => $existingNomorSurats,
         ]);
     }
 
@@ -475,5 +478,217 @@ class SuratController extends Controller
         }
 
         return response()->download($zipPath)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Download Template Contoh Excel Import Surat Masuk/Keluar
+     */
+    public function downloadTemplate(Request $request)
+    {
+        $tipe = $request->get('tipe', 'masuk');
+        if (!in_array($tipe, ['masuk', 'keluar'])) $tipe = 'masuk';
+
+        $fileName = $tipe === 'masuk' ? 'Template_Import_Surat_Masuk.xls' : 'Template_Import_Surat_Keluar.xls';
+        $filePath = public_path('templates/' . $fileName);
+
+        if (!file_exists($filePath)) {
+            $labelPengirim = $tipe === 'masuk' ? 'PENGIRIM' : 'TUJUAN';
+            $html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+            $html .= '<head><meta charset="utf-8"></head><body>';
+            $html .= '<table style="font-family: Arial, sans-serif; border-collapse: collapse;">';
+            $html .= '<tr><td colspan="9" style="text-align: center; font-size: 14pt; font-weight: bold; padding: 10px; color: #022648; background-color: #f1f5f9;">TEMPLATE IMPORT SURAT ' . strtoupper($tipe) . ' - SIKTN</td></tr>';
+            $html .= '<thead><tr style="background-color: #022648; color: #b7830f; font-weight: bold; text-align: center;">';
+            $html .= '<th>NO</th><th>NOMOR SURAT</th><th>PERIHAL</th><th>' . $labelPengirim . '</th><th>TANGGAL SURAT</th><th>KLASIFIKASI</th><th>STATUS</th><th>LINK GOOGLE DRIVE</th><th>KETERANGAN</th>';
+            $html .= '</tr></thead><tbody>';
+            $html .= '<tr style="background-color: #f8fafc;">';
+            $html .= '<td>1</td><td>001/SRT-' . strtoupper(substr($tipe, 0, 1)) . '/PNKT/VIII/2026</td><td>Permohonan Audiensi Karang Taruna</td><td>Kementerian Pemuda dan Olahraga</td><td>2026-08-01</td><td>internal</td><td>Terbit</td><td>https://drive.google.com/file/d/example/view</td><td>Surat resmi organisasi</td>';
+            $html .= '</tr></tbody></table></body></html>';
+
+            return response($html)
+                ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
+                ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+        }
+
+        return response()->download($filePath, $fileName, [
+            'Content-Type' => 'application/vnd.ms-excel',
+        ]);
+    }
+
+    /**
+     * Import Data Massal Surat via Excel (JSON parsed from SheetJS)
+     */
+    public function import(Request $request)
+    {
+        $admin = Auth::guard('admin')->user();
+
+        $request->validate([
+            'surat_rows' => 'required|string',
+            'tipe' => 'required|in:masuk,keluar',
+        ]);
+
+        $rows = json_decode($request->surat_rows, true);
+        if (!is_array($rows) || empty($rows)) {
+            return redirect()->back()->with('error', 'Format data tidak valid atau berkas kosong.');
+        }
+
+        $importedCount = 0;
+        $tipe = $request->tipe;
+
+        foreach ($rows as $row) {
+            $nomorSurat = trim($row['nomor_surat'] ?? $row['nomor'] ?? '');
+            $perihal = trim($row['perihal'] ?? '');
+            $pengirimTujuan = trim($row['pengirim_tujuan'] ?? $row['pengirim'] ?? $row['tujuan'] ?? '');
+            $rawTanggal = trim($row['tanggal'] ?? '');
+            $klasifikasi = strtolower(trim($row['klasifikasi'] ?? 'internal'));
+            $status = trim($row['status'] ?? 'Terbit');
+            $linkDrive = trim($row['link_drive'] ?? $row['link'] ?? '');
+
+            if (empty($nomorSurat) || empty($perihal)) continue;
+            if (in_array(strtolower($nomorSurat), ['nomor surat', 'no', 'nomor'])) continue;
+
+            if (!in_array($klasifikasi, ['internal', 'eksternal', 'penting'])) {
+                $klasifikasi = 'internal';
+            }
+            if (!in_array($status, ['Pending TTD', 'Terbit', 'Revisi', 'Draft'])) {
+                $status = 'Terbit';
+            }
+
+            $tanggal = $this->parseDateToYmd($rawTanggal, date('Y-m-d'));
+
+            $surat = Surat::create([
+                'tipe' => $tipe,
+                'klasifikasi' => $klasifikasi,
+                'nomor_surat' => $nomorSurat,
+                'tanggal' => $tanggal,
+                'perihal' => $perihal,
+                'pengirim_tujuan' => $pengirimTujuan ?: 'Sekretariat',
+                'status' => $status,
+                'link_drive' => $linkDrive ?: null,
+                'created_by' => $admin->id,
+            ]);
+
+            SuratAuditLog::create([
+                'surat_id' => $surat->id,
+                'admin_id' => $admin->id,
+                'admin_name' => $admin->name,
+                'action' => 'Import Excel',
+                'new_status' => $status,
+                'notes' => "Surat {$tipe} di-import secara massal via Excel",
+            ]);
+
+            $importedCount++;
+        }
+
+        $this->logActivity('surat', 'Import Excel', null, "Berhasil mengimport {$importedCount} Surat {$tipe} baru");
+
+        return redirect()->route('admin.sekretariat.surat.index', ['tipe' => $tipe])
+            ->with('success', "Berhasil meng-import {$importedCount} Surat " . ucfirst($tipe) . " baru!");
+    }
+
+    /**
+     * Bulk Store Multiple PDF Surat Files with Individual Metadata
+     */
+    public function bulkStore(Request $request)
+    {
+        $admin = Auth::guard('admin')->user();
+
+        $request->validate([
+            'tipe' => 'required|in:masuk,keluar',
+            'surats' => 'required|array|min:1',
+            'surats.*.nomor_surat' => 'required|string|max:255',
+            'surats.*.perihal' => 'required|string',
+            'surats.*.pengirim_tujuan' => 'required|string|max:255',
+            'surats.*.tanggal' => 'required|date',
+            'surats.*.klasifikasi' => 'required|in:internal,eksternal,penting',
+            'surats.*.status' => 'required|in:Pending TTD,Terbit,Revisi,Draft',
+            'files' => 'nullable|array',
+            'files.*' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+        ]);
+
+        $tipe = $request->tipe;
+        $items = $request->surats;
+        $files = $request->file('files') ?? [];
+        $savedCount = 0;
+
+        foreach ($items as $idx => $item) {
+            $fileLampiranPath = null;
+            if (isset($files[$idx]) && $files[$idx]->isValid()) {
+                $fileLampiranPath = $files[$idx]->store('surat_lampiran', 'public');
+            }
+
+            $surat = Surat::create([
+                'tipe' => $tipe,
+                'klasifikasi' => $item['klasifikasi'],
+                'nomor_surat' => $item['nomor_surat'],
+                'tanggal' => $item['tanggal'],
+                'perihal' => $item['perihal'],
+                'pengirim_tujuan' => $item['pengirim_tujuan'],
+                'status' => $item['status'],
+                'file_lampiran' => $fileLampiranPath,
+                'link_drive' => $item['link_drive'] ?? null,
+                'created_by' => $admin->id,
+            ]);
+
+            SuratAuditLog::create([
+                'surat_id' => $surat->id,
+                'admin_id' => $admin->id,
+                'admin_name' => $admin->name,
+                'action' => 'Bulk Upload Multi-PDF',
+                'new_status' => $item['status'],
+                'notes' => "Surat {$tipe} diunggah via Bulk Upload PDF",
+            ]);
+
+            $savedCount++;
+        }
+
+        $this->logActivity('surat', 'Bulk Upload Multi-PDF', null, "Berhasil membuat {$savedCount} Surat {$tipe} baru via Bulk Upload");
+
+        return redirect()->route('admin.sekretariat.surat.index', ['tipe' => $tipe])
+            ->with('success', "Berhasil menambahkan {$savedCount} Surat " . ucfirst($tipe) . " baru sekaligus!");
+    }
+
+    /**
+     * Helper to parse any incoming Excel date format into YYYY-MM-DD
+     */
+    private function parseDateToYmd($dateStr, $default = null)
+    {
+        if (empty($dateStr)) return $default ?: date('Y-m-d');
+        $dateStr = trim($dateStr);
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateStr)) {
+            return $dateStr;
+        }
+
+        if (is_numeric($dateStr) && floatval($dateStr) > 30000) {
+            $unixTimestamp = (floatval($dateStr) - 25569) * 86400;
+            return date('Y-m-d', $unixTimestamp);
+        }
+
+        if (preg_match('/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/', $dateStr, $matches)) {
+            $p1 = intval($matches[1]);
+            $p2 = intval($matches[2]);
+            $y = intval($matches[3]);
+            if ($y < 100) $y += 2000;
+
+            if ($p1 > 12 && $p2 <= 12) {
+                if (checkdate($p2, $p1, $y)) {
+                    return sprintf('%04d-%02d-%02d', $y, $p2, $p1);
+                }
+            } else {
+                if (checkdate($p1, $p2, $y)) {
+                    return sprintf('%04d-%02d-%02d', $y, $p1, $p2);
+                }
+                if (checkdate($p2, $p1, $y)) {
+                    return sprintf('%04d-%02d-%02d', $y, $p2, $p1);
+                }
+            }
+        }
+
+        $timestamp = strtotime($dateStr);
+        if ($timestamp !== false && $timestamp > 0) {
+            return date('Y-m-d', $timestamp);
+        }
+
+        return $default ?: date('Y-m-d');
     }
 }

@@ -75,6 +75,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
             // Surat Masuk & Keluar
             Route::get('surat', [SuratController::class, 'index'])->name('surat.index');
             Route::get('surat/notifications', [SuratController::class, 'notificationFeed'])->name('surat.notifications');
+            Route::get('surat/template-import', [SuratController::class, 'downloadTemplate'])->name('surat.template-import');
+            Route::post('surat/import', [SuratController::class, 'import'])->name('surat.import');
+            Route::post('surat/bulk-store', [SuratController::class, 'bulkStore'])->name('surat.bulk-store');
             Route::post('surat', [SuratController::class, 'store'])->name('surat.store');
             Route::post('surat/bulk-delete', [SuratController::class, 'bulkDelete'])->name('surat.bulk-delete');
             Route::post('surat/bulk-download', [SuratController::class, 'bulkDownload'])->name('surat.bulk-download');

@@ -658,10 +658,18 @@
             </a>
         </div>
 
-        <div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button type="button" class="btn-solid-navy" onclick="openCreateModal()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Tambah {{ $tipe == 'masuk' ? 'Surat Masuk' : 'Surat Keluar' }} Baru
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Tambah {{ $tipe == 'masuk' ? 'Surat Masuk' : 'Surat Keluar' }}
+            </button>
+            <button type="button" onclick="openImportSuratModal()" style="background: #059669; color: white; border: none; padding: 0.55rem 1rem; border-radius: var(--radius-md); font-weight: 600; font-size: 0.875rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Import Excel
+            </button>
+            <button type="button" onclick="openBulkPdfModal()" style="background: #b7830f; color: white; border: none; padding: 0.55rem 1rem; border-radius: var(--radius-md); font-weight: 600; font-size: 0.875rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background='#966a0c'" onmouseout="this.style.background='#b7830f'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                Bulk Upload Multi-PDF
             </button>
         </div>
     </div>
@@ -942,12 +950,152 @@
                 </div>
             </form>
         </div>
+    <!-- ============================== -->
+    <!-- Modal 3: Import Excel Surat -->
+    <!-- ============================== -->
+    <div class="modal-overlay" id="modalImportSurat" onclick="if(event.target===this) closeModal('modalImportSurat')">
+        <div class="modal-content-lg" style="max-width: 920px; max-height: 88vh;">
+            <div class="modal-header-prof">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(183, 131, 15, 0.2); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(183, 131, 15, 0.4);">
+                        <svg viewBox="0 0 24 24" width="22" height="22" stroke="#b7830f" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.1rem; font-weight: 800; color: white; margin: 0;">Import / Bulk Upload {{ $tipe == 'masuk' ? 'Surat Masuk' : 'Surat Keluar' }} (Excel)</h3>
+                        <span style="font-size: 0.775rem; color: #94a3b8;">Unggah data persuratan massal menggunakan berkas Excel (.xls / .xlsx / .csv)</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('modalImportSurat')" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem;">&times;</button>
+            </div>
+
+            <form action="{{ route('admin.sekretariat.surat.import') }}" method="POST" id="formImportSurat">
+                @csrf
+                <input type="hidden" name="tipe" value="{{ $tipe }}">
+                <input type="hidden" name="surat_rows" id="importSuratRowsInput">
+
+                <div class="modal-body-prof" style="padding: 1.5rem;">
+                    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem;">
+                        <div style="font-weight: 700; color: #022648; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                            <span style="font-size: 0.9rem;"><i class="fa fa-info-circle" style="color: #b7830f;"></i> Unduh Format Contoh Import Surat {{ ucfirst($tipe) }}</span>
+                            <a href="{{ route('admin.sekretariat.surat.template-import', ['tipe' => $tipe]) }}" onclick="Toast.fire({ icon: 'success', title: 'Mengunduh format contoh Excel...' })" style="background: #059669; color: white; padding: 7px 14px; border-radius: 6px; font-size: 0.775rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Unduh Format Contoh (.xls)
+                            </a>
+                        </div>
+                        <p style="font-size: 0.8125rem; color: #64748b; margin: 0; line-height: 1.5;">
+                            Silakan unduh berkas contoh untuk melihat susunan kolom: <strong>Nomor Surat, Perihal, {{ $tipe == 'masuk' ? 'Pengirim' : 'Tujuan' }}, Tanggal Surat, Klasifikasi, Status, Link Google Drive, Keterangan</strong>.
+                        </p>
+                    </div>
+
+                    <div class="form-group-full">
+                        <label class="form-label" style="font-weight: 700; color: #022648; font-size: 0.875rem; margin-bottom: 0.5rem; display: block;">Pilih Berkas Excel / CSV (.xls, .xlsx, .csv)</label>
+                        <div class="file-upload-zone" onclick="document.getElementById('importSuratFile').click()" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1.25rem 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
+                            <input type="file" id="importSuratFile" accept=".xls,.xlsx,.csv" onchange="handleImportSuratFile(this)" style="display: none;">
+                            <div style="pointer-events: none;">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 0.35rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                <div style="font-weight: 700; color: #022648; font-size: 0.9rem; margin-bottom: 2px;" id="importSuratFileLabel">Klik atau Tarik Berkas Excel ke Sini</div>
+                                <span style="font-size: 0.775rem; color: #64748b;">Format yang didukung: .xls, .xlsx, .csv</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="importSuratPreviewContainer" style="display: none; margin-top: 1.25rem;">
+                        <div id="importSuratDuplicateAlert" style="display: none; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 10px 14px; border-radius: 8px; margin-bottom: 0.75rem; font-size: 0.8125rem; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                            <div>
+                                <i class="fa fa-exclamation-triangle" style="color: #d97706; margin-right: 6px;"></i>
+                                Terdeteksi <strong id="importSuratDupCount" style="color: #dc2626; font-size: 0.9rem;">0</strong> data duplikat!
+                            </div>
+                            <button type="button" onclick="cleanImportSuratDuplicates()" style="background: #d97706; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.775rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#b45309'" onmouseout="this.style.background='#d97706'">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                Bersihkan Data Duplikat
+                            </button>
+                        </div>
+
+                        <div style="font-weight: 700; color: #022648; font-size: 0.85rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                            <span>Pratinjau Data Terbaca (<span id="importSuratCount">0</span>)</span>
+                        </div>
+                        <div style="max-height: 220px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.775rem;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: #022648; color: white;">
+                                        <th style="padding: 10px 12px; text-align: left; width: 30%;">No Surat</th>
+                                        <th style="padding: 10px 12px; text-align: left; width: 35%;">Perihal</th>
+                                        <th style="padding: 10px 12px; text-align: left; width: 20%;">{{ $tipe == 'masuk' ? 'Pengirim' : 'Tujuan' }}</th>
+                                        <th style="padding: 10px 12px; text-align: center; width: 10%;">Tanggal</th>
+                                        <th style="padding: 10px 12px; text-align: center; width: 5%;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="importSuratPreviewTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer-prof" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.75rem;">
+                    <button type="button" class="btn-outline-secondary" onclick="closeModal('modalImportSurat')">Batal</button>
+                    <button type="submit" id="btnSubmitImportSurat" class="btn-solid-navy" style="background: #022648 !important; color: white !important; font-weight: 700;" disabled>
+                        <i class="fa fa-upload"></i> Proses Import Massal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================== -->
+    <!-- Modal 4: Bulk Upload Multi-PDF -->
+    <!-- ============================== -->
+    <div class="modal-overlay" id="modalBulkPdfSurat" onclick="if(event.target===this) closeModal('modalBulkPdfSurat')">
+        <div class="modal-content-lg" style="max-width: 920px; max-height: 88vh;">
+            <div class="modal-header-prof" style="background: linear-gradient(135deg, #b7830f 0%, #7c5706 100%);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 24 24" width="22" height="22" stroke="white" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.1rem; font-weight: 800; color: white; margin: 0;">Bulk Upload Multi-PDF Berkas {{ $tipe == 'masuk' ? 'Surat Masuk' : 'Surat Keluar' }}</h3>
+                        <span style="font-size: 0.775rem; color: #fef08a;">Unggah banyak berkas PDF sekaligus dan lengkapi data perihal surat</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('modalBulkPdfSurat')" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem;">&times;</button>
+            </div>
+
+            <form action="{{ route('admin.sekretariat.surat.bulk-store') }}" method="POST" enctype="multipart/form-data" id="formBulkPdfSurat">
+                @csrf
+                <input type="hidden" name="tipe" value="{{ $tipe }}">
+
+                <div class="modal-body-prof" style="padding: 1.5rem;">
+                    <div class="form-group-full" style="margin-bottom: 1.25rem;">
+                        <label class="form-label" style="font-weight: 700; color: #022648; font-size: 0.875rem; margin-bottom: 0.5rem; display: block;">Pilih / Drag Banyak Berkas PDF Sekaligus (.pdf, .doc, .docx)</label>
+                        <div class="file-upload-zone" onclick="document.getElementById('bulkPdfInputFiles').click()" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1.5rem 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
+                            <input type="file" id="bulkPdfInputFiles" multiple accept=".pdf,.doc,.docx" onchange="handleBulkPdfFiles(this)" style="display: none;">
+                            <div style="pointer-events: none;">
+                                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 0.35rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                <div style="font-weight: 700; color: #022648; font-size: 0.95rem; margin-bottom: 2px;" id="bulkPdfFileLabel">Pilih Banyak File PDF Sekaligus (Bisa Multiple Select / Drag & Drop)</div>
+                                <span style="font-size: 0.775rem; color: #64748b;">Mendukung berkas format .pdf, .doc, .docx (Maksimal 10MB/berkas)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="bulkPdfCardsContainer" style="display: flex; flex-direction: column; gap: 1rem;">
+                        <!-- Dynamic file cards rendered here by JS -->
+                    </div>
+                </div>
+
+                <div class="modal-footer-prof" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.75rem;">
+                    <button type="button" class="btn-outline-secondary" onclick="closeModal('modalBulkPdfSurat')">Batal</button>
+                    <button type="submit" id="btnSubmitBulkPdf" class="btn-solid-navy" style="background: #b7830f !important; color: white !important; font-weight: 700;" disabled>
+                        <i class="fa fa-save"></i> Simpan Semua Surat (<span id="bulkPdfFileCount">0</span> Berkas)
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
 </div>
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         if (typeof $.fn.select2 !== 'undefined') {
@@ -1208,5 +1356,327 @@
         });
         form.submit();
     }
+
+    window.existingNomorSurats = @json($existingNomorSurats ?? []);
+    window.currentParsedSuratRows = [];
+
+    window.openImportSuratModal = function() {
+        openModalById('modalImportSurat');
+    };
+
+    window.openBulkPdfModal = function() {
+        openModalById('modalBulkPdfSurat');
+    };
+
+    function handleImportSuratFile(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        document.getElementById('importSuratFileLabel').innerText = file.name;
+
+        function processRows(rows) {
+            const validRows = rows.filter(r => r.nomor_surat && r.perihal && r.nomor_surat !== '' && r.perihal !== '');
+            window.currentParsedSuratRows = validRows;
+            renderSuratImportPreview();
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            let rows = [];
+            try {
+                if (typeof XLSX !== 'undefined') {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonSheet = XLSX.utils.sheet_to_json(firstSheet, { header: 1, raw: false });
+
+                    jsonSheet.forEach((rowArray) => {
+                        if (!rowArray || !Array.isArray(rowArray) || rowArray.length < 2) return;
+                        
+                        const rowStr = rowArray.map(c => String(c || '').trim()).join(' ').toLowerCase();
+                        if (rowStr.includes('template import') || rowStr.includes('petunjuk:') || rowStr.includes('nomor surat')) return;
+
+                        let nomor = '';
+                        let perihal = '';
+                        let pengirimTujuan = '';
+                        let tgl = '2026-08-01';
+                        let klasifikasi = 'internal';
+                        let status = 'Terbit';
+                        let link = '';
+
+                        const firstCell = String(rowArray[0] || '').trim();
+                        if (/^\d+$/.test(firstCell) || (rowArray.length >= 3 && String(rowArray[1] || '').trim() !== '')) {
+                            nomor = String(rowArray[1] || '').trim();
+                            perihal = String(rowArray[2] || '').trim();
+                            pengirimTujuan = String(rowArray[3] || '').trim();
+                            tgl = String(rowArray[4] || tgl).trim();
+                            klasifikasi = String(rowArray[5] || klasifikasi).trim();
+                            status = String(rowArray[6] || status).trim();
+                            link = String(rowArray[7] || '').trim();
+                        } else {
+                            nomor = String(rowArray[0] || '').trim();
+                            perihal = String(rowArray[1] || '').trim();
+                            pengirimTujuan = String(rowArray[2] || '').trim();
+                            tgl = String(rowArray[3] || tgl).trim();
+                            klasifikasi = String(rowArray[4] || klasifikasi).trim();
+                            status = String(rowArray[5] || status).trim();
+                            link = String(rowArray[6] || '').trim();
+                        }
+
+                        function normDate(s, def) {
+                            if (!s) return def;
+                            const m = String(s).trim().match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+                            if (m) {
+                                let p1 = parseInt(m[1]), p2 = parseInt(m[2]), y = parseInt(m[3]);
+                                if (y < 100) y += 2000;
+                                if (p1 > 12) return `${y}-${String(p2).padStart(2,'0')}-${String(p1).padStart(2,'0')}`;
+                                return `${y}-${String(p1).padStart(2,'0')}-${String(p2).padStart(2,'0')}`;
+                            }
+                            return s;
+                        }
+
+                        if (nomor && perihal && nomor.toLowerCase() !== 'nomor surat' && nomor.toLowerCase() !== 'no') {
+                            rows.push({
+                                nomor_surat: nomor,
+                                perihal: perihal,
+                                pengirim_tujuan: pengirimTujuan || 'Sekretariat',
+                                tanggal: normDate(tgl, '2026-08-01'),
+                                klasifikasi: klasifikasi,
+                                status: status,
+                                link_drive: link
+                            });
+                        }
+                    });
+                }
+            } catch (err) {
+                console.warn('SheetJS read failed, fallback to text:', err);
+            }
+
+            if (rows.length > 0) {
+                processRows(rows);
+            } else {
+                const textReader = new FileReader();
+                textReader.onload = function(evt) {
+                    const text = evt.target.result;
+                    if (text.includes('<tr')) {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(text, 'text/html');
+                        const trs = doc.querySelectorAll('table tr');
+                        trs.forEach(tr => {
+                            const tds = Array.from(tr.querySelectorAll('td, th')).map(t => t.innerText.trim());
+                            if (tds.length >= 2) {
+                                const c1 = tds[0] || '';
+                                const c2 = tds[1] || '';
+                                const c3 = tds[2] || '';
+                                
+                                let nomor = '', pr = '', pt = '', t1 = '', kl = 'internal', st = 'Terbit', lk = '';
+                                if (/^\d+$/.test(c1) && c2 && c3) {
+                                    nomor = c2; pr = c3; pt = tds[3] || ''; t1 = tds[4] || ''; kl = tds[5] || 'internal'; st = tds[6] || 'Terbit'; lk = tds[7] || '';
+                                } else if (c1 && c2) {
+                                    nomor = c1; pr = c2; pt = tds[2] || ''; t1 = tds[3] || ''; kl = tds[4] || 'internal'; st = tds[5] || 'Terbit'; lk = tds[6] || '';
+                                }
+
+                                if (nomor && pr && nomor.toLowerCase() !== 'nomor surat' && nomor.toLowerCase() !== 'no') {
+                                    rows.push({
+                                        nomor_surat: nomor,
+                                        perihal: pr,
+                                        pengirim_tujuan: pt || 'Sekretariat',
+                                        tanggal: t1 || '2026-08-01',
+                                        klasifikasi: kl,
+                                        status: st,
+                                        link_drive: lk
+                                    });
+                                }
+                            }
+                        });
+                    }
+                    processRows(rows);
+                };
+                textReader.readAsText(file);
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function renderSuratImportPreview() {
+        const rows = window.currentParsedSuratRows || [];
+        if (rows.length === 0) {
+            document.getElementById('importSuratPreviewContainer').style.display = 'none';
+            document.getElementById('btnSubmitImportSurat').disabled = true;
+            return;
+        }
+
+        const nomorCounts = {};
+        rows.forEach(r => {
+            const key = (r.nomor_surat || '').toLowerCase();
+            nomorCounts[key] = (nomorCounts[key] || 0) + 1;
+        });
+
+        let duplicateCount = 0;
+        rows.forEach(r => {
+            const key = (r.nomor_surat || '').toLowerCase();
+            const isInternalDup = nomorCounts[key] > 1;
+            const isDbDup = window.existingNomorSurats.some(n => n.toLowerCase() === key);
+            r.is_duplicate = isInternalDup || isDbDup;
+            r.dup_reason = isDbDup ? 'Sudah Ada di Database' : (isInternalDup ? 'Duplikat di Berkas' : '');
+            if (r.is_duplicate) duplicateCount++;
+        });
+
+        const alertBox = document.getElementById('importSuratDuplicateAlert');
+        const dupCountSpan = document.getElementById('importSuratDupCount');
+        if (alertBox && dupCountSpan) {
+            if (duplicateCount > 0) {
+                dupCountSpan.innerText = duplicateCount;
+                alertBox.style.display = 'flex';
+            } else {
+                alertBox.style.display = 'none';
+            }
+        }
+
+        document.getElementById('importSuratRowsInput').value = JSON.stringify(rows);
+        document.getElementById('importSuratCount').innerText = rows.length + (rows.length > 15 ? ' data — menampilkan 15 pertama' : ' data');
+
+        const tbody = document.getElementById('importSuratPreviewTableBody');
+        tbody.innerHTML = '';
+
+        rows.slice(0, 15).forEach((r, idx) => {
+            const bgStyle = r.is_duplicate ? 'background: #fef2f2;' : '';
+            const dupBadge = r.is_duplicate ? `<span style="display: inline-block; background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin-top: 4px;">${r.dup_reason}</span>` : '';
+
+            tbody.innerHTML += `<tr style="${bgStyle}">
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top;">
+                    <div style="font-weight: 700; color: #022648; font-size: 0.8125rem;">${r.nomor_surat}</div>
+                    ${dupBadge}
+                </td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; font-size: 0.8125rem; color: #334155; line-height: 1.4;">${r.perihal}</td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; font-size: 0.8125rem; color: #475569;">${r.pengirim_tujuan}</td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: center; vertical-align: top; font-size: 0.8125rem; color: #475569;">${r.tanggal}</td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: center; vertical-align: top;">
+                    <button type="button" onclick="removeImportSuratRow(${idx})" title="Hapus baris ini" style="background: #fee2e2; color: #991b1b; border: none; width: 26px; height: 26px; border-radius: 50%; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 0.875rem; transition: background 0.2s;" onmouseover="this.style.background='#fca5a5'" onmouseout="this.style.background='#fee2e2'">&times;</button>
+                </td>
+            </tr>`;
+        });
+
+        document.getElementById('importSuratPreviewContainer').style.display = 'block';
+        document.getElementById('btnSubmitImportSurat').disabled = false;
+    }
+
+    window.cleanImportSuratDuplicates = function() {
+        if (!window.currentParsedSuratRows) return;
+        const seen = new Set();
+        window.currentParsedSuratRows = window.currentParsedSuratRows.filter(r => {
+            const key = (r.nomor_surat || '').toLowerCase();
+            const isDbDup = window.existingNomorSurats.some(n => n.toLowerCase() === key);
+            if (isDbDup || seen.has(key)) {
+                return false;
+            }
+            seen.add(key);
+            return true;
+        });
+
+        if (typeof Toast !== 'undefined') {
+            Toast.fire({ icon: 'success', title: 'Data duplikat berhasil dibersihkan!' });
+        }
+        renderSuratImportPreview();
+    };
+
+    window.removeImportSuratRow = function(index) {
+        if (window.currentParsedSuratRows && window.currentParsedSuratRows[index] !== undefined) {
+            window.currentParsedSuratRows.splice(index, 1);
+            renderSuratImportPreview();
+        }
+    };
+
+    // Bulk Multi-PDF Upload JS
+    window.bulkPdfSelectedFiles = [];
+
+    function handleBulkPdfFiles(input) {
+        const files = Array.from(input.files);
+        if (files.length === 0) return;
+
+        window.bulkPdfSelectedFiles = files;
+        document.getElementById('bulkPdfFileLabel').innerText = `${files.length} berkas PDF terpilih`;
+        renderBulkPdfCards();
+    }
+
+    function renderBulkPdfCards() {
+        const container = document.getElementById('bulkPdfCardsContainer');
+        container.innerHTML = '';
+
+        if (window.bulkPdfSelectedFiles.length === 0) {
+            document.getElementById('btnSubmitBulkPdf').disabled = true;
+            document.getElementById('bulkPdfFileCount').innerText = '0';
+            return;
+        }
+
+        document.getElementById('btnSubmitBulkPdf').disabled = false;
+        document.getElementById('bulkPdfFileCount').innerText = window.bulkPdfSelectedFiles.length;
+
+        window.bulkPdfSelectedFiles.forEach((file, idx) => {
+            const cleanName = file.name.replace(/\.[^/.]+$/, "");
+            const fileSizeMb = (file.size / (1024 * 1024)).toFixed(2);
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            container.innerHTML += `
+                <div class="bulk-pdf-card" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.25rem; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="background: #b7830f; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem;">${idx + 1}</span>
+                            <strong style="color: #022648; font-size: 0.9rem;">${file.name}</strong>
+                            <span style="color: #64748b; font-size: 0.75rem;">(${fileSizeMb} MB)</span>
+                        </div>
+                        <button type="button" onclick="removeBulkPdfCard(${idx})" style="background: #fee2e2; color: #991b1b; border: none; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">Hapus Berkas</button>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Nomor Surat <span style="color: red;">*</span></label>
+                            <input type="text" name="surats[${idx}][nomor_surat]" class="form-control" placeholder="Nomor Surat..." value="SRT-${String(idx + 1).padStart(3, '0')}/VIII/2026" required style="font-size: 0.8125rem;">
+                        </div>
+
+                        <div class="form-group">
+                            <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Tanggal Surat <span style="color: red;">*</span></label>
+                            <input type="date" name="surats[${idx}][tanggal]" class="form-control" value="${todayStr}" required style="font-size: 0.8125rem;">
+                        </div>
+
+                        <div class="form-group form-group-full">
+                            <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Perihal Surat <span style="color: red;">*</span></label>
+                            <input type="text" name="surats[${idx}][perihal]" class="form-control" placeholder="Perihal atau Judul Surat..." value="${cleanName}" required style="font-size: 0.8125rem;">
+                        </div>
+
+                        <div class="form-group form-group-full">
+                            <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">{{ $tipe == 'masuk' ? 'Pengirim (Instansi/Nama)' : 'Tujuan (Instansi/Nama)' }} <span style="color: red;">*</span></label>
+                            <input type="text" name="surats[${idx}][pengirim_tujuan]" class="form-control" placeholder="Pengirim / Tujuan..." value="Sekretariat" required style="font-size: 0.8125rem;">
+                        </div>
+
+                        <div class="form-group">
+                            <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Klasifikasi</label>
+                            <select name="surats[${idx}][klasifikasi]" class="form-control" style="font-size: 0.8125rem;">
+                                <option value="internal">Surat Internal</option>
+                                <option value="eksternal">Surat Eksternal</option>
+                                <option value="penting">Surat Penting</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Status Awal</label>
+                            <select name="surats[${idx}][status]" class="form-control" style="font-size: 0.8125rem;">
+                                <option value="Pending TTD">Pending TTD</option>
+                                <option value="Terbit" selected>Terbit</option>
+                                <option value="Draft">Draft</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    window.removeBulkPdfCard = function(idx) {
+        if (window.bulkPdfSelectedFiles[idx]) {
+            window.bulkPdfSelectedFiles.splice(idx, 1);
+            renderBulkPdfCards();
+        }
+    };
 </script>
 @endpush
