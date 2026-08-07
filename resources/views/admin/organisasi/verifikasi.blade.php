@@ -55,10 +55,10 @@
         </div>
 
         <div style="display: flex; gap: 0.5rem;">
-            <a href="{{ route('verifikasi-jabatan.index') }}" class="btn {{ !request('status') ? 'btn-primary' : 'btn-outline-secondary' }}" style="font-size: 0.8rem; font-weight: 700; padding: 6px 14px; border-radius: 6px; text-decoration: none;">Semua</a>
-            <a href="{{ route('verifikasi-jabatan.index', ['status' => 'pending']) }}" class="btn {{ request('status') === 'pending' ? 'btn-primary' : 'btn-outline-secondary' }}" style="font-size: 0.8rem; font-weight: 700; padding: 6px 14px; border-radius: 6px; text-decoration: none; color: #b7830f;">🟡 Pending</a>
-            <a href="{{ route('verifikasi-jabatan.index', ['status' => 'approved']) }}" class="btn {{ request('status') === 'approved' ? 'btn-primary' : 'btn-outline-secondary' }}" style="font-size: 0.8rem; font-weight: 700; padding: 6px 14px; border-radius: 6px; text-decoration: none; color: #166534;">🟢 Approved</a>
-            <a href="{{ route('verifikasi-jabatan.index', ['status' => 'rejected']) }}" class="btn {{ request('status') === 'rejected' ? 'btn-primary' : 'btn-outline-secondary' }}" style="font-size: 0.8rem; font-weight: 700; padding: 6px 14px; border-radius: 6px; text-decoration: none; color: #991b1b;">🔴 Rejected</a>
+            <a href="{{ route('admin.verifikasi-jabatan.index') }}" class="btn {{ !request('status') ? 'btn-primary' : 'btn-outline-secondary' }}" style="font-size: 0.8rem; font-weight: 700; padding: 6px 14px; border-radius: 6px; text-decoration: none;">Semua</a>
+            <a href="{{ route('admin.verifikasi-jabatan.index', ['status' => 'pending']) }}" class="btn {{ request('status') === 'pending' ? 'btn-primary' : 'btn-outline-secondary' }}" style="font-size: 0.8rem; font-weight: 700; padding: 6px 14px; border-radius: 6px; text-decoration: none; color: #b7830f;">🟡 Pending</a>
+            <a href="{{ route('admin.verifikasi-jabatan.index', ['status' => 'approved']) }}" class="btn {{ request('status') === 'approved' ? 'btn-primary' : 'btn-outline-secondary' }}" style="font-size: 0.8rem; font-weight: 700; padding: 6px 14px; border-radius: 6px; text-decoration: none; color: #166534;">🟢 Approved</a>
+            <a href="{{ route('admin.verifikasi-jabatan.index', ['status' => 'rejected']) }}" class="btn {{ request('status') === 'rejected' ? 'btn-primary' : 'btn-outline-secondary' }}" style="font-size: 0.8rem; font-weight: 700; padding: 6px 14px; border-radius: 6px; text-decoration: none; color: #991b1b;">🔴 Rejected</a>
         </div>
     </div>
 
@@ -124,7 +124,7 @@
                             <td style="text-align: center;">
                                 <div style="display: flex; gap: 6px; justify-content: center;">
                                     @if($item->status_jabatan !== 'approved')
-                                        <form action="{{ route('verifikasi-jabatan.approve', $item->id) }}" method="POST" style="display: inline;">
+                                        <form action="{{ route('admin.verifikasi-jabatan.approve', $item->id) }}" method="POST" style="display: inline;">
                                             @csrf
                                             <button type="submit" class="btn-acc" onclick="return confirm('Apakah Anda yakin ingin memverifikasi (ACC) jabatan {{ addslashes($item->jabatan_diajukan) }} untuk {{ addslashes($item->name) }}?')">
                                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
