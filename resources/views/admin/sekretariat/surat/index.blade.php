@@ -510,6 +510,10 @@
         margin-top: auto;
     }
 
+    .swal-high-zindex {
+        z-index: 999999 !important;
+    }
+
     .modal-overlay .form-control {
         border: 1px solid #cbd5e1 !important; border-radius: 6px !important;
         padding: 0.55rem 0.875rem !important; font-size: 0.875rem !important;
@@ -1661,15 +1665,29 @@
 
             html += `
                 <div class="bulk-pdf-card" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.25rem; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem; flex-wrap: wrap; gap: 8px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span style="background: #b7830f; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem;">${idx + 1}</span>
                             <strong style="color: #022648; font-size: 0.9rem;">${file.name}</strong>
                             <span style="color: #64748b; font-size: 0.75rem;">(${fileSizeMb} MB)</span>
                         </div>
-                        <button type="button" onclick="removeBulkPdfCard(${idx})" style="background: #fee2e2; color: #991b1b; border: none; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                            &times; Hapus Berkas
-                        </button>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button type="button" onclick="toggleBulkPdfPreview(${idx})" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <span id="pdf_preview_btn_text_${idx}">Pratinjau Slide PDF</span>
+                            </button>
+                            <button type="button" onclick="removeBulkPdfCard(${idx})" style="background: #fee2e2; color: #991b1b; border: none; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                &times; Hapus Berkas
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="pdf_preview_slide_${idx}" style="display: none; margin-bottom: 1.25rem; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #0f172a; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="background: #022648; color: white; padding: 6px 12px; font-size: 0.75rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center;">
+                            <span>📄 Slide Pratinjau Dokumen: ${file.name}</span>
+                            <span style="color: #fef08a;">Scroll / slide untuk membaca seluruh isi dokumen PDF</span>
+                        </div>
+                        <iframe id="pdf_iframe_${idx}" style="width: 100%; height: 380px; border: none;" src="about:blank"></iframe>
                     </div>
 
                     <div class="form-grid-2">
@@ -1717,6 +1735,28 @@
 
         container.innerHTML = html;
     }
+
+    window.toggleBulkPdfPreview = function(idx) {
+        const slide = document.getElementById(`pdf_preview_slide_${idx}`);
+        const iframe = document.getElementById(`pdf_iframe_${idx}`);
+        const btnText = document.getElementById(`pdf_preview_btn_text_${idx}`);
+
+        if (!slide || !iframe) return;
+
+        if (slide.style.display === 'none') {
+            const file = window.bulkPdfSelectedFiles[idx];
+            if (file) {
+                const blobUrl = URL.createObjectURL(file);
+                iframe.src = blobUrl;
+            }
+            slide.style.display = 'block';
+            if (btnText) btnText.innerText = 'Sembunyikan PDF';
+        } else {
+            slide.style.display = 'none';
+            iframe.src = 'about:blank';
+            if (btnText) btnText.innerText = 'Pratinjau Slide PDF';
+        }
+    };
 
     window.removeBulkPdfCard = function(idx) {
         saveBulkPdfCurrentInputs();
