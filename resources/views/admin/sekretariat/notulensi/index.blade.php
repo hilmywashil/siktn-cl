@@ -235,6 +235,53 @@
     .notulensi-foto-card .btn-remove-foto:hover {
         background: #991b1b;
     }
+
+    .btn-badge-pdf {
+        background: #f0f7ff;
+        color: #022648;
+        border: 1px solid #cbd5e1;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.775rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 2px rgba(2, 38, 72, 0.04);
+    }
+    .btn-badge-pdf:hover {
+        background: #022648;
+        color: #ffffff;
+        border-color: #022648;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 8px rgba(2, 38, 72, 0.15);
+    }
+
+    .btn-badge-foto {
+        background: #fffdf5;
+        color: #b7830f;
+        border: 1px solid #fef08a;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.775rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 2px rgba(183, 131, 15, 0.04);
+    }
+    .btn-badge-foto:hover {
+        background: #b7830f;
+        color: #ffffff;
+        border-color: #b7830f;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 8px rgba(183, 131, 15, 0.18);
+    }
+
     .modal-overlay .form-control {
         border: 1px solid #cbd5e1 !important; border-radius: 6px !important;
         padding: 0.55rem 0.875rem !important; font-size: 0.875rem !important;
@@ -355,19 +402,21 @@
                             @endif
                         </td>
                         <td>
-                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <div style="display: flex; flex-direction: column; gap: 5px; align-items: flex-start;">
                                 @if($item->file_pdf)
-                                    <button type="button" onclick="previewNotulensiPdf('{{ Storage::url($item->file_pdf) }}', '{{ addslashes($item->judul_rapat) }}')" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.725rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; width: fit-content;">
-                                        📄 Risalah PDF
+                                    <button type="button" onclick="previewNotulensiPdf('{{ Storage::url($item->file_pdf) }}', '{{ addslashes($item->judul_rapat) }}')" class="btn-badge-pdf">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                                        <span>Risalah PDF</span>
                                     </button>
                                 @endif
                                 @if($item->foto_dokumentasi && is_array($item->foto_dokumentasi) && count($item->foto_dokumentasi) > 0)
-                                    <button type="button" onclick="openFotoGallery({{ json_encode(array_map(fn($f) => Storage::url($f), $item->foto_dokumentasi)) }}, '{{ addslashes($item->judul_rapat) }}')" style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.725rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; width: fit-content;">
-                                        🖼️ Dokumentasi ({{ count($item->foto_dokumentasi) }} Foto)
+                                    <button type="button" onclick="openFotoGallery({{ json_encode(array_map(fn($f) => Storage::url($f), $item->foto_dokumentasi)) }}, '{{ addslashes($item->judul_rapat) }}')" class="btn-badge-foto">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                        <span>Dokumentasi ({{ count($item->foto_dokumentasi) }} Foto)</span>
                                     </button>
                                 @endif
                                 @if(!$item->file_pdf && (!$item->foto_dokumentasi || count($item->foto_dokumentasi) == 0))
-                                    <span style="color: var(--gray-500); font-size: 0.8rem;">-</span>
+                                    <span style="color: var(--gray-500); font-size: 0.8125rem; font-weight: 500;">-</span>
                                 @endif
                             </div>
                         </td>
