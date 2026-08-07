@@ -991,7 +991,7 @@
 
                     <div class="form-group-full">
                         <label class="form-label" style="font-weight: 700; color: #022648; font-size: 0.875rem; margin-bottom: 0.5rem; display: block;">Pilih Berkas Excel / CSV (.xls, .xlsx, .csv)</label>
-                        <div class="file-upload-zone" onclick="document.getElementById('importSuratFile').click()" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1.25rem 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
+                        <div class="file-upload-zone" id="importSuratDropZone" onclick="document.getElementById('importSuratFile').click()" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1.25rem 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
                             <input type="file" id="importSuratFile" accept=".xls,.xlsx,.csv" onchange="handleImportSuratFile(this)" style="display: none;">
                             <div style="pointer-events: none;">
                                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 0.35rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -1068,8 +1068,8 @@
                 <div class="modal-body-prof" style="padding: 1.5rem;">
                     <div class="form-group-full" style="margin-bottom: 1.25rem;">
                         <label class="form-label" style="font-weight: 700; color: #022648; font-size: 0.875rem; margin-bottom: 0.5rem; display: block;">Pilih / Drag Banyak Berkas PDF Sekaligus (.pdf, .doc, .docx)</label>
-                        <div class="file-upload-zone" onclick="document.getElementById('bulkPdfInputFiles').click()" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1.5rem 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
-                            <input type="file" id="bulkPdfInputFiles" multiple accept=".pdf,.doc,.docx" onchange="handleBulkPdfFiles(this)" style="display: none;">
+                        <div class="file-upload-zone" id="bulkPdfDropZone" onclick="document.getElementById('bulkPdfInputFiles').click()" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1.5rem 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
+                            <input type="file" id="bulkPdfInputFiles" multiple accept=".pdf,.doc,.docx" style="display: none;">
                             <div style="pointer-events: none;">
                                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 0.35rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                 <div style="font-weight: 700; color: #022648; font-size: 0.95rem; margin-bottom: 2px;" id="bulkPdfFileLabel">Pilih Banyak File PDF Sekaligus (Bisa Multiple Select / Drag & Drop)</div>
@@ -1379,6 +1379,9 @@
         form.submit();
     }
 
+    // =====================================
+    // Excel Import Drag & Drop & JS Logic
+    // =====================================
     window.existingNomorSurats = @json($existingNomorSurats ?? []);
     window.currentParsedSuratRows = [];
 
@@ -1391,10 +1394,11 @@
     };
 
     function handleImportSuratFile(input) {
-        const file = input.files[0];
-        if (!file) return;
+        const file = (input && input.files && input.files[0]) ? input.files[0] : input;
+        if (!file || !file.name) return;
 
-        document.getElementById('importSuratFileLabel').innerText = file.name;
+        const label = document.getElementById('importSuratFileLabel');
+        if (label) label.innerText = file.name;
 
         function processRows(rows) {
             const validRows = rows.filter(r => r.nomor_surat && r.perihal && r.nomor_surat !== '' && r.perihal !== '');
@@ -1471,50 +1475,11 @@
                     });
                 }
             } catch (err) {
-                console.warn('SheetJS read failed, fallback to text:', err);
+                console.warn('SheetJS read failed:', err);
             }
 
             if (rows.length > 0) {
                 processRows(rows);
-            } else {
-                const textReader = new FileReader();
-                textReader.onload = function(evt) {
-                    const text = evt.target.result;
-                    if (text.includes('<tr')) {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(text, 'text/html');
-                        const trs = doc.querySelectorAll('table tr');
-                        trs.forEach(tr => {
-                            const tds = Array.from(tr.querySelectorAll('td, th')).map(t => t.innerText.trim());
-                            if (tds.length >= 2) {
-                                const c1 = tds[0] || '';
-                                const c2 = tds[1] || '';
-                                const c3 = tds[2] || '';
-                                
-                                let nomor = '', pr = '', pt = '', t1 = '', kl = 'internal', st = 'Terbit', lk = '';
-                                if (/^\d+$/.test(c1) && c2 && c3) {
-                                    nomor = c2; pr = c3; pt = tds[3] || ''; t1 = tds[4] || ''; kl = tds[5] || 'internal'; st = tds[6] || 'Terbit'; lk = tds[7] || '';
-                                } else if (c1 && c2) {
-                                    nomor = c1; pr = c2; pt = tds[2] || ''; t1 = tds[3] || ''; kl = tds[4] || 'internal'; st = tds[5] || 'Terbit'; lk = tds[6] || '';
-                                }
-
-                                if (nomor && pr && nomor.toLowerCase() !== 'nomor surat' && nomor.toLowerCase() !== 'no') {
-                                    rows.push({
-                                        nomor_surat: nomor,
-                                        perihal: pr,
-                                        pengirim_tujuan: pt || 'Sekretariat',
-                                        tanggal: t1 || '2026-08-01',
-                                        klasifikasi: kl,
-                                        status: st,
-                                        link_drive: lk
-                                    });
-                                }
-                            }
-                        });
-                    }
-                    processRows(rows);
-                };
-                textReader.readAsText(file);
             }
         };
         reader.readAsArrayBuffer(file);
@@ -1609,37 +1574,53 @@
         }
     };
 
-    // Bulk Multi-PDF Upload JS
+    // =====================================
+    // Bulk Multi-PDF Drag & Drop JS Engine
+    // =====================================
     window.bulkPdfSelectedFiles = [];
 
-    function handleBulkPdfFiles(input) {
-        const files = Array.from(input.files);
-        if (files.length === 0) return;
+    function addBulkPdfFiles(newFiles) {
+        const validFiles = Array.from(newFiles).filter(f => f.name.match(/\.(pdf|doc|docx)$/i));
+        if (validFiles.length === 0) return;
 
-        window.bulkPdfSelectedFiles = files;
-        document.getElementById('bulkPdfFileLabel').innerText = `${files.length} berkas PDF terpilih`;
+        validFiles.forEach(nf => {
+            if (!window.bulkPdfSelectedFiles.some(existing => existing.name === nf.name && existing.size === nf.size)) {
+                window.bulkPdfSelectedFiles.push(nf);
+            }
+        });
+
         renderBulkPdfCards();
     }
 
     function renderBulkPdfCards() {
         const container = document.getElementById('bulkPdfCardsContainer');
-        container.innerHTML = '';
+        const submitBtn = document.getElementById('btnSubmitBulkPdf');
+        const countSpan = document.getElementById('bulkPdfFileCount');
+        const labelText = document.getElementById('bulkPdfFileLabel');
 
-        if (window.bulkPdfSelectedFiles.length === 0) {
-            document.getElementById('btnSubmitBulkPdf').disabled = true;
-            document.getElementById('bulkPdfFileCount').innerText = '0';
+        if (!container) return;
+
+        if (!window.bulkPdfSelectedFiles || window.bulkPdfSelectedFiles.length === 0) {
+            container.innerHTML = '';
+            if (submitBtn) submitBtn.disabled = true;
+            if (countSpan) countSpan.innerText = '0';
+            if (labelText) labelText.innerText = 'Pilih / Drag Banyak Berkas PDF Sekaligus';
             return;
         }
 
-        document.getElementById('btnSubmitBulkPdf').disabled = false;
-        document.getElementById('bulkPdfFileCount').innerText = window.bulkPdfSelectedFiles.length;
+        if (submitBtn) submitBtn.disabled = false;
+        if (countSpan) countSpan.innerText = window.bulkPdfSelectedFiles.length;
+        if (labelText) labelText.innerText = `${window.bulkPdfSelectedFiles.length} berkas PDF terpilih (Klik / Drag untuk menambah lagi)`;
+
+        let html = '';
+        const todayStr = new Date().toISOString().split('T')[0];
 
         window.bulkPdfSelectedFiles.forEach((file, idx) => {
             const cleanName = file.name.replace(/\.[^/.]+$/, "");
             const fileSizeMb = (file.size / (1024 * 1024)).toFixed(2);
-            const todayStr = new Date().toISOString().split('T')[0];
+            const autoNo = `SRT-${String(idx + 1).padStart(3, '0')}/VIII/2026`;
 
-            container.innerHTML += `
+            html += `
                 <div class="bulk-pdf-card" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.25rem; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
                         <div style="display: flex; align-items: center; gap: 8px;">
@@ -1647,33 +1628,35 @@
                             <strong style="color: #022648; font-size: 0.9rem;">${file.name}</strong>
                             <span style="color: #64748b; font-size: 0.75rem;">(${fileSizeMb} MB)</span>
                         </div>
-                        <button type="button" onclick="removeBulkPdfCard(${idx})" style="background: #fee2e2; color: #991b1b; border: none; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">Hapus Berkas</button>
+                        <button type="button" onclick="removeBulkPdfCard(${idx})" style="background: #fee2e2; color: #991b1b; border: none; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                            &times; Hapus Berkas
+                        </button>
                     </div>
 
                     <div class="form-grid-2">
                         <div class="form-group">
                             <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Nomor Surat <span style="color: red;">*</span></label>
-                            <input type="text" name="surats[${idx}][nomor_surat]" class="form-control" placeholder="Nomor Surat..." value="SRT-${String(idx + 1).padStart(3, '0')}/VIII/2026" required style="font-size: 0.8125rem;">
+                            <input type="text" id="pdf_nomor_${idx}" class="form-control" placeholder="Nomor Surat..." value="${autoNo}" required style="font-size: 0.8125rem;">
                         </div>
 
                         <div class="form-group">
                             <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Tanggal Surat <span style="color: red;">*</span></label>
-                            <input type="date" name="surats[${idx}][tanggal]" class="form-control" value="${todayStr}" required style="font-size: 0.8125rem;">
+                            <input type="date" id="pdf_tanggal_${idx}" class="form-control" value="${todayStr}" required style="font-size: 0.8125rem;">
                         </div>
 
                         <div class="form-group form-group-full">
                             <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Perihal Surat <span style="color: red;">*</span></label>
-                            <input type="text" name="surats[${idx}][perihal]" class="form-control" placeholder="Perihal atau Judul Surat..." value="${cleanName}" required style="font-size: 0.8125rem;">
+                            <input type="text" id="pdf_perihal_${idx}" class="form-control" placeholder="Perihal atau Judul Surat..." value="${cleanName}" required style="font-size: 0.8125rem;">
                         </div>
 
                         <div class="form-group form-group-full">
                             <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">{{ $tipe == 'masuk' ? 'Pengirim (Instansi/Nama)' : 'Tujuan (Instansi/Nama)' }} <span style="color: red;">*</span></label>
-                            <input type="text" name="surats[${idx}][pengirim_tujuan]" class="form-control" placeholder="Pengirim / Tujuan..." value="Sekretariat" required style="font-size: 0.8125rem;">
+                            <input type="text" id="pdf_pt_${idx}" class="form-control" placeholder="Pengirim / Tujuan..." value="Sekretariat" required style="font-size: 0.8125rem;">
                         </div>
 
                         <div class="form-group">
                             <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Klasifikasi</label>
-                            <select name="surats[${idx}][klasifikasi]" class="form-control" style="font-size: 0.8125rem;">
+                            <select id="pdf_klasifikasi_${idx}" class="form-control" style="font-size: 0.8125rem;">
                                 <option value="internal">Surat Internal</option>
                                 <option value="eksternal">Surat Eksternal</option>
                                 <option value="penting">Surat Penting</option>
@@ -1682,7 +1665,7 @@
 
                         <div class="form-group">
                             <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Status Awal</label>
-                            <select name="surats[${idx}][status]" class="form-control" style="font-size: 0.8125rem;">
+                            <select id="pdf_status_${idx}" class="form-control" style="font-size: 0.8125rem;">
                                 <option value="Pending TTD">Pending TTD</option>
                                 <option value="Terbit" selected>Terbit</option>
                                 <option value="Draft">Draft</option>
@@ -1692,13 +1675,167 @@
                 </div>
             `;
         });
+
+        container.innerHTML = html;
     }
 
     window.removeBulkPdfCard = function(idx) {
-        if (window.bulkPdfSelectedFiles[idx]) {
+        if (window.bulkPdfSelectedFiles && window.bulkPdfSelectedFiles[idx]) {
             window.bulkPdfSelectedFiles.splice(idx, 1);
             renderBulkPdfCards();
         }
     };
+
+    // Attach Drag & Drop and Form Handlers
+    document.addEventListener('DOMContentLoaded', function () {
+        const dropZone = document.getElementById('bulkPdfDropZone');
+        const inputFiles = document.getElementById('bulkPdfInputFiles');
+        const formBulk = document.getElementById('formBulkPdfSurat');
+
+        if (dropZone) {
+            ['dragenter', 'dragover'].forEach(evtName => {
+                dropZone.addEventListener(evtName, (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    dropZone.style.background = '#fff9e6';
+                    dropZone.style.borderColor = '#022648';
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(evtName => {
+                dropZone.addEventListener(evtName, (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    dropZone.style.background = '#fffdf5';
+                    dropZone.style.borderColor = '#b7830f';
+                }, false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                if (dt && dt.files && dt.files.length > 0) {
+                    addBulkPdfFiles(dt.files);
+                }
+            }, false);
+        }
+
+        if (inputFiles) {
+            inputFiles.addEventListener('change', function () {
+                if (this.files && this.files.length > 0) {
+                    addBulkPdfFiles(this.files);
+                    this.value = '';
+                }
+            });
+        }
+
+        // Excel Dropzone Drag & Drop
+        const importDropZone = document.getElementById('importSuratDropZone');
+
+        if (importDropZone) {
+            ['dragenter', 'dragover'].forEach(evtName => {
+                importDropZone.addEventListener(evtName, (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    importDropZone.style.background = '#fff9e6';
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(evtName => {
+                importDropZone.addEventListener(evtName, (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    importDropZone.style.background = '#fffdf5';
+                }, false);
+            });
+
+            importDropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                if (dt && dt.files && dt.files.length > 0) {
+                    handleImportSuratFile(dt.files[0]);
+                }
+            }, false);
+        }
+
+        // Form Submit Handler via AJAX FormData
+        if (formBulk) {
+            formBulk.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                if (!window.bulkPdfSelectedFiles || window.bulkPdfSelectedFiles.length === 0) {
+                    if (typeof Toast !== 'undefined') Toast.fire({ icon: 'warning', title: 'Belum ada berkas PDF yang dipilih!' });
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('_token', '{{ csrf_token() }}');
+                formData.append('tipe', '{{ $tipe }}');
+
+                let hasError = false;
+
+                window.bulkPdfSelectedFiles.forEach((file, idx) => {
+                    const nomor = document.getElementById(`pdf_nomor_${idx}`)?.value || '';
+                    const tanggal = document.getElementById(`pdf_tanggal_${idx}`)?.value || '';
+                    const perihal = document.getElementById(`pdf_perihal_${idx}`)?.value || '';
+                    const pt = document.getElementById(`pdf_pt_${idx}`)?.value || '';
+                    const klasifikasi = document.getElementById(`pdf_klasifikasi_${idx}`)?.value || 'internal';
+                    const status = document.getElementById(`pdf_status_${idx}`)?.value || 'Terbit';
+
+                    if (!nomor || !perihal || !pt) {
+                        hasError = true;
+                    }
+
+                    formData.append(`files[${idx}]`, file);
+                    formData.append(`surats[${idx}][nomor_surat]`, nomor);
+                    formData.append(`surats[${idx}][tanggal]`, tanggal);
+                    formData.append(`surats[${idx}][perihal]`, perihal);
+                    formData.append(`surats[${idx}][pengirim_tujuan]`, pt);
+                    formData.append(`surats[${idx}][klasifikasi]`, klasifikasi);
+                    formData.append(`surats[${idx}][status]`, status);
+                });
+
+                if (hasError) {
+                    Swal.fire({ icon: 'warning', title: 'Data Belum Lengkap', text: 'Mohon isi Nomor Surat, Perihal, dan Pengirim/Tujuan pada seluruh kartu surat.' });
+                    return;
+                }
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Mengunggah Surat...',
+                        text: `Sedang memproses ${window.bulkPdfSelectedFiles.length} berkas PDF...`,
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+                }
+
+                fetch(formBulk.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Bulk Upload Berhasil!',
+                                text: data.message || 'Semua surat berhasil disimpan.',
+                                confirmButtonColor: '#022648'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            window.location.reload();
+                        }
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Gagal Unggah', text: data.message || 'Terjadi kesalahan saat memproses data.' });
+                    }
+                })
+                .catch(err => {
+                    console.error('Bulk store error:', err);
+                    formBulk.submit();
+                });
+            });
+        }
+    });
 </script>
 @endpush
