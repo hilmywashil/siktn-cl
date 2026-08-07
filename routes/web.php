@@ -76,6 +76,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('surat', [SuratController::class, 'index'])->name('surat.index');
             Route::get('surat/notifications', [SuratController::class, 'notificationFeed'])->name('surat.notifications');
             Route::post('surat', [SuratController::class, 'store'])->name('surat.store');
+            Route::post('surat/bulk-delete', [SuratController::class, 'bulkDelete'])->name('surat.bulk-delete');
+            Route::post('surat/bulk-download', [SuratController::class, 'bulkDownload'])->name('surat.bulk-download');
             Route::patch('surat/{id}/status', [SuratController::class, 'updateStatus'])->name('surat.update-status');
             Route::post('surat/{id}/upload-signed', [SuratController::class, 'uploadSigned'])->name('surat.upload-signed');
             Route::delete('surat/{id}', [SuratController::class, 'destroy'])->name('surat.destroy');
@@ -84,12 +86,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
             // Surat Keputusan (SK)
             Route::get('sk', [SuratKeputusanController::class, 'index'])->name('sk.index');
             Route::post('sk', [SuratKeputusanController::class, 'store'])->name('sk.store');
+            Route::post('sk/bulk-delete', [SuratKeputusanController::class, 'bulkDelete'])->name('sk.bulk-delete');
+            Route::post('sk/bulk-download', [SuratKeputusanController::class, 'bulkDownload'])->name('sk.bulk-download');
             Route::put('sk/{id}', [SuratKeputusanController::class, 'update'])->name('sk.update');
             Route::delete('sk/{id}', [SuratKeputusanController::class, 'destroy'])->name('sk.destroy');
 
             // Notulensi Rapat
             Route::get('notulensi', [NotulensiController::class, 'index'])->name('notulensi.index');
             Route::post('notulensi', [NotulensiController::class, 'store'])->name('notulensi.store');
+            Route::post('notulensi/bulk-delete', [NotulensiController::class, 'bulkDelete'])->name('notulensi.bulk-delete');
+            Route::post('notulensi/bulk-download', [NotulensiController::class, 'bulkDownload'])->name('notulensi.bulk-download');
             Route::put('notulensi/{id}', [NotulensiController::class, 'update'])->name('notulensi.update');
             Route::delete('notulensi/{id}', [NotulensiController::class, 'destroy'])->name('notulensi.destroy');
         });

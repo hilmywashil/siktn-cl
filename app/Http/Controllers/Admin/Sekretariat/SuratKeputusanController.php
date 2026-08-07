@@ -148,4 +148,74 @@ class SuratKeputusanController extends Controller
 
         return redirect()->route('admin.sekretariat.sk.index')->with('success', 'Surat Keputusan berhasil dihapus.');
     }
+
+    /**
+     * Hapus Banyak SK (Bulk Delete)
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:surat_keputusans,id',
+        ]);
+
+        $items = SuratKeputusan::whereIn('id', $request->ids)->get();
+        $count = $items->count();
+
+        foreach ($items as $sk) {
+            if ($sk->file_sk) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($sk->file_sk);
+            }
+            $this->logActivity('sk', 'Hapus (Bulk)', $sk->id, $sk->nomor_sk . ' - ' . $sk->judul_sk);
+            $sk->delete();
+        }
+
+        return redirect()->back()->with('success', "{$count} Surat Keputusan berhasil dihapus.");
+    }
+
+    /**
+     * Download Banyak SK sekaligus (Bulk Download ZIP)
+     */
+    public function bulkDownload(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:surat_keputusans,id',
+        ]);
+
+        $sks = SuratKeputusan::whereIn('id', $request->ids)->get();
+        if ($sks->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada SK terpilih.');
+        }
+
+        $zipName = 'sk-terpilih-' . time() . '.zip';
+        $tempDir = storage_path('app/public/temp');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0777, true);
+        }
+        $zipPath = $tempDir . '/' . $zipName;
+
+        $zip = new \ZipArchive;
+        $fileCount = 0;
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+            foreach ($sks as $sk) {
+                if ($sk->file_sk && \Illuminate\Support\Facades\Storage::disk('public')->exists($sk->file_sk)) {
+                    $fullPath = \Illuminate\Support\Facades\Storage::disk('public')->path($sk->file_sk);
+                    $extension = pathinfo($fullPath, PATHINFO_EXTENSION);
+                    $cleanName = \Illuminate\Support\Str::slug($sk->nomor_sk . '-' . $sk->judul_sk);
+                    $inZipName = $cleanName . '.' . $extension;
+                    $zip->addFile($fullPath, $inZipName);
+                    $fileCount++;
+                }
+            }
+            $zip->close();
+        }
+
+        if ($fileCount === 0) {
+            if (file_exists($zipPath)) unlink($zipPath);
+            return redirect()->back()->with('error', 'SK yang dipilih tidak memiliki berkas dokumen terunggah.');
+        }
+
+        return response()->download($zipPath)->deleteFileAfterSend(true);
+    }
 }

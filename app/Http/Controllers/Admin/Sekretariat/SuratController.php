@@ -406,4 +406,74 @@ class SuratController extends Controller
             'status' => 'Terbit',
         ]);
     }
+
+    /**
+     * Hapus Banyak Surat (Bulk Delete)
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:surats,id',
+        ]);
+
+        $items = Surat::whereIn('id', $request->ids)->get();
+        $count = $items->count();
+
+        foreach ($items as $surat) {
+            if ($surat->file_lampiran) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($surat->file_lampiran);
+            }
+            $this->logActivity('surat', 'Hapus (Bulk)', $surat->id, $surat->nomor_surat . ' - ' . $surat->perihal);
+            $surat->delete();
+        }
+
+        return redirect()->back()->with('success', "{$count} surat berhasil dihapus.");
+    }
+
+    /**
+     * Download Banyak Surat sekaligus (Bulk Download ZIP)
+     */
+    public function bulkDownload(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:surats,id',
+        ]);
+
+        $surats = Surat::whereIn('id', $request->ids)->get();
+        if ($surats->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada surat terpilih.');
+        }
+
+        $zipName = 'surat-terpilih-' . time() . '.zip';
+        $tempDir = storage_path('app/public/temp');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0777, true);
+        }
+        $zipPath = $tempDir . '/' . $zipName;
+
+        $zip = new \ZipArchive;
+        $fileCount = 0;
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+            foreach ($surats as $surat) {
+                if ($surat->file_lampiran && \Illuminate\Support\Facades\Storage::disk('public')->exists($surat->file_lampiran)) {
+                    $fullPath = \Illuminate\Support\Facades\Storage::disk('public')->path($surat->file_lampiran);
+                    $extension = pathinfo($fullPath, PATHINFO_EXTENSION);
+                    $cleanName = \Illuminate\Support\Str::slug($surat->nomor_surat . '-' . $surat->perihal);
+                    $inZipName = $cleanName . '.' . $extension;
+                    $zip->addFile($fullPath, $inZipName);
+                    $fileCount++;
+                }
+            }
+            $zip->close();
+        }
+
+        if ($fileCount === 0) {
+            if (file_exists($zipPath)) unlink($zipPath);
+            return redirect()->back()->with('error', 'Surat yang dipilih tidak memiliki berkas lampiran terunggah.');
+        }
+
+        return response()->download($zipPath)->deleteFileAfterSend(true);
+    }
 }

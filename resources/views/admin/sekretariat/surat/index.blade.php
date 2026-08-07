@@ -672,6 +672,9 @@
             <table class="table">
                 <thead>
                     <tr>
+                        <th style="width: 40px; text-align: center;">
+                            <input type="checkbox" id="check-all-surat" style="cursor: pointer; width: 16px; height: 16px;">
+                        </th>
                         <th>NO. SURAT</th>
                         <th>KLASIFIKASI</th>
                         <th>PERIHAL & {{ $tipe == 'masuk' ? 'PENGIRIM' : 'TUJUAN' }}</th>
@@ -683,6 +686,9 @@
                 <tbody>
                     @forelse($surats as $item)
                     <tr>
+                        <td style="text-align: center;">
+                            <input type="checkbox" class="check-surat-item" value="{{ $item->id }}" style="cursor: pointer; width: 16px; height: 16px;">
+                        </td>
                         <td>
                             <strong style="color: var(--navy);">{{ $item->nomor_surat }}</strong>
                         </td>
@@ -771,6 +777,32 @@
             </table>
         </div>
     </div>
+
+    <!-- Floating / Sticky Bulk Action Bar for Surat -->
+    <div id="bulk-action-bar-surat" style="display: none; position: sticky; bottom: 20px; z-index: 99; background: #022648; color: white; padding: 12px 20px; border-radius: 8px; margin-top: 1.25rem; align-items: center; justify-content: space-between; box-shadow: 0 8px 24px rgba(2, 38, 72, 0.25);">
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 0.875rem;">
+            <span style="background: #b7830f; color: white; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem;" id="selected-surat-count">0</span>
+            <strong>Surat Terpilih</strong>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button type="button" onclick="executeBulkDownloadSurat()" style="background: #059669; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download Terpilih (ZIP)
+            </button>
+            <button type="button" onclick="executeBulkDeleteSurat()" style="background: #dc2626; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                Hapus Terpilih
+            </button>
+        </div>
+    </div>
+
+    <form id="bulk-delete-surat-form" action="{{ route('admin.sekretariat.surat.bulk-delete') }}" method="POST" style="display:none;">
+        @csrf
+    </form>
+
+    <form id="bulk-download-surat-form" action="{{ route('admin.sekretariat.surat.bulk-download') }}" method="POST" style="display:none;">
+        @csrf
+    </form>
 
     {{ $surats->appends(request()->query())->links() }}
 
@@ -1094,6 +1126,87 @@
                 customClass: { container: 'swal-high-zindex' }
             });
         }
+    }
+
+    // Bulk Action Script for Surat
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkAllSurat = document.getElementById('check-all-surat');
+        const checkSuratItems = document.querySelectorAll('.check-surat-item');
+        const bulkBarSurat = document.getElementById('bulk-action-bar-surat');
+        const countSuratDisplay = document.getElementById('selected-surat-count');
+
+        function updateSuratBulkBar() {
+            const checked = document.querySelectorAll('.check-surat-item:checked');
+            if (countSuratDisplay) countSuratDisplay.innerText = checked.length;
+            if (bulkBarSurat) {
+                bulkBarSurat.style.display = checked.length > 0 ? 'flex' : 'none';
+            }
+        }
+
+        if (checkAllSurat) {
+            checkAllSurat.addEventListener('change', function () {
+                checkSuratItems.forEach(item => item.checked = this.checked);
+                updateSuratBulkBar();
+            });
+        }
+
+        checkSuratItems.forEach(item => {
+            item.addEventListener('change', function () {
+                if (checkAllSurat) {
+                    checkAllSurat.checked = Array.from(checkSuratItems).every(i => i.checked);
+                }
+                updateSuratBulkBar();
+            });
+        });
+    });
+
+    function executeBulkDeleteSurat() {
+        const checked = document.querySelectorAll('.check-surat-item:checked');
+        if (checked.length === 0) return;
+
+        Swal.fire({
+            title: 'Konfirmasi Hapus Massal',
+            text: `Apakah Anda yakin ingin menghapus ${checked.length} surat yang dipilih? Berkas lampiran juga akan terhapus secara permanen.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Hapus Semua!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.getElementById('bulk-delete-surat-form');
+                form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+                checked.forEach(item => {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'ids[]';
+                    hiddenInput.value = item.value;
+                    form.appendChild(hiddenInput);
+                });
+                form.submit();
+            }
+        });
+    }
+
+    function executeBulkDownloadSurat() {
+        const checked = document.querySelectorAll('.check-surat-item:checked');
+        if (checked.length === 0) return;
+
+        if (typeof Toast !== 'undefined') {
+            Toast.fire({ icon: 'info', title: 'Memproses kompresi berkas ZIP...' });
+        }
+
+        const form = document.getElementById('bulk-download-surat-form');
+        form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+        checked.forEach(item => {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'ids[]';
+            hiddenInput.value = item.value;
+            form.appendChild(hiddenInput);
+        });
+        form.submit();
     }
 </script>
 @endpush

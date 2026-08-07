@@ -100,4 +100,75 @@ class NotulensiController extends Controller
 
         return redirect()->route('admin.sekretariat.notulensi.index')->with('success', 'Notulensi Rapat berhasil dihapus.');
     }
+
+    /**
+     * Hapus Banyak Notulensi (Bulk Delete)
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:notulensis,id',
+        ]);
+
+        $items = Notulensi::whereIn('id', $request->ids)->get();
+        $count = $items->count();
+
+        foreach ($items as $notulensi) {
+            if (isset($notulensi->file_dokumen) && $notulensi->file_dokumen) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($notulensi->file_dokumen);
+            }
+            $this->logActivity('notulensi', 'Hapus (Bulk)', $notulensi->id, $notulensi->judul_rapat);
+            $notulensi->delete();
+        }
+
+        return redirect()->back()->with('success', "{$count} Notulensi Rapat berhasil dihapus.");
+    }
+
+    /**
+     * Download Banyak Notulensi sekaligus (Bulk Download ZIP)
+     */
+    public function bulkDownload(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:notulensis,id',
+        ]);
+
+        $notulensis = Notulensi::whereIn('id', $request->ids)->get();
+        if ($notulensis->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada Notulensi terpilih.');
+        }
+
+        $zipName = 'notulensi-terpilih-' . time() . '.zip';
+        $tempDir = storage_path('app/public/temp');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0777, true);
+        }
+        $zipPath = $tempDir . '/' . $zipName;
+
+        $zip = new \ZipArchive;
+        $fileCount = 0;
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+            foreach ($notulensis as $notulensi) {
+                $filePath = $notulensi->file_dokumen ?? null;
+                if ($filePath && \Illuminate\Support\Facades\Storage::disk('public')->exists($filePath)) {
+                    $fullPath = \Illuminate\Support\Facades\Storage::disk('public')->path($filePath);
+                    $extension = pathinfo($fullPath, PATHINFO_EXTENSION);
+                    $cleanName = \Illuminate\Support\Str::slug($notulensi->judul_rapat);
+                    $inZipName = $cleanName . '.' . $extension;
+                    $zip->addFile($fullPath, $inZipName);
+                    $fileCount++;
+                }
+            }
+            $zip->close();
+        }
+
+        if ($fileCount === 0) {
+            if (file_exists($zipPath)) unlink($zipPath);
+            return redirect()->back()->with('error', 'Notulensi yang dipilih tidak memiliki berkas dokumen terunggah.');
+        }
+
+        return response()->download($zipPath)->deleteFileAfterSend(true);
+    }
 }

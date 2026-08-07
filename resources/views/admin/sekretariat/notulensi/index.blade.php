@@ -274,6 +274,9 @@
             <table class="table">
                 <thead>
                     <tr>
+                        <th style="width: 40px; text-align: center;">
+                            <input type="checkbox" id="check-all-notulensi" style="cursor: pointer; width: 16px; height: 16px;">
+                        </th>
                         <th>JUDUL RAPAT</th>
                         <th>TAUTAN AGENDA</th>
                         <th>TANGGAL & WAKTU</th>
@@ -284,6 +287,9 @@
                 <tbody>
                     @forelse($notulensis as $item)
                     <tr>
+                        <td style="text-align: center;">
+                            <input type="checkbox" class="check-notulensi-item" value="{{ $item->id }}" style="cursor: pointer; width: 16px; height: 16px;">
+                        </td>
                         <td>
                             <strong style="color: var(--navy);">{{ $item->judul_rapat }}</strong>
                             @if($item->ringkasan_hasil)
@@ -350,6 +356,32 @@
             </table>
         </div>
     </div>
+
+    <!-- Floating / Sticky Bulk Action Bar for Notulensi -->
+    <div id="bulk-action-bar-notulensi" style="display: none; position: sticky; bottom: 20px; z-index: 99; background: #022648; color: white; padding: 12px 20px; border-radius: 8px; margin-top: 1.25rem; align-items: center; justify-content: space-between; box-shadow: 0 8px 24px rgba(2, 38, 72, 0.25);">
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 0.875rem;">
+            <span style="background: #b7830f; color: white; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem;" id="selected-notulensi-count">0</span>
+            <strong>Notulensi Rapat Terpilih</strong>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button type="button" onclick="executeBulkDownloadNotulensi()" style="background: #059669; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download Terpilih (ZIP)
+            </button>
+            <button type="button" onclick="executeBulkDeleteNotulensi()" style="background: #dc2626; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                Hapus Terpilih
+            </button>
+        </div>
+    </div>
+
+    <form id="bulk-delete-notulensi-form" action="{{ route('admin.sekretariat.notulensi.bulk-delete') }}" method="POST" style="display:none;">
+        @csrf
+    </form>
+
+    <form id="bulk-download-notulensi-form" action="{{ route('admin.sekretariat.notulensi.bulk-download') }}" method="POST" style="display:none;">
+        @csrf
+    </form>
 
     <div style="margin-top: 1rem;">
         {{ $notulensis->links() }}
@@ -581,6 +613,87 @@
         } else if (confirm(`Apakah Anda yakin ingin menghapus notulensi "${judul}"?`)) {
             document.getElementById('delete-form-' + id).submit();
         }
+    }
+
+    // Bulk Action Script for Notulensi
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkAllNotulensi = document.getElementById('check-all-notulensi');
+        const checkNotulensiItems = document.querySelectorAll('.check-notulensi-item');
+        const bulkBarNotulensi = document.getElementById('bulk-action-bar-notulensi');
+        const countNotulensiDisplay = document.getElementById('selected-notulensi-count');
+
+        function updateNotulensiBulkBar() {
+            const checked = document.querySelectorAll('.check-notulensi-item:checked');
+            if (countNotulensiDisplay) countNotulensiDisplay.innerText = checked.length;
+            if (bulkBarNotulensi) {
+                bulkBarNotulensi.style.display = checked.length > 0 ? 'flex' : 'none';
+            }
+        }
+
+        if (checkAllNotulensi) {
+            checkAllNotulensi.addEventListener('change', function () {
+                checkNotulensiItems.forEach(item => item.checked = this.checked);
+                updateNotulensiBulkBar();
+            });
+        }
+
+        checkNotulensiItems.forEach(item => {
+            item.addEventListener('change', function () {
+                if (checkAllNotulensi) {
+                    checkAllNotulensi.checked = Array.from(checkNotulensiItems).every(i => i.checked);
+                }
+                updateNotulensiBulkBar();
+            });
+        });
+    });
+
+    function executeBulkDeleteNotulensi() {
+        const checked = document.querySelectorAll('.check-notulensi-item:checked');
+        if (checked.length === 0) return;
+
+        Swal.fire({
+            title: 'Konfirmasi Hapus Massal Notulensi',
+            text: `Apakah Anda yakin ingin menghapus ${checked.length} Notulensi Rapat yang dipilih? Berkas dokumen juga akan terhapus secara permanen.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Hapus Semua!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.getElementById('bulk-delete-notulensi-form');
+                form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+                checked.forEach(item => {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'ids[]';
+                    hiddenInput.value = item.value;
+                    form.appendChild(hiddenInput);
+                });
+                form.submit();
+            }
+        });
+    }
+
+    function executeBulkDownloadNotulensi() {
+        const checked = document.querySelectorAll('.check-notulensi-item:checked');
+        if (checked.length === 0) return;
+
+        if (typeof Toast !== 'undefined') {
+            Toast.fire({ icon: 'info', title: 'Memproses kompresi berkas ZIP Notulensi...' });
+        }
+
+        const form = document.getElementById('bulk-download-notulensi-form');
+        form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+        checked.forEach(item => {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'ids[]';
+            hiddenInput.value = item.value;
+            form.appendChild(hiddenInput);
+        });
+        form.submit();
     }
 </script>
 @endpush

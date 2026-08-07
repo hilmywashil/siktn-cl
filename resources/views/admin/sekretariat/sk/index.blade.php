@@ -307,6 +307,9 @@
             <table class="table">
                 <thead>
                     <tr>
+                        <th style="width: 40px; text-align: center;">
+                            <input type="checkbox" id="check-all-sk" style="cursor: pointer; width: 16px; height: 16px;">
+                        </th>
                         <th>NO. SK</th>
                         <th>JUDUL SURAT KEPUTUSAN</th>
                         <th>TANGGAL BERLAKU</th>
@@ -324,6 +327,9 @@
                         $isNearExpiring = $item->status == 'Aktif' && $daysLeft >= 0 && $daysLeft <= 180;
                     @endphp
                     <tr style="{{ $isNearExpiring ? 'background: #fffbeb;' : '' }}">
+                        <td style="text-align: center;">
+                            <input type="checkbox" class="check-sk-item" value="{{ $item->id }}" style="cursor: pointer; width: 16px; height: 16px;">
+                        </td>
                         <td>
                             <strong style="color: var(--navy);">{{ $item->nomor_sk }}</strong>
                         </td>
@@ -410,6 +416,32 @@
             </table>
         </div>
     </div>
+
+    <!-- Floating / Sticky Bulk Action Bar for SK -->
+    <div id="bulk-action-bar-sk" style="display: none; position: sticky; bottom: 20px; z-index: 99; background: #022648; color: white; padding: 12px 20px; border-radius: 8px; margin-top: 1.25rem; align-items: center; justify-content: space-between; box-shadow: 0 8px 24px rgba(2, 38, 72, 0.25);">
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 0.875rem;">
+            <span style="background: #b7830f; color: white; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem;" id="selected-sk-count">0</span>
+            <strong>Surat Keputusan Terpilih</strong>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button type="button" onclick="executeBulkDownloadSk()" style="background: #059669; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download Terpilih (ZIP)
+            </button>
+            <button type="button" onclick="executeBulkDeleteSk()" style="background: #dc2626; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                Hapus Terpilih
+            </button>
+        </div>
+    </div>
+
+    <form id="bulk-delete-sk-form" action="{{ route('admin.sekretariat.sk.bulk-delete') }}" method="POST" style="display:none;">
+        @csrf
+    </form>
+
+    <form id="bulk-download-sk-form" action="{{ route('admin.sekretariat.sk.bulk-download') }}" method="POST" style="display:none;">
+        @csrf
+    </form>
 
     <div style="margin-top: 1rem;">
         {{ $sks->links() }}
@@ -651,6 +683,87 @@
         } else if (confirm(`Apakah Anda yakin ingin menghapus SK no. ${nomor}?`)) {
             document.getElementById('delete-form-' + id).submit();
         }
+    }
+
+    // Bulk Action Script for SK
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkAllSk = document.getElementById('check-all-sk');
+        const checkSkItems = document.querySelectorAll('.check-sk-item');
+        const bulkBarSk = document.getElementById('bulk-action-bar-sk');
+        const countSkDisplay = document.getElementById('selected-sk-count');
+
+        function updateSkBulkBar() {
+            const checked = document.querySelectorAll('.check-sk-item:checked');
+            if (countSkDisplay) countSkDisplay.innerText = checked.length;
+            if (bulkBarSk) {
+                bulkBarSk.style.display = checked.length > 0 ? 'flex' : 'none';
+            }
+        }
+
+        if (checkAllSk) {
+            checkAllSk.addEventListener('change', function () {
+                checkSkItems.forEach(item => item.checked = this.checked);
+                updateSkBulkBar();
+            });
+        }
+
+        checkSkItems.forEach(item => {
+            item.addEventListener('change', function () {
+                if (checkAllSk) {
+                    checkAllSk.checked = Array.from(checkSkItems).every(i => i.checked);
+                }
+                updateSkBulkBar();
+            });
+        });
+    });
+
+    function executeBulkDeleteSk() {
+        const checked = document.querySelectorAll('.check-sk-item:checked');
+        if (checked.length === 0) return;
+
+        Swal.fire({
+            title: 'Konfirmasi Hapus Massal SK',
+            text: `Apakah Anda yakin ingin menghapus ${checked.length} Surat Keputusan yang dipilih? Berkas dokumen juga akan terhapus secara permanen.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Hapus Semua!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.getElementById('bulk-delete-sk-form');
+                form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+                checked.forEach(item => {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'ids[]';
+                    hiddenInput.value = item.value;
+                    form.appendChild(hiddenInput);
+                });
+                form.submit();
+            }
+        });
+    }
+
+    function executeBulkDownloadSk() {
+        const checked = document.querySelectorAll('.check-sk-item:checked');
+        if (checked.length === 0) return;
+
+        if (typeof Toast !== 'undefined') {
+            Toast.fire({ icon: 'info', title: 'Memproses kompresi berkas ZIP SK...' });
+        }
+
+        const form = document.getElementById('bulk-download-sk-form');
+        form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+        checked.forEach(item => {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'ids[]';
+            hiddenInput.value = item.value;
+            form.appendChild(hiddenInput);
+        });
+        form.submit();
     }
 </script>
 @endpush
