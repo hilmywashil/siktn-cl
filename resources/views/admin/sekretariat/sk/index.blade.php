@@ -605,182 +605,6 @@
     </div>
 </div>
 
-@endsection
-
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        if (typeof $.fn.select2 !== 'undefined') {
-            $('.select2-basic').select2({ minimumResultsForSearch: -1, width: '100%' });
-        }
-
-        if (typeof flatpickr !== 'undefined') {
-            flatpickr(".datepicker", { dateFormat: "Y-m-d", allowInput: true });
-        }
-
-        let activeDropdown = null;
-
-        document.querySelectorAll('.btn-aksi-trigger').forEach(button => {
-            button.addEventListener('click', function (e) {
-                e.stopPropagation();
-                const targetId = this.getAttribute('data-target');
-                const dropdown = document.getElementById(targetId);
-
-                if (activeDropdown && activeDropdown !== dropdown) {
-                    activeDropdown.classList.remove('is-open');
-                }
-
-                if (dropdown.classList.contains('is-open')) {
-                    dropdown.classList.remove('is-open');
-                    activeDropdown = null;
-                } else {
-                    const rect = this.getBoundingClientRect();
-                    dropdown.classList.add('is-open');
-                    const dropdownHeight = dropdown.offsetHeight || 200;
-                    const spaceBelow = window.innerHeight - rect.bottom;
-
-                    if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
-                        dropdown.style.top = (rect.top - dropdownHeight - 4) + 'px';
-                    } else {
-                        dropdown.style.top = (rect.bottom + 4) + 'px';
-                    }
-                    dropdown.style.left = (rect.right - 175) + 'px';
-                    activeDropdown = dropdown;
-                }
-            });
-        });
-
-        document.addEventListener('click', function () {
-            if (activeDropdown) { activeDropdown.classList.remove('is-open'); activeDropdown = null; }
-        });
-        window.addEventListener('scroll', function () {
-            if (activeDropdown) { activeDropdown.classList.remove('is-open'); activeDropdown = null; }
-        }, true);
-    });
-
-    function openCreateModal() {
-        document.getElementById('createModal').classList.add('active');
-        if (typeof $.fn.select2 !== 'undefined') {
-            $('#createModal .select2-basic').select2({ width: '100%', dropdownParent: $('#createModal') });
-        }
-    }
-    function closeCreateModal() { document.getElementById('createModal').classList.remove('active'); }
-
-    function openEditModal(item) {
-        document.getElementById('editForm').action = "/admin/sekretariat/sk/" + item.id;
-        document.getElementById('editNomorSk').value = item.nomor_sk;
-        document.getElementById('editJudulSk').value = item.judul_sk;
-        document.getElementById('editTanggalBerlaku').value = item.tanggal_berlaku;
-        document.getElementById('editTanggalBerakhir').value = item.tanggal_berakhir;
-        document.getElementById('editStatus').value = item.status;
-        document.getElementById('editLinkDrive').value = item.link_drive || '';
-        document.getElementById('editKeterangan').value = item.keterangan || '';
-        document.getElementById('editModal').classList.add('active');
-        if (typeof $.fn.select2 !== 'undefined') {
-            $('#editModal .select2-basic').select2({ width: '100%', dropdownParent: $('#editModal') });
-        }
-    }
-    function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
-
-    function confirmDeleteSk(id, nomor) {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                title: 'Hapus SK?',
-                text: `Apakah Anda yakin ingin menghapus SK no. ${nomor}?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                cancelButtonColor: '#f3f4f6',
-                confirmButtonText: 'Ya, Hapus',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('delete-form-' + id).submit();
-                }
-            });
-        } else if (confirm(`Apakah Anda yakin ingin menghapus SK no. ${nomor}?`)) {
-            document.getElementById('delete-form-' + id).submit();
-        }
-    }
-
-    // Bulk Action Script for SK
-    document.addEventListener('DOMContentLoaded', function () {
-        const checkAllSk = document.getElementById('check-all-sk');
-        const checkSkItems = document.querySelectorAll('.check-sk-item');
-        const bulkBarSk = document.getElementById('bulk-action-bar-sk');
-        const countSkDisplay = document.getElementById('selected-sk-count');
-
-        function updateSkBulkBar() {
-            const checked = document.querySelectorAll('.check-sk-item:checked');
-            if (countSkDisplay) countSkDisplay.innerText = checked.length;
-            if (bulkBarSk) {
-                bulkBarSk.style.display = checked.length > 0 ? 'flex' : 'none';
-            }
-        }
-
-        if (checkAllSk) {
-            checkAllSk.addEventListener('change', function () {
-                checkSkItems.forEach(item => item.checked = this.checked);
-                updateSkBulkBar();
-            });
-        }
-
-        checkSkItems.forEach(item => {
-            item.addEventListener('change', function () {
-                if (checkAllSk) {
-                    checkAllSk.checked = Array.from(checkSkItems).every(i => i.checked);
-                }
-                updateSkBulkBar();
-            });
-        });
-    });
-
-    function executeBulkDeleteSk() {
-        const checked = document.querySelectorAll('.check-sk-item:checked');
-        if (checked.length === 0) return;
-
-        Swal.fire({
-            title: 'Konfirmasi Hapus Massal SK',
-            text: `Apakah Anda yakin ingin menghapus ${checked.length} Surat Keputusan yang dipilih? Berkas dokumen juga akan terhapus secara permanen.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc2626',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Ya, Hapus Semua!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const form = document.getElementById('bulk-delete-sk-form');
-                form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
-                checked.forEach(item => {
-                    const hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.name = 'ids[]';
-                    hiddenInput.value = item.value;
-                    form.appendChild(hiddenInput);
-                });
-                form.submit();
-            }
-        });
-    }
-
-    function executeBulkDownloadSk() {
-        const checked = document.querySelectorAll('.check-sk-item:checked');
-        if (checked.length === 0) return;
-
-        if (typeof Toast !== 'undefined') {
-            Toast.fire({ icon: 'info', title: 'Memproses kompresi berkas ZIP SK...' });
-        }
-
-        const form = document.getElementById('bulk-download-sk-form');
-        form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
-        checked.forEach(item => {
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'ids[]';
-            hiddenInput.value = item.value;
-            form.appendChild(hiddenInput);
-        });
 <!-- Modal Import SK -->
 <div class="modal-overlay" id="modalImportSk" onclick="if(event.target===this) closeImportSkModal()">
     <div class="modal-content-lg">
@@ -857,13 +681,208 @@
     </div>
 </div>
 
+@endsection
+
 @push('scripts')
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof $.fn.select2 !== 'undefined') {
+            $('.select2-basic').select2({ minimumResultsForSearch: -1, width: '100%' });
+        }
+
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr(".datepicker", { dateFormat: "Y-m-d", allowInput: true });
+        }
+
+        let activeDropdown = null;
+
+        document.querySelectorAll('.btn-aksi-trigger').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const targetId = this.getAttribute('data-target');
+                const dropdown = document.getElementById(targetId);
+
+                if (activeDropdown && activeDropdown !== dropdown) {
+                    activeDropdown.classList.remove('is-open');
+                }
+
+                if (dropdown.classList.contains('is-open')) {
+                    dropdown.classList.remove('is-open');
+                    activeDropdown = null;
+                } else {
+                    const rect = this.getBoundingClientRect();
+                    dropdown.classList.add('is-open');
+                    const dropdownHeight = dropdown.offsetHeight || 200;
+                    const spaceBelow = window.innerHeight - rect.bottom;
+
+                    if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
+                        dropdown.style.top = (rect.top - dropdownHeight - 4) + 'px';
+                    } else {
+                        dropdown.style.top = (rect.bottom + 4) + 'px';
+                    }
+                    dropdown.style.left = (rect.right - 175) + 'px';
+                    activeDropdown = dropdown;
+                }
+            });
+        });
+
+        document.addEventListener('click', function () {
+            if (activeDropdown) { activeDropdown.classList.remove('is-open'); activeDropdown = null; }
+        });
+        window.addEventListener('scroll', function () {
+            if (activeDropdown) { activeDropdown.classList.remove('is-open'); activeDropdown = null; }
+        }, true);
+
+        // Bulk Action Script for SK
+        const checkAllSk = document.getElementById('check-all-sk');
+        const checkSkItems = document.querySelectorAll('.check-sk-item');
+        const bulkBarSk = document.getElementById('bulk-action-bar-sk');
+        const countSkDisplay = document.getElementById('selected-sk-count');
+
+        function updateSkBulkBar() {
+            const checked = document.querySelectorAll('.check-sk-item:checked');
+            if (countSkDisplay) countSkDisplay.innerText = checked.length;
+            if (bulkBarSk) {
+                bulkBarSk.style.display = checked.length > 0 ? 'flex' : 'none';
+            }
+        }
+
+        if (checkAllSk) {
+            checkAllSk.addEventListener('change', function () {
+                checkSkItems.forEach(item => item.checked = this.checked);
+                updateSkBulkBar();
+            });
+        }
+
+        checkSkItems.forEach(item => {
+            item.addEventListener('change', function () {
+                if (checkAllSk) {
+                    checkAllSk.checked = Array.from(checkSkItems).every(i => i.checked);
+                }
+                updateSkBulkBar();
+            });
+        });
+    });
+
+    function openCreateModal() {
+        document.getElementById('createModal').classList.add('active');
+        if (typeof $.fn.select2 !== 'undefined') {
+            $('#createModal .select2-basic').select2({ width: '100%', dropdownParent: $('#createModal') });
+        }
+    }
+    function closeCreateModal() { document.getElementById('createModal').classList.remove('active'); }
+
+    function openEditModal(item) {
+        document.getElementById('editForm').action = "/admin/sekretariat/sk/" + item.id;
+        document.getElementById('editNomorSk').value = item.nomor_sk;
+        document.getElementById('editJudulSk').value = item.judul_sk;
+        document.getElementById('editTanggalBerlaku').value = item.tanggal_berlaku;
+        document.getElementById('editTanggalBerakhir').value = item.tanggal_berakhir;
+        document.getElementById('editStatus').value = item.status;
+        document.getElementById('editLinkDrive').value = item.link_drive || '';
+        document.getElementById('editKeterangan').value = item.keterangan || '';
+        document.getElementById('editModal').classList.add('active');
+        if (typeof $.fn.select2 !== 'undefined') {
+            $('#editModal .select2-basic').select2({ width: '100%', dropdownParent: $('#editModal') });
+        }
+    }
+    function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
+
     function openImportSkModal() {
         document.getElementById('modalImportSk').classList.add('active');
     }
     function closeImportSkModal() {
         document.getElementById('modalImportSk').classList.remove('active');
+    }
+
+    function confirmDeleteSk(id, nomor) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Hapus SK?',
+                text: `Apakah Anda yakin ingin menghapus SK no. ${nomor}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#f3f4f6',
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            });
+        } else if (confirm(`Apakah Anda yakin ingin menghapus SK no. ${nomor}?`)) {
+            document.getElementById('delete-form-' + id).submit();
+        }
+    }
+
+    function executeBulkDeleteSk() {
+        const checked = document.querySelectorAll('.check-sk-item:checked');
+        if (checked.length === 0) return;
+
+        Swal.fire({
+            title: 'Konfirmasi Hapus Massal SK',
+            text: `Apakah Anda yakin ingin menghapus ${checked.length} Surat Keputusan yang dipilih? Berkas dokumen juga akan terhapus secara permanen.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Hapus Semua!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.getElementById('bulk-delete-sk-form');
+                form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+                checked.forEach(item => {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'ids[]';
+                    hiddenInput.value = item.value;
+                    form.appendChild(hiddenInput);
+                });
+                form.submit();
+            }
+        });
+    }
+
+    function executeBulkDownloadSk() {
+        const checked = document.querySelectorAll('.check-sk-item:checked');
+        if (checked.length === 0) return;
+
+        if (typeof Toast !== 'undefined') {
+            Toast.fire({ icon: 'info', title: 'Memproses kompresi berkas ZIP SK...' });
+        }
+
+        const form = document.getElementById('bulk-download-sk-form');
+        form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+        checked.forEach(item => {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'ids[]';
+            hiddenInput.value = item.value;
+            form.appendChild(hiddenInput);
+        });
+        form.submit();
+    }
+
+    function executeBulkExportSk() {
+        const checked = document.querySelectorAll('.check-sk-item:checked');
+        if (checked.length === 0) return;
+
+        if (typeof Toast !== 'undefined') {
+            Toast.fire({ icon: 'success', title: `Mengunduh ${checked.length} SK ke berkas Excel...` });
+        }
+
+        const form = document.getElementById('bulk-export-sk-form');
+        form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+        checked.forEach(item => {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'ids[]';
+            hiddenInput.value = item.value;
+            form.appendChild(hiddenInput);
+        });
+        form.submit();
     }
 
     function handleImportSkFile(input) {
@@ -885,7 +904,6 @@
                 trs.forEach((tr, idx) => {
                     const tds = tr.querySelectorAll('td, th');
                     if (tds.length >= 3) {
-                        const col1 = tds[0] ? tds[0].innerText.trim() : '';
                         const col2 = tds[1] ? tds[1].innerText.trim() : '';
                         const col3 = tds[2] ? tds[2].innerText.trim() : '';
                         const col4 = tds[3] ? tds[3].innerText.trim() : '';
@@ -954,26 +972,6 @@
             }
         };
         reader.readAsText(file);
-    }
-
-    function executeBulkExportSk() {
-        const checked = document.querySelectorAll('.check-sk-item:checked');
-        if (checked.length === 0) return;
-
-        if (typeof Toast !== 'undefined') {
-            Toast.fire({ icon: 'success', title: `Mengunduh ${checked.length} SK ke berkas Excel...` });
-        }
-
-        const form = document.getElementById('bulk-export-sk-form');
-        form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
-        checked.forEach(item => {
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'ids[]';
-            hiddenInput.value = item.value;
-            form.appendChild(hiddenInput);
-        });
-        form.submit();
     }
 </script>
 @endpush
