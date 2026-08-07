@@ -1045,6 +1045,12 @@
         </div>
     </div>
 
+    @php
+        $adminNotifSettings = Auth::guard('admin')->user()->notification_settings ?? [];
+        $showBirthdayFab = $adminNotifSettings['show_birthday_fab'] ?? true;
+    @endphp
+
+    @if($showBirthdayFab)
     <!-- Floating Action Button for Birthdays -->
     <button type="button" class="birthday-fab" onclick="toggleBirthdaySidebar()">
         <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1098,21 +1104,14 @@
                             <div style="display: flex; align-items: center; gap: 1rem;">
                                 @if(isset($bd['foto']) && $bd['foto'])
                                     <div style="width: 42px; height: 42px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 2px solid #C59217;">
-                                        <img src="{{ $bd['foto'] }}" alt="{{ $bd['nama'] }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <img src="{{ asset('storage/' . $bd['foto']) }}" alt="{{ $bd['nama'] }}" style="width: 100%; height: 100%; object-fit: cover;">
                                     </div>
                                 @else
-                                    <div style="width: 42px; height: 42px; border-radius: 50%; background: #C59217; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9375rem; flex-shrink: 0;">
-                                        {{ strtoupper(substr($bd['nama'], 0, 2)) }}
+                                    <div style="width: 42px; height: 42px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; color: #4b5563; font-weight: 700; flex-shrink: 0; border: 2px solid #C59217;">
+                                        {{ strtoupper(substr($bd['nama'], 0, 1)) }}
                                     </div>
                                 @endif
                                 <div>
-                                    <div style="font-weight: 700; color: #0a2540; font-size: 0.9375rem; margin-bottom: 0.125rem;">{{ $bd['nama'] }}</div>
-                                    <div style="color: #6b7280; font-size: 0.8125rem;">Anggota</div>
-                                </div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-weight: 700; color: #374151; font-size: 0.875rem;">{{ date('d M', strtotime($bd['tanggal'])) }}</div>
-                                <div style="color: #C59217; font-size: 0.75rem; font-weight: 700; background: rgba(197, 146, 23, 0.1); padding: 0.15rem 0.5rem; border-radius: 4px; display: inline-block; margin-top: 0.25rem;">{{ $bd['hari'] }}</div>
                             </div>
                         </div>
                     @endforeach
@@ -1135,6 +1134,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     {{-- Logout Confirmation Modal --}}
     <div class="logout-modal" id="logoutModal">

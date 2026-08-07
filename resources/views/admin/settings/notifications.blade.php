@@ -311,6 +311,18 @@
                 </label>
             </div>
 
+            {{-- 6. Floating Tombol Ulang Tahun Anggota (🎂) --}}
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-title">Tombol Melayang Pengingat Ulang Tahun (🎂)</div>
+                    <div class="setting-desc">Tampilkan tombol melayang (Floating Action Button) pengingat ulang tahun anggota di sudut kanan bawah layar admin.</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" name="show_birthday_fab" {{ ($settings['show_birthday_fab'] ?? true) ? 'checked' : '' }}>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
             <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
                 <button type="submit" class="btn-solid-navy" onclick="Toast.fire({ icon: 'success', title: 'Preferensi notifikasi berhasil disimpan...' })">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>

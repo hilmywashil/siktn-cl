@@ -19,6 +19,7 @@ class NotificationSettingController extends Controller
             'new_anggota' => true,
             'new_katalog' => true,
             'auto_open_login' => true,
+            'show_birthday_fab' => true,
         ];
 
         return view('admin.settings.notifications', compact('admin', 'settings'));
@@ -34,6 +35,7 @@ class NotificationSettingController extends Controller
             'new_anggota' => $request->has('new_anggota'),
             'new_katalog' => $request->has('new_katalog'),
             'auto_open_login' => $request->has('auto_open_login'),
+            'show_birthday_fab' => $request->has('show_birthday_fab'),
         ];
 
         $admin->update([
