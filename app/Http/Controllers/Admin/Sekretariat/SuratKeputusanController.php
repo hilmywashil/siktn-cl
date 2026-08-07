@@ -305,81 +305,18 @@ class SuratKeputusanController extends Controller
      */
     public function downloadTemplate()
     {
-        $fileName = 'Template_Import_Surat_Keputusan.xls';
-
-        $html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
-        $html .= '<head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Template SK</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
-        $html .= '<body>';
-
-        $html .= '<table style="font-family: Arial, sans-serif; border-collapse: collapse;">';
-        $html .= '<tr><td colspan="8" style="height: 25px;"></td></tr>';
-        $html .= '<tr><td colspan="8" style="text-align: center; font-size: 16pt; font-weight: bold; padding: 12px; color: #022648; background-color: #f1f5f9; border: 1px solid #cbd5e1;">TEMPLATE IMPORT SURAT KEPUTUSAN (SK) - SIKTN</td></tr>';
-        $html .= '<tr><td colspan="8" style="text-align: center; font-size: 9.5pt; color: #475569; padding: 8px; font-style: italic;"><b>Petunjuk:</b> Isi data pada kolom di bawah. Format tanggal: YYYY-MM-DD (Contoh: 2026-08-01). Status: Aktif / Tidak Aktif.</td></tr>';
-        $html .= '<tr><td colspan="8" style="height: 10px;"></td></tr>';
-
-        // Header
-        $html .= '<thead><tr style="background-color: #022648; color: #b7830f; font-weight: bold; text-align: center;">';
-        $html .= '<th style="border: 1px solid #01162f; padding: 10px; width: 50px;">NO</th>';
-        $html .= '<th style="border: 1px solid #01162f; padding: 10px; width: 220px;">NOMOR SK</th>';
-        $html .= '<th style="border: 1px solid #01162f; padding: 10px; width: 320px;">JUDUL SURAT KEPUTUSAN</th>';
-        $html .= '<th style="border: 1px solid #01162f; padding: 10px; width: 140px;">TANGGAL BERLAKU</th>';
-        $html .= '<th style="border: 1px solid #01162f; padding: 10px; width: 140px;">TANGGAL BERAKHIR</th>';
-        $html .= '<th style="border: 1px solid #01162f; padding: 10px; width: 300px;">LINK GOOGLE DRIVE</th>';
-        $html .= '<th style="border: 1px solid #01162f; padding: 10px; width: 120px;">STATUS</th>';
-        $html .= '<th style="border: 1px solid #01162f; padding: 10px; width: 250px;">KETERANGAN</th>';
-        $html .= '</tr></thead>';
-
-        $html .= '<tbody>';
-
-        // 3 Baris Contoh (Sample rows)
-        $examples = [
-            [
-                'nomor_sk' => '001/SK/PNKT/VIII/2026',
-                'judul_sk' => 'SK Pengesahan Pengurus Nasional Karang Taruna Masa Bhakti 2026-2031',
-                'tanggal_berlaku' => '2026-08-01',
-                'tanggal_berakhir' => '2031-08-01',
-                'link_drive' => 'https://drive.google.com/file/d/1ExampleSKDriveLink111/view',
-                'status' => 'Aktif',
-                'keterangan' => 'Pengesahan Struktur Pengurus Nasional'
-            ],
-            [
-                'nomor_sk' => '002/SK/PNKT/VIII/2026',
-                'judul_sk' => 'SK Pembentukan Satuan Tugas Nasional Penanggulangan Bencana',
-                'tanggal_berlaku' => '2026-08-05',
-                'tanggal_berakhir' => '2027-08-05',
-                'link_drive' => 'https://drive.google.com/file/d/2ExampleSKDriveLink222/view',
-                'status' => 'Aktif',
-                'keterangan' => 'SK Pembentukan Satgas Penanganan Bencana'
-            ],
-            [
-                'nomor_sk' => '003/SK/PNKT/VIII/2026',
-                'judul_sk' => 'SK Pelaksanaan Temu Karya Nasional VIII',
-                'tanggal_berlaku' => '2026-08-10',
-                'tanggal_berakhir' => '2026-12-31',
-                'link_drive' => 'https://drive.google.com/file/d/3ExampleSKDriveLink333/view',
-                'status' => 'Aktif',
-                'keterangan' => 'Panitia Pelaksana Temu Karya'
-            ]
-        ];
-
-        foreach ($examples as $idx => $ex) {
-            $html .= '<tr style="background-color: #f8fafc;">';
-            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center;">' . ($idx + 1) . '</td>';
-            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; font-weight: bold; color: #022648;">' . $ex['nomor_sk'] . '</td>';
-            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px;">' . $ex['judul_sk'] . '</td>';
-            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center;">' . $ex['tanggal_berlaku'] . '</td>';
-            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center;">' . $ex['tanggal_berakhir'] . '</td>';
-            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; color: #2563eb;">' . $ex['link_drive'] . '</td>';
-            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px; text-align: center; font-weight: bold; color: #059669;">' . $ex['status'] . '</td>';
-            $html .= '<td style="border: 1px solid #cbd5e1; padding: 8px;">' . $ex['keterangan'] . '</td>';
-            $html .= '</tr>';
+        $filePath = public_path('templates/Template_Import_Surat_Keputusan.xls');
+        if (!file_exists($filePath)) {
+            $filePath = base_path('TemplateSurat.xls');
         }
 
-        $html .= '</tbody></table></body></html>';
+        if (file_exists($filePath)) {
+            return response()->download($filePath, 'Template_Import_Surat_Keputusan.xls', [
+                'Content-Type' => 'application/vnd.ms-excel',
+            ]);
+        }
 
-        return response($html)
-            ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
-            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+        return redirect()->back()->with('error', 'Berkas template contoh tidak ditemukan.');
     }
 
     /**

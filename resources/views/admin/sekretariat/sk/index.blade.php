@@ -173,7 +173,7 @@
     }
     .modal-overlay.active { display: flex !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; }
     .modal-content-lg {
-        background: #ffffff; border-radius: 12px; max-width: 680px; width: 100%;
+        background: #ffffff; border-radius: 12px; max-width: 820px; width: 100%;
         box-shadow: 0 24px 48px rgba(2, 38, 72, 0.25); border: 1px solid rgba(2, 38, 72, 0.1);
         overflow: hidden; transform: scale(0.94) translateY(12px);
         transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); max-height: 85vh;
