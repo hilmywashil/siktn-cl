@@ -176,18 +176,18 @@
         background: #ffffff; border-radius: 12px; max-width: 680px; width: 100%;
         box-shadow: 0 24px 48px rgba(2, 38, 72, 0.25); border: 1px solid rgba(2, 38, 72, 0.1);
         overflow: hidden; transform: scale(0.94) translateY(12px);
-        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); max-height: 90vh;
-        display: flex; flex-direction: column;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); max-height: 85vh;
+        display: flex; flex-direction: column; margin: auto;
     }
     .modal-overlay.active .modal-content-lg { transform: scale(1) translateY(0); }
     .modal-header-prof {
         padding: 1.2rem 1.5rem; background: linear-gradient(135deg, #022648 0%, #01162f 100%);
-        color: white; display: flex; justify-content: space-between; align-items: center;
+        color: white; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
     }
-    .modal-body-prof { padding: 1.5rem; overflow-y: auto; }
+    .modal-body-prof { padding: 1.5rem; overflow-y: auto; flex: 1 1 auto; min-height: 0; }
     .modal-footer-prof {
         padding: 1rem 1.5rem; background: #f8f9fc; border-top: 1px solid #e5e7eb;
-        display: flex; justify-content: flex-end; gap: 0.75rem;
+        display: flex; justify-content: flex-end; gap: 0.75rem; flex-shrink: 0;
     }
     .modal-overlay .form-control {
         border: 1px solid #cbd5e1 !important; border-radius: 6px !important;
@@ -683,6 +683,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         if (typeof $.fn.select2 !== 'undefined') {
@@ -912,87 +913,100 @@
 
         document.getElementById('importFileLabel').innerText = file.name;
 
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const text = e.target.result;
-            let rows = [];
+        function processRows(rows) {
+            const validRows = rows.filter(r => r.nomor_sk && r.judul_sk && !r.nomor_sk.includes('') && !r.judul_sk.includes(''));
 
-            if (text.includes('<tr')) {
-                // HTML Table parsing (.xls format)
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const trs = doc.querySelectorAll('table tr');
-                trs.forEach((tr, idx) => {
-                    const tds = tr.querySelectorAll('td, th');
-                    if (tds.length >= 3) {
-                        const col2 = tds[1] ? tds[1].innerText.trim() : '';
-                        const col3 = tds[2] ? tds[2].innerText.trim() : '';
-                        const col4 = tds[3] ? tds[3].innerText.trim() : '';
-                        const col5 = tds[4] ? tds[4].innerText.trim() : '';
-                        const col6 = tds[5] ? tds[5].innerText.trim() : '';
-                        const col7 = tds[6] ? tds[6].innerText.trim() : '';
-                        const col8 = tds[7] ? tds[7].innerText.trim() : '';
-
-                        if (col2 && col3 && col2.toLowerCase() !== 'nomor sk' && col2.toLowerCase() !== 'no') {
-                            rows.push({
-                                nomor_sk: col2,
-                                judul_sk: col3,
-                                tanggal_berlaku: col4 || '2026-08-01',
-                                tanggal_berakhir: col5 || '2029-08-01',
-                                link_drive: col6,
-                                status: col7 || 'Aktif',
-                                keterangan: col8
-                            });
-                        }
-                    }
-                });
-            } else {
-                // CSV Parsing
-                const lines = text.split(/\r\n|\n/);
-                lines.forEach((line, idx) => {
-                    if (idx === 0) return;
-                    const cols = line.split(',');
-                    if (cols.length >= 2) {
-                        const nomor = cols[0] ? cols[0].replace(/"/g, '').trim() : '';
-                        const judul = cols[1] ? cols[1].replace(/"/g, '').trim() : '';
-                        if (nomor && judul && nomor.toLowerCase() !== 'nomor sk') {
-                            rows.push({
-                                nomor_sk: nomor,
-                                judul_sk: judul,
-                                tanggal_berlaku: cols[2] ? cols[2].replace(/"/g, '').trim() : '2026-08-01',
-                                tanggal_berakhir: cols[3] ? cols[3].replace(/"/g, '').trim() : '2029-08-01',
-                                link_drive: cols[4] ? cols[4].replace(/"/g, '').trim() : '',
-                                status: cols[5] ? cols[5].replace(/"/g, '').trim() : 'Aktif',
-                                keterangan: cols[6] ? cols[6].replace(/"/g, '').trim() : ''
-                            });
-                        }
-                    }
-                });
-            }
-
-            if (rows.length > 0) {
-                document.getElementById('importSkRowsInput').value = JSON.stringify(rows);
-                document.getElementById('importSkCount').innerText = rows.length + (rows.length > 15 ? ' data — menampilkan 15 pertama' : ' data');
+            if (validRows.length > 0) {
+                document.getElementById('importSkRowsInput').value = JSON.stringify(validRows);
+                document.getElementById('importSkCount').innerText = validRows.length + (validRows.length > 15 ? ' data — menampilkan 15 pertama' : ' data');
                 const tbody = document.getElementById('importSkPreviewTableBody');
                 tbody.innerHTML = '';
-                rows.slice(0, 15).forEach(r => {
+                validRows.slice(0, 15).forEach(r => {
                     tbody.innerHTML += `<tr>
-                        <td style="padding:4px 6px;border-bottom:1px solid #eee;"><strong>${r.nomor_sk}</strong></td>
-                        <td style="padding:4px 6px;border-bottom:1px solid #eee;">${r.judul_sk}</td>
-                        <td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center;">${r.tanggal_berlaku}</td>
-                        <td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:center;"><span style="color:#059669;font-weight:700;">${r.status}</span></td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;"><strong>${r.nomor_sk}</strong></td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;">${r.judul_sk}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:center;">${r.tanggal_berlaku}</td>
+                        <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:center;"><span style="color:#059669;font-weight:700;">${r.status}</span></td>
                     </tr>`;
                 });
                 document.getElementById('importSkPreviewContainer').style.display = 'block';
                 document.getElementById('btnSubmitImportSk').disabled = false;
             } else {
                 if (typeof Toast !== 'undefined') {
-                    Toast.fire({ icon: 'error', title: 'Tidak dapat membaca baris data SK dari file tersebut.' });
+                    Toast.fire({ icon: 'error', title: 'Tidak dapat membaca baris data SK dari berkas tersebut.' });
                 }
                 document.getElementById('btnSubmitImportSk').disabled = true;
             }
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            let rows = [];
+            try {
+                if (typeof XLSX !== 'undefined') {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonSheet = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                    jsonSheet.forEach((rowArray) => {
+                        if (!rowArray || rowArray.length < 2) return;
+                        const colNomor = String(rowArray[1] !== undefined ? rowArray[1] : (rowArray[0] || '')).trim();
+                        const colJudul = String(rowArray[2] !== undefined ? rowArray[2] : (rowArray[1] || '')).trim();
+
+                        if (!colNomor || !colJudul) return;
+                        if (colNomor.toLowerCase() === 'nomor sk' || colNomor.toLowerCase() === 'no' || colNomor.toLowerCase() === 'nomor') return;
+
+                        rows.push({
+                            nomor_sk: colNomor,
+                            judul_sk: colJudul,
+                            tanggal_berlaku: String(rowArray[3] || '2026-08-01').trim(),
+                            tanggal_berakhir: String(rowArray[4] || '2029-08-01').trim(),
+                            link_drive: String(rowArray[5] || '').trim(),
+                            status: String(rowArray[6] || 'Aktif').trim(),
+                            keterangan: String(rowArray[7] || '').trim()
+                        });
+                    });
+                }
+            } catch (err) {
+                console.warn('SheetJS read failed, fallback to text:', err);
+            }
+
+            if (rows.length > 0) {
+                processRows(rows);
+            } else {
+                const textReader = new FileReader();
+                textReader.onload = function(evt) {
+                    const text = evt.target.result;
+                    if (text.includes('<tr')) {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(text, 'text/html');
+                        const trs = doc.querySelectorAll('table tr');
+                        trs.forEach(tr => {
+                            const tds = tr.querySelectorAll('td, th');
+                            if (tds.length >= 3) {
+                                const c2 = tds[1] ? tds[1].innerText.trim() : '';
+                                const c3 = tds[2] ? tds[2].innerText.trim() : '';
+                                if (c2 && c3 && c2.toLowerCase() !== 'nomor sk' && c2.toLowerCase() !== 'no') {
+                                    rows.push({
+                                        nomor_sk: c2,
+                                        judul_sk: c3,
+                                        tanggal_berlaku: tds[3] ? tds[3].innerText.trim() : '2026-08-01',
+                                        tanggal_berakhir: tds[4] ? tds[4].innerText.trim() : '2029-08-01',
+                                        link_drive: tds[5] ? tds[5].innerText.trim() : '',
+                                        status: tds[6] ? tds[6].innerText.trim() : 'Aktif',
+                                        keterangan: tds[7] ? tds[7].innerText.trim() : ''
+                                    });
+                                }
+                            }
+                        });
+                    }
+                    processRows(rows);
+                };
+                textReader.readAsText(file);
+            }
         };
-        reader.readAsText(file);
+        reader.readAsArrayBuffer(file);
     }
 </script>
 @endpush
