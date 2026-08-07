@@ -375,20 +375,6 @@ class SuratKeputusanController extends Controller
             $html .= '</tr>';
         }
 
-        // 10 Baris Kosong Siap Isi
-        for ($i = 4; $i <= 15; $i++) {
-            $html .= '<tr>';
-            $html .= '<td style="border: 1px solid #e2e8f0; padding: 8px; text-align: center; color: #94a3b8;">' . $i . '</td>';
-            $html .= '<td style="border: 1px solid #e2e8f0; padding: 8px;"></td>';
-            $html .= '<td style="border: 1px solid #e2e8f0; padding: 8px;"></td>';
-            $html .= '<td style="border: 1px solid #e2e8f0; padding: 8px;"></td>';
-            $html .= '<td style="border: 1px solid #e2e8f0; padding: 8px;"></td>';
-            $html .= '<td style="border: 1px solid #e2e8f0; padding: 8px;"></td>';
-            $html .= '<td style="border: 1px solid #e2e8f0; padding: 8px;">Aktif</td>';
-            $html .= '<td style="border: 1px solid #e2e8f0; padding: 8px;"></td>';
-            $html .= '</tr>';
-        }
-
         $html .= '</tbody></table></body></html>';
 
         return response($html)

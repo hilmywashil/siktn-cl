@@ -595,12 +595,16 @@
                         <textarea name="keterangan" id="editKeterangan" class="form-control" style="height: 75px; font-size: 0.85rem;"></textarea>
                     </div>
                 </div>
-              <div class="modal-footer-prof">
+            </div>
+            <div class="modal-footer-prof">
                 <button type="button" onclick="closeEditModal()" class="btn-outline-secondary">Batal</button>
                 <button type="submit" class="btn-solid-navy" style="font-weight: 700;" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Surat Keputusan (SK) berhasil diperbarui...' })">Update SK</button>
             </div>
         </form>
- <!-- Modal Import SK -->
+    </div>
+</div>
+
+<!-- Modal Import SK -->
 <div class="modal-overlay" id="modalImportSk" onclick="if(event.target===this) closeImportSkModal()">
     <div class="modal-content-lg">
         <div class="modal-header-prof" style="background: linear-gradient(135deg, #022648 0%, #01162f 100%); padding: 1.25rem 1.5rem; color: white;">
@@ -968,10 +972,10 @@
 
             if (rows.length > 0) {
                 document.getElementById('importSkRowsInput').value = JSON.stringify(rows);
-                document.getElementById('importSkCount').innerText = rows.length;
+                document.getElementById('importSkCount').innerText = rows.length + (rows.length > 15 ? ' data — menampilkan 15 pertama' : ' data');
                 const tbody = document.getElementById('importSkPreviewTableBody');
                 tbody.innerHTML = '';
-                rows.slice(0, 5).forEach(r => {
+                rows.slice(0, 15).forEach(r => {
                     tbody.innerHTML += `<tr>
                         <td style="padding:4px 6px;border-bottom:1px solid #eee;"><strong>${r.nomor_sk}</strong></td>
                         <td style="padding:4px 6px;border-bottom:1px solid #eee;">${r.judul_sk}</td>
