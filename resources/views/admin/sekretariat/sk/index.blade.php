@@ -914,7 +914,7 @@
         document.getElementById('importFileLabel').innerText = file.name;
 
         function processRows(rows) {
-            const validRows = rows.filter(r => r.nomor_sk && r.judul_sk && !r.nomor_sk.includes('') && !r.judul_sk.includes(''));
+            const validRows = rows.filter(r => r.nomor_sk && r.judul_sk && r.nomor_sk !== '' && r.judul_sk !== '');
 
             if (validRows.length > 0) {
                 document.getElementById('importSkRowsInput').value = JSON.stringify(validRows);
@@ -947,25 +947,52 @@
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonSheet = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                    const jsonSheet = XLSX.utils.sheet_to_json(firstSheet, { header: 1, raw: false });
 
                     jsonSheet.forEach((rowArray) => {
-                        if (!rowArray || rowArray.length < 2) return;
-                        const colNomor = String(rowArray[1] !== undefined ? rowArray[1] : (rowArray[0] || '')).trim();
-                        const colJudul = String(rowArray[2] !== undefined ? rowArray[2] : (rowArray[1] || '')).trim();
+                        if (!rowArray || !Array.isArray(rowArray) || rowArray.length < 2) return;
+                        
+                        const rowStr = rowArray.map(c => String(c || '').trim()).join(' ').toLowerCase();
+                        if (rowStr.includes('template import') || rowStr.includes('petunjuk:') || rowStr.includes('nomor sk')) return;
 
-                        if (!colNomor || !colJudul) return;
-                        if (colNomor.toLowerCase() === 'nomor sk' || colNomor.toLowerCase() === 'no' || colNomor.toLowerCase() === 'nomor') return;
+                        let nomor = '';
+                        let judul = '';
+                        let tgl1 = '2026-08-01';
+                        let tgl2 = '2029-08-01';
+                        let link = '';
+                        let status = 'Aktif';
+                        let ket = '';
 
-                        rows.push({
-                            nomor_sk: colNomor,
-                            judul_sk: colJudul,
-                            tanggal_berlaku: String(rowArray[3] || '2026-08-01').trim(),
-                            tanggal_berakhir: String(rowArray[4] || '2029-08-01').trim(),
-                            link_drive: String(rowArray[5] || '').trim(),
-                            status: String(rowArray[6] || 'Aktif').trim(),
-                            keterangan: String(rowArray[7] || '').trim()
-                        });
+                        const firstCell = String(rowArray[0] || '').trim();
+                        if (/^\d+$/.test(firstCell) || (rowArray.length >= 3 && String(rowArray[1] || '').trim() !== '')) {
+                            nomor = String(rowArray[1] || '').trim();
+                            judul = String(rowArray[2] || '').trim();
+                            tgl1 = String(rowArray[3] || tgl1).trim();
+                            tgl2 = String(rowArray[4] || tgl2).trim();
+                            link = String(rowArray[5] || '').trim();
+                            status = String(rowArray[6] || status).trim();
+                            ket = String(rowArray[7] || '').trim();
+                        } else {
+                            nomor = String(rowArray[0] || '').trim();
+                            judul = String(rowArray[1] || '').trim();
+                            tgl1 = String(rowArray[2] || tgl1).trim();
+                            tgl2 = String(rowArray[3] || tgl2).trim();
+                            link = String(rowArray[4] || '').trim();
+                            status = String(rowArray[5] || status).trim();
+                            ket = String(rowArray[6] || '').trim();
+                        }
+
+                        if (nomor && judul && nomor.toLowerCase() !== 'nomor sk' && nomor.toLowerCase() !== 'no') {
+                            rows.push({
+                                nomor_sk: nomor,
+                                judul_sk: judul,
+                                tanggal_berlaku: tgl1 || '2026-08-01',
+                                tanggal_berakhir: tgl2 || '2029-08-01',
+                                link_drive: link,
+                                status: (status === 'Tidak Aktif' ? 'Tidak Aktif' : 'Aktif'),
+                                keterangan: ket
+                            });
+                        }
                     });
                 }
             } catch (err) {
@@ -983,19 +1010,28 @@
                         const doc = parser.parseFromString(text, 'text/html');
                         const trs = doc.querySelectorAll('table tr');
                         trs.forEach(tr => {
-                            const tds = tr.querySelectorAll('td, th');
-                            if (tds.length >= 3) {
-                                const c2 = tds[1] ? tds[1].innerText.trim() : '';
-                                const c3 = tds[2] ? tds[2].innerText.trim() : '';
-                                if (c2 && c3 && c2.toLowerCase() !== 'nomor sk' && c2.toLowerCase() !== 'no') {
+                            const tds = Array.from(tr.querySelectorAll('td, th')).map(t => t.innerText.trim());
+                            if (tds.length >= 2) {
+                                const c1 = tds[0] || '';
+                                const c2 = tds[1] || '';
+                                const c3 = tds[2] || '';
+                                
+                                let nomor = '', judul = '', t1 = '', t2 = '', lk = '', st = 'Aktif', kt = '';
+                                if (/^\d+$/.test(c1) && c2 && c3) {
+                                    nomor = c2; judul = c3; t1 = tds[3] || ''; t2 = tds[4] || ''; lk = tds[5] || ''; st = tds[6] || 'Aktif'; kt = tds[7] || '';
+                                } else if (c1 && c2) {
+                                    nomor = c1; judul = c2; t1 = tds[2] || ''; t2 = tds[3] || ''; lk = tds[4] || ''; st = tds[5] || 'Aktif'; kt = tds[6] || '';
+                                }
+
+                                if (nomor && judul && nomor.toLowerCase() !== 'nomor sk' && nomor.toLowerCase() !== 'no') {
                                     rows.push({
-                                        nomor_sk: c2,
-                                        judul_sk: c3,
-                                        tanggal_berlaku: tds[3] ? tds[3].innerText.trim() : '2026-08-01',
-                                        tanggal_berakhir: tds[4] ? tds[4].innerText.trim() : '2029-08-01',
-                                        link_drive: tds[5] ? tds[5].innerText.trim() : '',
-                                        status: tds[6] ? tds[6].innerText.trim() : 'Aktif',
-                                        keterangan: tds[7] ? tds[7].innerText.trim() : ''
+                                        nomor_sk: nomor,
+                                        judul_sk: judul,
+                                        tanggal_berlaku: t1 || '2026-08-01',
+                                        tanggal_berakhir: t2 || '2029-08-01',
+                                        link_drive: lk,
+                                        status: (st === 'Tidak Aktif' ? 'Tidak Aktif' : 'Aktif'),
+                                        keterangan: kt
                                     });
                                 }
                             }
