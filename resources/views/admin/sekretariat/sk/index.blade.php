@@ -173,10 +173,10 @@
     }
     .modal-overlay.active { display: flex !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; }
     .modal-content-lg {
-        background: #ffffff; border-radius: 12px; max-width: 820px; width: 100%;
+        background: #ffffff; border-radius: 12px; max-width: 920px; width: 100%;
         box-shadow: 0 24px 48px rgba(2, 38, 72, 0.25); border: 1px solid rgba(2, 38, 72, 0.1);
         overflow: hidden; transform: scale(0.94) translateY(12px);
-        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); max-height: 85vh;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); max-height: 88vh;
         display: flex; flex-direction: column; margin: auto;
     }
     .modal-content-lg form {
@@ -643,11 +643,11 @@
 
                 <div class="form-group-full">
                     <label class="form-label" style="font-weight: 700; color: #022648; font-size: 0.875rem; margin-bottom: 0.5rem; display: block;">Pilih Berkas Excel / CSV (.xls, .xlsx, .csv)</label>
-                    <div class="file-upload-zone" onclick="document.getElementById('importSkFile').click()" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 2rem 1.5rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
+                    <div class="file-upload-zone" onclick="document.getElementById('importSkFile').click()" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1.25rem 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
                         <input type="file" id="importSkFile" accept=".xls,.xlsx,.csv" onchange="handleImportSkFile(this)" style="display: none;">
                         <div style="pointer-events: none;">
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                            <div style="font-weight: 700; color: #022648; font-size: 0.95rem; margin-bottom: 4px;" id="importFileLabel">Klik atau Tarik Berkas Excel ke Sini</div>
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 0.35rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <div style="font-weight: 700; color: #022648; font-size: 0.9rem; margin-bottom: 2px;" id="importFileLabel">Klik atau Tarik Berkas Excel ke Sini</div>
                             <span style="font-size: 0.775rem; color: #64748b;">Format yang didukung: .xls, .xlsx, .csv</span>
                         </div>
                     </div>
@@ -672,11 +672,11 @@
                         <table style="width: 100%; border-collapse: collapse;">
                             <thead>
                                 <tr style="background: #022648; color: white;">
-                                    <th style="padding: 8px 10px; text-align: left;">No SK</th>
-                                    <th style="padding: 8px 10px; text-align: left;">Judul SK</th>
-                                    <th style="padding: 8px 10px; text-align: center;">Berlaku</th>
-                                    <th style="padding: 8px 10px; text-align: center;">Status</th>
-                                    <th style="padding: 8px 10px; text-align: center; width: 50px;">Aksi</th>
+                                    <th style="padding: 10px 12px; text-align: left; width: 30%;">No SK</th>
+                                    <th style="padding: 10px 12px; text-align: left; width: 40%;">Judul SK</th>
+                                    <th style="padding: 10px 12px; text-align: center; width: 12%;">Berlaku</th>
+                                    <th style="padding: 10px 12px; text-align: center; width: 10%;">Status</th>
+                                    <th style="padding: 10px 12px; text-align: center; width: 8%;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="importSkPreviewTableBody"></tbody>
@@ -968,17 +968,18 @@
 
         rows.slice(0, 15).forEach((r, idx) => {
             const bgStyle = r.is_duplicate ? 'background: #fef2f2;' : '';
-            const dupBadge = r.is_duplicate ? `<span style="background: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 4px; font-size: 0.6875rem; font-weight: 700; margin-left: 6px;">${r.dup_reason}</span>` : '';
+            const dupBadge = r.is_duplicate ? `<span style="display: inline-block; background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin-top: 4px;">${r.dup_reason}</span>` : '';
 
             tbody.innerHTML += `<tr style="${bgStyle}">
-                <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;">
-                    <strong>${r.nomor_sk}</strong> ${dupBadge}
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top;">
+                    <div style="font-weight: 700; color: #022648; font-size: 0.8125rem;">${r.nomor_sk}</div>
+                    ${dupBadge}
                 </td>
-                <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;">${r.judul_sk}</td>
-                <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:center;">${r.tanggal_berlaku}</td>
-                <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:center;"><span style="color:#059669;font-weight:700;">${r.status}</span></td>
-                <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:center;">
-                    <button type="button" onclick="removeImportSkRow(${idx})" title="Hapus baris ini" style="background:#fee2e2; color:#991b1b; border:none; width:24px; height:24px; border-radius:50%; font-weight:bold; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:0.875rem;">&times;</button>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; font-size: 0.8125rem; color: #334155; line-height: 1.4;">${r.judul_sk}</td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: center; vertical-align: top; font-size: 0.8125rem; color: #475569;">${r.tanggal_berlaku}</td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: center; vertical-align: top;"><span style="color: #059669; font-weight: 700; font-size: 0.8125rem;">${r.status}</span></td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: center; vertical-align: top;">
+                    <button type="button" onclick="removeImportSkRow(${idx})" title="Hapus baris ini" style="background: #fee2e2; color: #991b1b; border: none; width: 26px; height: 26px; border-radius: 50%; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 0.875rem; transition: background 0.2s;" onmouseover="this.style.background='#fca5a5'" onmouseout="this.style.background='#fee2e2'">&times;</button>
                 </td>
             </tr>`;
         });
