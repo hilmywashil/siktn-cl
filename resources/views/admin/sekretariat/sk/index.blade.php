@@ -602,35 +602,32 @@
                 <button type="submit" class="btn-solid-navy" style="font-weight: 700;" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Surat Keputusan (SK) berhasil diperbarui...' })">Update SK</button>
             </div>
         </form>
-    </div>
-</div>
-
-<!-- Modal Import SK -->
+ <!-- Modal Import SK -->
 <div class="modal-overlay" id="modalImportSk" onclick="if(event.target===this) closeImportSkModal()">
     <div class="modal-content-lg">
-        <div class="modal-header-prof" style="background: linear-gradient(135deg, #b7830f 0%, #022648 100%);">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center;">
-                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div class="modal-header-prof" style="background: linear-gradient(135deg, #022648 0%, #01162f 100%); padding: 1.25rem 1.5rem; color: white;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(183, 131, 15, 0.2); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(183, 131, 15, 0.4);">
+                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="#b7830f" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 </div>
                 <div>
-                    <h3 style="font-size: 1.05rem; font-weight: 800; color: white; margin: 0;">Import / Bulk Upload Surat Keputusan (SK)</h3>
-                    <span style="font-size: 0.725rem; color: #f1f5f9;">Unggah data SK secara massal menggunakan file Excel (.xls / .csv)</span>
+                    <h3 style="font-size: 1.1rem; font-weight: 800; color: white; margin: 0;">Import / Bulk Upload Surat Keputusan (SK)</h3>
+                    <span style="font-size: 0.775rem; color: #94a3b8;">Unggah berkas data SK secara massal menggunakan format Excel (.xls / .csv)</span>
                 </div>
             </div>
-            <button type="button" onclick="closeImportSkModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
+            <button type="button" onclick="closeImportSkModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem;">&times;</button>
         </div>
 
         <form action="{{ route('admin.sekretariat.sk.import') }}" method="POST" id="formImportSk">
             @csrf
             <input type="hidden" name="sk_rows" id="importSkRowsInput">
 
-            <div class="modal-body-prof">
+            <div class="modal-body-prof" style="padding: 1.5rem;">
                 <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem;">
-                    <div style="font-weight: 700; color: #022648; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
-                        <span><i class="fa fa-info-circle" style="color: #b7830f;"></i> Unduh Format Contoh Import SK</span>
-                        <a href="{{ route('admin.sekretariat.sk.template-import') }}" onclick="Toast.fire({ icon: 'success', title: 'Mengunduh format contoh Excel SK...' })" style="background: #059669; color: white; padding: 6px 14px; border-radius: 6px; font-size: 0.775rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <div style="font-weight: 700; color: #022648; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <span style="font-size: 0.9rem;"><i class="fa fa-info-circle" style="color: #b7830f;"></i> Unduh Format Contoh Import SK</span>
+                        <a href="{{ route('admin.sekretariat.sk.template-import') }}" onclick="Toast.fire({ icon: 'success', title: 'Mengunduh format contoh Excel SK...' })" style="background: #059669; color: white; padding: 7px 14px; border-radius: 6px; font-size: 0.775rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             Unduh Format Contoh (.xls)
                         </a>
                     </div>
@@ -640,13 +637,13 @@
                 </div>
 
                 <div class="form-group-full">
-                    <label class="form-label" style="font-weight: 700; color: #022648;">Pilih Berkas Excel / CSV (.xls, .xlsx, .csv)</label>
-                    <div class="file-upload-zone" style="border: 2px dashed #b7830f; background: #fffbeb;">
-                        <input type="file" id="importSkFile" accept=".xls,.xlsx,.csv" onchange="handleImportSkFile(this)">
-                        <div style="pointer-events: none;">
-                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                            <div style="font-weight: 700; color: #022648; font-size: 0.875rem;" id="importFileLabel">Klik atau Tarik Berkas Excel ke Sini</div>
-                            <span style="font-size: 0.75rem; color: #64748b;">Format yang didukung: .xls, .xlsx, .csv</span>
+                    <label class="form-label" style="font-weight: 700; color: #022648; font-size: 0.875rem; margin-bottom: 0.5rem; display: block;">Pilih Berkas Excel / CSV (.xls, .xlsx, .csv)</label>
+                    <div class="file-upload-zone" style="position: relative; overflow: hidden; border: 2px dashed #b7830f; background: #fffdf5; padding: 2rem 1.5rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
+                        <input type="file" id="importSkFile" accept=".xls,.xlsx,.csv" onchange="handleImportSkFile(this)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10;">
+                        <div style="pointer-events: none; position: relative; z-index: 1;">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <div style="font-weight: 700; color: #022648; font-size: 0.95rem; margin-bottom: 4px;" id="importFileLabel">Klik atau Tarik Berkas Excel ke Sini</div>
+                            <span style="font-size: 0.775rem; color: #64748b;">Format yang didukung: .xls, .xlsx, .csv</span>
                         </div>
                     </div>
                 </div>
@@ -655,14 +652,14 @@
                     <div style="font-weight: 700; color: #022648; font-size: 0.85rem; margin-bottom: 0.5rem;">
                         Pratinjau Data Terbaca (<span id="importSkCount">0</span> baris SK)
                     </div>
-                    <div style="max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.775rem;">
+                    <div style="max-height: 200px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.775rem;">
                         <table style="width: 100%; border-collapse: collapse;">
                             <thead>
                                 <tr style="background: #022648; color: white;">
-                                    <th style="padding: 6px; text-align: left;">No SK</th>
-                                    <th style="padding: 6px; text-align: left;">Judul SK</th>
-                                    <th style="padding: 6px; text-align: center;">Berlaku</th>
-                                    <th style="padding: 6px; text-align: center;">Status</th>
+                                    <th style="padding: 8px 10px; text-align: left;">No SK</th>
+                                    <th style="padding: 8px 10px; text-align: left;">Judul SK</th>
+                                    <th style="padding: 8px 10px; text-align: center;">Berlaku</th>
+                                    <th style="padding: 8px 10px; text-align: center;">Status</th>
                                 </tr>
                             </thead>
                             <tbody id="importSkPreviewTableBody"></tbody>
@@ -671,13 +668,15 @@
                 </div>
             </div>
 
-            <div class="modal-footer-prof">
+            <div class="modal-footer-prof" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.75rem;">
                 <button type="button" class="btn-outline-secondary" onclick="closeImportSkModal()">Batal</button>
-                <button type="submit" id="btnSubmitImportSk" class="btn-solid-navy" style="background: #b7830f !important;" disabled>
+                <button type="submit" id="btnSubmitImportSk" class="btn-solid-navy" style="background: #022648 !important; color: white !important; font-weight: 700;" disabled>
                     <i class="fa fa-upload"></i> Proses Import Massal
                 </button>
             </div>
         </form>
+    </div>
+</div>
     </div>
 </div>
 
