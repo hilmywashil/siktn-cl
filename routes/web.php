@@ -335,17 +335,17 @@ Route::get('/organisasi', function (Illuminate\Http\Request $request) {
 
     $organisasiQuery = \App\Models\Organisasi::aktif();
 
-    if ($selectedProvinsi) {
-        $organisasiQuery->where('provinsi', $selectedProvinsi);
-    }
-
     if ($selectedKabupaten) {
         $cleanKab = trim(str_replace(['Kota ', 'Kabupaten '], '', $selectedKabupaten));
         $organisasiQuery->where(function($q) use ($selectedKabupaten, $cleanKab) {
             $q->where('kabupaten', 'like', "%{$selectedKabupaten}%")
-              ->orWhere('kabupaten', 'like', "%{$cleanKab}%")
-              ->orWhere('provinsi', 'like', "%{$cleanKab}%");
+              ->orWhere('kabupaten', 'like', "%{$cleanKab}%");
         });
+    } elseif ($selectedProvinsi) {
+        $organisasiQuery->where('provinsi', $selectedProvinsi)
+            ->where(function($q) {
+                $q->whereNull('kabupaten')->orWhere('kabupaten', '');
+            });
     }
 
     if ($selectedPeriodeId) {
@@ -354,18 +354,22 @@ Route::get('/organisasi', function (Illuminate\Http\Request $request) {
 
     $organisasi = $organisasiQuery->ordered()->get();
 
-    // Otomatisasi 1 Template Ketum jika belum ada untuk wilayah ini
+    // Otomatisasi 1 Template Ketum per Wilayah jika belum ada
     $hasKetum = $organisasi->contains(function ($item) {
         return $item->urutan == 1 || strtolower(trim($item->jabatan)) === 'ketua umum';
     });
 
     if (!$hasKetum) {
+        $targetProv = $selectedKabupaten 
+            ? \App\Helpers\WilayahHelper::getProvinsiFromDomisili($selectedKabupaten)
+            : $selectedProvinsi;
+
         \App\Models\Organisasi::create([
             'nama' => 'Template Ketum (Belum Diisi)',
             'jabatan' => 'Ketua Umum',
             'kategori' => 'Pengurus Harian',
             'urutan' => '1',
-            'provinsi' => $selectedProvinsi,
+            'provinsi' => $targetProv,
             'kabupaten' => $selectedKabupaten,
             'periode_id' => $selectedPeriode ? $selectedPeriode->id : null,
             'foto' => null,
