@@ -36,6 +36,16 @@ class SuratController extends Controller
 
         $query = Surat::query()->where('tipe', $tipe)->where('klasifikasi', $klasifikasi);
 
+        // Regional Access Scope (PPKT & PKKT)
+        if (!$admin->isSuperAdmin() && !$admin->isPimpinan() && !$admin->isPNKT() && !empty($admin->domisili)) {
+            $query->where(function($q) use ($admin) {
+                $q->where('created_by', $admin->id)
+                  ->orWhereHas('creator', function($cq) use ($admin) {
+                      $cq->where('domisili', $admin->domisili);
+                  });
+            });
+        }
+
         // Filter Status (Pending TTD, Terbit, Revisi, Draft)
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -53,25 +63,35 @@ class SuratController extends Controller
 
         $surats = $query->orderBy('tanggal', 'desc')->paginate(10)->appends($request->query());
 
-        // Count Statistics
+        // Count Statistics (Scoped)
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
+
+        $statsQuery = Surat::query();
+        if (!$admin->isSuperAdmin() && !$admin->isPimpinan() && !$admin->isPNKT() && !empty($admin->domisili)) {
+            $statsQuery->where(function($q) use ($admin) {
+                $q->where('created_by', $admin->id)
+                  ->orWhereHas('creator', function($cq) use ($admin) {
+                      $cq->where('domisili', $admin->domisili);
+                  });
+            });
+        }
         
-        $totalTerbitBulanIni = Surat::where('status', 'Terbit')
+        $totalTerbitBulanIni = (clone $statsQuery)->where('status', 'Terbit')
             ->whereMonth('tanggal', $currentMonth)
             ->whereYear('tanggal', $currentYear)
             ->count();
 
-        $totalPendingTTD = Surat::where('status', 'Pending TTD')->count();
+        $totalPendingTTD = (clone $statsQuery)->where('status', 'Pending TTD')->count();
 
-        // Counts per Primary & Secondary Tabs
-        $countMasuk = Surat::where('tipe', 'masuk')->count();
-        $countKeluar = Surat::where('tipe', 'keluar')->count();
+        // Counts per Primary & Secondary Tabs (Scoped)
+        $countMasuk = (clone $statsQuery)->where('tipe', 'masuk')->count();
+        $countKeluar = (clone $statsQuery)->where('tipe', 'keluar')->count();
 
-        $countInternal = Surat::where('tipe', $tipe)->where('klasifikasi', 'internal')->count();
-        $countEksternal = Surat::where('tipe', $tipe)->where('klasifikasi', 'eksternal')->count();
-        $countPenting = Surat::where('tipe', $tipe)->where('klasifikasi', 'penting')->count();
-        $countPentingPending = Surat::where('tipe', $tipe)->where('klasifikasi', 'penting')->where('status', 'Pending TTD')->count();
+        $countInternal = (clone $statsQuery)->where('tipe', $tipe)->where('klasifikasi', 'internal')->count();
+        $countEksternal = (clone $statsQuery)->where('tipe', $tipe)->where('klasifikasi', 'eksternal')->count();
+        $countPenting = (clone $statsQuery)->where('tipe', $tipe)->where('klasifikasi', 'penting')->count();
+        $countPentingPending = (clone $statsQuery)->where('tipe', $tipe)->where('klasifikasi', 'penting')->where('status', 'Pending TTD')->count();
 
         $existingNomorSurats = Surat::pluck('nomor_surat')->toArray();
 

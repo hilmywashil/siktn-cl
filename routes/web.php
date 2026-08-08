@@ -101,6 +101,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             // Notulensi Rapat
             Route::get('notulensi', [NotulensiController::class, 'index'])->name('notulensi.index');
             Route::post('notulensi', [NotulensiController::class, 'store'])->name('notulensi.store');
+            Route::post('notulensi/bulk-store', [NotulensiController::class, 'storeBulk'])->name('notulensi.bulk-store');
+            Route::get('notulensi/template', [NotulensiController::class, 'downloadTemplate'])->name('notulensi.template');
             Route::post('notulensi/bulk-delete', [NotulensiController::class, 'bulkDelete'])->name('notulensi.bulk-delete');
             Route::post('notulensi/bulk-download', [NotulensiController::class, 'bulkDownload'])->name('notulensi.bulk-download');
             Route::put('notulensi/{id}', [NotulensiController::class, 'update'])->name('notulensi.update');

@@ -365,10 +365,14 @@
     </div>
 
     <!-- Page Action -->
-    <div class="page-actions-row">
+    <div class="page-actions-row" style="display: flex; gap: 10px; align-items: center;">
         <button type="button" class="btn-solid-navy" onclick="openCreateModal()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             Tambah Notulensi Baru
+        </button>
+        <button type="button" class="btn-outline-secondary" onclick="openBulkUploadModal()" style="font-weight: 700; color: #022648; border-color: #022648;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            Upload Massal Berkas / Import Excel
         </button>
     </div>
 
@@ -1178,5 +1182,94 @@
         });
         form.submit();
     }
+
+    function openBulkUploadModal() {
+        document.getElementById('bulkUploadModal').classList.add('active');
+    }
+
+    function closeBulkUploadModal() {
+        document.getElementById('bulkUploadModal').classList.remove('active');
+    }
+
+    function switchBulkTab(type) {
+        document.getElementById('bulkTypeInput').value = type;
+        const btnFiles = document.getElementById('tabBulkFiles');
+        const btnExcel = document.getElementById('tabBulkExcel');
+        const secFiles = document.getElementById('sectionBulkFiles');
+        const secExcel = document.getElementById('sectionBulkExcel');
+
+        if (type === 'files') {
+            btnFiles.className = 'btn btn-sm btn-primary';
+            btnExcel.className = 'btn btn-sm btn-outline-secondary';
+            secFiles.style.display = 'block';
+            secExcel.style.display = 'none';
+        } else {
+            btnFiles.className = 'btn btn-sm btn-outline-secondary';
+            btnExcel.className = 'btn btn-sm btn-primary';
+            secFiles.style.display = 'none';
+            secExcel.style.display = 'block';
+        }
+    }
 </script>
+
+<!-- Modal Upload Bulk Notulensi -->
+<div class="modal-overlay" id="bulkUploadModal" onclick="if(event.target===this) closeBulkUploadModal()">
+    <div class="modal-content-lg" style="max-width: 600px;">
+        <div class="modal-header-prof">
+            <div>
+                <h4>Upload Massal & Import Notulensi Rapat</h4>
+                <p>Tambah berkas risalah banyak sekaligus atau impor data Excel/CSV</p>
+            </div>
+            <button type="button" class="btn-close-prof" onclick="closeBulkUploadModal()">&times;</button>
+        </div>
+
+        <div style="padding: 1rem 1.5rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; gap: 8px;">
+            <button type="button" id="tabBulkFiles" onclick="switchBulkTab('files')" class="btn btn-sm btn-primary" style="font-weight: 700; font-size: 0.8rem;">
+                📄 Upload Banyak File PDF/Word
+            </button>
+            <button type="button" id="tabBulkExcel" onclick="switchBulkTab('excel')" class="btn btn-sm btn-outline-secondary" style="font-weight: 700; font-size: 0.8rem;">
+                📊 Import File Excel / CSV
+            </button>
+        </div>
+
+        <form action="{{ route('admin.sekretariat.notulensi.bulk-store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="bulk_type" id="bulkTypeInput" value="files">
+
+            <div class="modal-body-prof" style="padding: 1.5rem;">
+                <!-- Opsi 1: Multi File PDF / Word -->
+                <div id="sectionBulkFiles">
+                    <label style="font-weight: 700; font-size: 0.85rem; color: #022648; display: block; margin-bottom: 6px;">
+                        Pilih Banyak Berkas Risalah Notulensi (.pdf, .doc, .docx) *
+                    </label>
+                    <input type="file" name="files[]" multiple accept=".pdf,.doc,.docx" class="form-control" style="padding: 8px;">
+                    <small style="color: #64748b; font-size: 0.775rem; display: block; margin-top: 6px;">
+                        💡 Anda bisa menyeleksi beberapa file sekaligus. Nama file akan otomatis menjadi Judul Rapat.
+                    </small>
+                </div>
+
+                <!-- Opsi 2: Excel / CSV Import -->
+                <div id="sectionBulkExcel" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <label style="font-weight: 700; font-size: 0.85rem; color: #022648; margin: 0;">
+                            Pilih Berkas Excel / CSV Notulensi *
+                        </label>
+                        <a href="{{ route('admin.sekretariat.notulensi.template') }}" class="btn btn-sm btn-outline-primary" style="font-size: 0.75rem; font-weight: 700; text-decoration: none;">
+                            📥 Download Template CSV
+                        </a>
+                    </div>
+                    <input type="file" name="excel_file" accept=".xlsx,.xls,.csv,.txt" class="form-control" style="padding: 8px;">
+                    <small style="color: #64748b; font-size: 0.775rem; display: block; margin-top: 6px;">
+                        💡 Pastikan file Excel/CSV mengikuti susunan kolom template: <strong>Judul Rapat, Tanggal Rapat, Pemimpin Rapat, Ringkasan Hasil</strong>.
+                    </small>
+                </div>
+            </div>
+
+            <div class="modal-footer-prof" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 8px;">
+                <button type="button" class="btn-outline-secondary" onclick="closeBulkUploadModal()">Batal</button>
+                <button type="submit" class="btn-solid-navy">Mulai Upload Massal</button>
+            </div>
+        </form>
+    </div>
+</div>
 @endpush

@@ -87,6 +87,88 @@ class NotulensiController extends Controller
         return redirect()->route('admin.sekretariat.notulensi.index')->with('success', 'Notulensi Rapat berhasil ditambahkan.');
     }
 
+    public function storeBulk(Request $request)
+    {
+        $admin = Auth::guard('admin')->user();
+        $type = $request->input('bulk_type', 'files');
+
+        if ($type === 'files') {
+            $request->validate([
+                'files' => 'required|array|min:1',
+                'files.*' => 'file|mimes:pdf,doc,docx|max:10240',
+            ]);
+
+            $createdCount = 0;
+            foreach ($request->file('files') as $file) {
+                if ($file->isValid()) {
+                    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $cleanTitle = ucwords(str_replace(['_', '-'], ' ', $originalName));
+                    $pdfPath = $file->store('notulensi_pdf', 'public');
+
+                    Notulensi::create([
+                        'judul_rapat' => $cleanTitle,
+                        'tanggal_rapat' => \Carbon\Carbon::now(),
+                        'file_pdf' => $pdfPath,
+                        'created_by' => $admin->id,
+                    ]);
+                    $createdCount++;
+                }
+            }
+
+            $this->logActivity('notulensi', 'Bulk Store', null, "Upload bulk {$createdCount} berkas notulensi PDF/Word");
+            return redirect()->route('admin.sekretariat.notulensi.index')->with('success', "Berhasil menambahkan {$createdCount} Notulensi Rapat secara massal.");
+
+        } else {
+            $request->validate([
+                'excel_file' => 'required|file|mimes:xlsx,xls,csv,txt|max:5120',
+            ]);
+
+            $file = $request->file('excel_file');
+            $lines = file($file->getRealPath());
+
+            if (count($lines) <= 1) {
+                return redirect()->back()->with('error', 'File Excel/CSV kosong atau format tidak sesuai.');
+            }
+
+            $header = array_shift($lines);
+            $importedCount = 0;
+
+            foreach ($lines as $line) {
+                $row = str_getcsv($line);
+                if (empty($row[0])) continue;
+
+                $judulRapat = trim($row[0]);
+                $tanggalRapat = !empty($row[1]) ? \Carbon\Carbon::parse(trim($row[1]))->format('Y-m-d H:i:s') : \Carbon\Carbon::now()->format('Y-m-d H:i:s');
+                $pemimpinRapat = !empty($row[2]) ? trim($row[2]) : null;
+                $ringkasan = !empty($row[3]) ? trim($row[3]) : null;
+
+                Notulensi::create([
+                    'judul_rapat' => $judulRapat,
+                    'tanggal_rapat' => $tanggalRapat,
+                    'pemimpin_rapat' => $pemimpinRapat,
+                    'ringkasan_hasil' => $ringkasan,
+                    'created_by' => $admin->id,
+                ]);
+                $importedCount++;
+            }
+
+            $this->logActivity('notulensi', 'Import Excel', null, "Import bulk {$importedCount} data notulensi rapat");
+            return redirect()->route('admin.sekretariat.notulensi.index')->with('success', "Berhasil mengimpor {$importedCount} data Notulensi Rapat dari file CSV/Excel.");
+        }
+    }
+
+    public function downloadTemplate()
+    {
+        $csvHeader = "Judul Rapat,Tanggal Rapat (YYYY-MM-DD),Pemimpin Rapat,Ringkasan Hasil Rapat\n";
+        $csvHeader .= "Rapat Kerja Sekretariat Daerah,2026-08-08 14:00,Ketua Umum,Hasil rapat menetapkan program kerja semester II\n";
+        $csvHeader .= "Rapat Koordinasi Bidang Humas,2026-08-10 09:00,Sekretaris Umum,Pembentukan tim media dan publikasi\n";
+
+        return response($csvHeader, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="template_notulensi_rapat.csv"',
+        ]);
+    }
+
     public function update(Request $request, $id)
     {
         $notulensi = Notulensi::findOrFail($id);

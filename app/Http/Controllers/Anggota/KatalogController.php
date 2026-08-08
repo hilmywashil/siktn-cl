@@ -133,9 +133,16 @@ class KatalogController extends Controller
             'anggota_id' => $anggota->id,
         ]);
 
-        $admins = Admin::whereIn('category', ['super_admin', 'pimpinan', 'pnkt'])
-            ->orWhere('domisili', $anggota->domisili)
-            ->get();
+        $admins = Admin::where(function($q) use ($anggota) {
+            $q->whereIn('category', ['super_admin', 'pimpinan', 'pnkt']);
+            if (!empty($anggota->domisili)) {
+                $q->orWhere(function($subq) use ($anggota) {
+                    $subq->whereIn('category', ['ppkt', 'pkkt'])
+                         ->where('domisili', $anggota->domisili);
+                });
+            }
+        })->get();
+
         Notification::send($admins, new AdminNotification(
             'new_katalog',
             'Pengajuan E-Katalog Baru',
