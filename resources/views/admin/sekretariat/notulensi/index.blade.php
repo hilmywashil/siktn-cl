@@ -853,7 +853,7 @@
                         </table>
                     </div>
                 </div>
-            </div>    </div>
+            </div>
 
             <div class="modal-footer-prof" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.75rem;">
                 <button type="button" class="btn-outline-secondary" onclick="closeImportNotulensiModal()">Batal</button>
