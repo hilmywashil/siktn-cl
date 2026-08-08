@@ -1768,7 +1768,7 @@
                 });
             }
         });
-    <script>
+
         window.filterNotif = function(cat, btn) {
             document.querySelectorAll('.notif-tab').forEach(function(b) {
                 b.style.background = 'transparent';
