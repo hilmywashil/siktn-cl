@@ -4,7 +4,39 @@
 @section('page-title', 'Profil Admin')
 
 @push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
+    /* SIKTN Benchmark Select2 Styling */
+    .select2-container--default .select2-selection--single {
+        background-color: #f8fafc !important;
+        border: 1.5px solid #022648 !important;
+        border-radius: 6px !important;
+        height: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #022648 !important;
+        font-weight: 700 !important;
+        font-size: 0.875rem !important;
+        padding-left: 12px !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 40px !important;
+    }
+    .select2-dropdown {
+        border: 1.5px solid #022648 !important;
+        border-radius: 6px !important;
+        box-shadow: 0 10px 25px rgba(2, 38, 72, 0.15) !important;
+        animation: select2DropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        overflow: hidden !important;
+        z-index: 9999 !important;
+    }
+    .select2-results__option--highlighted[aria-selected] {
+        background-color: #022648 !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+    }
     .profile-container {
         max-width: 1200px;
         margin: 0 auto;
@@ -660,7 +692,7 @@
                             <option value="">-- Pilih Jabatan Pengurus --</option>
                             @foreach($jabatans ?? [] as $j)
                                 <option value="{{ $j->nama_jabatan }}" {{ old('jabatan_diajukan', $admin->jabatan_diajukan) == $j->nama_jabatan ? 'selected' : '' }}>
-                                    {{ $j->nama_jabatan }} (Urutan #{{ $j->urutan }})
+                                    {{ $j->nama_jabatan }}
                                 </option>
                             @endforeach
                         </select>
@@ -815,6 +847,16 @@
     @error('photo')
         photoModal.classList.add('active');
     @enderror
+</script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2-basic').select2({
+            placeholder: "-- Pilih Jabatan Pengurus --",
+            allowClear: true,
+            width: '100%'
+        });
+    });
 </script>
 @endpush
 @endsection

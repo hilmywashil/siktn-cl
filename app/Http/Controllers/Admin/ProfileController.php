@@ -13,7 +13,12 @@ class ProfileController extends Controller
     public function index()
     {
         $admin = auth()->guard('admin')->user();
-        $jabatans = \App\Models\Jabatan::orderBy('urutan')->get();
+        $jabatans = \App\Models\Jabatan::select('nama_jabatan')
+            ->distinct()
+            ->whereNotNull('nama_jabatan')
+            ->where('nama_jabatan', '!=', '')
+            ->orderBy('nama_jabatan')
+            ->get();
         
         return view('admin.profile.index', [
             'admin' => $admin,
