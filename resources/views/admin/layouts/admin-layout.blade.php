@@ -1036,7 +1036,13 @@
                                         {{ $notification->data['title'] ?? 'Notifikasi' }}
                                     </div>
                                     <div class="notification-item-message">
-                                        {{ str_replace('(Bidang)', '(Program Kerja)', $notification->data['message'] ?? '') }}
+                                        @php
+                                            $rawMsg = str_replace('(Bidang)', '(Program Kerja)', $notification->data['message'] ?? '');
+                                            $formattedMsg = preg_replace_callback('/(\d+\.\d+)/', function($m) {
+                                                return (string) round((float)$m[1]);
+                                            }, $rawMsg);
+                                        @endphp
+                                        {{ $formattedMsg }}
                                     </div>
                                     <div class="notification-item-time">{{ $notification->created_at->diffForHumans() }}</div>
                                 </a>

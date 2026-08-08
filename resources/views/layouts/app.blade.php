@@ -223,7 +223,13 @@
                                             {{ trim(str_replace(['📢', '📣'], '', $notification->data['title'] ?? '')) }}
                                         </div>
                                         <div class="notification-item-message">
-                                            {{ str_replace('(Bidang)', '(Program Kerja)', $notification->data['message'] ?? '') }}
+                                            @php
+                                                $rawMsg = str_replace('(Bidang)', '(Program Kerja)', $notification->data['message'] ?? '');
+                                                $formattedMsg = preg_replace_callback('/(\d+\.\d+)/', function($m) {
+                                                    return (string) round((float)$m[1]);
+                                                }, $rawMsg);
+                                            @endphp
+                                            {{ $formattedMsg }}
                                             @if(!empty($notification->data['notes']))
                                                 <br><strong>Catatan:</strong> {{ $notification->data['notes'] }}
                                             @endif
