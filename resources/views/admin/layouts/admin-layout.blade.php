@@ -948,16 +948,22 @@
                         @endif
                     </button>
                     <div class="notification-dropdown {{ (request()->routeIs('admin.dashboard') && $unreadNotifications && $unreadNotifications->count() > 0) ? 'show' : '' }}" id="notificationDropdown">
-                        <div class="notification-header">
-                            <h4>Notifikasi</h4>
-                            <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="notification-header" style="background: #022648; color: white;">
+                            <h4 style="color: white; font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 6px; margin: 0;">
+                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                Notifikasi Sistem
+                            </h4>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 0.7rem; background: rgba(255,255,255,0.18); padding: 2px 8px; border-radius: 4px; color: #ffd700; font-weight: 700;">
+                                    {{ $unreadNotifications->count() }} Belum Dibaca
+                                </span>
                                 @if($unreadNotifications->count() > 0)
                                     <form action="{{ route('admin.notifications.readAll') }}" method="POST" style="margin:0;">
                                         @csrf
-                                        <button type="submit" style="background:none;border:none;color:#c59217;font-size:0.75rem;cursor:pointer;font-weight:600;">Tandai dibaca</button>
+                                        <button type="submit" style="background:none;border:none;color:#ffd700;font-size:0.75rem;cursor:pointer;font-weight:700;">Tandai dibaca</button>
                                     </form>
                                 @endif
-                                <a href="{{ route('admin.settings.notifications') }}" title="Pengaturan Preferensi Notifikasi" style="color: #6b7280; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; padding: 2px; border-radius: 4px; transition: color 0.2s;" onmouseover="this.style.color='#0a2540'" onmouseout="this.style.color='#6b7280'">
+                                <a href="{{ route('admin.settings.notifications') }}" title="Pengaturan Preferensi Notifikasi" style="color: rgba(255,255,255,0.8); display: inline-flex; align-items: center; justify-content: center; text-decoration: none; padding: 2px; border-radius: 4px; transition: color 0.2s;" onmouseover="this.style.color='#ffd700'" onmouseout="this.style.color='rgba(255,255,255,0.8)'">
                                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <circle cx="12" cy="12" r="3"></circle>
                                         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -966,14 +972,27 @@
                             </div>
                         </div>
 
-                        <!-- Filter Tab Bar -->
-                        <div class="notif-filter-bar" style="display: flex; gap: 4px; padding: 6px 12px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; overflow-x: auto;">
-                            <button type="button" class="notif-tab active" onclick="event.stopPropagation(); window.filterNotif('all', this);" style="padding: 3px 10px; border-radius: 4px; border: none; font-size: 0.725rem; font-weight: 700; background: #022648; color: #fff; cursor: pointer; white-space: nowrap;">Semua</button>
-                            <button type="button" class="notif-tab" onclick="event.stopPropagation(); window.filterNotif('jabatan', this);" style="padding: 3px 10px; border-radius: 4px; border: none; font-size: 0.725rem; font-weight: 700; background: transparent; color: #475569; cursor: pointer; white-space: nowrap;">Jabatan</button>
-                            <button type="button" class="notif-tab" onclick="event.stopPropagation(); window.filterNotif('anggota', this);" style="padding: 3px 10px; border-radius: 4px; border: none; font-size: 0.725rem; font-weight: 700; background: transparent; color: #475569; cursor: pointer; white-space: nowrap;">Anggota</button>
+                        <!-- Underline Tab Bar ala Notifikasi Surat -->
+                        <div class="surat-tabs" style="background: white; border-bottom: 1px solid #e5e7eb;">
+                            <div class="surat-tab-item active" onclick="event.stopPropagation(); window.filterNotif('all', this)" style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path></svg>
+                                Semua
+                            </div>
+                            <div class="surat-tab-item" onclick="event.stopPropagation(); window.filterNotif('jabatan', this)" style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                Jabatan
+                            </div>
+                            <div class="surat-tab-item" onclick="event.stopPropagation(); window.filterNotif('anggota', this)" style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                Anggota
+                            </div>
+                            <div class="surat-tab-item" onclick="event.stopPropagation(); window.filterNotif('lainnya', this)" style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                Lainnya
+                            </div>
                         </div>
 
-                        <div class="notification-body">
+                        <div class="notification-body" style="max-height: 320px;">
                             @forelse($filteredNotifications as $notification)
                                 @php
                                     $targetUrl = '#';
@@ -1027,6 +1046,12 @@
                                 </div>
                             @endforelse
                         </div>
+
+                        <!-- Footer Link ala Notifikasi Surat -->
+                        <div style="padding: 10px; text-align: center; border-top: 1px solid #e5e7eb; background: #f8f9fc;">
+                            <a href="{{ route('admin.settings.notifications') }}" style="font-size: 0.8rem; font-weight: 700; color: #022648; text-decoration: none;">Pengaturan Preferensi Notifikasi &rarr;</a>
+                        </div>
+                    </div>
                     </div>
                 </div>
 
@@ -1770,18 +1795,14 @@
         });
 
         window.filterNotif = function(cat, btn) {
-            document.querySelectorAll('.notif-tab').forEach(function(b) {
-                b.style.background = 'transparent';
-                b.style.color = '#475569';
+            document.querySelectorAll('#notificationDropdown .surat-tab-item').forEach(function(b) {
                 b.classList.remove('active');
             });
             if (btn) {
-                btn.style.background = '#022648';
-                btn.style.color = '#ffffff';
                 btn.classList.add('active');
             }
 
-            var items = document.querySelectorAll('.notification-item');
+            var items = document.querySelectorAll('#notificationDropdown .notification-item');
             items.forEach(function(item) {
                 if (cat === 'all' || item.dataset.category === cat) {
                     item.style.display = 'block';
