@@ -230,30 +230,80 @@ class NotulensiController extends Controller
     {
         $fileName = 'Template_Import_Notulensi_Rapat.xls';
         $html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
-        $html .= '<head><meta charset="utf-8"></head><body>';
-        $html .= '<table border="1" style="font-family: Arial, sans-serif; border-collapse: collapse;">';
-        $html .= '<tr><td colspan="5" style="text-align: center; font-size: 14pt; font-weight: bold; padding: 12px; color: #b7830f; background-color: #022648;">TEMPLATE IMPORT NOTULENSI RAPAT - SIKTN</td></tr>';
-        $html .= '<thead><tr style="background-color: #022648; color: #ffffff; font-weight: bold; text-align: center;">';
-        $html .= '<th style="padding: 10px; border: 1px solid #cbd5e1;">JUDUL RAPAT</th>';
-        $html .= '<th style="padding: 10px; border: 1px solid #cbd5e1;">TANGGAL RAPAT</th>';
-        $html .= '<th style="padding: 10px; border: 1px solid #cbd5e1;">PEMIMPIN RAPAT</th>';
-        $html .= '<th style="padding: 10px; border: 1px solid #cbd5e1;">RINGKASAN HASIL RAPAT</th>';
-        $html .= '<th style="padding: 10px; border: 1px solid #cbd5e1;">LINK GOOGLE DRIVE</th>';
+        $html .= '<head><meta charset="utf-8">';
+        $html .= '<style>';
+        $html .= 'table { border-collapse: collapse; font-family: Calibri, Arial, sans-serif; font-size: 11pt; }';
+        $html .= 'th { background-color: #022648; color: #ffffff; font-weight: bold; text-align: center; padding: 10px 14px; border: 1px solid #cbd5e1; white-space: nowrap; }';
+        $html .= 'td { padding: 9px 12px; border: 1px solid #e2e8f0; vertical-align: middle; }';
+        $html .= '.title-row { background-color: #022648; color: #b7830f; font-size: 14pt; font-weight: bold; text-align: center; padding: 14px; }';
+        $html .= '</style>';
+        $html .= '</head><body>';
+        $html .= '<table border="1">';
+        $html .= '<colgroup>';
+        $html .= '<col style="width: 280px;">';
+        $html .= '<col style="width: 180px;">';
+        $html .= '<col style="width: 220px;">';
+        $html .= '<col style="width: 450px;">';
+        $html .= '<col style="width: 380px;">';
+        $html .= '</colgroup>';
+        $html .= '<tr><td colspan="5" class="title-row">TEMPLATE IMPORT NOTULENSI RAPAT - SIKTN</td></tr>';
+        $html .= '<thead><tr>';
+        $html .= '<th style="width: 280px;">JUDUL RAPAT</th>';
+        $html .= '<th style="width: 180px;">TANGGAL RAPAT</th>';
+        $html .= '<th style="width: 220px;">PEMIMPIN RAPAT</th>';
+        $html .= '<th style="width: 450px;">RINGKASAN HASIL RAPAT</th>';
+        $html .= '<th style="width: 380px;">LINK GOOGLE DRIVE</th>';
         $html .= '</tr></thead><tbody>';
-        $html .= '<tr style="background-color: #ffffff;">';
-        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0;">Rapat Kerja Sekretariat Daerah</td>';
-        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0; text-align: center;">2026-08-08 14:00</td>';
-        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0;">Ketua Umum</td>';
-        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0;">Hasil rapat menetapkan program kerja semester II</td>';
-        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0; color: #0284c7;">https://drive.google.com/file/d/example1</td>';
-        $html .= '</tr>';
-        $html .= '<tr style="background-color: #f8fafc;">';
-        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0;">Rapat Koordinasi Bidang Humas</td>';
-        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0; text-align: center;">2026-08-10 09:00</td>';
-        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0;">Sekretaris Umum</td>';
-        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0;">Pembentukan tim media dan publikasi</td>';
-        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0; color: #0284c7;">https://drive.google.com/file/d/example2</td>';
-        $html .= '</tr>';
+        
+        $examples = [
+            [
+                'judul' => 'Rapat Kerja Sekretariat Daerah',
+                'tanggal' => '2026-08-08 14:00',
+                'pemimpin' => 'Ketua Umum Karang Taruna',
+                'ringkasan' => 'Penetapan alokasi anggaran dan jadwal kegiatan semester II tahun 2026.',
+                'drive' => 'https://drive.google.com/file/d/example-notulensi-1'
+            ],
+            [
+                'judul' => 'Rapat Koordinasi Bidang Humas & Publikasi',
+                'tanggal' => '2026-08-10 09:30',
+                'pemimpin' => 'Sekretaris Umum',
+                'ringkasan' => 'Pembentukan tim pengelola media sosial dan penyusunan buletin bulanan.',
+                'drive' => 'https://drive.google.com/file/d/example-notulensi-2'
+            ],
+            [
+                'judul' => 'Rapat Evaluasi Program Pemberdayaan Pemuda',
+                'tanggal' => '2026-08-15 13:00',
+                'pemimpin' => 'Kepala Bidang Pemuda',
+                'ringkasan' => 'Evaluasi pencapaian target pelatihan kewirausahaan pemuda kelurahan.',
+                'drive' => 'https://drive.google.com/file/d/example-notulensi-3'
+            ],
+            [
+                'judul' => 'Rapat Persiapan Peringatan HUT RI ke-81',
+                'tanggal' => '2026-08-17 19:30',
+                'pemimpin' => 'Ketua Panitia HUT RI',
+                'ringkasan' => 'Finalisasi susunan panitia, rincian lomba, dan teknis upacara bendera.',
+                'drive' => 'https://drive.google.com/file/d/example-notulensi-4'
+            ],
+            [
+                'judul' => 'Rapat Pleno Pengurus Karang Taruna Kecamatan',
+                'tanggal' => '2026-08-20 10:00',
+                'pemimpin' => 'Ketua Karang Taruna',
+                'ringkasan' => 'Penyampaian laporan pertanggungjawaban kegiatan triwulan II tahun 2026.',
+                'drive' => 'https://drive.google.com/file/d/example-notulensi-5'
+            ]
+        ];
+
+        foreach ($examples as $idx => $row) {
+            $bgColor = ($idx % 2 === 0) ? '#ffffff' : '#f8fafc';
+            $html .= '<tr style="background-color: ' . $bgColor . ';">';
+            $html .= '<td style="width: 280px;">' . htmlspecialchars($row['judul']) . '</td>';
+            $html .= '<td style="width: 180px; text-align: center;">' . $row['tanggal'] . '</td>';
+            $html .= '<td style="width: 220px;">' . htmlspecialchars($row['pemimpin']) . '</td>';
+            $html .= '<td style="width: 450px;">' . htmlspecialchars($row['ringkasan']) . '</td>';
+            $html .= '<td style="width: 380px; color: #0284c7;">' . $row['drive'] . '</td>';
+            $html .= '</tr>';
+        }
+
         $html .= '</tbody></table></body></html>';
 
         return response($html)
