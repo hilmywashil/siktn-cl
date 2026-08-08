@@ -257,13 +257,16 @@ class NotulensiController extends Controller
 
     public function downloadTemplate()
     {
-        $filePath = public_path('templates/TemplateNotulensi.xls');
+        $filePath = public_path('templates/Template_Import_Notulensi_Rapat.xls');
+        if (!file_exists($filePath)) {
+            $filePath = public_path('templates/TemplateNotulensi.xls');
+        }
         if (!file_exists($filePath)) {
             $filePath = base_path('TemplateNotulensi.xls');
         }
 
         if (file_exists($filePath)) {
-            return response()->download($filePath, 'TemplateNotulensi.xls', [
+            return response()->download($filePath, 'Template_Import_Notulensi_Rapat.xls', [
                 'Content-Type' => 'application/vnd.ms-excel',
             ]);
         }
