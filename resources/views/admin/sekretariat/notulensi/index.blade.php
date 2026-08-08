@@ -828,17 +828,17 @@
     </div>
 </div>
 
-<!-- Modal 2: Bulk Upload Multi-PDF Notulensi Rapat (Identical to Surat Masuk/Keluar) -->
+<!-- Modal 2: Bulk Upload Multi-PDF Notulensi Rapat (Strict SK Navy & Gold Benchmark Styling) -->
 <div class="modal-overlay" id="modalBulkPdfNotulensi" onclick="if(event.target===this) closeBulkPdfNotulensiModal()">
     <div class="modal-content-lg" style="max-width: 820px; max-height: 90vh;">
-        <div class="modal-header-prof" style="background: linear-gradient(135deg, #b7830f 0%, #855d09 100%); padding: 1.25rem 1.5rem; color: white; display: flex; justify-content: space-between; align-items: center;">
+        <div class="modal-header-prof" style="background: linear-gradient(135deg, #022648 0%, #01162f 100%); padding: 1.25rem 1.5rem; color: white; display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center;">
-                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="white" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(183, 131, 15, 0.2); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(183, 131, 15, 0.4);">
+                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="#b7830f" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
                 </div>
                 <div>
                     <h3 style="font-size: 1.1rem; font-weight: 800; color: white; margin: 0;">Bulk Upload Multi-PDF Notulensi Rapat</h3>
-                    <span style="font-size: 0.775rem; color: #fef08a;">Unggah banyak berkas PDF / Word sekaligus & isi metadata masing-masing berkas</span>
+                    <span style="font-size: 0.775rem; color: #94a3b8;">Unggah banyak berkas PDF / Word sekaligus & isi metadata masing-masing berkas</span>
                 </div>
             </div>
             <button type="button" onclick="closeBulkPdfNotulensiModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem;">&times;</button>
@@ -871,7 +871,7 @@
 
             <div class="modal-footer-prof" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.75rem;">
                 <button type="button" class="btn-outline-secondary" onclick="closeBulkPdfNotulensiModal()">Batal</button>
-                <button type="submit" id="btnSubmitBulkPdfNotulensi" style="background: #b7830f; color: white; border: none; padding: 0.55rem 1.25rem; border-radius: 6px; font-weight: 700; cursor: pointer;" disabled>
+                <button type="submit" id="btnSubmitBulkPdfNotulensi" class="btn-solid-navy" style="padding: 0.55rem 1.25rem;" disabled>
                     Simpan Semua Notulensi
                 </button>
             </div>

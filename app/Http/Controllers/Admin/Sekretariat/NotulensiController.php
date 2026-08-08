@@ -148,55 +148,117 @@ class NotulensiController extends Controller
 
         } else {
             $request->validate([
-                'excel_file' => 'required|file|mimes:xlsx,xls,csv,txt|max:5120',
+                'excel_file' => 'required|file|max:5120',
             ]);
 
             $file = $request->file('excel_file');
-            $lines = file($file->getRealPath());
-
-            if (count($lines) <= 1) {
-                return redirect()->back()->with('error', 'File Excel/CSV kosong atau format tidak sesuai.');
-            }
-
-            $header = array_shift($lines);
+            $content = file_get_contents($file->getRealPath());
             $importedCount = 0;
 
-            foreach ($lines as $line) {
-                $row = str_getcsv($line);
-                if (empty($row[0])) continue;
+            if (strpos($content, '<table') !== false) {
+                // Parse HTML Table (.xls styled template)
+                $dom = new \DOMDocument();
+                @$dom->loadHTML($content);
+                $rows = $dom->getElementsByTagName('tr');
 
-                $judulRapat = trim($row[0]);
-                $tanggalRapat = !empty($row[1]) ? \Carbon\Carbon::parse(trim($row[1]))->format('Y-m-d H:i:s') : \Carbon\Carbon::now()->format('Y-m-d H:i:s');
-                $pemimpinRapat = !empty($row[2]) ? trim($row[2]) : null;
-                $ringkasan = !empty($row[3]) ? trim($row[3]) : null;
-                $linkDrive = !empty($row[4]) ? trim($row[4]) : null;
+                foreach ($rows as $rowIndex => $tr) {
+                    if ($rowIndex === 0) continue; // Skip title row
+                    $tds = $tr->getElementsByTagName('td');
+                    if ($tds->length < 1) {
+                        $tds = $tr->getElementsByTagName('th');
+                    }
+                    if ($tds->length === 0) continue;
 
-                Notulensi::create([
-                    'judul_rapat' => $judulRapat,
-                    'tanggal_rapat' => $tanggalRapat,
-                    'pemimpin_rapat' => $pemimpinRapat,
-                    'ringkasan_hasil' => $ringkasan,
-                    'link_drive' => $linkDrive,
-                    'created_by' => $admin->id,
-                ]);
-                $importedCount++;
+                    $judulRapat = trim($tds->item(0)->nodeValue ?? '');
+                    if (empty($judulRapat) || strtolower($judulRapat) === 'judul rapat' || stristr($judulRapat, 'TEMPLATE')) continue;
+
+                    $tanggalVal = trim($tds->item(1)->nodeValue ?? '');
+                    $tanggalRapat = !empty($tanggalVal) ? \Carbon\Carbon::parse($tanggalVal)->format('Y-m-d H:i:s') : \Carbon\Carbon::now()->format('Y-m-d H:i:s');
+                    $pemimpinRapat = $tds->item(2) ? trim($tds->item(2)->nodeValue) : null;
+                    $ringkasan = $tds->item(3) ? trim($tds->item(3)->nodeValue) : null;
+                    $linkDrive = $tds->item(4) ? trim($tds->item(4)->nodeValue) : null;
+
+                    Notulensi::create([
+                        'judul_rapat' => $judulRapat,
+                        'tanggal_rapat' => $tanggalRapat,
+                        'pemimpin_rapat' => $pemimpinRapat,
+                        'ringkasan_hasil' => $ringkasan,
+                        'link_drive' => $linkDrive,
+                        'created_by' => $admin->id,
+                    ]);
+                    $importedCount++;
+                }
+            } else {
+                // CSV Fallback
+                $lines = file($file->getRealPath());
+                if (count($lines) <= 1) {
+                    return redirect()->back()->with('error', 'File Excel/CSV kosong atau format tidak sesuai.');
+                }
+
+                $header = array_shift($lines);
+
+                foreach ($lines as $line) {
+                    $row = str_getcsv($line);
+                    if (empty($row[0])) continue;
+
+                    $judulRapat = trim($row[0]);
+                    if (strtolower($judulRapat) === 'judul rapat') continue;
+
+                    $tanggalRapat = !empty($row[1]) ? \Carbon\Carbon::parse(trim($row[1]))->format('Y-m-d H:i:s') : \Carbon\Carbon::now()->format('Y-m-d H:i:s');
+                    $pemimpinRapat = !empty($row[2]) ? trim($row[2]) : null;
+                    $ringkasan = !empty($row[3]) ? trim($row[3]) : null;
+                    $linkDrive = !empty($row[4]) ? trim($row[4]) : null;
+
+                    Notulensi::create([
+                        'judul_rapat' => $judulRapat,
+                        'tanggal_rapat' => $tanggalRapat,
+                        'pemimpin_rapat' => $pemimpinRapat,
+                        'ringkasan_hasil' => $ringkasan,
+                        'link_drive' => $linkDrive,
+                        'created_by' => $admin->id,
+                    ]);
+                    $importedCount++;
+                }
             }
 
             $this->logActivity('notulensi', 'Import Excel', null, "Import bulk {$importedCount} data notulensi rapat");
-            return redirect()->route('admin.sekretariat.notulensi.index')->with('success', "Berhasil mengimpor {$importedCount} data Notulensi Rapat dari file CSV/Excel.");
+            return redirect()->route('admin.sekretariat.notulensi.index')->with('success', "Berhasil mengimpor {$importedCount} data Notulensi Rapat dari file Excel.");
         }
     }
 
     public function downloadTemplate()
     {
-        $csvHeader = "Judul Rapat,Tanggal Rapat,Pemimpin Rapat,Ringkasan Hasil Rapat,Link Google Drive\n";
-        $csvHeader .= "Rapat Kerja Sekretariat Daerah,2026-08-08 14:00,Ketua Umum,Hasil rapat menetapkan program kerja semester II,https://drive.google.com/file/d/example1\n";
-        $csvHeader .= "Rapat Koordinasi Bidang Humas,2026-08-10 09:00,Sekretaris Umum,Pembentukan tim media dan publikasi,https://drive.google.com/file/d/example2\n";
+        $fileName = 'Template_Import_Notulensi_Rapat.xls';
+        $html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+        $html .= '<head><meta charset="utf-8"></head><body>';
+        $html .= '<table border="1" style="font-family: Arial, sans-serif; border-collapse: collapse;">';
+        $html .= '<tr><td colspan="5" style="text-align: center; font-size: 14pt; font-weight: bold; padding: 12px; color: #b7830f; background-color: #022648;">TEMPLATE IMPORT NOTULENSI RAPAT - SIKTN</td></tr>';
+        $html .= '<thead><tr style="background-color: #022648; color: #ffffff; font-weight: bold; text-align: center;">';
+        $html .= '<th style="padding: 10px; border: 1px solid #cbd5e1;">JUDUL RAPAT</th>';
+        $html .= '<th style="padding: 10px; border: 1px solid #cbd5e1;">TANGGAL RAPAT</th>';
+        $html .= '<th style="padding: 10px; border: 1px solid #cbd5e1;">PEMIMPIN RAPAT</th>';
+        $html .= '<th style="padding: 10px; border: 1px solid #cbd5e1;">RINGKASAN HASIL RAPAT</th>';
+        $html .= '<th style="padding: 10px; border: 1px solid #cbd5e1;">LINK GOOGLE DRIVE</th>';
+        $html .= '</tr></thead><tbody>';
+        $html .= '<tr style="background-color: #ffffff;">';
+        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0;">Rapat Kerja Sekretariat Daerah</td>';
+        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0; text-align: center;">2026-08-08 14:00</td>';
+        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0;">Ketua Umum</td>';
+        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0;">Hasil rapat menetapkan program kerja semester II</td>';
+        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0; color: #0284c7;">https://drive.google.com/file/d/example1</td>';
+        $html .= '</tr>';
+        $html .= '<tr style="background-color: #f8fafc;">';
+        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0;">Rapat Koordinasi Bidang Humas</td>';
+        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0; text-align: center;">2026-08-10 09:00</td>';
+        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0;">Sekretaris Umum</td>';
+        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0;">Pembentukan tim media dan publikasi</td>';
+        $html .= '<td style="padding: 8px; border: 1px solid #e2e8f0; color: #0284c7;">https://drive.google.com/file/d/example2</td>';
+        $html .= '</tr>';
+        $html .= '</tbody></table></body></html>';
 
-        return response($csvHeader, 200, [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="template_import_notulensi_rapat.csv"',
-        ]);
+        return response($html)
+            ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
     }
 
     public function update(Request $request, $id)
