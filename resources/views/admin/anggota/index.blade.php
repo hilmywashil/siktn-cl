@@ -274,11 +274,10 @@
             background: white; border-radius: 8px; padding: 1.25rem; border: 1px solid var(--gray-200);
             box-shadow: 0 1px 3px rgba(2,38,72,0.05); display: flex; flex-direction: column;
             align-items: center; text-align: center; position: relative; width: 100%;
-            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s, border-color 0.2s;
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
         }
         .member-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 24px -4px rgba(2, 38, 72, 0.12);
+            box-shadow: 0 12px 24px -4px rgba(2, 38, 72, 0.14);
             border-color: var(--gray-300);
         }
 
@@ -625,8 +624,8 @@
                 @endphp
                 <div class="member-card">
                     <div class="member-card-menu">
-                        <div class="aksi-wrapper">
-                            <button type="button" class="btn-aksi-trigger subtle" data-target="dropdown-grid-{{ $item->id }}" aria-haspopup="true" aria-expanded="false" aria-label="Menu Aksi">
+                        <div class="aksi-wrapper" style="position: relative;">
+                            <button type="button" class="btn-aksi-trigger subtle" onclick="toggleGridDropdown(event, {{ $item->id }})" aria-label="Menu Aksi">
                                 <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
                                     <circle cx="12" cy="5" r="1.75"></circle>
                                     <circle cx="12" cy="12" r="1.75"></circle>
@@ -634,7 +633,7 @@
                                 </svg>
                             </button>
 
-                            <div class="aksi-dropdown" id="dropdown-grid-{{ $item->id }}">
+                            <div class="aksi-dropdown grid-dropdown" id="dropdown-grid-{{ $item->id }}" style="position: absolute !important; top: 38px !important; right: 0 !important; left: auto !important; transform: none !important; min-width: 175px; z-index: 9999;">
                                 <a href="{{ route('admin.anggota.show', $item) }}" class="aksi-item aksi-view">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                     Lihat & Verifikasi
@@ -730,6 +729,27 @@
             activeDropdown = null;
             activeTrigger = null;
         }
+        document.querySelectorAll('.grid-dropdown.is-open').forEach(d => {
+            d.classList.remove('is-open');
+        });
+    }
+
+    function toggleGridDropdown(event, id) {
+        event.stopPropagation();
+        event.preventDefault();
+        const dropdown = document.getElementById('dropdown-grid-' + id);
+        if (!dropdown) return;
+
+        const isOpen = dropdown.classList.contains('is-open');
+
+        // Close table view active dropdown
+        closeActiveDropdown();
+
+        if (isOpen) {
+            dropdown.classList.remove('is-open');
+        } else {
+            dropdown.classList.add('is-open');
+        }
     }
 
     function positionDropdown(trigger, dropdown) {
@@ -763,7 +783,8 @@
             });
         }
 
-        document.querySelectorAll('.btn-aksi-trigger').forEach(button => {
+        // Table view dropdown trigger listener
+        document.querySelectorAll('#anggotaTableContainer .btn-aksi-trigger').forEach(button => {
             button.addEventListener('click', function (e) {
                 e.stopPropagation();
                 const targetId = this.getAttribute('data-target');
