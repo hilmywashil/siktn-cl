@@ -1218,7 +1218,7 @@
                         </a>
                     </div>
                     <p style="font-size: 0.8125rem; color: #64748b; margin: 0; line-height: 1.5;">
-                        Silakan unduh berkas contoh di atas untuk melihat susunan kolom: <strong>Judul Rapat, Tanggal Rapat, Pemimpin Rapat, Ringkasan Hasil Rapat</strong>.
+                        Silakan unduh berkas contoh di atas untuk melihat susunan 5 kolom: <strong>Judul Rapat, Tanggal Rapat, Pemimpin Rapat, Ringkasan Hasil Rapat, Link Google Drive</strong>.
                     </p>
                 </div>
 

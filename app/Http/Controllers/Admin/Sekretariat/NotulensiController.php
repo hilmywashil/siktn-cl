@@ -141,12 +141,14 @@ class NotulensiController extends Controller
                 $tanggalRapat = !empty($row[1]) ? \Carbon\Carbon::parse(trim($row[1]))->format('Y-m-d H:i:s') : \Carbon\Carbon::now()->format('Y-m-d H:i:s');
                 $pemimpinRapat = !empty($row[2]) ? trim($row[2]) : null;
                 $ringkasan = !empty($row[3]) ? trim($row[3]) : null;
+                $linkDrive = !empty($row[4]) ? trim($row[4]) : null;
 
                 Notulensi::create([
                     'judul_rapat' => $judulRapat,
                     'tanggal_rapat' => $tanggalRapat,
                     'pemimpin_rapat' => $pemimpinRapat,
                     'ringkasan_hasil' => $ringkasan,
+                    'link_drive' => $linkDrive,
                     'created_by' => $admin->id,
                 ]);
                 $importedCount++;
@@ -159,13 +161,13 @@ class NotulensiController extends Controller
 
     public function downloadTemplate()
     {
-        $csvHeader = "Judul Rapat,Tanggal Rapat (YYYY-MM-DD),Pemimpin Rapat,Ringkasan Hasil Rapat\n";
-        $csvHeader .= "Rapat Kerja Sekretariat Daerah,2026-08-08 14:00,Ketua Umum,Hasil rapat menetapkan program kerja semester II\n";
-        $csvHeader .= "Rapat Koordinasi Bidang Humas,2026-08-10 09:00,Sekretaris Umum,Pembentukan tim media dan publikasi\n";
+        $csvHeader = "Judul Rapat,Tanggal Rapat (YYYY-MM-DD HH:mm),Pemimpin Rapat,Ringkasan Hasil Rapat,Link Google Drive\n";
+        $csvHeader .= "Rapat Kerja Sekretariat Daerah,2026-08-08 14:00,Ketua Umum,Hasil rapat menetapkan program kerja semester II,https://drive.google.com/file/d/example1\n";
+        $csvHeader .= "Rapat Koordinasi Bidang Humas,2026-08-10 09:00,Sekretaris Umum,Pembentukan tim media dan publikasi,https://drive.google.com/file/d/example2\n";
 
         return response($csvHeader, 200, [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="template_notulensi_rapat.csv"',
+            'Content-Disposition' => 'attachment; filename="template_import_notulensi_rapat.csv"',
         ]);
     }
 
