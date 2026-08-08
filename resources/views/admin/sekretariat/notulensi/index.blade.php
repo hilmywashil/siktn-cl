@@ -790,6 +790,7 @@
         <form action="{{ route('admin.sekretariat.notulensi.bulk-store') }}" method="POST" enctype="multipart/form-data" id="formImportNotulensi">
             @csrf
             <input type="hidden" name="bulk_type" value="excel">
+            <input type="hidden" name="notulensi_rows" id="importNotulensiRowsInput">
 
             <div class="modal-body-prof" style="padding: 1.5rem;">
                 <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem;">
@@ -808,7 +809,7 @@
                 <div class="form-group-full">
                     <label class="form-label" style="font-weight: 700; color: #022648; font-size: 0.875rem; margin-bottom: 0.5rem; display: block;">Pilih Berkas Excel / CSV (.xls, .xlsx, .csv)</label>
                     <div class="file-upload-zone" onclick="document.getElementById('importNotulensiFile').click()" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1.25rem 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
-                        <input type="file" id="importNotulensiFile" name="excel_file" accept=".xls,.xlsx,.csv" required style="display: none;" onchange="if(this.files[0]) document.getElementById('importFileLabelNotulensi').textContent = '✓ ' + this.files[0].name">
+                        <input type="file" id="importNotulensiFile" name="excel_file" accept=".xls,.xlsx,.csv" onchange="handleImportNotulensiFile(this)" style="display: none;">
                         <div style="pointer-events: none;">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 0.35rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             <div style="font-weight: 700; color: #022648; font-size: 0.9rem; margin-bottom: 2px;" id="importFileLabelNotulensi">Klik atau Tarik Berkas Excel ke Sini</div>
@@ -816,11 +817,42 @@
                         </div>
                     </div>
                 </div>
+
+                <div id="importNotulensiPreviewContainer" style="display: none; margin-top: 1.25rem;">
+                    <div id="importNotulensiDuplicateAlert" style="display: none; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 10px 14px; border-radius: 8px; margin-bottom: 0.75rem; font-size: 0.8125rem; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                        <div>
+                            <i class="fa fa-exclamation-triangle" style="color: #d97706; margin-right: 6px;"></i>
+                            Terdeteksi <strong id="importNotulensiDupCount" style="color: #dc2626; font-size: 0.9rem;">0</strong> data duplikat!
+                        </div>
+                        <button type="button" onclick="cleanImportNotulensiDuplicates()" style="background: #d97706; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.775rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#b45309'" onmouseout="this.style.background='#d97706'">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            Bersihkan Data Duplikat
+                        </button>
+                    </div>
+
+                    <div style="font-weight: 700; color: #022648; font-size: 0.85rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Pratinjau Data Terbaca (<span id="importNotulensiCount">0</span>)</span>
+                    </div>
+                    <div style="max-height: 220px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.775rem;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #022648; color: white;">
+                                    <th style="padding: 10px 12px; text-align: left; width: 30%;">Judul Rapat</th>
+                                    <th style="padding: 10px 12px; text-align: center; width: 20%;">Tanggal Rapat</th>
+                                    <th style="padding: 10px 12px; text-align: left; width: 20%;">Pemimpin Rapat</th>
+                                    <th style="padding: 10px 12px; text-align: left; width: 22%;">Ringkasan</th>
+                                    <th style="padding: 10px 12px; text-align: center; width: 8%;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="importNotulensiPreviewTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <div class="modal-footer-prof" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.75rem;">
                 <button type="button" class="btn-outline-secondary" onclick="closeImportNotulensiModal()">Batal</button>
-                <button type="submit" class="btn-solid-navy" style="padding: 0.55rem 1.25rem;" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Mengimpor data Notulensi Rapat dari Excel...' })">
+                <button type="submit" id="btnSubmitImportNotulensi" class="btn-solid-navy" style="padding: 0.55rem 1.25rem;" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Mengimpor data Notulensi Rapat dari Excel...' })" disabled>
                     Proses Import Massal
                 </button>
             </div>
@@ -882,6 +914,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         if (typeof $.fn.select2 !== 'undefined') {
@@ -1325,6 +1358,186 @@
     window.closeImportNotulensiModal = function() {
         closeModalById('modalImportNotulensi');
     };
+
+    // =====================================
+    // Excel Import Drag & Drop & JS Logic
+    // =====================================
+    window.currentParsedNotulensiRows = [];
+    window.existingNotulensiJuduls = @json($existingNotulensiJuduls ?? []);
+
+    function renderNotulensiImportPreview() {
+        const rows = window.currentParsedNotulensiRows || [];
+        if (rows.length === 0) {
+            document.getElementById('importNotulensiPreviewContainer').style.display = 'none';
+            document.getElementById('btnSubmitImportNotulensi').disabled = true;
+            return;
+        }
+
+        const judulCounts = {};
+        rows.forEach(r => {
+            const key = (r.judul_rapat || '').toLowerCase();
+            judulCounts[key] = (judulCounts[key] || 0) + 1;
+        });
+
+        let duplicateCount = 0;
+        rows.forEach(r => {
+            const key = (r.judul_rapat || '').toLowerCase();
+            const isInternalDup = judulCounts[key] > 1;
+            const isDbDup = (window.existingNotulensiJuduls || []).some(n => (n || '').toLowerCase() === key);
+            r.is_duplicate = isInternalDup || isDbDup;
+            r.dup_reason = isDbDup ? 'Sudah Ada di Database' : (isInternalDup ? 'Duplikat di Berkas' : '');
+            if (r.is_duplicate) duplicateCount++;
+        });
+
+        const alertBox = document.getElementById('importNotulensiDuplicateAlert');
+        const dupCountSpan = document.getElementById('importNotulensiDupCount');
+        if (alertBox && dupCountSpan) {
+            if (duplicateCount > 0) {
+                dupCountSpan.innerText = duplicateCount;
+                alertBox.style.display = 'flex';
+            } else {
+                alertBox.style.display = 'none';
+            }
+        }
+
+        document.getElementById('importNotulensiRowsInput').value = JSON.stringify(rows);
+        document.getElementById('importNotulensiCount').innerText = rows.length + (rows.length > 15 ? ' data — menampilkan 15 pertama' : ' data');
+
+        const tbody = document.getElementById('importNotulensiPreviewTableBody');
+        tbody.innerHTML = '';
+
+        rows.slice(0, 15).forEach((r, idx) => {
+            const bgStyle = r.is_duplicate ? 'background: #fef2f2;' : '';
+            const dupBadge = r.is_duplicate ? `<span style="display: inline-block; background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin-top: 4px;">${r.dup_reason}</span>` : '';
+
+            tbody.innerHTML += `<tr style="${bgStyle}">
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top;">
+                    <div style="font-weight: 700; color: #022648; font-size: 0.8125rem;">${r.judul_rapat}</div>
+                    ${dupBadge}
+                </td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: center; vertical-align: top; font-size: 0.8125rem; color: #475569;">${r.tanggal_rapat}</td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; font-size: 0.8125rem; color: #334155;">${r.pemimpin_rapat || '-'}</td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; font-size: 0.8125rem; color: #334155; line-height: 1.4;">${r.ringkasan_hasil || '-'}</td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: center; vertical-align: top;">
+                    <button type="button" onclick="removeImportNotulensiRow(${idx})" title="Hapus baris ini" style="background: #fee2e2; color: #991b1b; border: none; width: 26px; height: 26px; border-radius: 50%; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 0.875rem; transition: background 0.2s;" onmouseover="this.style.background='#fca5a5'" onmouseout="this.style.background='#fee2e2'">&times;</button>
+                </td>
+            </tr>`;
+        });
+
+        document.getElementById('importNotulensiPreviewContainer').style.display = 'block';
+        document.getElementById('btnSubmitImportNotulensi').disabled = false;
+    }
+
+    window.cleanImportNotulensiDuplicates = function() {
+        if (!window.currentParsedNotulensiRows) return;
+        const seen = new Set();
+        window.currentParsedNotulensiRows = window.currentParsedNotulensiRows.filter(r => {
+            const key = (r.judul_rapat || '').toLowerCase();
+            const isDbDup = (window.existingNotulensiJuduls || []).some(n => (n || '').toLowerCase() === key);
+            if (isDbDup || seen.has(key)) {
+                return false;
+            }
+            seen.add(key);
+            return true;
+        });
+
+        if (typeof Toast !== 'undefined') {
+            Toast.fire({ icon: 'success', title: 'Data duplikat berhasil dibersihkan!' });
+        }
+        renderNotulensiImportPreview();
+    };
+
+    window.removeImportNotulensiRow = function(index) {
+        if (window.currentParsedNotulensiRows && window.currentParsedNotulensiRows[index] !== undefined) {
+            window.currentParsedNotulensiRows.splice(index, 1);
+            renderNotulensiImportPreview();
+        }
+    };
+
+    function handleImportNotulensiFile(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const label = document.getElementById('importFileLabelNotulensi');
+        if (label) label.innerText = '✓ ' + file.name;
+
+        function processRows(rows) {
+            const validRows = rows.filter(r => r.judul_rapat && r.judul_rapat !== '');
+            window.currentParsedNotulensiRows = validRows;
+            renderNotulensiImportPreview();
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            let rows = [];
+            try {
+                if (typeof XLSX !== 'undefined') {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonSheet = XLSX.utils.sheet_to_json(firstSheet, { header: 1, raw: false });
+
+                    jsonSheet.forEach((rowArray) => {
+                        if (!rowArray || !Array.isArray(rowArray) || rowArray.length < 1) return;
+                        
+                        const rowStr = rowArray.map(c => String(c || '').trim()).join(' ').toLowerCase();
+                        if (rowStr.includes('template import') || rowStr.includes('judul rapat')) return;
+
+                        let judul = String(rowArray[0] || '').trim();
+                        let tanggal = String(rowArray[1] || '').trim();
+                        let pemimpin = String(rowArray[2] || '').trim();
+                        let ringkasan = String(rowArray[3] || '').trim();
+                        let drive = String(rowArray[4] || '').trim();
+
+                        if (!judul || judul === '&nbsp;') return;
+
+                        if (!tanggal || tanggal === '&nbsp;') {
+                            tanggal = new Date().toISOString().slice(0, 16).replace('T', ' ');
+                        }
+
+                        rows.push({
+                            judul_rapat: judul,
+                            tanggal_rapat: tanggal,
+                            pemimpin_rapat: pemimpin !== '&nbsp;' ? pemimpin : '',
+                            ringkasan_hasil: ringkasan !== '&nbsp;' ? ringkasan : '',
+                            link_drive: drive !== '&nbsp;' ? drive : ''
+                        });
+                    });
+
+                    processRows(rows);
+                    return;
+                }
+            } catch (err) {
+                console.error('XLSX parsing error:', err);
+            }
+
+            // Text / CSV Fallback
+            try {
+                const text = new TextDecoder("utf-8").decode(e.target.result);
+                const lines = text.split(/\r\n|\n/);
+                lines.forEach((line, index) => {
+                    if (index === 0 || !line.trim()) return;
+                    const cols = line.split(',');
+                    if (cols.length >= 1 && cols[0].trim() !== '') {
+                        let judul = cols[0].trim().replace(/^"|"$/g, '');
+                        if (judul.toLowerCase() === 'judul rapat' || judul.includes('TEMPLATE')) return;
+                        rows.push({
+                            judul_rapat: judul,
+                            tanggal_rapat: cols[1] ? cols[1].trim().replace(/^"|"$/g, '') : '',
+                            pemimpin_rapat: cols[2] ? cols[2].trim().replace(/^"|"$/g, '') : '',
+                            ringkasan_hasil: cols[3] ? cols[3].trim().replace(/^"|"$/g, '') : '',
+                            link_drive: cols[4] ? cols[4].trim().replace(/^"|"$/g, '') : ''
+                        });
+                    }
+                });
+                processRows(rows);
+            } catch (csvErr) {
+                console.error('CSV fallback parsing error:', csvErr);
+            }
+        };
+
+        reader.readAsArrayBuffer(file);
+    }
 
     // ===============================================
     // Bulk Multi-PDF Drag & Drop JS Engine for Notulensi

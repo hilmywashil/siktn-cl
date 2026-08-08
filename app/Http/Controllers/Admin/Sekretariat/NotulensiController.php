@@ -37,6 +37,7 @@ class NotulensiController extends Controller
             'admin' => $admin,
             'notulensis' => $notulensis,
             'agendas' => $agendas,
+            'existingNotulensiJuduls' => Notulensi::pluck('judul_rapat')->toArray(),
         ]);
     }
 
@@ -147,6 +148,34 @@ class NotulensiController extends Controller
             return redirect()->route('admin.sekretariat.notulensi.index')->with('success', "Berhasil menambahkan {$createdCount} Notulensi Rapat secara massal.");
 
         } else {
+            if ($request->filled('notulensi_rows')) {
+                $rows = json_decode($request->notulensi_rows, true);
+                if (is_array($rows) && count($rows) > 0) {
+                    $importedCount = 0;
+                    foreach ($rows as $row) {
+                        $judulRapat = trim($row['judul_rapat'] ?? '');
+                        if (empty($judulRapat)) continue;
+                        $tanggalVal = trim($row['tanggal_rapat'] ?? '');
+                        $tanggalRapat = !empty($tanggalVal) ? \Carbon\Carbon::parse($tanggalVal)->format('Y-m-d H:i:s') : \Carbon\Carbon::now()->format('Y-m-d H:i:s');
+                        $pemimpinRapat = !empty($row['pemimpin_rapat']) ? trim($row['pemimpin_rapat']) : null;
+                        $ringkasan = !empty($row['ringkasan_hasil']) ? trim($row['ringkasan_hasil']) : null;
+                        $linkDrive = !empty($row['link_drive']) ? trim($row['link_drive']) : null;
+
+                        Notulensi::create([
+                            'judul_rapat' => $judulRapat,
+                            'tanggal_rapat' => $tanggalRapat,
+                            'pemimpin_rapat' => $pemimpinRapat,
+                            'ringkasan_hasil' => $ringkasan,
+                            'link_drive' => $linkDrive,
+                            'created_by' => $admin->id,
+                        ]);
+                        $importedCount++;
+                    }
+                    $this->logActivity('notulensi', 'Import Excel', null, "Import bulk {$importedCount} data notulensi rapat");
+                    return redirect()->route('admin.sekretariat.notulensi.index')->with('success', "Berhasil mengimpor {$importedCount} data Notulensi Rapat dari file Excel.");
+                }
+            }
+
             $request->validate([
                 'excel_file' => 'required|file|max:5120',
             ]);
