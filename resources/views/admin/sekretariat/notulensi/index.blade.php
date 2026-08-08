@@ -985,13 +985,35 @@
         }
     }
 
+    function openModalById(id) {
+        var modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.add('active');
+            modal.style.setProperty('display', 'flex', 'important');
+            modal.style.setProperty('opacity', '1', 'important');
+            modal.style.setProperty('visibility', 'visible', 'important');
+            modal.style.setProperty('pointer-events', 'auto', 'important');
+        }
+    }
+
+    function closeModalById(id) {
+        var modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.remove('active');
+            modal.style.setProperty('display', 'none', 'important');
+            modal.style.setProperty('opacity', '0', 'important');
+            modal.style.setProperty('visibility', 'hidden', 'important');
+            modal.style.setProperty('pointer-events', 'none', 'important');
+        }
+    }
+
     function openCreateModal() {
-        document.getElementById('createModal').classList.add('active');
+        openModalById('createModal');
         if (typeof $.fn.select2 !== 'undefined') {
             $('#createModal .select2-basic').select2({ width: '100%', dropdownParent: $('#createModal') });
         }
     }
-    function closeCreateModal() { document.getElementById('createModal').classList.remove('active'); }
+    function closeCreateModal() { closeModalById('createModal'); }
 
     function openEditModal(item) {
         document.getElementById('editForm').action = "/admin/sekretariat/notulensi/" + item.id;
@@ -1001,12 +1023,12 @@
         document.getElementById('editPemimpinRapat').value = item.pemimpin_rapat || '';
         document.getElementById('editRingkasanHasil').value = item.ringkasan_hasil || '';
         document.getElementById('editLinkDrive').value = item.link_drive || '';
-        document.getElementById('editModal').classList.add('active');
+        openModalById('editModal');
         if (typeof $.fn.select2 !== 'undefined') {
             $('#editModal .select2-basic').select2({ width: '100%', dropdownParent: $('#editModal') });
         }
     }
-    function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
+    function closeEditModal() { closeModalById('editModal'); }
 
     function confirmDeleteNotulensi(id, judul) {
         if (typeof Swal !== 'undefined') {
@@ -1189,8 +1211,12 @@
         form.submit();
     }
 
-    function openImportNotulensiModal() { document.getElementById('modalImportNotulensi').classList.add('active'); }
-    function closeImportNotulensiModal() { document.getElementById('modalImportNotulensi').classList.remove('active'); }
+    window.openImportNotulensiModal = function() {
+        openModalById('modalImportNotulensi');
+    };
+    window.closeImportNotulensiModal = function() {
+        closeModalById('modalImportNotulensi');
+    };
 
     // ===============================================
     // Bulk Multi-PDF Drag & Drop JS Engine for Notulensi
@@ -1199,11 +1225,11 @@
     window.bulkPdfCardStates = {};
 
     window.openBulkPdfNotulensiModal = function() {
-        document.getElementById('modalBulkPdfNotulensi').classList.add('active');
+        openModalById('modalBulkPdfNotulensi');
     };
 
     window.closeBulkPdfNotulensiModal = function() {
-        document.getElementById('modalBulkPdfNotulensi').classList.remove('active');
+        closeModalById('modalBulkPdfNotulensi');
     };
 
     function saveBulkPdfCurrentInputs() {
