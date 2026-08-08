@@ -98,16 +98,32 @@ class NotulensiController extends Controller
                 'files.*' => 'file|mimes:pdf,doc,docx|max:10240',
             ]);
 
+            $titles = $request->input('judul_rapat', []);
+            $dates = $request->input('tanggal_rapat', []);
+            $leaders = $request->input('pemimpin_rapat', []);
+            $summaries = $request->input('ringkasan_hasil', []);
+            $drives = $request->input('link_drive', []);
+
             $createdCount = 0;
-            foreach ($request->file('files') as $file) {
+            foreach ($request->file('files') as $idx => $file) {
                 if ($file->isValid()) {
                     $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                    $cleanTitle = ucwords(str_replace(['_', '-'], ' ', $originalName));
+                    $defaultTitle = ucwords(str_replace(['_', '-'], ' ', $originalName));
+
+                    $cleanTitle = !empty($titles[$idx]) ? trim($titles[$idx]) : $defaultTitle;
+                    $tanggalRapat = !empty($dates[$idx]) ? \Carbon\Carbon::parse(trim($dates[$idx]))->format('Y-m-d H:i:s') : \Carbon\Carbon::now()->format('Y-m-d H:i:s');
+                    $pemimpinRapat = !empty($leaders[$idx]) ? trim($leaders[$idx]) : null;
+                    $ringkasan = !empty($summaries[$idx]) ? trim($summaries[$idx]) : null;
+                    $linkDrive = !empty($drives[$idx]) ? trim($drives[$idx]) : null;
+
                     $pdfPath = $file->store('notulensi_pdf', 'public');
 
                     Notulensi::create([
                         'judul_rapat' => $cleanTitle,
-                        'tanggal_rapat' => \Carbon\Carbon::now(),
+                        'tanggal_rapat' => $tanggalRapat,
+                        'pemimpin_rapat' => $pemimpinRapat,
+                        'ringkasan_hasil' => $ringkasan,
+                        'link_drive' => $linkDrive,
                         'file_pdf' => $pdfPath,
                         'created_by' => $admin->id,
                     ]);
@@ -116,6 +132,15 @@ class NotulensiController extends Controller
             }
 
             $this->logActivity('notulensi', 'Bulk Store', null, "Upload bulk {$createdCount} berkas notulensi PDF/Word");
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Berhasil mengunggah {$createdCount} Notulensi Rapat secara massal.",
+                    'redirect' => route('admin.sekretariat.notulensi.index')
+                ]);
+            }
+
             return redirect()->route('admin.sekretariat.notulensi.index')->with('success', "Berhasil menambahkan {$createdCount} Notulensi Rapat secara massal.");
 
         } else {

@@ -364,16 +364,21 @@
         </form>
     </div>
 
-    <!-- Page Action Row (100% Identical to SK Benchmark) -->
-    <div class="page-actions-row" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.25rem;">
+    <!-- Page Action Row (100% Identical to Surat & SK Benchmark) -->
+    <div class="page-actions-row" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.25rem;">
         <button type="button" class="btn-solid-navy" onclick="openCreateModal()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             Tambah Notulensi Baru
         </button>
 
-        <button type="button" onclick="openImportNotulensiModal()" style="background: #b7830f; color: white; border: none; padding: 0.55rem 1.25rem; border-radius: 6px; font-weight: 700; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(183, 131, 15, 0.2); cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#966a0a'" onmouseout="this.style.background='#b7830f'">
+        <button type="button" onclick="openImportNotulensiModal()" style="background: #059669; color: white; border: none; padding: 0.55rem 1rem; border-radius: var(--radius-md); font-weight: 600; font-size: 0.875rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.2);" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            Import / Bulk Upload Notulensi
+            Import Excel Notulensi
+        </button>
+
+        <button type="button" onclick="openBulkPdfNotulensiModal()" style="background: #b7830f; color: white; border: none; padding: 0.55rem 1rem; border-radius: var(--radius-md); font-weight: 600; font-size: 0.875rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 2px 6px rgba(183, 131, 15, 0.2);" onmouseover="this.style.background='#966a0c'" onmouseout="this.style.background='#b7830f'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            Bulk Upload Multi-PDF
         </button>
     </div>
 
@@ -1186,18 +1191,310 @@
 
     function openImportNotulensiModal() { document.getElementById('modalImportNotulensi').classList.add('active'); }
     function closeImportNotulensiModal() { document.getElementById('modalImportNotulensi').classList.remove('active'); }
+
+    // ===============================================
+    // Bulk Multi-PDF Drag & Drop JS Engine for Notulensi
+    // ===============================================
+    window.bulkPdfSelectedFiles = [];
+    window.bulkPdfCardStates = {};
+
+    window.openBulkPdfNotulensiModal = function() {
+        document.getElementById('modalBulkPdfNotulensi').classList.add('active');
+    };
+
+    window.closeBulkPdfNotulensiModal = function() {
+        document.getElementById('modalBulkPdfNotulensi').classList.remove('active');
+    };
+
+    function saveBulkPdfCurrentInputs() {
+        window.bulkPdfSelectedFiles.forEach((file, idx) => {
+            const key = file.name + '_' + file.size;
+            window.bulkPdfCardStates[key] = {
+                judul: document.getElementById(`pdf_judul_${idx}`)?.value || '',
+                tanggal: document.getElementById(`pdf_tanggal_${idx}`)?.value || '',
+                pemimpin: document.getElementById(`pdf_pemimpin_${idx}`)?.value || '',
+                ringkasan: document.getElementById(`pdf_ringkasan_${idx}`)?.value || '',
+                drive: document.getElementById(`pdf_drive_${idx}`)?.value || '',
+            };
+        });
+    }
+
+    function addBulkPdfFiles(files) {
+        saveBulkPdfCurrentInputs();
+        Array.from(files).forEach(file => {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (['pdf', 'doc', 'docx'].includes(ext)) {
+                const exists = window.bulkPdfSelectedFiles.some(f => f.name === file.name && f.size === file.size);
+                if (!exists) {
+                    window.bulkPdfSelectedFiles.push(file);
+                }
+            }
+        });
+        renderBulkPdfCards();
+    }
+
+    function renderBulkPdfCards() {
+        const container = document.getElementById('bulkPdfCardsContainerNotulensi');
+        const countSpan = document.getElementById('bulkPdfSelectedCountNotulensi');
+        const submitBtn = document.getElementById('btnSubmitBulkPdfNotulensi');
+
+        if (!container) return;
+
+        if (countSpan) countSpan.innerText = window.bulkPdfSelectedFiles.length;
+        if (submitBtn) submitBtn.disabled = window.bulkPdfSelectedFiles.length === 0;
+
+        if (window.bulkPdfSelectedFiles.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 2.5rem 1rem; color: #64748b;">
+                    <svg viewBox="0 0 24 24" width="40" height="40" stroke="#cbd5e1" fill="none" stroke-width="1.5" style="margin-bottom: 0.5rem;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <div style="font-weight: 700; font-size: 0.9rem; color: #022648;">Belum ada berkas PDF / Word dipilih</div>
+                    <div style="font-size: 0.775rem;">Silakan klik atau tarik banyak berkas ke dalam area di atas.</div>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const defaultDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+        window.bulkPdfSelectedFiles.forEach((file, idx) => {
+            const key = file.name + '_' + file.size;
+            const state = window.bulkPdfCardStates[key] || {};
+
+            const cleanName = state.judul || file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, ' ');
+            const fileSizeMb = (file.size / (1024 * 1024)).toFixed(2);
+            const dateVal = state.tanggal || defaultDateTime;
+            const pemimpinVal = state.pemimpin || '';
+            const ringkasanVal = state.ringkasan || '';
+            const driveVal = state.drive || '';
+
+            html += `
+                <div class="bulk-pdf-card" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem; flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="background: #b7830f; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem;">${idx + 1}</span>
+                            <strong style="color: #022648; font-size: 0.9rem;">${file.name}</strong>
+                            <span style="color: #64748b; font-size: 0.75rem;">(${fileSizeMb} MB)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button type="button" onclick="toggleBulkPdfNotulensiPreview(${idx})" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <span id="pdf_preview_btn_notulensi_${idx}">Pratinjau Slide PDF</span>
+                            </button>
+                            <button type="button" onclick="removeBulkPdfNotulensiCard(${idx})" style="background: #fee2e2; color: #991b1b; border: none; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                &times; Hapus Berkas
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="pdf_preview_slide_notulensi_${idx}" style="display: none; margin-bottom: 1.25rem; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #0f172a; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="background: #022648; color: white; padding: 6px 12px; font-size: 0.75rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center;">
+                            <span>📄 Slide Pratinjau Dokumen: ${file.name}</span>
+                            <span style="color: #fef08a;">Scroll untuk membaca isi dokumen PDF</span>
+                        </div>
+                        <iframe id="pdf_iframe_notulensi_${idx}" style="width: 100%; height: 360px; border: none;" src="about:blank"></iframe>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Judul Rapat <span style="color: red;">*</span></label>
+                            <input type="text" id="pdf_judul_${idx}" class="form-control" placeholder="Judul Rapat..." value="${cleanName}" required style="font-size: 0.8125rem;">
+                        </div>
+
+                        <div class="form-group">
+                            <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Tanggal & Waktu Rapat <span style="color: red;">*</span></label>
+                            <input type="datetime-local" id="pdf_tanggal_${idx}" class="form-control" value="${dateVal}" required style="font-size: 0.8125rem;">
+                        </div>
+
+                        <div class="form-group">
+                            <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Pemimpin Rapat</label>
+                            <input type="text" id="pdf_pemimpin_${idx}" class="form-control" placeholder="Nama pemimpin rapat..." value="${pemimpinVal}" style="font-size: 0.8125rem;">
+                        </div>
+
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Ringkasan Hasil Notulensi</label>
+                            <textarea id="pdf_ringkasan_${idx}" class="form-control" placeholder="Ringkasan poin hasil rapat..." style="height: 65px; font-size: 0.8125rem;">${ringkasanVal}</textarea>
+                        </div>
+
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label style="font-size: 0.775rem; font-weight: 700; color: #022648;">Link Google Drive (Opsional)</label>
+                            <input type="url" id="pdf_drive_${idx}" class="form-control" placeholder="https://drive.google.com/..." value="${driveVal}" style="font-size: 0.8125rem;">
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    window.toggleBulkPdfNotulensiPreview = function(idx) {
+        const slide = document.getElementById(`pdf_preview_slide_notulensi_${idx}`);
+        const iframe = document.getElementById(`pdf_iframe_notulensi_${idx}`);
+        const btnText = document.getElementById(`pdf_preview_btn_notulensi_${idx}`);
+
+        if (!slide || !iframe) return;
+
+        if (slide.style.display === 'none') {
+            const file = window.bulkPdfSelectedFiles[idx];
+            if (file) {
+                const blobUrl = URL.createObjectURL(file);
+                iframe.src = blobUrl;
+            }
+            slide.style.display = 'block';
+            if (btnText) btnText.innerText = 'Sembunyikan PDF';
+        } else {
+            slide.style.display = 'none';
+            iframe.src = 'about:blank';
+            if (btnText) btnText.innerText = 'Pratinjau Slide PDF';
+        }
+    };
+
+    window.removeBulkPdfNotulensiCard = function(idx) {
+        saveBulkPdfCurrentInputs();
+        if (window.bulkPdfSelectedFiles && window.bulkPdfSelectedFiles[idx]) {
+            window.bulkPdfSelectedFiles.splice(idx, 1);
+            renderBulkPdfCards();
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const dropZone = document.getElementById('bulkPdfNotulensiDropZone');
+        const inputFiles = document.getElementById('bulkPdfNotulensiInputFiles');
+        const formBulk = document.getElementById('formBulkPdfNotulensi');
+
+        if (dropZone) {
+            ['dragenter', 'dragover'].forEach(evtName => {
+                dropZone.addEventListener(evtName, (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    dropZone.style.background = '#fff9e6';
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(evtName => {
+                dropZone.addEventListener(evtName, (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    dropZone.style.background = '#fffdf5';
+                }, false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                if (dt && dt.files && dt.files.length > 0) {
+                    addBulkPdfFiles(dt.files);
+                }
+            }, false);
+        }
+
+        if (inputFiles) {
+            inputFiles.addEventListener('change', function () {
+                if (this.files && this.files.length > 0) {
+                    addBulkPdfFiles(this.files);
+                    this.value = '';
+                }
+            });
+        }
+
+        if (formBulk) {
+            formBulk.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                if (!window.bulkPdfSelectedFiles || window.bulkPdfSelectedFiles.length === 0) {
+                    if (typeof Toast !== 'undefined') Toast.fire({ icon: 'warning', title: 'Belum ada berkas PDF yang dipilih!' });
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('_token', '{{ csrf_token() }}');
+                formData.append('bulk_type', 'files');
+
+                let hasError = false;
+
+                window.bulkPdfSelectedFiles.forEach((file, idx) => {
+                    const judul = document.getElementById(`pdf_judul_${idx}`)?.value || '';
+                    const tanggal = document.getElementById(`pdf_tanggal_${idx}`)?.value || '';
+                    const pemimpin = document.getElementById(`pdf_pemimpin_${idx}`)?.value || '';
+                    const ringkasan = document.getElementById(`pdf_ringkasan_${idx}`)?.value || '';
+                    const drive = document.getElementById(`pdf_drive_${idx}`)?.value || '';
+
+                    if (!judul) {
+                        hasError = true;
+                    }
+
+                    formData.append('files[]', file);
+                    formData.append('judul_rapat[]', judul);
+                    formData.append('tanggal_rapat[]', tanggal);
+                    formData.append('pemimpin_rapat[]', pemimpin);
+                    formData.append('ringkasan_hasil[]', ringkasan);
+                    formData.append('link_drive[]', drive);
+                });
+
+                if (hasError) {
+                    Swal.fire({ icon: 'warning', title: 'Data Belum Lengkap', text: 'Mohon isi Judul Rapat pada seluruh kartu berkas.' });
+                    return;
+                }
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Mengunggah Notulensi...',
+                        text: `Sedang memproses ${window.bulkPdfSelectedFiles.length} berkas PDF...`,
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+                }
+
+                fetch(formBulk.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Bulk Upload Berhasil!',
+                                text: data.message || 'Semua notulensi rapat berhasil disimpan.',
+                                confirmButtonColor: '#022648'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            window.location.reload();
+                        }
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Gagal Unggah', text: data.message || 'Terjadi kesalahan saat memproses data.' });
+                    }
+                })
+                .catch(err => {
+                    console.error('Bulk store error:', err);
+                    formBulk.submit();
+                });
+            });
+        }
+    });
 </script>
 
-<!-- Modal Import / Bulk Upload Notulensi Rapat (100% Pixel Perfect Match with SK Benchmark) -->
+<!-- Modal 1: Import Excel Notulensi Rapat (Identical to SK Benchmark) -->
 <div class="modal-overlay" id="modalImportNotulensi" onclick="if(event.target===this) closeImportNotulensiModal()">
     <div class="modal-content-lg">
         <div class="modal-header-prof" style="background: linear-gradient(135deg, #022648 0%, #01162f 100%); padding: 1.25rem 1.5rem; color: white;">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(183, 131, 15, 0.2); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(183, 131, 15, 0.4);">
-                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="#b7830f" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="#b7830f" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </div>
                 <div>
-                    <h3 style="font-size: 1.1rem; font-weight: 800; color: white; margin: 0;">Import / Bulk Upload Notulensi Rapat</h3>
+                    <h3 style="font-size: 1.1rem; font-weight: 800; color: white; margin: 0;">Import Excel Notulensi Rapat</h3>
                     <span style="font-size: 0.775rem; color: #94a3b8;">Unggah berkas data Notulensi secara massal menggunakan format Excel (.xls / .csv)</span>
                 </div>
             </div>
@@ -1239,6 +1536,57 @@
                 <button type="button" class="btn-outline-secondary" onclick="closeImportNotulensiModal()">Batal</button>
                 <button type="submit" class="btn-solid-navy" style="background: #022648 !important; color: white !important; font-weight: 700;" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Mengimpor data Notulensi Rapat...' })">
                     Proses Import Massal
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal 2: Bulk Upload Multi-PDF Notulensi Rapat (Identical to Surat Masuk/Keluar) -->
+<div class="modal-overlay" id="modalBulkPdfNotulensi" onclick="if(event.target===this) closeBulkPdfNotulensiModal()">
+    <div class="modal-content-lg" style="max-width: 820px; max-height: 90vh;">
+        <div class="modal-header-prof" style="background: linear-gradient(135deg, #b7830f 0%, #855d09 100%); padding: 1.25rem 1.5rem; color: white; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="white" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.1rem; font-weight: 800; color: white; margin: 0;">Bulk Upload Multi-PDF Notulensi Rapat</h3>
+                    <span style="font-size: 0.775rem; color: #fef08a;">Unggah banyak berkas PDF / Word sekaligus & isi metadata masing-masing berkas</span>
+                </div>
+            </div>
+            <button type="button" onclick="closeBulkPdfNotulensiModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem;">&times;</button>
+        </div>
+
+        <form action="{{ route('admin.sekretariat.notulensi.bulk-store') }}" method="POST" enctype="multipart/form-data" id="formBulkPdfNotulensi">
+            @csrf
+            <input type="hidden" name="bulk_type" value="files">
+
+            <div class="modal-body-prof" style="padding: 1.5rem; overflow-y: auto; max-height: 65vh;">
+                <!-- Drag & Drop Zone -->
+                <div id="bulkPdfNotulensiDropZone" class="file-upload-zone" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1.5rem; text-align: center; border-radius: 8px; cursor: pointer; margin-bottom: 1.5rem; transition: all 0.2s;">
+                    <input type="file" id="bulkPdfNotulensiInputFiles" multiple accept=".pdf,.doc,.docx" style="display: none;">
+                    <div onclick="document.getElementById('bulkPdfNotulensiInputFiles').click()">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <div style="font-size: 0.9rem; font-weight: 800; color: #022648;">Klik / Drag Banyak Berkas PDF Notulensi ke Sini</div>
+                        <div style="font-size: 0.775rem; color: #966a0c; margin-top: 4px;">Dapat memilih sekaligus beberapa berkas format .pdf, .doc, .docx (Maksimal 10MB per file)</div>
+                    </div>
+                </div>
+
+                <!-- Cards Container -->
+                <div style="font-weight: 800; font-size: 0.875rem; color: #022648; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span>Daftar Berkas Terpilih (<span id="bulkPdfSelectedCountNotulensi" style="color: #b7830f;">0</span> Berkas)</span>
+                </div>
+
+                <div id="bulkPdfCardsContainerNotulensi">
+                    <!-- Dynamic PDF cards generated by JS -->
+                </div>
+            </div>
+
+            <div class="modal-footer-prof" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="button" class="btn-outline-secondary" onclick="closeBulkPdfNotulensiModal()">Batal</button>
+                <button type="submit" id="btnSubmitBulkPdfNotulensi" style="background: #b7830f; color: white; border: none; padding: 0.55rem 1.25rem; border-radius: 6px; font-weight: 700; cursor: pointer;" disabled>
+                    Simpan Semua Notulensi
                 </button>
             </div>
         </form>
