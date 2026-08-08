@@ -194,8 +194,8 @@
         .table tbody tr:hover { background: var(--gray-50); }
 
         .row-avatar {
-            width: 38px; height: 38px; border-radius: 50%; background: #C59217;
-            display: flex; align-items: center; justify-content: center; color: #022648;
+            width: 38px; height: 38px; border-radius: 50%; background: var(--navy);
+            display: flex; align-items: center; justify-content: center; color: #ffffff;
             font-weight: 700; font-size: 0.875rem; flex-shrink: 0; overflow: hidden;
             border: 2px solid var(--gray-200);
         }
