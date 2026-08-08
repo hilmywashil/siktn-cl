@@ -29,7 +29,10 @@
         height: 36px !important;
     }
     .select2-container {
-        min-width: 320px !important;
+        flex: 1 !important;
+        min-width: 280px !important;
+        max-width: 380px !important;
+        width: 100% !important;
     }
     .select2-dropdown {
         border: 1.5px solid #022648 !important;
