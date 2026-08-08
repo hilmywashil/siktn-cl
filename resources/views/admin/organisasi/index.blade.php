@@ -567,7 +567,7 @@
         height: 36px !important;
     }
     .select2-container {
-        min-width: 250px !important;
+        min-width: 320px !important;
     }
     .select2-dropdown {
         border: 1.5px solid #022648 !important;
@@ -575,13 +575,13 @@
         box-shadow: 0 10px 25px rgba(2, 38, 72, 0.15) !important;
         animation: select2DropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
         overflow: hidden !important;
-        min-width: 280px !important;
+        min-width: 380px !important;
         width: auto !important;
     }
     .select2-results__option {
         white-space: nowrap !important;
-        padding: 8px 14px !important;
-        font-size: 0.85rem !important;
+        padding: 10px 16px !important;
+        font-size: 0.875rem !important;
     }
     .select2-results__option--highlighted[aria-selected] {
         background-color: #022648 !important;
@@ -632,7 +632,7 @@
             </div>
             <form action="{{ route('admin.organisasi.index') }}" method="GET" style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
                 <label style="font-size: 0.85rem; font-weight: 700; color: var(--navy); margin: 0; white-space: nowrap;">Provinsi:</label>
-                <select name="provinsi" id="provinsi-filter" onchange="this.form.submit()" class="select2-basic" style="min-width: 180px; height: 38px;">
+                <select name="provinsi" id="provinsi-filter" onchange="this.form.submit()" class="select2-basic" style="min-width: 320px; height: 38px;">
                     @foreach($daftarProvinsi as $pKey => $pVal)
                         <option value="{{ $pKey }}" {{ ($selectedProvinsi ?? '') == $pKey ? 'selected' : '' }}>{{ $pVal }}</option>
                     @endforeach
@@ -640,7 +640,7 @@
 
                 @if(($selectedProvinsi ?? '') !== 'Nasional')
                 <label style="font-size: 0.85rem; font-weight: 700; color: var(--navy); margin: 0; white-space: nowrap;">Kab/Kota:</label>
-                <select name="kabupaten" id="kabupaten-filter" onchange="this.form.submit()" class="select2-basic" style="min-width: 180px; height: 38px;">
+                <select name="kabupaten" id="kabupaten-filter" onchange="this.form.submit()" class="select2-basic" style="min-width: 320px; height: 38px;">
                     <option value="">Tingkat Provinsi</option>
                     @foreach($daftarKabupaten as $kabKey => $kabLabel)
                         <option value="{{ $kabKey }}" {{ ($selectedKabupaten ?? '') == $kabKey ? 'selected' : '' }}>{{ $kabLabel }}</option>

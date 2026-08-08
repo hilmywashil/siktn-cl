@@ -29,7 +29,7 @@
         height: 36px !important;
     }
     .select2-container {
-        min-width: 250px !important;
+        min-width: 320px !important;
     }
     .select2-dropdown {
         border: 1.5px solid #022648 !important;
@@ -38,13 +38,13 @@
         animation: select2DropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
         overflow: hidden !important;
         z-index: 9999 !important;
-        min-width: 280px !important;
+        min-width: 380px !important;
         width: auto !important;
     }
     .select2-results__option {
         white-space: nowrap !important;
-        padding: 8px 14px !important;
-        font-size: 0.85rem !important;
+        padding: 10px 16px !important;
+        font-size: 0.875rem !important;
     }
     .select2-results__option--highlighted[aria-selected] {
         background-color: #022648 !important;
@@ -297,7 +297,7 @@
                     {{-- Select Provinsi --}}
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <label style="font-size: 0.8125rem; font-weight: 700; color: #022648; margin: 0; white-space: nowrap;">Provinsi:</label>
-                        <select name="provinsi" onchange="this.form.submit()" class="select2-basic" style="min-width: 180px; height: 38px;">
+                        <select name="provinsi" onchange="this.form.submit()" class="select2-basic" style="min-width: 320px; height: 38px;">
                             @foreach($daftarProvinsi as $provKey => $provLabel)
                                 <option value="{{ $provKey }}" {{ $selectedProvinsi == $provKey ? 'selected' : '' }}>{{ $provLabel }}</option>
                             @endforeach
@@ -308,7 +308,7 @@
                     @if(($selectedProvinsi ?? '') !== 'Nasional')
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <label style="font-size: 0.8125rem; font-weight: 700; color: #022648; margin: 0; white-space: nowrap;">Kab/Kota:</label>
-                        <select name="kabupaten" onchange="this.form.submit()" class="select2-basic" style="min-width: 180px; height: 38px;">
+                        <select name="kabupaten" onchange="this.form.submit()" class="select2-basic" style="min-width: 320px; height: 38px;">
                             <option value="">Tingkat Provinsi</option>
                             @foreach($daftarKabupaten as $kabKey => $kabLabel)
                                 <option value="{{ $kabKey }}" {{ request('kabupaten') == $kabKey ? 'selected' : '' }}>{{ $kabLabel }}</option>
