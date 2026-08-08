@@ -15,6 +15,15 @@
             to   { opacity: 1; transform: translateY(0) scale(1); }
         }
 
+        @keyframes viewFadeIn {
+            from { opacity: 0; transform: translateY(8px) scale(0.99); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .animate-view-fade {
+            animation: viewFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
         .select2-container--default .select2-selection--single {
             height: 40px; padding: 0.35rem 0.75rem; font-size: 0.8125rem; font-weight: 600;
             color: var(--navy); background-color: #fff; border: 1px solid var(--gray-300);
@@ -695,6 +704,10 @@
 @endsection
 
 @push('scripts')
+<style>
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .animate-view-fade { animation: fadeIn 0.3s ease-in-out; }
+</style>
 <script>
     function switchAnggotaView(mode) {
         const gridView = document.getElementById('anggotaGridViewContainer');
@@ -706,13 +719,23 @@
 
         if (mode === 'grid') {
             if (listView) listView.style.display = 'none';
-            if (gridView) gridView.style.display = 'grid';
+            if (gridView) {
+                gridView.style.display = 'grid';
+                gridView.classList.remove('animate-view-fade');
+                void gridView.offsetWidth;
+                gridView.classList.add('animate-view-fade');
+            }
             btnGrid?.classList.add('active');
             btnList?.classList.remove('active');
             localStorage.setItem('siktn_view_mode_anggota', 'grid');
         } else {
             if (gridView) gridView.style.display = 'none';
-            if (listView) listView.style.display = 'block';
+            if (listView) {
+                listView.style.display = 'block';
+                listView.classList.remove('animate-view-fade');
+                void listView.offsetWidth;
+                listView.classList.add('animate-view-fade');
+            }
             btnList?.classList.add('active');
             btnGrid?.classList.remove('active');
             localStorage.setItem('siktn_view_mode_anggota', 'list');
