@@ -771,6 +771,114 @@
     </div>
 </div>
 
+<!-- Modal 1: Import Excel Notulensi Rapat (Strict Emerald Excel Styling) -->
+<div class="modal-overlay" id="modalImportNotulensi" onclick="if(event.target===this) closeImportNotulensiModal()">
+    <div class="modal-content-lg">
+        <div class="modal-header-prof" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 1.25rem 1.5rem; color: white;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="white" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.1rem; font-weight: 800; color: white; margin: 0;">Import Excel Notulensi Rapat</h3>
+                    <span style="font-size: 0.775rem; color: #d1fae5;">Unggah berkas data Notulensi secara massal menggunakan format Excel (.xls / .csv)</span>
+                </div>
+            </div>
+            <button type="button" onclick="closeImportNotulensiModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem;">&times;</button>
+        </div>
+
+        <form action="{{ route('admin.sekretariat.notulensi.bulk-store') }}" method="POST" enctype="multipart/form-data" id="formImportNotulensi">
+            @csrf
+            <input type="hidden" name="bulk_type" value="excel">
+
+            <div class="modal-body-prof" style="padding: 1.5rem;">
+                <div style="background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem;">
+                    <div style="font-weight: 700; color: #065f46; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <span style="font-size: 0.9rem;"><i class="fa fa-info-circle" style="color: #059669;"></i> Unduh Format Contoh Import Notulensi</span>
+                        <a href="{{ route('admin.sekretariat.notulensi.template') }}" onclick="Toast.fire({ icon: 'success', title: 'Mengunduh format contoh Excel Notulensi...' })" style="background: #059669; color: white; padding: 7px 14px; border-radius: 6px; font-size: 0.775rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Unduh Format Contoh (.xls)
+                        </a>
+                    </div>
+                    <p style="font-size: 0.8125rem; color: #047857; margin: 0; line-height: 1.5;">
+                        Silakan unduh berkas contoh di atas untuk melihat susunan 5 kolom: <strong>Judul Rapat, Tanggal Rapat, Pemimpin Rapat, Ringkasan Hasil Rapat, Link Google Drive</strong>.
+                    </p>
+                </div>
+
+                <div class="form-group-full">
+                    <label class="form-label" style="font-weight: 700; color: #022648; font-size: 0.875rem; margin-bottom: 0.5rem; display: block;">Pilih Berkas Excel / CSV (.xls, .xlsx, .csv)</label>
+                    <div class="file-upload-zone" onclick="document.getElementById('importNotulensiFile').click()" style="border: 2px dashed #059669; background: #f0fdf4; padding: 1.25rem 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
+                        <input type="file" id="importNotulensiFile" name="excel_file" accept=".xls,.xlsx,.csv" required style="display: none;" onchange="if(this.files[0]) document.getElementById('importFileLabelNotulensi').textContent = '✓ ' + this.files[0].name">
+                        <div style="pointer-events: none;">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" style="margin-bottom: 0.35rem;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                            <div style="font-weight: 700; color: #065f46; font-size: 0.9rem; margin-bottom: 2px;" id="importFileLabelNotulensi">Klik atau Tarik Berkas Excel ke Sini</div>
+                            <span style="font-size: 0.775rem; color: #047857;">Format yang didukung: .xls, .xlsx, .csv</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer-prof" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="button" class="btn-outline-secondary" onclick="closeImportNotulensiModal()">Batal</button>
+                <button type="submit" style="background: #059669 !important; color: white !important; border: none; padding: 0.55rem 1.25rem; border-radius: 6px; font-weight: 700; cursor: pointer;" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Mengimpor data Notulensi Rapat dari Excel...' })">
+                    Proses Import Excel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal 2: Bulk Upload Multi-PDF Notulensi Rapat (Identical to Surat Masuk/Keluar) -->
+<div class="modal-overlay" id="modalBulkPdfNotulensi" onclick="if(event.target===this) closeBulkPdfNotulensiModal()">
+    <div class="modal-content-lg" style="max-width: 820px; max-height: 90vh;">
+        <div class="modal-header-prof" style="background: linear-gradient(135deg, #b7830f 0%, #855d09 100%); padding: 1.25rem 1.5rem; color: white; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="white" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.1rem; font-weight: 800; color: white; margin: 0;">Bulk Upload Multi-PDF Notulensi Rapat</h3>
+                    <span style="font-size: 0.775rem; color: #fef08a;">Unggah banyak berkas PDF / Word sekaligus & isi metadata masing-masing berkas</span>
+                </div>
+            </div>
+            <button type="button" onclick="closeBulkPdfNotulensiModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem;">&times;</button>
+        </div>
+
+        <form action="{{ route('admin.sekretariat.notulensi.bulk-store') }}" method="POST" enctype="multipart/form-data" id="formBulkPdfNotulensi">
+            @csrf
+            <input type="hidden" name="bulk_type" value="files">
+
+            <div class="modal-body-prof" style="padding: 1.5rem; overflow-y: auto; max-height: 65vh;">
+                <!-- Drag & Drop Zone -->
+                <div id="bulkPdfNotulensiDropZone" class="file-upload-zone" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1.5rem; text-align: center; border-radius: 8px; cursor: pointer; margin-bottom: 1.5rem; transition: all 0.2s;">
+                    <input type="file" id="bulkPdfNotulensiInputFiles" multiple accept=".pdf,.doc,.docx" style="display: none;">
+                    <div onclick="document.getElementById('bulkPdfNotulensiInputFiles').click()">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <div style="font-size: 0.9rem; font-weight: 800; color: #022648;">Klik / Drag Banyak Berkas PDF Notulensi ke Sini</div>
+                        <div style="font-size: 0.775rem; color: #966a0c; margin-top: 4px;">Dapat memilih sekaligus beberapa berkas format .pdf, .doc, .docx (Maksimal 10MB per file)</div>
+                    </div>
+                </div>
+
+                <!-- Cards Container -->
+                <div style="font-weight: 800; font-size: 0.875rem; color: #022648; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span>Daftar Berkas Terpilih (<span id="bulkPdfSelectedCountNotulensi" style="color: #b7830f;">0</span> Berkas)</span>
+                </div>
+
+                <div id="bulkPdfCardsContainerNotulensi">
+                    <!-- Dynamic PDF cards generated by JS -->
+                </div>
+            </div>
+
+            <div class="modal-footer-prof" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="button" class="btn-outline-secondary" onclick="closeBulkPdfNotulensiModal()">Batal</button>
+                <button type="submit" id="btnSubmitBulkPdfNotulensi" style="background: #b7830f; color: white; border: none; padding: 0.55rem 1.25rem; border-radius: 6px; font-weight: 700; cursor: pointer;" disabled>
+                    Simpan Semua Notulensi
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -1509,112 +1617,4 @@
         }
     });
 </script>
-
-<!-- Modal 1: Import Excel Notulensi Rapat (Strict Emerald Excel Styling) -->
-<div class="modal-overlay" id="modalImportNotulensi" onclick="if(event.target===this) closeImportNotulensiModal()">
-    <div class="modal-content-lg">
-        <div class="modal-header-prof" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 1.25rem 1.5rem; color: white;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center;">
-                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="white" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-                </div>
-                <div>
-                    <h3 style="font-size: 1.1rem; font-weight: 800; color: white; margin: 0;">Import Excel Notulensi Rapat</h3>
-                    <span style="font-size: 0.775rem; color: #d1fae5;">Unggah berkas data Notulensi secara massal menggunakan format Excel (.xls / .csv)</span>
-                </div>
-            </div>
-            <button type="button" onclick="closeImportNotulensiModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem;">&times;</button>
-        </div>
-
-        <form action="{{ route('admin.sekretariat.notulensi.bulk-store') }}" method="POST" enctype="multipart/form-data" id="formImportNotulensi">
-            @csrf
-            <input type="hidden" name="bulk_type" value="excel">
-
-            <div class="modal-body-prof" style="padding: 1.5rem;">
-                <div style="background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem;">
-                    <div style="font-weight: 700; color: #065f46; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                        <span style="font-size: 0.9rem;"><i class="fa fa-info-circle" style="color: #059669;"></i> Unduh Format Contoh Import Notulensi</span>
-                        <a href="{{ route('admin.sekretariat.notulensi.template') }}" onclick="Toast.fire({ icon: 'success', title: 'Mengunduh format contoh Excel Notulensi...' })" style="background: #059669; color: white; padding: 7px 14px; border-radius: 6px; font-size: 0.775rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                            Unduh Format Contoh (.xls)
-                        </a>
-                    </div>
-                    <p style="font-size: 0.8125rem; color: #047857; margin: 0; line-height: 1.5;">
-                        Silakan unduh berkas contoh di atas untuk melihat susunan 5 kolom: <strong>Judul Rapat, Tanggal Rapat, Pemimpin Rapat, Ringkasan Hasil Rapat, Link Google Drive</strong>.
-                    </p>
-                </div>
-
-                <div class="form-group-full">
-                    <label class="form-label" style="font-weight: 700; color: #022648; font-size: 0.875rem; margin-bottom: 0.5rem; display: block;">Pilih Berkas Excel / CSV (.xls, .xlsx, .csv)</label>
-                    <div class="file-upload-zone" onclick="document.getElementById('importNotulensiFile').click()" style="border: 2px dashed #059669; background: #f0fdf4; padding: 1.25rem 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
-                        <input type="file" id="importNotulensiFile" name="excel_file" accept=".xls,.xlsx,.csv" required style="display: none;" onchange="if(this.files[0]) document.getElementById('importFileLabelNotulensi').textContent = '✓ ' + this.files[0].name">
-                        <div style="pointer-events: none;">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" style="margin-bottom: 0.35rem;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-                            <div style="font-weight: 700; color: #065f46; font-size: 0.9rem; margin-bottom: 2px;" id="importFileLabelNotulensi">Klik atau Tarik Berkas Excel ke Sini</div>
-                            <span style="font-size: 0.775rem; color: #047857;">Format yang didukung: .xls, .xlsx, .csv</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer-prof" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.75rem;">
-                <button type="button" class="btn-outline-secondary" onclick="closeImportNotulensiModal()">Batal</button>
-                <button type="submit" style="background: #059669 !important; color: white !important; border: none; padding: 0.55rem 1.25rem; border-radius: 6px; font-weight: 700; cursor: pointer;" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Mengimpor data Notulensi Rapat dari Excel...' })">
-                    Proses Import Excel
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Modal 2: Bulk Upload Multi-PDF Notulensi Rapat (Identical to Surat Masuk/Keluar) -->
-<div class="modal-overlay" id="modalBulkPdfNotulensi" onclick="if(event.target===this) closeBulkPdfNotulensiModal()">
-    <div class="modal-content-lg" style="max-width: 820px; max-height: 90vh;">
-        <div class="modal-header-prof" style="background: linear-gradient(135deg, #b7830f 0%, #855d09 100%); padding: 1.25rem 1.5rem; color: white; display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center;">
-                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="white" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-                </div>
-                <div>
-                    <h3 style="font-size: 1.1rem; font-weight: 800; color: white; margin: 0;">Bulk Upload Multi-PDF Notulensi Rapat</h3>
-                    <span style="font-size: 0.775rem; color: #fef08a;">Unggah banyak berkas PDF / Word sekaligus & isi metadata masing-masing berkas</span>
-                </div>
-            </div>
-            <button type="button" onclick="closeBulkPdfNotulensiModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem;">&times;</button>
-        </div>
-
-        <form action="{{ route('admin.sekretariat.notulensi.bulk-store') }}" method="POST" enctype="multipart/form-data" id="formBulkPdfNotulensi">
-            @csrf
-            <input type="hidden" name="bulk_type" value="files">
-
-            <div class="modal-body-prof" style="padding: 1.5rem; overflow-y: auto; max-height: 65vh;">
-                <!-- Drag & Drop Zone -->
-                <div id="bulkPdfNotulensiDropZone" class="file-upload-zone" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1.5rem; text-align: center; border-radius: 8px; cursor: pointer; margin-bottom: 1.5rem; transition: all 0.2s;">
-                    <input type="file" id="bulkPdfNotulensiInputFiles" multiple accept=".pdf,.doc,.docx" style="display: none;">
-                    <div onclick="document.getElementById('bulkPdfNotulensiInputFiles').click()">
-                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        <div style="font-size: 0.9rem; font-weight: 800; color: #022648;">Klik / Drag Banyak Berkas PDF Notulensi ke Sini</div>
-                        <div style="font-size: 0.775rem; color: #966a0c; margin-top: 4px;">Dapat memilih sekaligus beberapa berkas format .pdf, .doc, .docx (Maksimal 10MB per file)</div>
-                    </div>
-                </div>
-
-                <!-- Cards Container -->
-                <div style="font-weight: 800; font-size: 0.875rem; color: #022648; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
-                    <span>Daftar Berkas Terpilih (<span id="bulkPdfSelectedCountNotulensi" style="color: #b7830f;">0</span> Berkas)</span>
-                </div>
-
-                <div id="bulkPdfCardsContainerNotulensi">
-                    <!-- Dynamic PDF cards generated by JS -->
-                </div>
-            </div>
-
-            <div class="modal-footer-prof" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.75rem;">
-                <button type="button" class="btn-outline-secondary" onclick="closeBulkPdfNotulensiModal()">Batal</button>
-                <button type="submit" id="btnSubmitBulkPdfNotulensi" style="background: #b7830f; color: white; border: none; padding: 0.55rem 1.25rem; border-radius: 6px; font-weight: 700; cursor: pointer;" disabled>
-                    Simpan Semua Notulensi
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
 @endpush
