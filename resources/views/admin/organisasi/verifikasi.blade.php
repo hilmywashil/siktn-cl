@@ -40,8 +40,8 @@
     .stat-card.approved { border-left: 4px solid #166534; }
     .stat-card.rejected { border-left: 4px solid #dc2626; }
     
-    .table-container { background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden; }
-    .table-wrapper { overflow-x: auto; }
+    .table-container { background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: visible !important; margin-bottom: 2.5rem; }
+    .table-wrapper { overflow-x: auto; overflow-y: visible !important; padding-bottom: 50px; }
     .table { width: 100%; border-collapse: collapse; min-width: 900px; }
     .table thead { background: var(--gray-50); border-bottom: 1px solid var(--gray-200); }
     .table th { padding: 0.875rem 1rem; text-align: left; font-size: 0.75rem; font-weight: 700; color: var(--gray-700); text-transform: uppercase; letter-spacing: 0.05em; }
@@ -264,9 +264,31 @@
                 menu.style.display = 'none';
             }
         });
+
+        const btn = e.currentTarget;
         const target = document.getElementById('aksiDropdown-' + id);
+
         if (target) {
-            target.style.display = target.style.display === 'block' ? 'none' : 'block';
+            const isVisible = target.style.display === 'block';
+            if (isVisible) {
+                target.style.display = 'none';
+            } else {
+                const rect = btn.getBoundingClientRect();
+                const spaceBelow = window.innerHeight - rect.bottom;
+                
+                if (spaceBelow < 140) {
+                    target.style.top = 'auto';
+                    target.style.bottom = '100%';
+                    target.style.marginTop = '0';
+                    target.style.marginBottom = '4px';
+                } else {
+                    target.style.top = '100%';
+                    target.style.bottom = 'auto';
+                    target.style.marginTop = '4px';
+                    target.style.marginBottom = '0';
+                }
+                target.style.display = 'block';
+            }
         }
     }
 
