@@ -315,13 +315,13 @@ Route::get('/berita/{slug}', [BeritaController::class, 'show'])->name('berita-de
 // Other Public Pages
 Route::get('/organisasi', function (Illuminate\Http\Request $request) {
     $daftarProvinsi = \App\Helpers\WilayahHelper::getDaftarProvinsi();
-    $daftarKabupaten = \App\Helpers\WilayahHelper::getDaftarKabupatenKota();
     $defaultProv = array_key_first($daftarProvinsi) ?: 'DKI Jakarta';
     $selectedProvinsi = $request->get('provinsi', $defaultProv);
     if (!isset($daftarProvinsi[$selectedProvinsi])) {
         $selectedProvinsi = $defaultProv;
     }
     $selectedKabupaten = $request->get('kabupaten');
+    $daftarKabupaten = \App\Helpers\WilayahHelper::getDaftarKabupatenKotaByProvinsi($selectedProvinsi);
 
     $allPeriodes = \App\Models\PeriodeKepengurusan::orderBy('is_aktif', 'desc')
         ->orderBy('tahun_mulai', 'desc')

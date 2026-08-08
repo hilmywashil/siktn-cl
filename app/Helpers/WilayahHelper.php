@@ -155,4 +155,29 @@ class WilayahHelper
             return array_combine($defaultKabKota, $defaultKabKota);
         }
     }
+
+    /**
+     * Filter daftar Kabupaten / Kota berdasarkan Provinsi yang dipilih
+     */
+    public static function getDaftarKabupatenKotaByProvinsi(?string $provinsi): array
+    {
+        if (!$provinsi || $provinsi === 'Nasional') {
+            return [];
+        }
+
+        $allKabKota = self::getDaftarKabupatenKota();
+        $filtered = [];
+        foreach ($allKabKota as $key => $val) {
+            $matchedProv = self::getProvinsiFromDomisili($val);
+            if (strtolower($matchedProv) === strtolower($provinsi)) {
+                $filtered[$key] = $val;
+            }
+        }
+
+        if (empty($filtered)) {
+            return $allKabKota;
+        }
+
+        return $filtered;
+    }
 }

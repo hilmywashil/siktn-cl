@@ -295,18 +295,20 @@
                     </div>
 
                     {{-- Select Kabupaten / Kota --}}
+                    @if(($selectedProvinsi ?? '') !== 'Nasional')
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <label style="font-size: 0.8125rem; font-weight: 700; color: #022648; margin: 0; white-space: nowrap;">Kab/Kota:</label>
                         <select name="kabupaten" onchange="this.form.submit()" class="select2-basic" style="min-width: 180px; height: 38px;">
-                            <option value="">Semua Kab/Kota</option>
+                            <option value="">Tingkat Provinsi</option>
                             @foreach($daftarKabupaten as $kabKey => $kabLabel)
                                 <option value="{{ $kabKey }}" {{ request('kabupaten') == $kabKey ? 'selected' : '' }}>{{ $kabLabel }}</option>
                             @endforeach
                         </select>
                         @if(request('kabupaten'))
-                            <a href="{{ route('organisasi') }}" style="color: #ef4444; font-weight: 700; font-size: 0.8125rem; text-decoration: none; padding: 4px;">Reset Kab/Kota</a>
+                            <a href="{{ route('organisasi', ['provinsi' => $selectedProvinsi]) }}" style="color: #ef4444; font-weight: 700; font-size: 0.8125rem; text-decoration: none; padding: 4px;">Reset Kab/Kota</a>
                         @endif
                     </div>
+                    @endif
                 </form>
             </div>
 
