@@ -773,7 +773,7 @@
 
 <!-- Modal 1: Import Excel Notulensi Rapat (Strict SK Navy & Gold Benchmark Styling) -->
 <div class="modal-overlay" id="modalImportNotulensi" onclick="if(event.target===this) closeImportNotulensiModal()">
-    <div class="modal-content-lg" style="max-width: 940px !important;">
+    <div class="modal-content-lg" style="width: 92vw !important; max-width: 960px !important;">
         <div class="modal-header-prof" style="background: linear-gradient(135deg, #022648 0%, #01162f 100%); padding: 1.25rem 1.5rem; color: white;">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(183, 131, 15, 0.2); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(183, 131, 15, 0.4);">
