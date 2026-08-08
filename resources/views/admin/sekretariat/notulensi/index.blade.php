@@ -773,11 +773,11 @@
 
 <!-- Modal 1: Import Excel Notulensi Rapat (Strict SK Navy & Gold Benchmark Styling) -->
 <div class="modal-overlay" id="modalImportNotulensi" onclick="if(event.target===this) closeImportNotulensiModal()">
-    <div class="modal-content-lg">
+    <div class="modal-content-lg" style="max-width: 940px !important;">
         <div class="modal-header-prof" style="background: linear-gradient(135deg, #022648 0%, #01162f 100%); padding: 1.25rem 1.5rem; color: white;">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(183, 131, 15, 0.2); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(183, 131, 15, 0.4);">
-                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="#b7830f" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="#b7830f" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </div>
                 <div>
                     <h3 style="font-size: 1.1rem; font-weight: 800; color: white; margin: 0;">Import / Bulk Upload Notulensi Rapat</h3>
@@ -833,22 +833,22 @@
                     <div style="font-weight: 700; color: #022648; font-size: 0.85rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
                         <span>Pratinjau Data Terbaca (<span id="importNotulensiCount">0</span>)</span>
                     </div>
-                    <div style="max-height: 220px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.775rem;">
-                        <table style="width: 100%; border-collapse: collapse;">
+                    <div style="max-height: 280px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.775rem;">
+                        <table style="width: 100%; border-collapse: collapse; min-width: 820px;">
                             <thead>
                                 <tr style="background: #022648; color: white;">
-                                    <th style="padding: 10px 12px; text-align: left; width: 30%;">Judul Rapat</th>
-                                    <th style="padding: 10px 12px; text-align: center; width: 20%;">Tanggal Rapat</th>
-                                    <th style="padding: 10px 12px; text-align: left; width: 20%;">Pemimpin Rapat</th>
-                                    <th style="padding: 10px 12px; text-align: left; width: 22%;">Ringkasan</th>
-                                    <th style="padding: 10px 12px; text-align: center; width: 8%;">Aksi</th>
+                                    <th style="padding: 10px 14px; text-align: left; width: 26%;">Judul Rapat</th>
+                                    <th style="padding: 10px 14px; text-align: center; width: 18%; white-space: nowrap;">Tanggal Rapat</th>
+                                    <th style="padding: 10px 14px; text-align: left; width: 20%;">Pemimpin Rapat</th>
+                                    <th style="padding: 10px 14px; text-align: left; width: 28%;">Ringkasan Hasil</th>
+                                    <th style="padding: 10px 14px; text-align: center; width: 8%;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="importNotulensiPreviewTableBody"></tbody>
                         </table>
                     </div>
                 </div>
-            </div>
+            </div>    </div>
 
             <div class="modal-footer-prof" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.75rem;">
                 <button type="button" class="btn-outline-secondary" onclick="closeImportNotulensiModal()">Batal</button>
