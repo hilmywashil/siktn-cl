@@ -364,15 +364,19 @@
         </form>
     </div>
 
-    <!-- Page Action -->
-    <div class="page-actions-row" style="display: flex; gap: 10px; align-items: center;">
+    <!-- Page Action Buttons (100% Identical to Surat & SK) -->
+    <div class="page-actions-row" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.25rem;">
         <button type="button" class="btn-solid-navy" onclick="openCreateModal()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             Tambah Notulensi Baru
         </button>
-        <button type="button" class="btn-outline-secondary" onclick="openBulkUploadModal()" style="font-weight: 700; color: #022648; border-color: #022648;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-            Upload Massal Berkas / Import Excel
+        <button type="button" onclick="openImportExcelModal()" style="background: #059669; color: white; border: none; padding: 0.55rem 1rem; border-radius: var(--radius-md); font-weight: 600; font-size: 0.875rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.2);" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import Excel Notulensi
+        </button>
+        <button type="button" onclick="openBulkPdfModal()" style="background: #b7830f; color: white; border: none; padding: 0.55rem 1rem; border-radius: var(--radius-md); font-weight: 600; font-size: 0.875rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 2px 6px rgba(183, 131, 15, 0.2);" onmouseover="this.style.background='#966a0c'" onmouseout="this.style.background='#b7830f'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            Bulk Upload Multi-PDF
         </button>
     </div>
 
@@ -1183,135 +1187,101 @@
         form.submit();
     }
 
-    function openBulkUploadModal() {
-        document.getElementById('bulkUploadModal').classList.add('active');
-    }
-
-    function closeBulkUploadModal() {
-        document.getElementById('bulkUploadModal').classList.remove('active');
-    }
-
-    function switchBulkTab(type) {
-        document.getElementById('bulkTypeInput').value = type;
-        const btnFiles = document.getElementById('tabBulkFiles');
-        const btnExcel = document.getElementById('tabBulkExcel');
-        const secFiles = document.getElementById('sectionBulkFiles');
-        const secExcel = document.getElementById('sectionBulkExcel');
-
-        if (type === 'files') {
-            btnFiles.style.background = '#022648';
-            btnFiles.style.color = '#ffffff';
-            btnFiles.style.borderColor = '#022648';
-
-            btnExcel.style.background = '#ffffff';
-            btnExcel.style.color = '#475569';
-            btnExcel.style.borderColor = '#cbd5e1';
-
-            secFiles.style.display = 'block';
-            secExcel.style.display = 'none';
-        } else {
-            btnExcel.style.background = '#022648';
-            btnExcel.style.color = '#ffffff';
-            btnExcel.style.borderColor = '#022648';
-
-            btnFiles.style.background = '#ffffff';
-            btnFiles.style.color = '#475569';
-            btnFiles.style.borderColor = '#cbd5e1';
-
-            secFiles.style.display = 'none';
-            secExcel.style.display = 'block';
-        }
-    }
-
-    function updateBulkFileName(input, targetId) {
-        const display = document.getElementById(targetId);
-        if (!display) return;
-        if (input.files && input.files.length > 0) {
-            if (input.files.length === 1) {
-                display.textContent = '✓ Berkas terpilih: ' + input.files[0].name;
-            } else {
-                display.textContent = '✓ ' + input.files.length + ' Berkas terpilih sekaligus.';
-            }
-        } else {
-            display.textContent = '';
-        }
-    }
+    function openImportExcelModal() { document.getElementById('importExcelModal').classList.add('active'); }
+    function closeImportExcelModal() { document.getElementById('importExcelModal').classList.remove('active'); }
+    function openBulkPdfModal() { document.getElementById('bulkPdfModal').classList.add('active'); }
+    function closeBulkPdfModal() { document.getElementById('bulkPdfModal').classList.remove('active'); }
 </script>
 
-<!-- Modal Upload Bulk Notulensi Benchmark SIKTN -->
-<div class="modal-overlay" id="bulkUploadModal" onclick="if(event.target===this) closeBulkUploadModal()">
-    <div class="modal-content-lg" style="max-width: 620px;">
-        <div class="modal-header-prof" style="background: linear-gradient(135deg, #022648 0%, #01162f 100%); padding: 1.25rem 1.5rem; color: white; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <h4 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: white; display: flex; align-items: center; gap: 8px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                    Upload Massal & Import Notulensi
-                </h4>
-                <span style="font-size: 0.775rem; color: rgba(255,255,255,0.8); margin-top: 2px; display: block;">Tambah berkas risalah rapat banyak sekaligus atau impor data Excel/CSV</span>
+<!-- Modal 1: Import Excel Notulensi Rapat (Identical to Surat & SK) -->
+<div class="modal-overlay" id="importExcelModal" onclick="if(event.target===this) closeImportExcelModal()">
+    <div class="modal-content-lg" style="max-width: 580px;">
+        <div class="modal-header-prof" style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.05rem; font-weight: 800; color: white; margin: 0;">Import Excel Notulensi Rapat</h3>
+                    <span style="font-size: 0.725rem; color: #d1fae5;">Unggah berkas spreadsheet Excel / CSV secara massal</span>
+                </div>
             </div>
-            <button type="button" class="btn-close-prof" onclick="closeBulkUploadModal()" style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
-        </div>
-
-        <div style="padding: 1rem 1.5rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; gap: 8px;">
-            <button type="button" id="tabBulkFiles" onclick="switchBulkTab('files')" style="padding: 6px 14px; border-radius: 6px; border: 1px solid #022648; font-size: 0.8rem; font-weight: 700; background: #022648; color: #ffffff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                Upload Multi-File PDF / Word
-            </button>
-            <button type="button" id="tabBulkExcel" onclick="switchBulkTab('excel')" style="padding: 6px 14px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.8rem; font-weight: 700; background: #ffffff; color: #475569; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-                Import Data Excel / CSV
-            </button>
+            <button type="button" onclick="closeImportExcelModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
         </div>
 
         <form action="{{ route('admin.sekretariat.notulensi.bulk-store') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <input type="hidden" name="bulk_type" id="bulkTypeInput" value="files">
+            <input type="hidden" name="bulk_type" value="excel">
 
             <div class="modal-body-prof" style="padding: 1.5rem;">
-                <!-- Opsi 1: Multi File PDF / Word -->
-                <div id="sectionBulkFiles">
-                    <label style="font-weight: 700; font-size: 0.85rem; color: #022648; display: block; margin-bottom: 8px;">
-                        Upload Berkas Risalah Notulensi (PDF / Word) *
-                    </label>
-                    <div class="file-upload-zone" style="position: relative; padding: 1.75rem; border: 2px dashed #cbd5e1; border-radius: 8px; background: #f8fafc; text-align: center;">
-                        <svg viewBox="0 0 24 24" width="32" height="32" stroke="#022648" fill="none" stroke-width="2" style="margin-bottom: 0.5rem;">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="17 8 12 3 7 8"></polyline>
-                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
-                        <div style="font-size: 0.875rem; font-weight: 700; color: #022648;">Klik / Drag berkas di sini</div>
-                        <div style="font-size: 0.775rem; color: #64748b; margin-top: 4px;">Pilih 1 atau banyak berkas sekaligus (.pdf, .doc, .docx)</div>
-                        <input type="file" name="files[]" multiple accept=".pdf,.doc,.docx" style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="updateBulkFileName(this, 'fileNameFilesDisplay')">
-                    </div>
-                    <div id="fileNameFilesDisplay" style="font-size: 0.8rem; font-weight: 700; color: #166534; margin-top: 8px;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy); margin: 0;">Pilih Berkas Spreadsheet (.xlsx, .csv) <span style="color: red;">*</span></label>
+                    <a href="{{ route('admin.sekretariat.notulensi.template') }}" class="btn-outline-secondary" style="font-size: 0.75rem; padding: 4px 10px; font-weight: 700; text-decoration: none; color: #059669; border-color: #059669;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download Template CSV
+                    </a>
                 </div>
 
-                <!-- Opsi 2: Excel / CSV Import -->
-                <div id="sectionBulkExcel" style="display: none;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <label style="font-weight: 700; font-size: 0.85rem; color: #022648; margin: 0;">
-                            Upload File Excel / CSV Notulensi *
-                        </label>
-                        <a href="{{ route('admin.sekretariat.notulensi.template') }}" class="btn-outline-secondary" style="font-size: 0.775rem; font-weight: 700; text-decoration: none; padding: 4px 10px; color: #022648; border-color: #022648;">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                            Download Template CSV
-                        </a>
-                    </div>
-                    <div class="file-upload-zone" style="position: relative; padding: 1.75rem; border: 2px dashed #cbd5e1; border-radius: 8px; background: #f8fafc; text-align: center;">
-                        <svg viewBox="0 0 24 24" width="32" height="32" stroke="#b7830f" fill="none" stroke-width="2" style="margin-bottom: 0.5rem;">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line>
-                        </svg>
-                        <div style="font-size: 0.875rem; font-weight: 700; color: #022648;">Klik / Drag berkas Excel atau CSV di sini</div>
-                        <div style="font-size: 0.775rem; color: #64748b; margin-top: 4px;">Format .xlsx, .csv, .txt (Maksimal 5MB)</div>
-                        <input type="file" name="excel_file" accept=".xlsx,.xls,.csv,.txt" style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="updateBulkFileName(this, 'fileNameExcelDisplay')">
-                    </div>
-                    <div id="fileNameExcelDisplay" style="font-size: 0.8rem; font-weight: 700; color: #166534; margin-top: 8px;"></div>
+                <div class="file-upload-zone" onclick="document.getElementById('importExcelFileInput').click()" style="border: 2px dashed #059669; background: #f0fdf4; padding: 1.5rem; text-align: center; border-radius: 8px; cursor: pointer;">
+                    <svg viewBox="0 0 24 24" width="32" height="32" stroke="#059669" fill="none" stroke-width="2" style="margin-bottom: 0.5rem;">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #065f46;" id="importExcelFileNameLabel">Klik / Drag berkas Excel atau CSV di sini</div>
+                    <div style="font-size: 0.75rem; color: #047857; margin-top: 2px;">Format .xlsx, .csv, .txt (Maksimal 5MB)</div>
+                    <input type="file" id="importExcelFileInput" name="excel_file" accept=".xlsx,.xls,.csv,.txt" required style="display: none;" onchange="if(this.files[0]) document.getElementById('importExcelFileNameLabel').textContent = '✓ ' + this.files[0].name">
+                </div>
+
+                <div style="margin-top: 1rem; padding: 0.75rem; background: #ecfdf5; border-radius: 6px; border: 1px solid #a7f3d0; font-size: 0.775rem; color: #065f46;">
+                    <strong>Petunjuk Import Excel:</strong> Pastikan kolom Excel terurut sesuai template: <code>Judul Rapat</code>, <code>Tanggal Rapat</code>, <code>Pemimpin Rapat</code>, <code>Ringkasan Hasil</code>.
                 </div>
             </div>
 
-            <div class="modal-footer-prof" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 8px;">
-                <button type="button" class="btn-outline-secondary" onclick="closeBulkUploadModal()">Batal</button>
-                <button type="submit" class="btn-solid-navy">Mulai Upload Massal</button>
+            <div class="modal-footer-prof">
+                <button type="button" onclick="closeImportExcelModal()" class="btn-outline-secondary">Batal</button>
+                <button type="submit" style="background: #059669; color: white; border: none; padding: 0.55rem 1.25rem; border-radius: 6px; font-weight: 700; cursor: pointer;" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Mengimpor data Notulensi Rapat dari Excel...' })">Import Excel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal 2: Bulk Upload Multi-PDF Notulensi Rapat (Identical to Surat & SK) -->
+<div class="modal-overlay" id="bulkPdfModal" onclick="if(event.target===this) closeBulkPdfModal()">
+    <div class="modal-content-lg" style="max-width: 640px;">
+        <div class="modal-header-prof" style="background: linear-gradient(135deg, #b7830f 0%, #855d09 100%);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.05rem; font-weight: 800; color: white; margin: 0;">Bulk Upload Multi-PDF Notulensi</h3>
+                    <span style="font-size: 0.725rem; color: #fef08a;">Unggah banyak berkas PDF / Word sekaligus dalam 1 kali klik</span>
+                </div>
+            </div>
+            <button type="button" onclick="closeBulkPdfModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
+        </div>
+
+        <form action="{{ route('admin.sekretariat.notulensi.bulk-store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="bulk_type" value="files">
+
+            <div class="modal-body-prof" style="padding: 1.5rem;">
+                <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem; display: block;">Pilih Banyak Berkas Risalah (.pdf, .doc, .docx) <span style="color: red;">*</span></label>
+
+                <div class="file-upload-zone" onclick="document.getElementById('bulkPdfFilesInput').click()" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1.75rem; text-align: center; border-radius: 8px; cursor: pointer;">
+                    <svg viewBox="0 0 24 24" width="32" height="32" stroke="#b7830f" fill="none" stroke-width="2" style="margin-bottom: 0.5rem;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <div style="font-size: 0.875rem; font-weight: 700; color: #b7830f;" id="bulkPdfFilesNameLabel">Klik / Drag banyak berkas di sini</div>
+                    <div style="font-size: 0.75rem; color: #966a0c; margin-top: 4px;">Pilih 1 atau beberapa file sekaligus. Nama file otomatis menjadi Judul Rapat.</div>
+                    <input type="file" id="bulkPdfFilesInput" name="files[]" multiple accept=".pdf,.doc,.docx" required style="display: none;" onchange="if(this.files && this.files.length > 0) document.getElementById('bulkPdfFilesNameLabel').textContent = '✓ ' + this.files.length + ' Berkas terpilih sekaligus'">
+                </div>
+            </div>
+
+            <div class="modal-footer-prof">
+                <button type="button" onclick="closeBulkPdfModal()" class="btn-outline-secondary">Batal</button>
+                <button type="submit" style="background: #b7830f; color: white; border: none; padding: 0.55rem 1.25rem; border-radius: 6px; font-weight: 700; cursor: pointer;" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Mengunggah seluruh berkas PDF Notulensi...' })">Mulai Upload Massal</button>
             </div>
         </form>
     </div>
