@@ -24,11 +24,7 @@
     <div class="left">
       <div class="overlay"></div>
       <div class="left-content">
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Aspernatur, esse. Aspernatur doloribus distinctio
-          quibusdam qui quod, repudiandae illum ad voluptate impedit temporibus officiis voluptatibus modi illo est
-          adipisci animi asperiores?
-        </p>
+         
       </div>
     </div>
 

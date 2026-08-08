@@ -553,7 +553,7 @@
             </a>
         </div>
 
-        <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
             @if(in_array($admin->category, ['super_admin', 'pimpinan', 'pnkt', 'ppkt', 'pkkt']))
             <a href="{{ route('admin.anggota.export', request()->query()) }}" class="btn-outline-secondary" onclick="Toast.fire({ icon: 'success', title: 'File Excel Data Anggota sedang diunduh...' })">
                 <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
@@ -568,11 +568,22 @@
                 <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 Tambah Anggota
             </a>
+
+            <div class="view-mode-toggle" style="display: inline-flex; background: #f1f5f9; border-radius: 6px; padding: 3px; border: 1px solid #cbd5e1; margin-left: 0.25rem;">
+                <button type="button" class="btn-toggle-view active" id="btnAnggotaViewList" onclick="switchAnggotaView('list')" title="Tampilan Tabel List" style="padding: 6px 12px; border-radius: 4px; border: none; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; background: #022648; color: white;">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    List
+                </button>
+                <button type="button" class="btn-toggle-view" id="btnAnggotaViewGrid" onclick="switchAnggotaView('grid')" title="Tampilan Kartu Grid" style="padding: 6px 12px; border-radius: 4px; border: none; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; background: transparent; color: #475569;">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    Grid
+                </button>
+            </div>
         </div>
     </div>
 
     {{-- Bulk Action & Table --}}
-    <div class="table-container">
+    <div class="table-container" id="anggotaTableContainer">
         @if($anggota->count() > 0)
             <div style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--gray-200); display: none;" id="bulk-action-container">
                 <button type="button" onclick="bulkDestroy()" class="btn-bulk">
@@ -701,12 +712,130 @@
         @endif
     </div>
 
+    {{-- Grid View Container --}}
+    @if($anggota->count() > 0)
+        <div id="anggotaGridViewContainer" style="display: none; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            @foreach($anggota as $item)
+                @php
+                    $waNumber = preg_replace('/[^0-9]/', '', $item->no_hp ?? '');
+                    if (str_starts_with($waNumber, '0')) {
+                        $waNumber = '62' . substr($waNumber, 1);
+                    }
+                @endphp
+                <div style="background: white; border-radius: 8px; padding: 1.5rem; border: 1px solid var(--gray-200); box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px -4px rgba(2, 38, 72, 0.12)'" onmouseout="this.style.transform='none'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+                    <div style="position: absolute; top: 12px; right: 12px;">
+                        <div class="aksi-wrapper">
+                            <button type="button" class="btn-aksi-trigger" data-target="dropdown-grid-{{ $item->id }}" aria-label="Menu Aksi">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                    <circle cx="12" cy="5" r="1.75"></circle>
+                                    <circle cx="12" cy="12" r="1.75"></circle>
+                                    <circle cx="12" cy="19" r="1.75"></circle>
+                                </svg>
+                            </button>
+
+                            <div class="aksi-dropdown" id="dropdown-grid-{{ $item->id }}">
+                                <a href="{{ route('admin.anggota.show', $item) }}" class="aksi-item aksi-view">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    Lihat & Verifikasi
+                                </a>
+                                @if($admin->isSuperAdmin() || strcasecmp($item->jabatan ?? '', 'Pimpinan') !== 0)
+                                    <div class="aksi-divider"></div>
+                                    <button type="button" class="aksi-item aksi-delete" onclick="confirmDelete({{ $item->id }}, '{{ addslashes($item->nama_lengkap ?? $item->username) }}')">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        Hapus Data
+                                    </button>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="width: 72px; height: 72px; border-radius: 50%; overflow: hidden; margin-bottom: 0.75rem; border: 3px solid var(--gray-200); background: var(--navy); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; font-weight: 800;">
+                        @if($item->foto_diri && Storage::disk('public')->exists($item->foto_diri))
+                            <img src="{{ asset('storage/' . $item->foto_diri) }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        @else
+                            {{ strtoupper(substr($item->nama_lengkap ?? 'A', 0, 1)) }}
+                        @endif
+                    </div>
+
+                    <div style="font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 2px;">{{ $item->nama_lengkap ?? 'Anggota' }}</div>
+                    <div style="font-size: 0.775rem; color: #64748b; margin-bottom: 6px;">{{ '@' . ($item->username ?? 'user') }}</div>
+                    
+                    <div style="display: inline-block; padding: 3px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; background: #eff6ff; color: #1e40af; margin-bottom: 8px;">
+                        {{ $item->jabatan ?? 'Anggota' }}
+                    </div>
+
+                    @if($item->status === 'approved')
+                        <span class="badge-status badge-success" style="margin-bottom: 12px;">● Disetujui</span>
+                    @elseif($item->status === 'pending_verification')
+                        <span class="badge-status badge-warning" style="margin-bottom: 12px;">● Menunggu Verification</span>
+                    @elseif($item->status === 'rejected')
+                        <span class="badge-status badge-danger" style="margin-bottom: 12px;">● Ditolak</span>
+                    @else
+                        <span class="badge-status badge-secondary" style="margin-bottom: 12px;">● Belum Lengkapi Profil</span>
+                    @endif
+
+                    <div style="width: 100%; font-size: 0.8125rem; color: #475569; padding-top: 10px; border-top: 1px solid var(--gray-200); margin-top: auto; display: flex; flex-direction: column; gap: 6px;">
+                        <div><i class="fa fa-map-marker-alt" style="color: #94a3b8; width: 16px;"></i> {{ $item->domisili ?? 'Nasional' }}</div>
+                        @if($item->email)
+                            <div style="word-break: break-all;"><i class="fa fa-envelope" style="color: #94a3b8; width: 16px;"></i> {{ $item->email }}</div>
+                        @endif
+                        @if($item->no_hp)
+                            <div><i class="fa fa-phone" style="color: #94a3b8; width: 16px;"></i> {{ $item->no_hp }}</div>
+                        @endif
+                    </div>
+
+                    @if($waNumber)
+                        <a href="https://wa.me/{{ $waNumber }}" target="_blank" style="margin-top: 12px; width: 100%; background: #25d366; color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.144 4.177 4.287-1.124z"/></svg>
+                            WhatsApp
+                        </a>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+    @endif
+
 </div>
 @endsection
 
 @push('scripts')
 <script>
+    function switchAnggotaView(mode) {
+        const gridView = document.getElementById('anggotaGridViewContainer');
+        const listView = document.getElementById('anggotaTableContainer');
+        const btnGrid = document.getElementById('btnAnggotaViewGrid');
+        const btnList = document.getElementById('btnAnggotaViewList');
+
+        if (mode === 'grid') {
+            if (listView) listView.style.display = 'none';
+            if (gridView) gridView.style.display = 'grid';
+            if (btnGrid) {
+                btnGrid.style.background = '#022648';
+                btnGrid.style.color = '#ffffff';
+            }
+            if (btnList) {
+                btnList.style.background = 'transparent';
+                btnList.style.color = '#475569';
+            }
+            localStorage.setItem('siktn_view_mode_anggota', 'grid');
+        } else {
+            if (gridView) gridView.style.display = 'none';
+            if (listView) listView.style.display = 'block';
+            if (btnList) {
+                btnList.style.background = '#022648';
+                btnList.style.color = '#ffffff';
+            }
+            if (btnGrid) {
+                btnGrid.style.background = 'transparent';
+                btnGrid.style.color = '#475569';
+            }
+            localStorage.setItem('siktn_view_mode_anggota', 'list');
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
+        const savedMode = localStorage.getItem('siktn_view_mode_anggota') || 'list';
+        switchAnggotaView(savedMode);
         if (typeof $.fn.select2 !== 'undefined') {
             $('.select2-basic').select2({
                 minimumResultsForSearch: -1,

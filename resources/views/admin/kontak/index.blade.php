@@ -436,7 +436,7 @@
                     </select>
                 </div>
 
-                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-left: auto;">
                     <button type="submit" class="btn-solid-navy">
                         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                         Filter
@@ -448,17 +448,28 @@
                     @if(request()->anyFilled(['search', 'domisili', 'jabatan']))
                         <a href="{{ route('admin.kontak.index') }}" class="btn-outline-secondary">Reset</a>
                     @endif
+
+                    <div class="view-mode-toggle" style="display: inline-flex; background: #f1f5f9; border-radius: 6px; padding: 3px; border: 1px solid #cbd5e1; margin-left: 0.5rem;">
+                        <button type="button" class="btn-toggle-view" id="btnViewGrid" onclick="switchKontakView('grid')" title="Tampilan Kartu Grid" style="padding: 6px 12px; border-radius: 4px; border: none; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; background: #022648; color: white;">
+                            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                            Grid
+                        </button>
+                        <button type="button" class="btn-toggle-view" id="btnViewList" onclick="switchKontakView('list')" title="Tampilan Tabel List" style="padding: 6px 12px; border-radius: 4px; border: none; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; background: transparent; color: #475569;">
+                            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                            List
+                        </button>
+                    </div>
                 </div>
             </div>
         </form>
     </div>
 
-    {{-- Contact Grid --}}
+    {{-- Contact Content Container --}}
     @if($kontaks->count() > 0)
-        <div class="contact-grid">
+        <!-- Grid View -->
+        <div class="contact-grid" id="kontakGridViewContainer">
             @foreach($kontaks as $k)
                 @php
-                    // Format No. WhatsApp (ubah 08xx jadi 628xx)
                     $waNumber = preg_replace('/[^0-9]/', '', $k->no_hp ?? '');
                     if (str_starts_with($waNumber, '0')) {
                         $waNumber = '62' . substr($waNumber, 1);
@@ -516,6 +527,62 @@
             @endforeach
         </div>
 
+        <!-- List Table View -->
+        <div id="kontakListViewContainer" style="display: none; background: white; border-radius: 8px; border: 1px solid #cbd5e1; overflow: hidden; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                <thead>
+                    <tr style="background: #022648; color: white;">
+                        <th style="padding: 12px 14px; text-align: center; width: 50px;">NO</th>
+                        <th style="padding: 12px 14px; text-align: left;">NAMA LENGKAP</th>
+                        <th style="padding: 12px 14px; text-align: left;">JABATAN</th>
+                        <th style="padding: 12px 14px; text-align: left;">DOMISILI</th>
+                        <th style="padding: 12px 14px; text-align: left;">EMAIL</th>
+                        <th style="padding: 12px 14px; text-align: center;">NO. WHATSAPP</th>
+                        <th style="padding: 12px 14px; text-align: center;">AKSI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($kontaks as $index => $k)
+                        @php
+                            $waNumber = preg_replace('/[^0-9]/', '', $k->no_hp ?? '');
+                            if (str_starts_with($waNumber, '0')) {
+                                $waNumber = '62' . substr($waNumber, 1);
+                            }
+                        @endphp
+                        <tr style="border-bottom: 1px solid #e2e8f0; background: {{ $index % 2 === 0 ? '#ffffff' : '#f8fafc' }}; transition: background 0.15s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='{{ $index % 2 === 0 ? '#ffffff' : '#f8fafc' }}'">
+                            <td style="padding: 10px 14px; text-align: center; font-weight: 700; color: #64748b;">{{ $kontaks->firstItem() + $index }}</td>
+                            <td style="padding: 10px 14px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 34px; height: 34px; border-radius: 50%; overflow: hidden; background: #022648; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0;">
+                                        @if($k->foto_diri && Storage::disk('public')->exists($k->foto_diri))
+                                            <img src="{{ asset('storage/' . $k->foto_diri) }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                        @else
+                                            {{ strtoupper(substr($k->nama_lengkap ?? 'A', 0, 1)) }}
+                                        @endif
+                                    </div>
+                                    <span style="font-weight: 700; color: #022648;">{{ $k->nama_lengkap ?? 'Anggota' }}</span>
+                                </div>
+                            </td>
+                            <td style="padding: 10px 14px;"><span style="display: inline-block; padding: 3px 10px; border-radius: 9999px; background: #eff6ff; color: #1e40af; font-size: 0.75rem; font-weight: 700;">{{ $k->jabatan ?? 'Anggota' }}</span></td>
+                            <td style="padding: 10px 14px; color: #334155;">{{ $k->domisili ?? 'Nasional' }}</td>
+                            <td style="padding: 10px 14px; color: #475569;">{{ $k->email ?? '-' }}</td>
+                            <td style="padding: 10px 14px; text-align: center; font-family: monospace; font-weight: 600; color: #0f172a;">{{ $k->no_hp ?? '-' }}</td>
+                            <td style="padding: 10px 14px; text-align: center;">
+                                @if($waNumber)
+                                    <a href="https://wa.me/{{ $waNumber }}" target="_blank" style="background: #25d366; color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.144 4.177 4.287-1.124z"/></svg>
+                                        WA
+                                    </a>
+                                @else
+                                    -
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
         <div style="margin-top: 1.5rem;">
             {{ $kontaks->links() }}
         </div>
@@ -531,6 +598,39 @@
 
 @push('scripts')
 <script>
+    function switchKontakView(mode) {
+        const gridView = document.getElementById('kontakGridViewContainer');
+        const listView = document.getElementById('kontakListViewContainer');
+        const btnGrid = document.getElementById('btnViewGrid');
+        const btnList = document.getElementById('btnViewList');
+
+        if (mode === 'list') {
+            if (gridView) gridView.style.display = 'none';
+            if (listView) listView.style.display = 'block';
+            if (btnList) {
+                btnList.style.background = '#022648';
+                btnList.style.color = '#ffffff';
+            }
+            if (btnGrid) {
+                btnGrid.style.background = 'transparent';
+                btnGrid.style.color = '#475569';
+            }
+            localStorage.setItem('siktn_view_mode_kontak', 'list');
+        } else {
+            if (listView) listView.style.display = 'none';
+            if (gridView) gridView.style.display = 'grid';
+            if (btnGrid) {
+                btnGrid.style.background = '#022648';
+                btnGrid.style.color = '#ffffff';
+            }
+            if (btnList) {
+                btnList.style.background = 'transparent';
+                btnList.style.color = '#475569';
+            }
+            localStorage.setItem('siktn_view_mode_kontak', 'grid');
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof $.fn.select2 !== 'undefined') {
             $('.select2-basic').select2({
@@ -538,6 +638,9 @@
                 width: '100%'
             });
         }
+
+        const savedMode = localStorage.getItem('siktn_view_mode_kontak') || 'grid';
+        switchKontakView(savedMode);
     });
 </script>
 @endpush
