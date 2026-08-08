@@ -162,11 +162,16 @@
         pointer-events: auto !important;
     }
     .modal-content-lg {
-        background: #ffffff; border-radius: 12px; max-width: 680px; width: 100%;
+        background: #ffffff; border-radius: 12px; max-width: 960px; width: 95vw;
         box-shadow: 0 24px 48px rgba(2, 38, 72, 0.25); border: 1px solid rgba(2, 38, 72, 0.1);
         overflow: hidden; transform: scale(0.94) translateY(12px);
         transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); max-height: 88vh;
         display: flex; flex-direction: column;
+    }
+    #modalImportNotulensi .modal-content-lg,
+    #modalBulkPdfNotulensi .modal-content-lg {
+        max-width: 960px !important;
+        width: 95vw !important;
     }
     .modal-content-lg form {
         display: flex;
