@@ -93,10 +93,13 @@ class NotulensiController extends Controller
         $type = $request->input('bulk_type', 'files');
 
         if ($type === 'files') {
-            $request->validate([
-                'files' => 'required|array|min:1',
-                'files.*' => 'file|mimes:pdf,doc,docx|max:10240',
-            ]);
+            $files = $request->file('files') ?? $request->file('pdf_files');
+            if (empty($files)) {
+                return redirect()->back()->with('error', 'Pilih minimal 1 berkas PDF Notulensi.');
+            }
+            if (!is_array($files)) {
+                $files = [$files];
+            }
 
             $titles = $request->input('judul_rapat', []);
             $dates = $request->input('tanggal_rapat', []);
@@ -105,7 +108,7 @@ class NotulensiController extends Controller
             $drives = $request->input('link_drive', []);
 
             $createdCount = 0;
-            foreach ($request->file('files') as $idx => $file) {
+            foreach ($files as $idx => $file) {
                 if ($file->isValid()) {
                     $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                     $defaultTitle = ucwords(str_replace(['_', '-'], ' ', $originalName));
@@ -186,7 +189,7 @@ class NotulensiController extends Controller
 
     public function downloadTemplate()
     {
-        $csvHeader = "Judul Rapat,Tanggal Rapat (YYYY-MM-DD HH:mm),Pemimpin Rapat,Ringkasan Hasil Rapat,Link Google Drive\n";
+        $csvHeader = "Judul Rapat,Tanggal Rapat,Pemimpin Rapat,Ringkasan Hasil Rapat,Link Google Drive\n";
         $csvHeader .= "Rapat Kerja Sekretariat Daerah,2026-08-08 14:00,Ketua Umum,Hasil rapat menetapkan program kerja semester II,https://drive.google.com/file/d/example1\n";
         $csvHeader .= "Rapat Koordinasi Bidang Humas,2026-08-10 09:00,Sekretaris Umum,Pembentukan tim media dan publikasi,https://drive.google.com/file/d/example2\n";
 

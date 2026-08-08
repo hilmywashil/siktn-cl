@@ -771,17 +771,17 @@
     </div>
 </div>
 
-<!-- Modal 1: Import Excel Notulensi Rapat (Strict Emerald Excel Styling) -->
+<!-- Modal 1: Import Excel Notulensi Rapat (Strict SK Navy & Gold Benchmark Styling) -->
 <div class="modal-overlay" id="modalImportNotulensi" onclick="if(event.target===this) closeImportNotulensiModal()">
     <div class="modal-content-lg">
-        <div class="modal-header-prof" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 1.25rem 1.5rem; color: white;">
+        <div class="modal-header-prof" style="background: linear-gradient(135deg, #022648 0%, #01162f 100%); padding: 1.25rem 1.5rem; color: white;">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center;">
-                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="white" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(183, 131, 15, 0.2); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(183, 131, 15, 0.4);">
+                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="#b7830f" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 </div>
                 <div>
-                    <h3 style="font-size: 1.1rem; font-weight: 800; color: white; margin: 0;">Import Excel Notulensi Rapat</h3>
-                    <span style="font-size: 0.775rem; color: #d1fae5;">Unggah berkas data Notulensi secara massal menggunakan format Excel (.xls / .csv)</span>
+                    <h3 style="font-size: 1.1rem; font-weight: 800; color: white; margin: 0;">Import / Bulk Upload Notulensi Rapat</h3>
+                    <span style="font-size: 0.775rem; color: #94a3b8;">Unggah berkas data Notulensi secara massal menggunakan format Excel (.xls / .csv)</span>
                 </div>
             </div>
             <button type="button" onclick="closeImportNotulensiModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem;">&times;</button>
@@ -792,27 +792,27 @@
             <input type="hidden" name="bulk_type" value="excel">
 
             <div class="modal-body-prof" style="padding: 1.5rem;">
-                <div style="background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem;">
-                    <div style="font-weight: 700; color: #065f46; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                        <span style="font-size: 0.9rem;"><i class="fa fa-info-circle" style="color: #059669;"></i> Unduh Format Contoh Import Notulensi</span>
+                <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem;">
+                    <div style="font-weight: 700; color: #022648; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <span style="font-size: 0.9rem;"><i class="fa fa-info-circle" style="color: #b7830f;"></i> Unduh Format Contoh Import Notulensi</span>
                         <a href="{{ route('admin.sekretariat.notulensi.template') }}" onclick="Toast.fire({ icon: 'success', title: 'Mengunduh format contoh Excel Notulensi...' })" style="background: #059669; color: white; padding: 7px 14px; border-radius: 6px; font-size: 0.775rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             Unduh Format Contoh (.xls)
                         </a>
                     </div>
-                    <p style="font-size: 0.8125rem; color: #047857; margin: 0; line-height: 1.5;">
+                    <p style="font-size: 0.8125rem; color: #64748b; margin: 0; line-height: 1.5;">
                         Silakan unduh berkas contoh di atas untuk melihat susunan 5 kolom: <strong>Judul Rapat, Tanggal Rapat, Pemimpin Rapat, Ringkasan Hasil Rapat, Link Google Drive</strong>.
                     </p>
                 </div>
 
                 <div class="form-group-full">
                     <label class="form-label" style="font-weight: 700; color: #022648; font-size: 0.875rem; margin-bottom: 0.5rem; display: block;">Pilih Berkas Excel / CSV (.xls, .xlsx, .csv)</label>
-                    <div class="file-upload-zone" onclick="document.getElementById('importNotulensiFile').click()" style="border: 2px dashed #059669; background: #f0fdf4; padding: 1.25rem 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
+                    <div class="file-upload-zone" onclick="document.getElementById('importNotulensiFile').click()" style="border: 2px dashed #b7830f; background: #fffdf5; padding: 1.25rem 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fff9e6'" onmouseout="this.style.background='#fffdf5'">
                         <input type="file" id="importNotulensiFile" name="excel_file" accept=".xls,.xlsx,.csv" required style="display: none;" onchange="if(this.files[0]) document.getElementById('importFileLabelNotulensi').textContent = '✓ ' + this.files[0].name">
                         <div style="pointer-events: none;">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" style="margin-bottom: 0.35rem;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-                            <div style="font-weight: 700; color: #065f46; font-size: 0.9rem; margin-bottom: 2px;" id="importFileLabelNotulensi">Klik atau Tarik Berkas Excel ke Sini</div>
-                            <span style="font-size: 0.775rem; color: #047857;">Format yang didukung: .xls, .xlsx, .csv</span>
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 0.35rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            <div style="font-weight: 700; color: #022648; font-size: 0.9rem; margin-bottom: 2px;" id="importFileLabelNotulensi">Klik atau Tarik Berkas Excel ke Sini</div>
+                            <span style="font-size: 0.775rem; color: #64748b;">Format yang didukung: .xls, .xlsx, .csv</span>
                         </div>
                     </div>
                 </div>
@@ -820,8 +820,8 @@
 
             <div class="modal-footer-prof" style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.75rem;">
                 <button type="button" class="btn-outline-secondary" onclick="closeImportNotulensiModal()">Batal</button>
-                <button type="submit" style="background: #059669 !important; color: white !important; border: none; padding: 0.55rem 1.25rem; border-radius: 6px; font-weight: 700; cursor: pointer;" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Mengimpor data Notulensi Rapat dari Excel...' })">
-                    Proses Import Excel
+                <button type="submit" class="btn-solid-navy" style="padding: 0.55rem 1.25rem;" onclick="if(typeof Toast !== 'undefined') Toast.fire({ icon: 'success', title: 'Mengimpor data Notulensi Rapat dari Excel...' })">
+                    Proses Import Massal
                 </button>
             </div>
         </form>
@@ -1561,59 +1561,40 @@
                         hasError = true;
                     }
 
-                    formData.append('files[]', file);
-                    formData.append('judul_rapat[]', judul);
-                    formData.append('tanggal_rapat[]', tanggal);
-                    formData.append('pemimpin_rapat[]', pemimpin);
-                    formData.append('ringkasan_hasil[]', ringkasan);
-                    formData.append('link_drive[]', drive);
+                    // Append inputs dynamically for standard form submission
+                    const inputJudul = document.createElement('input'); inputJudul.type = 'hidden'; inputJudul.name = 'judul_rapat[]'; inputJudul.value = judul; formBulk.appendChild(inputJudul);
+                    const inputTanggal = document.createElement('input'); inputTanggal.type = 'hidden'; inputTanggal.name = 'tanggal_rapat[]'; inputTanggal.value = tanggal; formBulk.appendChild(inputTanggal);
+                    const inputPemimpin = document.createElement('input'); inputPemimpin.type = 'hidden'; inputPemimpin.name = 'pemimpin_rapat[]'; inputPemimpin.value = pemimpin; formBulk.appendChild(inputPemimpin);
+                    const inputRingkasan = document.createElement('input'); inputRingkasan.type = 'hidden'; inputRingkasan.name = 'ringkasan_hasil[]'; inputRingkasan.value = ringkasan; formBulk.appendChild(inputRingkasan);
+                    const inputDrive = document.createElement('input'); inputDrive.type = 'hidden'; inputDrive.name = 'link_drive[]'; inputDrive.value = drive; formBulk.appendChild(inputDrive);
                 });
 
                 if (hasError) {
-                    Swal.fire({ icon: 'warning', title: 'Data Belum Lengkap', text: 'Mohon isi Judul Rapat pada seluruh kartu berkas.' });
+                    e.preventDefault();
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'warning', title: 'Data Belum Lengkap', text: 'Mohon isi Judul Rapat pada seluruh kartu berkas.' });
+                    }
                     return;
                 }
 
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        title: 'Mengunggah Notulensi...',
-                        text: `Sedang memproses ${window.bulkPdfSelectedFiles.length} berkas PDF...`,
-                        allowOutsideClick: false,
-                        didOpen: () => { Swal.showLoading(); }
+                // Add selected files via DataTransfer to form submission
+                const dt = new DataTransfer();
+                window.bulkPdfSelectedFiles.forEach(file => dt.items.add(file));
+                const inputFiles = document.createElement('input');
+                inputFiles.type = 'file';
+                inputFiles.name = 'files[]';
+                inputFiles.multiple = true;
+                inputFiles.files = dt.files;
+                inputFiles.style.display = 'none';
+                formBulk.appendChild(inputFiles);
+
+                if (typeof Toast !== 'undefined') {
+                    Toast.fire({
+                        icon: 'success',
+                        title: `Mengunggah ${window.bulkPdfSelectedFiles.length} berkas Notulensi Rapat...`
                     });
                 }
-
-                fetch(formBulk.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Bulk Upload Berhasil!',
-                                text: data.message || 'Semua notulensi rapat berhasil disimpan.',
-                                confirmButtonColor: '#022648'
-                            }).then(() => {
-                                window.location.reload();
-                            });
-                        } else {
-                            window.location.reload();
-                        }
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'Gagal Unggah', text: data.message || 'Terjadi kesalahan saat memproses data.' });
-                    }
-                })
-                .catch(err => {
-                    console.error('Bulk store error:', err);
-                    formBulk.submit();
-                });
+            });
         }
     });
 </script>
