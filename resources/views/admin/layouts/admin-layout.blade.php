@@ -267,7 +267,7 @@
             position: absolute;
             top: 100%;
             right: -10px;
-            width: 320px;
+            width: 420px;
             background: white;
             border-radius: 12px;
             box-shadow: 0 14px 40px rgba(0,0,0,0.14);
