@@ -229,30 +229,31 @@ class NotulensiController extends Controller
     public function downloadTemplate()
     {
         $fileName = 'Template_Import_Notulensi_Rapat.xls';
-        $html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+        $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
         $html .= '<head><meta charset="utf-8">';
+        $html .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Notulensi Rapat</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
         $html .= '<style>';
         $html .= 'table { border-collapse: collapse; font-family: Calibri, Arial, sans-serif; font-size: 11pt; }';
         $html .= 'th { background-color: #022648; color: #ffffff; font-weight: bold; text-align: center; padding: 10px 14px; border: 1px solid #cbd5e1; white-space: nowrap; }';
-        $html .= 'td { padding: 9px 12px; border: 1px solid #e2e8f0; vertical-align: middle; }';
-        $html .= '.title-row { background-color: #022648; color: #b7830f; font-size: 14pt; font-weight: bold; text-align: center; padding: 14px; }';
+        $html .= 'td { padding: 9px 12px; border: 1px solid #cbd5e1; vertical-align: middle; }';
+        $html .= '.title-row { background-color: #022648; color: #b7830f; font-size: 14pt; font-weight: bold; text-align: center; padding: 14px; border: 1px solid #022648; }';
         $html .= '</style>';
         $html .= '</head><body>';
-        $html .= '<table border="1">';
+        $html .= '<table border="1" style="border: 1px solid #cbd5e1;">';
         $html .= '<colgroup>';
-        $html .= '<col style="width: 280px;">';
-        $html .= '<col style="width: 180px;">';
-        $html .= '<col style="width: 220px;">';
-        $html .= '<col style="width: 450px;">';
-        $html .= '<col style="width: 380px;">';
+        $html .= '<col width="280" style="width: 280px;">';
+        $html .= '<col width="180" style="width: 180px;">';
+        $html .= '<col width="240" style="width: 240px;">';
+        $html .= '<col width="480" style="width: 480px;">';
+        $html .= '<col width="400" style="width: 400px;">';
         $html .= '</colgroup>';
         $html .= '<tr><td colspan="5" class="title-row">TEMPLATE IMPORT NOTULENSI RAPAT - SIKTN</td></tr>';
         $html .= '<thead><tr>';
-        $html .= '<th style="width: 280px;">JUDUL RAPAT</th>';
-        $html .= '<th style="width: 180px;">TANGGAL RAPAT</th>';
-        $html .= '<th style="width: 220px;">PEMIMPIN RAPAT</th>';
-        $html .= '<th style="width: 450px;">RINGKASAN HASIL RAPAT</th>';
-        $html .= '<th style="width: 380px;">LINK GOOGLE DRIVE</th>';
+        $html .= '<th width="280" style="width: 280px;">JUDUL RAPAT</th>';
+        $html .= '<th width="180" style="width: 180px;">TANGGAL RAPAT</th>';
+        $html .= '<th width="240" style="width: 240px;">PEMIMPIN RAPAT</th>';
+        $html .= '<th width="480" style="width: 480px;">RINGKASAN HASIL RAPAT</th>';
+        $html .= '<th width="400" style="width: 400px;">LINK GOOGLE DRIVE</th>';
         $html .= '</tr></thead><tbody>';
         
         $examples = [
@@ -296,11 +297,23 @@ class NotulensiController extends Controller
         foreach ($examples as $idx => $row) {
             $bgColor = ($idx % 2 === 0) ? '#ffffff' : '#f8fafc';
             $html .= '<tr style="background-color: ' . $bgColor . ';">';
-            $html .= '<td style="width: 280px;">' . htmlspecialchars($row['judul']) . '</td>';
-            $html .= '<td style="width: 180px; text-align: center;">' . $row['tanggal'] . '</td>';
-            $html .= '<td style="width: 220px;">' . htmlspecialchars($row['pemimpin']) . '</td>';
-            $html .= '<td style="width: 450px;">' . htmlspecialchars($row['ringkasan']) . '</td>';
-            $html .= '<td style="width: 380px; color: #0284c7;">' . $row['drive'] . '</td>';
+            $html .= '<td width="280" style="width: 280px;">' . htmlspecialchars($row['judul']) . '</td>';
+            $html .= '<td width="180" style="width: 180px; text-align: center;">' . $row['tanggal'] . '</td>';
+            $html .= '<td width="240" style="width: 240px;">' . htmlspecialchars($row['pemimpin']) . '</td>';
+            $html .= '<td width="480" style="width: 480px;">' . htmlspecialchars($row['ringkasan']) . '</td>';
+            $html .= '<td width="400" style="width: 400px; color: #0284c7;">' . $row['drive'] . '</td>';
+            $html .= '</tr>';
+        }
+
+        // Add 18 empty formatted grid rows for user input
+        for ($i = 6; $i <= 25; $i++) {
+            $bgColor = ($i % 2 === 0) ? '#ffffff' : '#f8fafc';
+            $html .= '<tr style="background-color: ' . $bgColor . ';">';
+            $html .= '<td width="280" style="width: 280px; border: 1px solid #cbd5e1;">&nbsp;</td>';
+            $html .= '<td width="180" style="width: 180px; border: 1px solid #cbd5e1;">&nbsp;</td>';
+            $html .= '<td width="240" style="width: 240px; border: 1px solid #cbd5e1;">&nbsp;</td>';
+            $html .= '<td width="480" style="width: 480px; border: 1px solid #cbd5e1;">&nbsp;</td>';
+            $html .= '<td width="400" style="width: 400px; border: 1px solid #cbd5e1;">&nbsp;</td>';
             $html .= '</tr>';
         }
 
