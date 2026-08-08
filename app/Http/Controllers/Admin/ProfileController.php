@@ -64,6 +64,24 @@ class ProfileController extends Controller
             'keterangan_jabatan' => 'Menunggu Verifikasi & ACC dari Pengurus Pusat / Super Admin.',
         ]);
 
+        // Send notification to Super Admin & PNKT admins
+        try {
+            $superAdminsAndPnkt = \App\Models\Admin::whereIn('category', ['super_admin', 'pnkt'])->get();
+            if ($superAdminsAndPnkt->count() > 0) {
+                \Illuminate\Support\Facades\Notification::send(
+                    $superAdminsAndPnkt,
+                    new \App\Notifications\AdminNotification(
+                        'pengajuan_jabatan',
+                        'Pengajuan Jabatan Baru',
+                        $admin->name . ' mengajukan posisi ' . $jabatanNama . ' (' . ($admin->domisili ?? 'Daerah') . ').',
+                        ['url' => route('admin.verifikasi-jabatan.index')]
+                    )
+                );
+            }
+        } catch (\Throwable $e) {
+            // Log or ignore gracefully
+        }
+
         return redirect()->route('admin.profile')
             ->with('success', "Pengajuan jabatan '{$jabatanNama}' telah dikirim. Menunggu verifikasi (ACC) dari Pengurus Pusat / Super Admin.");
     }

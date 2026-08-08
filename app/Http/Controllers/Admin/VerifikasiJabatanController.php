@@ -61,6 +61,15 @@ class VerifikasiJabatanController extends Controller
         // Auto-assign into Organisasi table
         $this->assignAdminToOrganisasi($admin, $jabatanNama);
 
+        try {
+            $admin->notify(new \App\Notifications\AdminNotification(
+                'verifikasi_jabatan',
+                'Pengajuan Jabatan Disetujui',
+                'Pengajuan posisi ' . $jabatanNama . ' Anda telah disetujui oleh Pusat.',
+                ['url' => route('admin.profile')]
+            ));
+        } catch (\Throwable $e) {}
+
         $this->logActivity('organisasi', 'ACC Jabatan Admin', $admin->id, $admin->name, "Jabatan '{$jabatanNama}' disetujui untuk {$admin->name}");
 
         return back()->with('success', "Pengajuan jabatan '{$jabatanNama}' untuk {$admin->name} berhasil di-ACC dan terpasang di Bagan Struktur Organisasi!");
@@ -84,6 +93,15 @@ class VerifikasiJabatanController extends Controller
             'status_jabatan' => 'rejected',
             'keterangan_jabatan' => 'Ditolak: ' . $alasan,
         ]);
+
+        try {
+            $admin->notify(new \App\Notifications\AdminNotification(
+                'verifikasi_jabatan',
+                'Pengajuan Jabatan Ditolak',
+                'Pengajuan posisi Anda ditolak. Catatan: ' . $alasan,
+                ['url' => route('admin.profile')]
+            ));
+        } catch (\Throwable $e) {}
 
         $this->logActivity('organisasi', 'Tolak Jabatan Admin', $admin->id, $admin->name, "Pengajuan jabatan {$admin->name} ditolak. Catatan: {$alasan}");
 

@@ -965,28 +965,42 @@
                                 </a>
                             </div>
                         </div>
+
+                        <!-- Filter Tab Bar -->
+                        <div class="notif-filter-bar" style="display: flex; gap: 4px; padding: 6px 12px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; overflow-x: auto;">
+                            <button type="button" class="notif-tab active" onclick="filterNotif('all', this)" style="padding: 3px 10px; border-radius: 4px; border: none; font-size: 0.725rem; font-weight: 700; background: #022648; color: #fff; cursor: pointer; white-space: nowrap;">Semua</button>
+                            <button type="button" class="notif-tab" onclick="filterNotif('jabatan', this)" style="padding: 3px 10px; border-radius: 4px; border: none; font-size: 0.725rem; font-weight: 700; background: transparent; color: #475569; cursor: pointer; white-space: nowrap;">Jabatan</button>
+                            <button type="button" class="notif-tab" onclick="filterNotif('anggota', this)" style="padding: 3px 10px; border-radius: 4px; border: none; font-size: 0.725rem; font-weight: 700; background: transparent; color: #475569; cursor: pointer; white-space: nowrap;">Anggota</button>
+                            <button type="button" class="notif-tab" onclick="filterNotif('surat', this)" style="padding: 3px 10px; border-radius: 4px; border: none; font-size: 0.725rem; font-weight: 700; background: transparent; color: #475569; cursor: pointer; white-space: nowrap;">Surat & SK</button>
+                        </div>
+
                         <div class="notification-body">
                             @forelse($filteredNotifications as $notification)
                                 @php
                                     $targetUrl = '#';
                                     $notifType = $notification->data['type'] ?? '';
-                                    if (!empty($notification->data['url'])) {
-                                        $targetUrl = $notification->data['url'];
+                                    $categoryTag = 'lainnya';
+
+                                    if (in_array($notifType, ['pengajuan_jabatan', 'verifikasi_jabatan'])) {
+                                        $categoryTag = 'jabatan';
+                                        $targetUrl = route('admin.verifikasi-jabatan.index');
                                     } elseif (in_array($notifType, ['new_anggota', 'pending_profile'])) {
+                                        $categoryTag = 'anggota';
                                         $targetUrl = route('admin.anggota.index', ['status' => 'pending_profile']);
+                                    } elseif (in_array($notifType, ['surat_pending', 'surat_terbit', 'surat_revisi', 'sk_expired'])) {
+                                        $categoryTag = 'surat';
+                                        $targetUrl = ($notifType === 'sk_expired') ? route('admin.anggota.index') : route('admin.sekretariat.surat.index', ['tipe' => 'masuk']);
                                     } elseif ($notifType === 'new_katalog') {
                                         $targetUrl = route('admin.katalog.index');
-                                    } elseif (in_array($notifType, ['surat_pending', 'surat_terbit', 'surat_revisi'])) {
-                                        $targetUrl = route('admin.sekretariat.surat.index', ['tipe' => 'masuk']);
-                                    } elseif ($notifType === 'sk_expired') {
-                                        $targetUrl = route('admin.anggota.index');
                                     } elseif ($notifType === 'program_join_pending') {
                                         $targetUrl = route('admin.program.index');
                                     }
                                 @endphp
-                                <a href="{{ $targetUrl }}" class="notification-item {{ $notification->read_at ? '' : 'unread' }}">
+                                <a href="{{ $targetUrl }}" data-category="{{ $categoryTag }}" class="notification-item {{ $notification->read_at ? '' : 'unread' }}">
                                     <div class="notification-item-title">
-                                        @if($notifType == 'new_anggota')
+                                        @if(in_array($notifType, ['pengajuan_jabatan', 'verifikasi_jabatan']))
+                                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="#022648" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                        @elseif($notifType == 'new_anggota')
                                             <svg viewBox="0 0 24 24" width="14" height="14" stroke="#10b981" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                                         @elseif($notifType == 'new_katalog')
                                             <svg viewBox="0 0 24 24" width="14" height="14" stroke="#3b82f6" fill="none" stroke-width="2" style="margin-right: 4px; vertical-align: middle;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
@@ -1755,6 +1769,26 @@
                 });
             }
         });
+    <script>
+        function filterNotif(cat, btn) {
+            document.querySelectorAll('.notif-tab').forEach(function(b) {
+                b.style.background = 'transparent';
+                b.style.color = '#475569';
+                b.classList.remove('active');
+            });
+            btn.style.background = '#022648';
+            btn.style.color = '#ffffff';
+            btn.classList.add('active');
+
+            var items = document.querySelectorAll('.notification-item');
+            items.forEach(function(item) {
+                if (cat === 'all' || item.dataset.category === cat) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
     </script>
 
     @stack('scripts')
