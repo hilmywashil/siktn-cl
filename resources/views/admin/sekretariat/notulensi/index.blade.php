@@ -1222,6 +1222,20 @@
             secExcel.style.display = 'block';
         }
     }
+
+    function updateBulkFileName(input, targetId) {
+        const display = document.getElementById(targetId);
+        if (!display) return;
+        if (input.files && input.files.length > 0) {
+            if (input.files.length === 1) {
+                display.textContent = '✓ Berkas terpilih: ' + input.files[0].name;
+            } else {
+                display.textContent = '✓ ' + input.files.length + ' Berkas terpilih sekaligus.';
+            }
+        } else {
+            display.textContent = '';
+        }
+    }
 </script>
 
 <!-- Modal Upload Bulk Notulensi Benchmark SIKTN -->
@@ -1257,35 +1271,41 @@
                 <!-- Opsi 1: Multi File PDF / Word -->
                 <div id="sectionBulkFiles">
                     <label style="font-weight: 700; font-size: 0.85rem; color: #022648; display: block; margin-bottom: 8px;">
-                        Pilih Berkas Risalah Notulensi (.pdf, .doc, .docx) *
+                        Upload Berkas Risalah Notulensi (PDF / Word) *
                     </label>
-                    <div style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 1.5rem; text-align: center;">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#022648" stroke-width="2" style="margin-bottom: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                        <input type="file" name="files[]" multiple accept=".pdf,.doc,.docx" class="form-control" style="padding: 8px; max-width: 400px; margin: 0 auto; display: block;">
-                        <span style="color: #64748b; font-size: 0.775rem; display: block; margin-top: 8px;">
-                            Pilih beberapa berkas sekaligus. Nama berkas akan otomatis menjadi Judul Rapat awal.
-                        </span>
+                    <div class="file-upload-zone" style="position: relative; padding: 1.75rem; border: 2px dashed #cbd5e1; border-radius: 8px; background: #f8fafc; text-align: center;">
+                        <svg viewBox="0 0 24 24" width="32" height="32" stroke="#022648" fill="none" stroke-width="2" style="margin-bottom: 0.5rem;">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <div style="font-size: 0.875rem; font-weight: 700; color: #022648;">Klik / Drag berkas di sini</div>
+                        <div style="font-size: 0.775rem; color: #64748b; margin-top: 4px;">Pilih 1 atau banyak berkas sekaligus (.pdf, .doc, .docx)</div>
+                        <input type="file" name="files[]" multiple accept=".pdf,.doc,.docx" style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="updateBulkFileName(this, 'fileNameFilesDisplay')">
                     </div>
+                    <div id="fileNameFilesDisplay" style="font-size: 0.8rem; font-weight: 700; color: #166534; margin-top: 8px;"></div>
                 </div>
 
                 <!-- Opsi 2: Excel / CSV Import -->
                 <div id="sectionBulkExcel" style="display: none;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <label style="font-weight: 700; font-size: 0.85rem; color: #022648; margin: 0;">
-                            Pilih Berkas Excel / CSV Notulensi *
+                            Upload File Excel / CSV Notulensi *
                         </label>
-                        <a href="{{ route('admin.sekretariat.notulensi.template') }}" class="btn-outline-secondary" style="font-size: 0.75rem; font-weight: 700; text-decoration: none; padding: 4px 10px; color: #022648; border-color: #022648;">
+                        <a href="{{ route('admin.sekretariat.notulensi.template') }}" class="btn-outline-secondary" style="font-size: 0.775rem; font-weight: 700; text-decoration: none; padding: 4px 10px; color: #022648; border-color: #022648;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                             Download Template CSV
                         </a>
                     </div>
-                    <div style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 1.5rem; text-align: center;">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#b7830f" stroke-width="2" style="margin-bottom: 8px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-                        <input type="file" name="excel_file" accept=".xlsx,.xls,.csv,.txt" class="form-control" style="padding: 8px; max-width: 400px; margin: 0 auto; display: block;">
-                        <span style="color: #64748b; font-size: 0.775rem; display: block; margin-top: 8px;">
-                            Pastikan susunan kolom mengikuti template: <strong>Judul Rapat, Tanggal Rapat, Pemimpin Rapat, Ringkasan Hasil</strong>.
-                        </span>
+                    <div class="file-upload-zone" style="position: relative; padding: 1.75rem; border: 2px dashed #cbd5e1; border-radius: 8px; background: #f8fafc; text-align: center;">
+                        <svg viewBox="0 0 24 24" width="32" height="32" stroke="#b7830f" fill="none" stroke-width="2" style="margin-bottom: 0.5rem;">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line>
+                        </svg>
+                        <div style="font-size: 0.875rem; font-weight: 700; color: #022648;">Klik / Drag berkas Excel atau CSV di sini</div>
+                        <div style="font-size: 0.775rem; color: #64748b; margin-top: 4px;">Format .xlsx, .csv, .txt (Maksimal 5MB)</div>
+                        <input type="file" name="excel_file" accept=".xlsx,.xls,.csv,.txt" style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="updateBulkFileName(this, 'fileNameExcelDisplay')">
                     </div>
+                    <div id="fileNameExcelDisplay" style="font-size: 0.8rem; font-weight: 700; color: #166534; margin-top: 8px;"></div>
                 </div>
             </div>
 
