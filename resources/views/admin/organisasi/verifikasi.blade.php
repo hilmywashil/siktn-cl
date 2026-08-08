@@ -12,6 +12,33 @@
         --gray-500: #64748b; --gray-700: #334155; --gray-900: #0f172a;
         --radius-md: 6px; --radius-lg: 10px;
     }
+
+    .stat-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.1rem 1.25rem;
+        border: 1px solid #cbd5e1;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        transition: all 0.2s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(2, 38, 72, 0.08);
+    }
+    .stat-card.total { border-left: 4px solid var(--navy); }
+    .stat-card.pending { border-left: 4px solid var(--gold); }
+    .stat-card.approved { border-left: 4px solid #166534; }
+    .stat-card.rejected { border-left: 4px solid #dc2626; }
     
     .table-container { background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden; }
     .table-wrapper { overflow-x: auto; }
@@ -20,16 +47,6 @@
     .table th { padding: 0.875rem 1rem; text-align: left; font-size: 0.75rem; font-weight: 700; color: var(--gray-700); text-transform: uppercase; letter-spacing: 0.05em; }
     .table td { padding: 1rem; border-bottom: 1px solid var(--gray-100); font-size: 0.875rem; color: var(--gray-900); vertical-align: middle; }
     .table tbody tr:hover { background: var(--gray-50); }
-
-    .btn-acc {
-        background: #166534; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-weight: 700; font-size: 0.775rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;
-    }
-    .btn-acc:hover { background: #14532d; transform: translateY(-1px); }
-
-    .btn-reject {
-        background: #dc2626; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-weight: 700; font-size: 0.775rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;
-    }
-    .btn-reject:hover { background: #b91c1c; transform: translateY(-1px); }
 
     /* Modal Standard SIKTN */
     .modal-overlay {
@@ -42,12 +59,63 @@
     .modal-content-md {
         background: white; border-radius: 12px; max-width: 500px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.2); overflow: hidden;
     }
+
+    .btn-filter-tab {
+        font-size: 0.8rem; font-weight: 700; padding: 6px 14px; border-radius: 6px; text-decoration: none; border: 1px solid #cbd5e1; background: white; color: #475569; transition: all 0.2s ease;
+    }
+    .btn-filter-tab.active {
+        background: var(--navy); color: white; border-color: var(--navy);
+    }
 </style>
 @endpush
 
 @section('content')
 <div class="admin-ui-scope">
     
+    <!-- Summary Stat Cards -->
+    <div class="stat-cards-grid">
+        <div class="stat-card total">
+            <div style="width: 40px; height: 40px; border-radius: 8px; background: #e0f2fe; color: #022648; display: flex; align-items: center; justify-content: center;">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Total Pengajuan</div>
+                <div style="font-size: 1.3rem; font-weight: 800; color: #022648;">{{ number_format($totalCount ?? 0) }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card pending">
+            <div style="width: 40px; height: 40px; border-radius: 8px; background: #fef3c7; color: #b7830f; display: flex; align-items: center; justify-content: center;">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Menunggu ACC</div>
+                <div style="font-size: 1.3rem; font-weight: 800; color: #b7830f;">{{ number_format($pendingCount ?? 0) }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card approved">
+            <div style="width: 40px; height: 40px; border-radius: 8px; background: #dcfce7; color: #166534; display: flex; align-items: center; justify-content: center;">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Disetujui</div>
+                <div style="font-size: 1.3rem; font-weight: 800; color: #166534;">{{ number_format($approvedCount ?? 0) }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card rejected">
+            <div style="width: 40px; height: 40px; border-radius: 8px; background: #fee2e2; color: #991b1b; display: flex; align-items: center; justify-content: center;">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Ditolak</div>
+                <div style="font-size: 1.3rem; font-weight: 800; color: #991b1b;">{{ number_format($rejectedCount ?? 0) }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Filter Bar -->
     <div style="background: white; border-radius: 10px; border: 1px solid #cbd5e1; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div>
             <h3 style="font-size: 1.1rem; font-weight: 800; color: #022648; margin: 0;">Persetujuan & Verifikasi Jabatan Pengurus</h3>
@@ -55,13 +123,14 @@
         </div>
 
         <div style="display: flex; gap: 0.5rem;">
-            <a href="{{ route('admin.verifikasi-jabatan.index') }}" class="btn {{ !request('status') ? 'btn-primary' : 'btn-outline-secondary' }}" style="font-size: 0.8rem; font-weight: 700; padding: 6px 14px; border-radius: 6px; text-decoration: none;">Semua</a>
-            <a href="{{ route('admin.verifikasi-jabatan.index', ['status' => 'pending']) }}" class="btn {{ request('status') === 'pending' ? 'btn-primary' : 'btn-outline-secondary' }}" style="font-size: 0.8rem; font-weight: 700; padding: 6px 14px; border-radius: 6px; text-decoration: none; color: #b7830f;">🟡 Pending</a>
-            <a href="{{ route('admin.verifikasi-jabatan.index', ['status' => 'approved']) }}" class="btn {{ request('status') === 'approved' ? 'btn-primary' : 'btn-outline-secondary' }}" style="font-size: 0.8rem; font-weight: 700; padding: 6px 14px; border-radius: 6px; text-decoration: none; color: #166534;">🟢 Approved</a>
-            <a href="{{ route('admin.verifikasi-jabatan.index', ['status' => 'rejected']) }}" class="btn {{ request('status') === 'rejected' ? 'btn-primary' : 'btn-outline-secondary' }}" style="font-size: 0.8rem; font-weight: 700; padding: 6px 14px; border-radius: 6px; text-decoration: none; color: #991b1b;">🔴 Rejected</a>
+            <a href="{{ route('admin.verifikasi-jabatan.index') }}" class="btn-filter-tab {{ !request('status') ? 'active' : '' }}">Semua</a>
+            <a href="{{ route('admin.verifikasi-jabatan.index', ['status' => 'pending']) }}" class="btn-filter-tab {{ request('status') === 'pending' ? 'active' : '' }}">Pending</a>
+            <a href="{{ route('admin.verifikasi-jabatan.index', ['status' => 'approved']) }}" class="btn-filter-tab {{ request('status') === 'approved' ? 'active' : '' }}">Disetujui</a>
+            <a href="{{ route('admin.verifikasi-jabatan.index', ['status' => 'rejected']) }}" class="btn-filter-tab {{ request('status') === 'rejected' ? 'active' : '' }}">Ditolak</a>
         </div>
     </div>
 
+    <!-- Tabel Verifikasi -->
     <div class="table-container">
         <div class="table-wrapper">
             <table class="table">
@@ -72,7 +141,7 @@
                         <th>DOMISILI WILAYAH</th>
                         <th>JABATAN DIAJUKAN</th>
                         <th>STATUS ACC</th>
-                        <th style="text-align: center; width: 180px;">AKSI VERIFIKASI</th>
+                        <th style="text-align: center; width: 100px;">AKSI</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -122,23 +191,30 @@
                                 @endif
                             </td>
                             <td style="text-align: center;">
-                                <div style="display: flex; gap: 6px; justify-content: center;">
-                                    @if($item->status_jabatan !== 'approved')
-                                        <form action="{{ route('admin.verifikasi-jabatan.approve', $item->id) }}" method="POST" style="display: inline;">
-                                            @csrf
-                                            <button type="submit" class="btn-acc" onclick="return confirm('Apakah Anda yakin ingin memverifikasi (ACC) jabatan {{ addslashes($item->jabatan_diajukan) }} untuk {{ addslashes($item->name) }}?')">
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                                ACC
-                                            </button>
-                                        </form>
-                                    @endif
+                                <!-- Hidden Form Approve -->
+                                <form id="approve-form-{{ $item->id }}" action="{{ route('admin.verifikasi-jabatan.approve', $item->id) }}" method="POST" style="display: none;">
+                                    @csrf
+                                </form>
 
-                                    @if($item->status_jabatan !== 'rejected')
-                                        <button type="button" class="btn-reject" onclick="openRejectModal({{ $item->id }}, '{{ addslashes($item->name) }}')">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                            Tolak
-                                        </button>
-                                    @endif
+                                <!-- Action Dropdown Titik Tiga -->
+                                <div class="action-dropdown-wrapper" style="position: relative; display: inline-block;">
+                                    <button type="button" class="btn-aksi-trigger" onclick="toggleActionDropdown(event, {{ $item->id }})" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; width: 34px; height: 34px; font-size: 1.2rem; font-weight: 700; color: #022648; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                                        ⋮
+                                    </button>
+                                    <div id="aksiDropdown-{{ $item->id }}" class="aksi-dropdown-menu" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 4px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); min-width: 150px; z-index: 999; overflow: hidden;">
+                                        @if($item->status_jabatan !== 'approved')
+                                            <button type="button" onclick="confirmApprove({{ $item->id }}, '{{ addslashes($item->name) }}', '{{ addslashes($item->jabatan_diajukan) }}')" style="width: 100%; text-align: left; padding: 8px 12px; border: none; background: transparent; font-size: 0.825rem; font-weight: 700; color: #166534; cursor: pointer; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='transparent'">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                ACC / Setujui
+                                            </button>
+                                        @endif
+                                        @if($item->status_jabatan !== 'rejected')
+                                            <button type="button" onclick="openRejectModal({{ $item->id }}, '{{ addslashes($item->name) }}')" style="width: 100%; text-align: left; padding: 8px 12px; border: none; background: transparent; font-size: 0.825rem; font-weight: 700; color: #dc2626; cursor: pointer; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                                Tolak Pengajuan
+                                            </button>
+                                        @endif
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -181,11 +257,48 @@
 
 @push('scripts')
 <script>
+    function toggleActionDropdown(e, id) {
+        e.stopPropagation();
+        document.querySelectorAll('.aksi-dropdown-menu').forEach(menu => {
+            if (menu.id !== 'aksiDropdown-' + id) {
+                menu.style.display = 'none';
+            }
+        });
+        const target = document.getElementById('aksiDropdown-' + id);
+        if (target) {
+            target.style.display = target.style.display === 'block' ? 'none' : 'block';
+        }
+    }
+
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.aksi-dropdown-menu').forEach(menu => {
+            menu.style.display = 'none';
+        });
+    });
+
+    function confirmApprove(adminId, adminName, jabatanNama) {
+        Swal.fire({
+            title: 'Konfirmasi ACC Jabatan',
+            html: `Apakah Anda yakin ingin menyetujui (ACC) posisi <strong>${jabatanNama}</strong> untuk <strong>${adminName}</strong>?<br><br><small style="color:#64748b;">Pengurus akan otomatis terpasang secara visual di Bagan Struktur Organisasi.</small>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#022648',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, ACC Sekarang',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('approve-form-' + adminId).submit();
+            }
+        });
+    }
+
     function openRejectModal(adminId, adminName) {
         document.getElementById('rejectForm').action = "/admin/verifikasi-jabatan/" + adminId + "/reject";
         document.getElementById('rejectModalText').textContent = `Berikan alasan penolakan pengajuan jabatan untuk ${adminName}:`;
         document.getElementById('rejectModal').classList.add('active');
     }
+
     function closeRejectModal() {
         document.getElementById('rejectModal').classList.remove('active');
     }

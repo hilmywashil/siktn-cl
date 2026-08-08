@@ -31,11 +31,22 @@ class VerifikasiJabatanController extends Controller
             $query->where('status_jabatan', $request->status);
         }
 
+        $totalCount = Admin::where('status_jabatan', '!=', 'none')->whereNotNull('jabatan_diajukan')->count();
+        $pendingCount = Admin::where('status_jabatan', 'pending')->whereNotNull('jabatan_diajukan')->count();
+        $approvedCount = Admin::where('status_jabatan', 'approved')->whereNotNull('jabatan_diajukan')->count();
+        $rejectedCount = Admin::where('status_jabatan', 'rejected')->whereNotNull('jabatan_diajukan')->count();
+
         $pengajuans = $query->orderByRaw("FIELD(status_jabatan, 'pending', 'approved', 'rejected')")
             ->orderBy('updated_at', 'desc')
             ->paginate(15);
 
-        return view('admin.organisasi.verifikasi', compact('pengajuans'));
+        return view('admin.organisasi.verifikasi', compact(
+            'pengajuans',
+            'totalCount',
+            'pendingCount',
+            'approvedCount',
+            'rejectedCount'
+        ));
     }
 
     public function approve(Request $request, Admin $admin)
