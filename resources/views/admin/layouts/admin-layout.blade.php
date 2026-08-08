@@ -1052,7 +1052,6 @@
                             <a href="{{ route('admin.settings.notifications') }}" style="font-size: 0.8rem; font-weight: 700; color: #022648; text-decoration: none;">Pengaturan Preferensi Notifikasi &rarr;</a>
                         </div>
                     </div>
-                    </div>
                 </div>
 
                 {{-- User Profile in Topbar --}}
