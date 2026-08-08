@@ -28,6 +28,9 @@
     .select2-container--default .select2-selection--single .select2-selection__arrow {
         height: 36px !important;
     }
+    .select2-container {
+        min-width: 250px !important;
+    }
     .select2-dropdown {
         border: 1.5px solid #022648 !important;
         border-radius: 6px !important;
@@ -35,6 +38,13 @@
         animation: select2DropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
         overflow: hidden !important;
         z-index: 9999 !important;
+        min-width: 280px !important;
+        width: auto !important;
+    }
+    .select2-results__option {
+        white-space: nowrap !important;
+        padding: 8px 14px !important;
+        font-size: 0.85rem !important;
     }
     .select2-results__option--highlighted[aria-selected] {
         background-color: #022648 !important;
