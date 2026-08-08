@@ -257,100 +257,18 @@ class NotulensiController extends Controller
 
     public function downloadTemplate()
     {
-        $fileName = 'Template_Import_Notulensi_Rapat.xls';
-        $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
-        $html .= '<head><meta charset="utf-8">';
-        $html .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Notulensi Rapat</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
-        $html .= '<style>';
-        $html .= 'table { border-collapse: collapse; font-family: Calibri, Arial, sans-serif; font-size: 11pt; }';
-        $html .= 'th { background-color: #022648; color: #ffffff; font-weight: bold; text-align: center; padding: 10px 14px; border: 1px solid #cbd5e1; white-space: nowrap; }';
-        $html .= 'td { padding: 9px 12px; border: 1px solid #cbd5e1; vertical-align: middle; }';
-        $html .= '.title-row { background-color: #022648; color: #b7830f; font-size: 14pt; font-weight: bold; text-align: center; padding: 14px; border: 1px solid #022648; }';
-        $html .= '</style>';
-        $html .= '</head><body>';
-        $html .= '<table border="1" style="border: 1px solid #cbd5e1;">';
-        $html .= '<colgroup>';
-        $html .= '<col width="280" style="width: 280px;">';
-        $html .= '<col width="180" style="width: 180px;">';
-        $html .= '<col width="240" style="width: 240px;">';
-        $html .= '<col width="480" style="width: 480px;">';
-        $html .= '<col width="400" style="width: 400px;">';
-        $html .= '</colgroup>';
-        $html .= '<tr><td colspan="5" class="title-row">TEMPLATE IMPORT NOTULENSI RAPAT - SIKTN</td></tr>';
-        $html .= '<thead><tr>';
-        $html .= '<th width="280" style="width: 280px;">JUDUL RAPAT</th>';
-        $html .= '<th width="180" style="width: 180px;">TANGGAL RAPAT</th>';
-        $html .= '<th width="240" style="width: 240px;">PEMIMPIN RAPAT</th>';
-        $html .= '<th width="480" style="width: 480px;">RINGKASAN HASIL RAPAT</th>';
-        $html .= '<th width="400" style="width: 400px;">LINK GOOGLE DRIVE</th>';
-        $html .= '</tr></thead><tbody>';
-        
-        $examples = [
-            [
-                'judul' => 'Rapat Kerja Sekretariat Daerah',
-                'tanggal' => '2026-08-08 14:00',
-                'pemimpin' => 'Ketua Umum Karang Taruna',
-                'ringkasan' => 'Penetapan alokasi anggaran dan jadwal kegiatan semester II tahun 2026.',
-                'drive' => 'https://drive.google.com/file/d/example-notulensi-1'
-            ],
-            [
-                'judul' => 'Rapat Koordinasi Bidang Humas & Publikasi',
-                'tanggal' => '2026-08-10 09:30',
-                'pemimpin' => 'Sekretaris Umum',
-                'ringkasan' => 'Pembentukan tim pengelola media sosial dan penyusunan buletin bulanan.',
-                'drive' => 'https://drive.google.com/file/d/example-notulensi-2'
-            ],
-            [
-                'judul' => 'Rapat Evaluasi Program Pemberdayaan Pemuda',
-                'tanggal' => '2026-08-15 13:00',
-                'pemimpin' => 'Kepala Bidang Pemuda',
-                'ringkasan' => 'Evaluasi pencapaian target pelatihan kewirausahaan pemuda kelurahan.',
-                'drive' => 'https://drive.google.com/file/d/example-notulensi-3'
-            ],
-            [
-                'judul' => 'Rapat Persiapan Peringatan HUT RI ke-81',
-                'tanggal' => '2026-08-17 19:30',
-                'pemimpin' => 'Ketua Panitia HUT RI',
-                'ringkasan' => 'Finalisasi susunan panitia, rincian lomba, dan teknis upacara bendera.',
-                'drive' => 'https://drive.google.com/file/d/example-notulensi-4'
-            ],
-            [
-                'judul' => 'Rapat Pleno Pengurus Karang Taruna Kecamatan',
-                'tanggal' => '2026-08-20 10:00',
-                'pemimpin' => 'Ketua Karang Taruna',
-                'ringkasan' => 'Penyampaian laporan pertanggungjawaban kegiatan triwulan II tahun 2026.',
-                'drive' => 'https://drive.google.com/file/d/example-notulensi-5'
-            ]
-        ];
-
-        foreach ($examples as $idx => $row) {
-            $bgColor = ($idx % 2 === 0) ? '#ffffff' : '#f8fafc';
-            $html .= '<tr style="background-color: ' . $bgColor . ';">';
-            $html .= '<td width="280" style="width: 280px;">' . htmlspecialchars($row['judul']) . '</td>';
-            $html .= '<td width="180" style="width: 180px; text-align: center;">' . $row['tanggal'] . '</td>';
-            $html .= '<td width="240" style="width: 240px;">' . htmlspecialchars($row['pemimpin']) . '</td>';
-            $html .= '<td width="480" style="width: 480px;">' . htmlspecialchars($row['ringkasan']) . '</td>';
-            $html .= '<td width="400" style="width: 400px; color: #0284c7;">' . $row['drive'] . '</td>';
-            $html .= '</tr>';
+        $filePath = public_path('templates/TemplateNotulensi.xls');
+        if (!file_exists($filePath)) {
+            $filePath = base_path('TemplateNotulensi.xls');
         }
 
-        // Add 18 empty formatted grid rows for user input
-        for ($i = 6; $i <= 25; $i++) {
-            $bgColor = ($i % 2 === 0) ? '#ffffff' : '#f8fafc';
-            $html .= '<tr style="background-color: ' . $bgColor . ';">';
-            $html .= '<td width="280" style="width: 280px; border: 1px solid #cbd5e1;">&nbsp;</td>';
-            $html .= '<td width="180" style="width: 180px; border: 1px solid #cbd5e1;">&nbsp;</td>';
-            $html .= '<td width="240" style="width: 240px; border: 1px solid #cbd5e1;">&nbsp;</td>';
-            $html .= '<td width="480" style="width: 480px; border: 1px solid #cbd5e1;">&nbsp;</td>';
-            $html .= '<td width="400" style="width: 400px; border: 1px solid #cbd5e1;">&nbsp;</td>';
-            $html .= '</tr>';
+        if (file_exists($filePath)) {
+            return response()->download($filePath, 'TemplateNotulensi.xls', [
+                'Content-Type' => 'application/vnd.ms-excel',
+            ]);
         }
 
-        $html .= '</tbody></table></body></html>';
-
-        return response($html)
-            ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
-            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+        return redirect()->back()->with('error', 'Berkas template contoh tidak ditemukan.');
     }
 
     public function update(Request $request, $id)
