@@ -968,10 +968,9 @@
 
                         <!-- Filter Tab Bar -->
                         <div class="notif-filter-bar" style="display: flex; gap: 4px; padding: 6px 12px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; overflow-x: auto;">
-                            <button type="button" class="notif-tab active" onclick="filterNotif('all', this)" style="padding: 3px 10px; border-radius: 4px; border: none; font-size: 0.725rem; font-weight: 700; background: #022648; color: #fff; cursor: pointer; white-space: nowrap;">Semua</button>
-                            <button type="button" class="notif-tab" onclick="filterNotif('jabatan', this)" style="padding: 3px 10px; border-radius: 4px; border: none; font-size: 0.725rem; font-weight: 700; background: transparent; color: #475569; cursor: pointer; white-space: nowrap;">Jabatan</button>
-                            <button type="button" class="notif-tab" onclick="filterNotif('anggota', this)" style="padding: 3px 10px; border-radius: 4px; border: none; font-size: 0.725rem; font-weight: 700; background: transparent; color: #475569; cursor: pointer; white-space: nowrap;">Anggota</button>
-                            <button type="button" class="notif-tab" onclick="filterNotif('surat', this)" style="padding: 3px 10px; border-radius: 4px; border: none; font-size: 0.725rem; font-weight: 700; background: transparent; color: #475569; cursor: pointer; white-space: nowrap;">Surat & SK</button>
+                            <button type="button" class="notif-tab active" onclick="event.stopPropagation(); window.filterNotif('all', this);" style="padding: 3px 10px; border-radius: 4px; border: none; font-size: 0.725rem; font-weight: 700; background: #022648; color: #fff; cursor: pointer; white-space: nowrap;">Semua</button>
+                            <button type="button" class="notif-tab" onclick="event.stopPropagation(); window.filterNotif('jabatan', this);" style="padding: 3px 10px; border-radius: 4px; border: none; font-size: 0.725rem; font-weight: 700; background: transparent; color: #475569; cursor: pointer; white-space: nowrap;">Jabatan</button>
+                            <button type="button" class="notif-tab" onclick="event.stopPropagation(); window.filterNotif('anggota', this);" style="padding: 3px 10px; border-radius: 4px; border: none; font-size: 0.725rem; font-weight: 700; background: transparent; color: #475569; cursor: pointer; white-space: nowrap;">Anggota</button>
                         </div>
 
                         <div class="notification-body">
@@ -1770,15 +1769,17 @@
             }
         });
     <script>
-        function filterNotif(cat, btn) {
+        window.filterNotif = function(cat, btn) {
             document.querySelectorAll('.notif-tab').forEach(function(b) {
                 b.style.background = 'transparent';
                 b.style.color = '#475569';
                 b.classList.remove('active');
             });
-            btn.style.background = '#022648';
-            btn.style.color = '#ffffff';
-            btn.classList.add('active');
+            if (btn) {
+                btn.style.background = '#022648';
+                btn.style.color = '#ffffff';
+                btn.classList.add('active');
+            }
 
             var items = document.querySelectorAll('.notification-item');
             items.forEach(function(item) {
@@ -1788,7 +1789,7 @@
                     item.style.display = 'none';
                 }
             });
-        }
+        };
     </script>
 
     @stack('scripts')
