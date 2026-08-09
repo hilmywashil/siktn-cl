@@ -728,6 +728,25 @@
 
     <!-- Table Container -->
     <div class="table-container">
+
+        <!-- Bulk Action Bar — muncul di atas tabel saat item dipilih -->
+        <div id="bulk-action-bar-surat" style="display: none; background: #022648; color: white; padding: 10px 18px; border-radius: 8px 8px 0 0; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 0;">
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 0.875rem;">
+                <span style="background: #b7830f; color: white; min-width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; padding: 0 6px;" id="selected-surat-count">0</span>
+                <strong>Surat Terpilih</strong>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button type="button" onclick="executeBulkDownloadSurat()" style="background: #059669; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download Terpilih (ZIP)
+                </button>
+                <button type="button" onclick="executeBulkDeleteSurat()" style="background: #dc2626; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    Hapus Terpilih
+                </button>
+            </div>
+        </div>
+
         <div class="table-wrapper">
             <table class="table">
                 <thead>
@@ -865,24 +884,6 @@
                     @endforelse
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <!-- Floating / Sticky Bulk Action Bar for Surat — fixed TOP -->
-    <div id="bulk-action-bar-surat" style="display: none; position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 999; background: #022648; color: white; padding: 10px 20px; border-radius: 8px; align-items: center; justify-content: space-between; box-shadow: 0 6px 24px rgba(2, 38, 72, 0.35); min-width: 520px; gap: 16px;">
-        <div style="display: flex; align-items: center; gap: 10px; font-size: 0.875rem;">
-            <span style="background: #b7830f; color: white; min-width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; padding: 0 6px;" id="selected-surat-count">0</span>
-            <strong>Surat Terpilih</strong>
-        </div>
-        <div style="display: flex; gap: 10px;">
-            <button type="button" onclick="executeBulkDownloadSurat()" style="background: #059669; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Download Terpilih (ZIP)
-            </button>
-            <button type="button" onclick="executeBulkDeleteSurat()" style="background: #dc2626; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                Hapus Terpilih
-            </button>
         </div>
     </div>
 
