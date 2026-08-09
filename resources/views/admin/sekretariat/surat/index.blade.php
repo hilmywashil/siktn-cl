@@ -736,9 +736,9 @@
                 <strong>Surat Terpilih</strong>
             </div>
             <div style="display: flex; gap: 10px;">
-                <button type="button" onclick="executeBulkDownloadSurat()" style="background: #059669; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    Download Terpilih (ZIP)
+                <button type="button" onclick="executeBulkExportSurat()" style="background: #b7830f; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#966a0c'" onmouseout="this.style.background='#b7830f'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    Export ke Excel
                 </button>
                 <button type="button" onclick="executeBulkDeleteSurat()" style="background: #dc2626; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -894,8 +894,9 @@
         @csrf
     </form>
 
-    <form id="bulk-download-surat-form" action="{{ route('admin.sekretariat.surat.bulk-download') }}" method="POST" style="display:none;">
+    <form id="bulk-export-surat-form" action="{{ route('admin.sekretariat.surat.bulk-export') }}" method="POST" style="display:none;">
         @csrf
+        <input type="hidden" name="tipe" value="{{ $tipe }}">
     </form>
 
     {{ $surats->appends(request()->query())->links() }}
@@ -1446,15 +1447,15 @@
         });
     }
 
-    function executeBulkDownloadSurat() {
+    function executeBulkExportSurat() {
         const checked = document.querySelectorAll('.check-surat-item:checked');
         if (checked.length === 0) return;
 
         if (typeof Toast !== 'undefined') {
-            Toast.fire({ icon: 'info', title: 'Memproses kompresi berkas ZIP...' });
+            Toast.fire({ icon: 'success', title: `Mengekspor ${checked.length} surat ke Excel...` });
         }
 
-        const form = document.getElementById('bulk-download-surat-form');
+        const form = document.getElementById('bulk-export-surat-form');
         form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
         checked.forEach(item => {
             const hiddenInput = document.createElement('input');
@@ -1465,6 +1466,7 @@
         });
         form.submit();
     }
+
 
     // =====================================
     // Excel Import Drag & Drop & JS Logic

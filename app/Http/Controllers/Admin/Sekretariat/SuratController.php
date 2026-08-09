@@ -633,11 +633,111 @@ class SuratController extends Controller
 
 
     /**
+     * Bulk Export Surat Terpilih ke Excel (SpreadsheetML)
+     */
+    public function bulkExport(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        $tipe = $request->input('tipe', 'masuk');
+
+        if (empty($ids)) {
+            return redirect()->back()->with('error', 'Tidak ada surat yang dipilih untuk diekspor.');
+        }
+
+        $surats = Surat::whereIn('id', $ids)
+            ->where('tipe', $tipe)
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        if ($surats->isEmpty()) {
+            return redirect()->back()->with('error', 'Data surat tidak ditemukan.');
+        }
+
+        $tipeLabel  = $tipe === 'masuk' ? 'SURAT MASUK' : 'SURAT KELUAR';
+        $pengirimCol = $tipe === 'masuk' ? 'PENGIRIM' : 'TUJUAN';
+        $fileName   = 'Export_' . str_replace(' ', '_', $tipeLabel) . '_' . date('Ymd_His') . '.xls';
+        $colCount   = 7;
+        $widths     = [40, 160, 90, 240, 100, 80, 200];
+        $headers    = ['NO.', 'NO. SURAT', 'KLASIFIKASI', 'PERIHAL', $pengirimCol, 'TANGGAL', 'STATUS'];
+
+        $x  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $x .= '<?mso-application progid="Excel.Sheet"?>' . "\n";
+        $x .= '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">' . "\n";
+
+        // Styles
+        $x .= '<Styles>';
+        // Title
+        $x .= '<Style ss:ID="title"><Font ss:Bold="1" ss:Color="#022648" ss:Size="13" ss:FontName="Calibri"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style>';
+        // Sub-info (tanggal export)
+        $x .= '<Style ss:ID="sub"><Font ss:Italic="1" ss:Color="#64748b" ss:Size="9" ss:FontName="Calibri"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style>';
+        // Header: navy + gold
+        $x .= '<Style ss:ID="h"><Font ss:Bold="1" ss:Color="#B7830F" ss:Size="10" ss:FontName="Calibri"/><Interior ss:Color="#022648" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#B7830F"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#B7830F"/></Borders></Style>';
+        // Data odd row
+        $x .= '<Style ss:ID="o"><Font ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#F8FAFC" ss:Pattern="Solid"/><Alignment ss:Vertical="Center" ss:WrapText="1"/><NumberFormat ss:Format="@"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/></Borders></Style>';
+        // Data even row
+        $x .= '<Style ss:ID="e"><Font ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/><Alignment ss:Vertical="Center" ss:WrapText="1"/><NumberFormat ss:Format="@"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/></Borders></Style>';
+        // Status badge styles
+        $x .= '<Style ss:ID="st_terbit"><Font ss:Bold="1" ss:Color="#065F46" ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#D1FAE5" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/></Borders></Style>';
+        $x .= '<Style ss:ID="st_pending"><Font ss:Bold="1" ss:Color="#92400E" ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#FEF3C7" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/></Borders></Style>';
+        $x .= '<Style ss:ID="st_revisi"><Font ss:Bold="1" ss:Color="#991B1B" ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#FEE2E2" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/></Borders></Style>';
+        $x .= '<Style ss:ID="st_draft"><Font ss:Bold="1" ss:Color="#374151" ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#F3F4F6" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/></Borders></Style>';
+        $x .= '</Styles>';
+
+        $x .= '<ss:Worksheet ss:Name="' . $tipeLabel . '"><ss:Table>';
+        foreach ($widths as $w) {
+            $x .= '<ss:Column ss:Width="' . $w . '"/>';
+        }
+
+        // Row 1: Title
+        $x .= '<ss:Row ss:Height="32"><ss:Cell ss:MergeAcross="' . ($colCount - 1) . '" ss:StyleID="title"><ss:Data ss:Type="String">DATA EXPORT ' . $tipeLabel . ' - SIKTN</ss:Data></ss:Cell></ss:Row>';
+        // Row 2: Export info
+        $x .= '<ss:Row ss:Height="18"><ss:Cell ss:MergeAcross="' . ($colCount - 1) . '" ss:StyleID="sub"><ss:Data ss:Type="String">Diekspor pada ' . now()->format('d/m/Y H:i') . ' · Total: ' . $surats->count() . ' surat</ss:Data></ss:Cell></ss:Row>';
+        // Row 3: Spacer
+        $x .= '<ss:Row ss:Height="6"></ss:Row>';
+        // Row 4: Header
+        $x .= '<ss:Row ss:Height="26">';
+        foreach ($headers as $h) {
+            $x .= '<ss:Cell ss:StyleID="h"><ss:Data ss:Type="String">' . htmlspecialchars($h) . '</ss:Data></ss:Cell>';
+        }
+        $x .= '</ss:Row>';
+
+        // Data rows
+        foreach ($surats as $i => $s) {
+            $style = ($i % 2 === 0) ? 'o' : 'e';
+            $statusStyle = match($s->status) {
+                'Terbit'      => 'st_terbit',
+                'Pending TTD' => 'st_pending',
+                'Revisi'      => 'st_revisi',
+                default       => 'st_draft',
+            };
+            $tanggalFmt = \Carbon\Carbon::parse($s->tanggal)->format('d/m/Y');
+
+            $x .= '<ss:Row ss:Height="22">';
+            $x .= '<ss:Cell ss:StyleID="' . $style . '"><ss:Data ss:Type="String">' . ($i + 1) . '</ss:Data></ss:Cell>';
+            $x .= '<ss:Cell ss:StyleID="' . $style . '"><ss:Data ss:Type="String">' . htmlspecialchars($s->nomor_surat ?? '') . '</ss:Data></ss:Cell>';
+            $x .= '<ss:Cell ss:StyleID="' . $style . '"><ss:Data ss:Type="String">' . ucfirst($s->klasifikasi ?? '') . '</ss:Data></ss:Cell>';
+            $x .= '<ss:Cell ss:StyleID="' . $style . '"><ss:Data ss:Type="String">' . htmlspecialchars($s->perihal ?? '') . '</ss:Data></ss:Cell>';
+            $x .= '<ss:Cell ss:StyleID="' . $style . '"><ss:Data ss:Type="String">' . htmlspecialchars($s->pengirim_tujuan ?? '') . '</ss:Data></ss:Cell>';
+            $x .= '<ss:Cell ss:StyleID="' . $style . '"><ss:Data ss:Type="String">' . $tanggalFmt . '</ss:Data></ss:Cell>';
+            $x .= '<ss:Cell ss:StyleID="' . $statusStyle . '"><ss:Data ss:Type="String">' . htmlspecialchars($s->status ?? '') . '</ss:Data></ss:Cell>';
+            $x .= '</ss:Row>';
+        }
+
+        $x .= '</ss:Table></ss:Worksheet></Workbook>';
+
+        return response($x)
+            ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
+            ->header('Cache-Control', 'no-cache, must-revalidate');
+    }
+
+    /**
      * Import Data Massal Surat via Excel (JSON parsed from SheetJS)
      */
 
     public function import(Request $request)
     {
+
         $admin = Auth::guard('admin')->user();
 
         $request->validate([

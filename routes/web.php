@@ -80,7 +80,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('surat/bulk-store', [SuratController::class, 'bulkStore'])->name('surat.bulk-store');
             Route::post('surat', [SuratController::class, 'store'])->name('surat.store');
             Route::post('surat/bulk-delete', [SuratController::class, 'bulkDelete'])->name('surat.bulk-delete');
-            Route::post('surat/bulk-download', [SuratController::class, 'bulkDownload'])->name('surat.bulk-download');
+            Route::post('surat/bulk-export', [SuratController::class, 'bulkExport'])->name('surat.bulk-export');
+
             Route::patch('surat/{id}/status', [SuratController::class, 'updateStatus'])->name('surat.update-status');
             Route::post('surat/{id}/upload-signed', [SuratController::class, 'uploadSigned'])->name('surat.upload-signed');
             Route::delete('surat/{id}', [SuratController::class, 'destroy'])->name('surat.destroy');
