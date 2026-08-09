@@ -1039,7 +1039,7 @@
     <!-- ============================== -->
     <div class="modal-overlay" id="modalImportSurat" onclick="if(event.target===this) closeModal('modalImportSurat')">
         <div class="modal-content-lg" style="max-width: 920px; max-height: 88vh;">
-            <div class="modal-header-prof">
+            <div class="modal-header-prof" style="background: linear-gradient(135deg, #022648 0%, #01162f 100%); padding: 1.25rem 1.5rem; color: white;">
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(183, 131, 15, 0.2); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(183, 131, 15, 0.4);">
                         <svg viewBox="0 0 24 24" width="22" height="22" stroke="#b7830f" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -1067,8 +1067,9 @@
                             </a>
                         </div>
                         <p style="font-size: 0.8125rem; color: #64748b; margin: 0; line-height: 1.5;">
-                            Silakan unduh berkas contoh untuk melihat susunan kolom: <strong>Nomor Surat, Perihal, {{ $tipe == 'masuk' ? 'Pengirim' : 'Tujuan' }}, Tanggal Surat, Klasifikasi, Status, Link Google Drive, Keterangan</strong>.
+                            Silakan unduh berkas contoh di atas untuk melihat susunan kolom: <strong>No., Tanggal Diterima, Pengirim, Perihal, No Surat, Arsip PDF (link Google Drive), Balasan, Arsip Surat Balasan</strong>.
                         </p>
+
                     </div>
 
                     <div class="form-group-full">
