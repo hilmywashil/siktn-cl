@@ -509,39 +509,90 @@ class SuratController extends Controller
         if (!in_array($tipe, ['masuk', 'keluar'])) $tipe = 'masuk';
 
         $fileName = $tipe === 'masuk' ? 'Template_Import_Surat_Masuk.xls' : 'Template_Import_Surat_Keluar.xls';
-        $filePath = public_path('templates/' . $fileName);
-        $fallbackPath = public_path('templates/TemplateSuratMasuk.xls');
-        $rootPath = base_path('TemplateSuratMasuk.xls');
 
-        if (file_exists($filePath)) {
-            return response()->download($filePath, $fileName, [
-                'Content-Type' => 'application/vnd.ms-excel',
-            ]);
-        } elseif (file_exists($fallbackPath)) {
-            return response()->download($fallbackPath, $fileName, [
-                'Content-Type' => 'application/vnd.ms-excel',
-            ]);
-        } elseif (file_exists($rootPath)) {
-            return response()->download($rootPath, $fileName, [
-                'Content-Type' => 'application/vnd.ms-excel',
-            ]);
+        // Kolom sesuai SURAT MASUK.xlsx asli:
+        // No. | TANGGAL DITERIMA | PENGIRIM | PERIHAL | NO SURAT | ARSIP PDF (link drive hyperlink) | BALASAN | ARSIP SURAT BALASAN
+        $headers = ['No.', 'TANGGAL DITERIMA', 'PENGIRIM', 'PERIHAL', 'NO SURAT', 'ARSIP PDF', 'BALASAN', 'ARSIP SURAT BALASAN'];
+        $widths  = [30, 90, 140, 220, 140, 200, 120, 200];
+
+        $dataEksternal = [
+            ['1', '09/08/2026', 'PPKT JATENG', 'Tembusan Pemberitahuan TKKT Grobogan tidak sah', '014/KT-PPJT/II/2026', 'https://drive.google.com/file/d/contoh1/view', '', ''],
+            ['2', '09/08/2026', 'BELAS KASIH', 'PERMOHONAN AUDIENSI', '068/BK/IV/2026', '', '', ''],
+            ['3', '09/08/2026', 'UMJ', 'PERMOHONAN STUDI MAHASISWA', '222/F.1-UMJ/IV/2026', 'https://drive.google.com/file/d/contoh3/view', 'ada surat balasan', ''],
+        ];
+
+        $dataInternal = [
+            ['1', '01/08/2026', 'PKKT ACEH TIMUR', 'Keberlanjutan TR-PNKT', '02.01/100/2026', 'https://drive.google.com/file/d/contoh_int1/view', 'Tidak ada Balasan', ''],
+            ['2', '18/01/2026', 'PPKT BANTEN', 'Permohonan Penyelesaian Konflik PPKT Pandeglang', '02/B/KT-BTN/I/2026', 'https://drive.google.com/file/d/contoh_int2/view', '', ''],
+        ];
+
+        // Build SpreadsheetML XML (multi-sheet XLS)
+        $x = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $x .= '<?mso-application progid="Excel.Sheet"?>' . "\n";
+        $x .= '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">' . "\n";
+        $x .= '<Styles>';
+        $x .= '<Style ss:ID="h"><Font ss:Bold="1" ss:Color="#B7830F" ss:Size="11" ss:FontName="Calibri"/><Interior ss:Color="#022648" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style>';
+        $x .= '<Style ss:ID="o"><Font ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#F9FAFB" ss:Pattern="Solid"/><Alignment ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/></Borders></Style>';
+        $x .= '<Style ss:ID="e"><Font ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/><Alignment ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/></Borders></Style>';
+        $x .= '<Style ss:ID="lnk"><Font ss:Color="#1D4ED8" ss:Underline="Single" ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#F9FAFB" ss:Pattern="Solid"/><Alignment ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/></Borders></Style>';
+        $x .= '<Style ss:ID="n"><Font ss:Italic="1" ss:Color="#6B7280" ss:Size="9" ss:FontName="Calibri"/></Style>';
+        $x .= '</Styles>';
+
+        foreach (['EKSTERNAL' => $dataEksternal, 'INTERNAL' => $dataInternal] as $sheetName => $rows) {
+            $x .= '<ss:Worksheet ss:Name="' . $sheetName . '"><ss:Table>';
+            foreach ($widths as $w) {
+                $x .= '<ss:Column ss:Width="' . $w . '"/>';
+            }
+            // Header
+            $x .= '<ss:Row ss:Height="26">';
+            foreach ($headers as $h) {
+                $x .= '<ss:Cell ss:StyleID="h"><ss:Data ss:Type="String">' . htmlspecialchars($h) . '</ss:Data></ss:Cell>';
+            }
+            $x .= '</ss:Row>';
+            // Sample data rows
+            foreach ($rows as $i => $row) {
+                $x .= '<ss:Row ss:Height="20">';
+                foreach ($row as $ci => $cell) {
+                    // Column 5 (index 5) = ARSIP PDF: render as hyperlink style if it's a URL
+                    $isLink = ($ci === 5 && str_starts_with($cell, 'http'));
+                    $style  = $isLink ? 'lnk' : (($i % 2 === 0) ? 'o' : 'e');
+                    $x .= '<ss:Cell ss:StyleID="' . $style . '"';
+                    if ($isLink && $cell !== '') {
+                        $x .= ' ss:HRef="' . htmlspecialchars($cell) . '"';
+                    }
+                    $x .= '><ss:Data ss:Type="String">' . htmlspecialchars($cell) . '</ss:Data></ss:Cell>';
+                }
+                $x .= '</ss:Row>';
+            }
+            // 40 blank rows
+            for ($e = 0; $e < 40; $e++) {
+                $no   = count($rows) + $e + 1;
+                $styleRow = (($e + count($rows)) % 2 === 0) ? 'o' : 'e';
+                $x .= '<ss:Row ss:Height="20"><ss:Cell ss:StyleID="' . $styleRow . '"><ss:Data ss:Type="String">' . $no . '</ss:Data></ss:Cell>';
+                for ($c = 1; $c < count($headers); $c++) {
+                    $x .= '<ss:Cell ss:StyleID="' . $styleRow . '"><ss:Data ss:Type="String"></ss:Data></ss:Cell>';
+                }
+                $x .= '</ss:Row>';
+            }
+            // Notes
+            $notes = [
+                '* Kolom ARSIP PDF: isi dengan link Google Drive (hyperlink) ke file PDF arsip surat',
+                '* Kolom BALASAN: isi keterangan jika ada surat balasan (contoh: ada surat balasan)',
+                '* Kolom ARSIP SURAT BALASAN: isi dengan link Drive atau nama file balasan',
+                '* TANGGAL DITERIMA: format DD/MM/YYYY atau YYYY-MM-DD',
+            ];
+            foreach ($notes as $note) {
+                $x .= '<ss:Row><ss:Cell ss:MergeAcross="7" ss:StyleID="n"><ss:Data ss:Type="String">' . htmlspecialchars($note) . '</ss:Data></ss:Cell></ss:Row>';
+            }
+            $x .= '</ss:Table></ss:Worksheet>';
         }
 
-        $labelPengirim = $tipe === 'masuk' ? 'PENGIRIM' : 'TUJUAN';
-        $html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
-        $html .= '<head><meta charset="utf-8"></head><body>';
-        $html .= '<table style="font-family: Arial, sans-serif; border-collapse: collapse;">';
-        $html .= '<tr><td colspan="9" style="text-align: center; font-size: 14pt; font-weight: bold; padding: 10px; color: #022648; background-color: #f1f5f9;">TEMPLATE IMPORT SURAT ' . strtoupper($tipe) . ' - SIKTN</td></tr>';
-        $html .= '<thead><tr style="background-color: #022648; color: #b7830f; font-weight: bold; text-align: center;">';
-        $html .= '<th>NO</th><th>NOMOR SURAT</th><th>PERIHAL</th><th>' . $labelPengirim . '</th><th>TANGGAL SURAT</th><th>KLASIFIKASI</th><th>STATUS</th><th>LINK GOOGLE DRIVE</th><th>KETERANGAN</th>';
-        $html .= '</tr></thead><tbody>';
-        $html .= '<tr style="background-color: #f8fafc;">';
-        $html .= '<td>1</td><td>001/SRT-' . strtoupper(substr($tipe, 0, 1)) . '/PNKT/VIII/2026</td><td>Permohonan Audiensi Karang Taruna</td><td>Kementerian Pemuda dan Olahraga</td><td>2026-08-01</td><td>internal</td><td>Terbit</td><td>https://drive.google.com/file/d/example/view</td><td>Surat resmi organisasi</td>';
-        $html .= '</tr></tbody></table></body></html>';
+        $x .= '</Workbook>';
 
-        return response($html)
+        return response($x)
             ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
-            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
+            ->header('Cache-Control', 'no-cache, must-revalidate');
     }
 
     /**
