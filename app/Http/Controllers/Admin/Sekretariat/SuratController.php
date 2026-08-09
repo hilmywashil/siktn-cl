@@ -508,35 +508,26 @@ class SuratController extends Controller
         $tipe = $request->get('tipe', 'masuk');
         if (!in_array($tipe, ['masuk', 'keluar'])) $tipe = 'masuk';
 
-        // ── Surat Masuk: serve template baru (TemplateSuratMasukBaru.xls) ──
-        if ($tipe === 'masuk') {
-            $staticPath = public_path('templates/Template_Import_Surat_Masuk_Baru.xls');
-            if (file_exists($staticPath)) {
-                return response()->download($staticPath, 'Template_Import_Surat_Masuk.xls', [
-                    'Content-Type'  => 'application/vnd.ms-excel',
-                    'Cache-Control' => 'no-cache, must-revalidate',
-                ]);
-            }
-        }
-
         $fileName = $tipe === 'masuk' ? 'Template_Import_Surat_Masuk.xls' : 'Template_Import_Surat_Keluar.xls';
         $titleLabel = $tipe === 'masuk' ? 'SURAT MASUK' : 'SURAT KELUAR';
         $colCount = 8; // total columns
-
 
         // Kolom sesuai SURAT MASUK.xlsx asli:
         // No. | TANGGAL DITERIMA | PENGIRIM | PERIHAL | NO SURAT | ARSIP PDF | BALASAN | ARSIP SURAT BALASAN
         $headers = ['No.', 'TANGGAL DITERIMA', 'PENGIRIM', 'PERIHAL', 'NO SURAT', 'ARSIP PDF', 'BALASAN', 'ARSIP SURAT BALASAN'];
         $widths  = [35, 95, 140, 240, 150, 210, 130, 200];
 
+        $dataInternal = [
+            ['1', '01/08/2026', 'PKKT ACEH TIMUR', 'Keberlanjutan TR-PNKT', '02.01/100/2026', 'https://drive.google.com/file/d/contoh_int1/view', 'Tidak ada Balasan', ''],
+            ['2', '18/01/2026', 'PPKT BANTEN', 'Permohonan Penyelesaian Konflik PPKT Pandeglang', '02/B/KT-BTN/I/2026', 'https://drive.google.com/file/d/contoh_int2/view', '', ''],
+        ];
         $dataEksternal = [
             ['1', '09/08/2026', 'PPKT JATENG', 'Tembusan Pemberitahuan TKKT Grobogan tidak sah', '014/KT-PPJT/II/2026', 'https://drive.google.com/file/d/contoh1/view', '', ''],
             ['2', '09/08/2026', 'BELAS KASIH', 'PERMOHONAN AUDIENSI', '068/BK/IV/2026', '', '', ''],
             ['3', '09/08/2026', 'UMJ', 'PERMOHONAN STUDI MAHASISWA', '222/F.1-UMJ/IV/2026', 'https://drive.google.com/file/d/contoh3/view', 'ada surat balasan', ''],
         ];
-        $dataInternal = [
-            ['1', '01/08/2026', 'PKKT ACEH TIMUR', 'Keberlanjutan TR-PNKT', '02.01/100/2026', 'https://drive.google.com/file/d/contoh_int1/view', 'Tidak ada Balasan', ''],
-            ['2', '18/01/2026', 'PPKT BANTEN', 'Permohonan Penyelesaian Konflik PPKT Pandeglang', '02/B/KT-BTN/I/2026', 'https://drive.google.com/file/d/contoh_int2/view', '', ''],
+        $dataPenting = [
+            ['1', '09/08/2026', 'KEMENTERIAN PEMUDA DAN OLAHRAGA', 'Permohonan Audiensi Karang Taruna Nasional', '001/SRT-M/PNKT/VIII/2026', 'https://drive.google.com/file/d/contoh_pnt1/view', 'Sangat Penting', ''],
         ];
 
         // Build SpreadsheetML XML
@@ -561,7 +552,14 @@ class SuratController extends Controller
         $x .= '<Style ss:ID="note"><Font ss:Italic="1" ss:Color="#6B7280" ss:Size="9" ss:FontName="Calibri"/><Interior ss:Color="#F3F4F6" ss:Pattern="Solid"/><Alignment ss:Horizontal="Left" ss:Vertical="Center"/></Style>';
         $x .= '</Styles>';
 
-        foreach (['EKSTERNAL' => $dataEksternal, 'INTERNAL' => $dataInternal] as $sheetName => $rows) {
+        $sheets = [
+            'INTERNAL'  => $dataInternal,
+            'EKSTERNAL' => $dataEksternal,
+            'PENTING'   => $dataPenting,
+        ];
+
+        foreach ($sheets as $sheetName => $rows) {
+
             $x .= '<ss:Worksheet ss:Name="' . $sheetName . '"><ss:Table>';
             foreach ($widths as $w) {
                 $x .= '<ss:Column ss:Width="' . $w . '"/>';

@@ -659,22 +659,6 @@
 
     <!-- Filter Box -->
     <div class="filter-card">
-        <!-- Toggle Tipe Surat: Masuk / Keluar -->
-        <div style="display: flex; gap: 8px; margin-bottom: 1rem; padding-bottom: 0.85rem; border-bottom: 1px solid var(--gray-200);">
-            <a href="{{ route('admin.sekretariat.surat.index', array_merge(request()->except('tipe', 'page'), ['tipe' => 'masuk', 'klasifikasi' => $klasifikasi])) }}"
-               style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 18px; border-radius: 20px; font-size: 0.82rem; font-weight: 700; text-decoration: none; transition: all 0.2s;
-                      {{ $tipe == 'masuk' ? 'background: #022648; color: white; box-shadow: 0 2px 8px rgba(2,38,72,0.2);' : 'background: var(--gray-100); color: var(--gray-600); border: 1px solid var(--gray-200);' }}">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                Surat Masuk
-            </a>
-            <a href="{{ route('admin.sekretariat.surat.index', array_merge(request()->except('tipe', 'page'), ['tipe' => 'keluar', 'klasifikasi' => $klasifikasi])) }}"
-               style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 18px; border-radius: 20px; font-size: 0.82rem; font-weight: 700; text-decoration: none; transition: all 0.2s;
-                      {{ $tipe == 'keluar' ? 'background: #022648; color: white; box-shadow: 0 2px 8px rgba(2,38,72,0.2);' : 'background: var(--gray-100); color: var(--gray-600); border: 1px solid var(--gray-200);' }}">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Surat Keluar
-            </a>
-        </div>
-
         <form action="{{ route('admin.sekretariat.surat.index') }}" method="GET">
             <input type="hidden" name="tipe" value="{{ $tipe }}">
             <div class="filter-grid">
@@ -1133,9 +1117,10 @@
                             <table style="width: 100%; border-collapse: collapse;">
                                 <thead>
                                     <tr style="background: #022648; color: white;">
-                                        <th style="padding: 10px 12px; text-align: left; width: 30%;">No Surat</th>
-                                        <th style="padding: 10px 12px; text-align: left; width: 35%;">Perihal</th>
-                                        <th style="padding: 10px 12px; text-align: left; width: 20%;">{{ $tipe == 'masuk' ? 'Pengirim' : 'Tujuan' }}</th>
+                                        <th style="padding: 10px 12px; text-align: left; width: 25%;">No Surat</th>
+                                        <th style="padding: 10px 12px; text-align: center; width: 14%;">Klasifikasi</th>
+                                        <th style="padding: 10px 12px; text-align: left; width: 30%;">Perihal</th>
+                                        <th style="padding: 10px 12px; text-align: left; width: 16%;">{{ $tipe == 'masuk' ? 'Pengirim' : 'Tujuan' }}</th>
                                         <th style="padding: 10px 12px; text-align: center; width: 10%;">Tanggal</th>
                                         <th style="padding: 10px 12px; text-align: center; width: 5%;">Aksi</th>
                                     </tr>
@@ -1670,10 +1655,23 @@
             const bgStyle = r.is_duplicate ? 'background: #fef2f2;' : '';
             const dupBadge = r.is_duplicate ? `<span style="display: inline-block; background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin-top: 4px;">${r.dup_reason}</span>` : '';
 
+            let klassBadge = '';
+            const k = (r.klasifikasi || 'internal').toLowerCase();
+            if (k === 'penting') {
+                klassBadge = '<span style="display:inline-block; background:#fef3c7; color:#b7830f; border:1px solid #fde68a; padding:2px 8px; border-radius:12px; font-size:0.7rem; font-weight:800; text-transform:uppercase;">PENTING</span>';
+            } else if (k === 'eksternal') {
+                klassBadge = '<span style="display:inline-block; background:#d1fae5; color:#047857; border:1px solid #a7f3d0; padding:2px 8px; border-radius:12px; font-size:0.7rem; font-weight:800; text-transform:uppercase;">EKSTERNAL</span>';
+            } else {
+                klassBadge = '<span style="display:inline-block; background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; padding:2px 8px; border-radius:12px; font-size:0.7rem; font-weight:800; text-transform:uppercase;">INTERNAL</span>';
+            }
+
             tbody.innerHTML += `<tr style="${bgStyle}">
                 <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top;">
                     <div style="font-weight: 700; color: #022648; font-size: 0.8125rem;">${r.nomor_surat}</div>
                     ${dupBadge}
+                </td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: center; vertical-align: top;">
+                    ${klassBadge}
                 </td>
                 <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; font-size: 0.8125rem; color: #334155; line-height: 1.4;">${r.perihal}</td>
                 <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; font-size: 0.8125rem; color: #475569;">${r.pengirim_tujuan}</td>
