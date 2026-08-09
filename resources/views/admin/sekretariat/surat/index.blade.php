@@ -67,6 +67,39 @@
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
+    .surat-title-link {
+        font-weight: 700;
+        color: var(--navy);
+        text-decoration: none;
+        transition: color 0.15s ease, text-decoration 0.15s ease;
+        display: inline-block;
+        line-height: 1.35;
+    }
+    .surat-title-link:hover {
+        color: var(--blue);
+        text-decoration: underline;
+    }
+    .badge-link-type {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.725rem;
+        font-weight: 600;
+        padding: 2px 7px;
+        border-radius: 4px;
+        background: #f1f5f9;
+        color: #475569;
+        margin-top: 4px;
+    }
+    .badge-link-type.drive {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+    .badge-link-type.pdf {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
     /* Summary Stat Cards */
     .stat-cards-grid {
         display: grid;
@@ -723,8 +756,38 @@
                             <span style="font-size: 0.75rem; text-transform: uppercase; padding: 3px 8px; background: var(--gray-200); border-radius: 4px; font-weight: 600;">{{ ucfirst($item->klasifikasi) }}</span>
                         </td>
                         <td>
-                            <div style="font-weight: 600;">{{ $item->perihal }}</div>
-                            <div style="font-size: 0.8rem; color: var(--gray-500);">{{ $tipe == 'masuk' ? 'Pengirim' : 'Tujuan' }}: {{ $item->pengirim_tujuan }}</div>
+                            <div>
+                                @if($item->link_drive)
+                                    <a href="{{ $item->link_drive }}" target="_blank" class="surat-title-link" title="Buka Arsip Google Drive: {{ $item->perihal }}">
+                                        {{ $item->perihal }} ↗
+                                    </a>
+                                @elseif($item->file_lampiran)
+                                    <a href="javascript:void(0)" onclick="previewSuratLampiran('{{ Storage::url($item->file_lampiran) }}', '{{ addslashes($item->perihal) }}')" class="surat-title-link" title="Pratinjau File PDF: {{ $item->perihal }}">
+                                        {{ $item->perihal }}
+                                    </a>
+                                @else
+                                    <span style="font-weight: 700; color: var(--navy);">{{ $item->perihal }}</span>
+                                @endif
+                            </div>
+
+                            <div style="font-size: 0.8rem; color: var(--gray-500); margin-top: 2px;">
+                                {{ $tipe == 'masuk' ? 'Pengirim' : 'Tujuan' }}: <strong>{{ $item->pengirim_tujuan }}</strong>
+                            </div>
+
+                            <div style="margin-top: 4px; display: flex; gap: 4px; flex-wrap: wrap;">
+                                @if($item->file_lampiran)
+                                    <span class="badge-link-type pdf" onclick="previewSuratLampiran('{{ Storage::url($item->file_lampiran) }}', '{{ addslashes($item->perihal) }}')" style="cursor: pointer;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                        PDF Arsip
+                                    </span>
+                                @endif
+                                @if($item->link_drive)
+                                    <a href="{{ $item->link_drive }}" target="_blank" class="badge-link-type drive" style="text-decoration: none;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                        Google Drive
+                                    </a>
+                                @endif
+                            </div>
                         </td>
                         <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}</td>
                         <td>

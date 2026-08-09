@@ -510,28 +510,38 @@ class SuratController extends Controller
 
         $fileName = $tipe === 'masuk' ? 'Template_Import_Surat_Masuk.xls' : 'Template_Import_Surat_Keluar.xls';
         $filePath = public_path('templates/' . $fileName);
+        $fallbackPath = public_path('templates/TemplateSuratMasuk.xls');
+        $rootPath = base_path('TemplateSuratMasuk.xls');
 
-        if (!file_exists($filePath)) {
-            $labelPengirim = $tipe === 'masuk' ? 'PENGIRIM' : 'TUJUAN';
-            $html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
-            $html .= '<head><meta charset="utf-8"></head><body>';
-            $html .= '<table style="font-family: Arial, sans-serif; border-collapse: collapse;">';
-            $html .= '<tr><td colspan="9" style="text-align: center; font-size: 14pt; font-weight: bold; padding: 10px; color: #022648; background-color: #f1f5f9;">TEMPLATE IMPORT SURAT ' . strtoupper($tipe) . ' - SIKTN</td></tr>';
-            $html .= '<thead><tr style="background-color: #022648; color: #b7830f; font-weight: bold; text-align: center;">';
-            $html .= '<th>NO</th><th>NOMOR SURAT</th><th>PERIHAL</th><th>' . $labelPengirim . '</th><th>TANGGAL SURAT</th><th>KLASIFIKASI</th><th>STATUS</th><th>LINK GOOGLE DRIVE</th><th>KETERANGAN</th>';
-            $html .= '</tr></thead><tbody>';
-            $html .= '<tr style="background-color: #f8fafc;">';
-            $html .= '<td>1</td><td>001/SRT-' . strtoupper(substr($tipe, 0, 1)) . '/PNKT/VIII/2026</td><td>Permohonan Audiensi Karang Taruna</td><td>Kementerian Pemuda dan Olahraga</td><td>2026-08-01</td><td>internal</td><td>Terbit</td><td>https://drive.google.com/file/d/example/view</td><td>Surat resmi organisasi</td>';
-            $html .= '</tr></tbody></table></body></html>';
-
-            return response($html)
-                ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
-                ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+        if (file_exists($filePath)) {
+            return response()->download($filePath, $fileName, [
+                'Content-Type' => 'application/vnd.ms-excel',
+            ]);
+        } elseif (file_exists($fallbackPath)) {
+            return response()->download($fallbackPath, $fileName, [
+                'Content-Type' => 'application/vnd.ms-excel',
+            ]);
+        } elseif (file_exists($rootPath)) {
+            return response()->download($rootPath, $fileName, [
+                'Content-Type' => 'application/vnd.ms-excel',
+            ]);
         }
 
-        return response()->download($filePath, $fileName, [
-            'Content-Type' => 'application/vnd.ms-excel',
-        ]);
+        $labelPengirim = $tipe === 'masuk' ? 'PENGIRIM' : 'TUJUAN';
+        $html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+        $html .= '<head><meta charset="utf-8"></head><body>';
+        $html .= '<table style="font-family: Arial, sans-serif; border-collapse: collapse;">';
+        $html .= '<tr><td colspan="9" style="text-align: center; font-size: 14pt; font-weight: bold; padding: 10px; color: #022648; background-color: #f1f5f9;">TEMPLATE IMPORT SURAT ' . strtoupper($tipe) . ' - SIKTN</td></tr>';
+        $html .= '<thead><tr style="background-color: #022648; color: #b7830f; font-weight: bold; text-align: center;">';
+        $html .= '<th>NO</th><th>NOMOR SURAT</th><th>PERIHAL</th><th>' . $labelPengirim . '</th><th>TANGGAL SURAT</th><th>KLASIFIKASI</th><th>STATUS</th><th>LINK GOOGLE DRIVE</th><th>KETERANGAN</th>';
+        $html .= '</tr></thead><tbody>';
+        $html .= '<tr style="background-color: #f8fafc;">';
+        $html .= '<td>1</td><td>001/SRT-' . strtoupper(substr($tipe, 0, 1)) . '/PNKT/VIII/2026</td><td>Permohonan Audiensi Karang Taruna</td><td>Kementerian Pemuda dan Olahraga</td><td>2026-08-01</td><td>internal</td><td>Terbit</td><td>https://drive.google.com/file/d/example/view</td><td>Surat resmi organisasi</td>';
+        $html .= '</tr></tbody></table></body></html>';
+
+        return response($html)
+            ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
     }
 
     /**
