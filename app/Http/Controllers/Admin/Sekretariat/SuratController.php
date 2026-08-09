@@ -635,22 +635,12 @@ class SuratController extends Controller
 
         $x .= '</Workbook>';
 
-        // ── Untuk Surat Masuk: serve file template baru (TemplateSuratMasukBaru.xls) ──
-        if ($tipe === 'masuk') {
-            $staticPath = public_path('templates/Template_Import_Surat_Masuk_Baru.xls');
-            if (file_exists($staticPath)) {
-                return response()->download($staticPath, 'Template_Import_Surat_Masuk.xls', [
-                    'Content-Type'        => 'application/vnd.ms-excel',
-                    'Cache-Control'       => 'no-cache, must-revalidate',
-                ]);
-            }
-        }
-
         return response($x)
             ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
             ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
             ->header('Cache-Control', 'no-cache, must-revalidate');
     }
+
 
 
 
