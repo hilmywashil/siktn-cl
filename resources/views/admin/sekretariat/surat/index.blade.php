@@ -661,11 +661,19 @@
     <div class="filter-card">
         <form action="{{ route('admin.sekretariat.surat.index') }}" method="GET">
             <input type="hidden" name="tipe" value="{{ $tipe }}">
-            <input type="hidden" name="klasifikasi" value="{{ $klasifikasi }}">
             <div class="filter-grid">
                 <div class="form-group">
                     <label for="search">Cari No. Surat / Perihal</label>
                     <input type="text" name="search" id="search" class="form-control" placeholder="Ketik kata kunci..." value="{{ request('search') }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="filter_klasifikasi">Klasifikasi</label>
+                    <select name="klasifikasi" id="filter_klasifikasi" class="form-control select2-basic">
+                        <option value="internal" {{ $klasifikasi == 'internal' ? 'selected' : '' }}>Internal</option>
+                        <option value="eksternal" {{ $klasifikasi == 'eksternal' ? 'selected' : '' }}>Eksternal</option>
+                        <option value="penting" {{ $klasifikasi == 'penting' ? 'selected' : '' }}>Penting</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
