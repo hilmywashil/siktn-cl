@@ -508,7 +508,7 @@ class SuratController extends Controller
         $tipe = $request->get('tipe', 'masuk');
         if (!in_array($tipe, ['masuk', 'keluar'])) $tipe = 'masuk';
 
-        // ── Serve file TemplateMasuk3.0.xls asli untuk Surat Masuk ──
+        // ── Serve file TemplateMasuk3.0.xls / TemplateKeluar3.0.xls asli ──
         if ($tipe === 'masuk') {
             $staticPath = public_path('templates/TemplateMasuk3.0.xls');
             if (file_exists($staticPath)) {
@@ -517,9 +517,18 @@ class SuratController extends Controller
                     'Cache-Control' => 'no-cache, must-revalidate',
                 ]);
             }
+        } elseif ($tipe === 'keluar') {
+            $staticPath = public_path('templates/TemplateKeluar3.0.xls');
+            if (file_exists($staticPath)) {
+                return response()->download($staticPath, 'TemplateKeluar3.0.xls', [
+                    'Content-Type'  => 'application/vnd.ms-excel',
+                    'Cache-Control' => 'no-cache, must-revalidate',
+                ]);
+            }
         }
 
         $fileName = $tipe === 'masuk' ? 'Template_Import_Surat_Masuk.xls' : 'Template_Import_Surat_Keluar.xls';
+
 
         $titleLabel = $tipe === 'masuk' ? 'SURAT MASUK' : 'SURAT KELUAR';
         $colCount = 8; // total columns
@@ -754,6 +763,113 @@ class SuratController extends Controller
             ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
             ->header('Cache-Control', 'no-cache, must-revalidate');
     }
+
+    /**
+     * Export Full Rekapitulasi Surat (3 Sheet: INTERNAL, EKSTERNAL, PENTING)
+     */
+    public function exportRekap(Request $request)
+    {
+        $tipe = $request->get('tipe', 'masuk');
+        if (!in_array($tipe, ['masuk', 'keluar'])) $tipe = 'masuk';
+
+        $tipeTitle  = $tipe === 'masuk' ? 'SURAT MASUK' : 'SURAT KELUAR';
+        $pengirimCol = $tipe === 'masuk' ? 'PENGIRIM' : 'TUJUAN';
+        $fileName   = 'Rekapitulasi_' . str_replace(' ', '_', $tipeTitle) . '_' . date('Ymd_His') . '.xls';
+        $colCount   = 8;
+        $widths     = [40, 160, 100, 240, 160, 90, 110, 220];
+        $headers    = ['NO.', 'NO. SURAT', 'KLASIFIKASI', 'PERIHAL', $pengirimCol, 'TANGGAL', 'STATUS', 'LINK ARSIP PDF'];
+
+        $x  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $x .= '<?mso-application progid="Excel.Sheet"?>' . "\n";
+        $x .= '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">' . "\n";
+
+        // Styles
+        $x .= '<Styles>';
+        $x .= '<Style ss:ID="title"><Font ss:Bold="1" ss:Color="#022648" ss:Size="14" ss:FontName="Calibri"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style>';
+        $x .= '<Style ss:ID="sub"><Font ss:Italic="1" ss:Color="#64748b" ss:Size="9" ss:FontName="Calibri"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style>';
+        $x .= '<Style ss:ID="h"><Font ss:Bold="1" ss:Color="#B7830F" ss:Size="10" ss:FontName="Calibri"/><Interior ss:Color="#022648" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#B7830F"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#B7830F"/></Borders></Style>';
+        $x .= '<Style ss:ID="o"><Font ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#F8FAFC" ss:Pattern="Solid"/><Alignment ss:Vertical="Center" ss:WrapText="1"/><NumberFormat ss:Format="@"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/></Borders></Style>';
+        $x .= '<Style ss:ID="e"><Font ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/><Alignment ss:Vertical="Center" ss:WrapText="1"/><NumberFormat ss:Format="@"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/></Borders></Style>';
+        $x .= '<Style ss:ID="lnk"><Font ss:Color="#1155CC" ss:Underline="Single" ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#EFF6FF" ss:Pattern="Solid"/><Alignment ss:Vertical="Center"/><NumberFormat ss:Format="@"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BFDBFE"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BFDBFE"/></Borders></Style>';
+        $x .= '<Style ss:ID="st_terbit"><Font ss:Bold="1" ss:Color="#065F46" ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#D1FAE5" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/></Borders></Style>';
+        $x .= '<Style ss:ID="st_pending"><Font ss:Bold="1" ss:Color="#92400E" ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#FEF3C7" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/></Borders></Style>';
+        $x .= '<Style ss:ID="st_revisi"><Font ss:Bold="1" ss:Color="#991B1B" ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#FEE2E2" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/></Borders></Style>';
+        $x .= '<Style ss:ID="st_draft"><Font ss:Bold="1" ss:Color="#374151" ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#F3F4F6" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/></Borders></Style>';
+        $x .= '</Styles>';
+
+        $sheetsMap = [
+            'INTERNAL'  => 'internal',
+            'EKSTERNAL' => 'eksternal',
+            'PENTING'   => 'penting',
+        ];
+
+        foreach ($sheetsMap as $sheetTitle => $klasifikasiVal) {
+            $surats = Surat::where('tipe', $tipe)
+                ->where('klasifikasi', $klasifikasiVal)
+                ->orderBy('tanggal', 'desc')
+                ->get();
+
+            $x .= '<ss:Worksheet ss:Name="' . $sheetTitle . '"><ss:Table>';
+            foreach ($widths as $w) {
+                $x .= '<ss:Column ss:Width="' . $w . '"/>';
+            }
+
+            // Title & Subtitle
+            $x .= '<ss:Row ss:Height="32"><ss:Cell ss:MergeAcross="' . ($colCount - 1) . '" ss:StyleID="title"><ss:Data ss:Type="String">REKAPITULASI ' . $tipeTitle . ' (' . $sheetTitle . ') - SIKTN</ss:Data></ss:Cell></ss:Row>';
+            $x .= '<ss:Row ss:Height="18"><ss:Cell ss:MergeAcross="' . ($colCount - 1) . '" ss:StyleID="sub"><ss:Data ss:Type="String">Diekspor pada ' . now()->format('d/m/Y H:i') . ' · Total: ' . $surats->count() . ' surat</ss:Data></ss:Cell></ss:Row>';
+            $x .= '<ss:Row ss:Height="6"></ss:Row>';
+
+            // Header
+            $x .= '<ss:Row ss:Height="26">';
+            foreach ($headers as $h) {
+                $x .= '<ss:Cell ss:StyleID="h"><ss:Data ss:Type="String">' . htmlspecialchars($h) . '</ss:Data></ss:Cell>';
+            }
+            $x .= '</ss:Row>';
+
+            // Rows
+            if ($surats->isEmpty()) {
+                $x .= '<ss:Row ss:Height="22"><ss:Cell ss:MergeAcross="' . ($colCount - 1) . '" ss:StyleID="e"><ss:Data ss:Type="String">Belum ada data ' . strtolower($tipeTitle) . ' klasifikasi ' . $sheetTitle . '.</ss:Data></ss:Cell></ss:Row>';
+            } else {
+                foreach ($surats as $i => $s) {
+                    $style = ($i % 2 === 0) ? 'o' : 'e';
+                    $statusStyle = match($s->status) {
+                        'Terbit'      => 'st_terbit',
+                        'Pending TTD' => 'st_pending',
+                        'Revisi'      => 'st_revisi',
+                        default       => 'st_draft',
+                    };
+                    $tanggalFmt = \Carbon\Carbon::parse($s->tanggal)->format('d/m/Y');
+                    $linkDrive  = $s->link_drive ?: ($s->file_lampiran ? url(\Illuminate\Support\Facades\Storage::url($s->file_lampiran)) : '');
+
+                    $x .= '<ss:Row ss:Height="22">';
+                    $x .= '<ss:Cell ss:StyleID="' . $style . '"><ss:Data ss:Type="String">' . ($i + 1) . '</ss:Data></ss:Cell>';
+                    $x .= '<ss:Cell ss:StyleID="' . $style . '"><ss:Data ss:Type="String">' . htmlspecialchars($s->nomor_surat ?? '') . '</ss:Data></ss:Cell>';
+                    $x .= '<ss:Cell ss:StyleID="' . $style . '"><ss:Data ss:Type="String">' . ucfirst($s->klasifikasi ?? '') . '</ss:Data></ss:Cell>';
+                    $x .= '<ss:Cell ss:StyleID="' . $style . '"><ss:Data ss:Type="String">' . htmlspecialchars($s->perihal ?? '') . '</ss:Data></ss:Cell>';
+                    $x .= '<ss:Cell ss:StyleID="' . $style . '"><ss:Data ss:Type="String">' . htmlspecialchars($s->pengirim_tujuan ?? '') . '</ss:Data></ss:Cell>';
+                    $x .= '<ss:Cell ss:StyleID="' . $style . '"><ss:Data ss:Type="String">' . $tanggalFmt . '</ss:Data></ss:Cell>';
+                    $x .= '<ss:Cell ss:StyleID="' . $statusStyle . '"><ss:Data ss:Type="String">' . htmlspecialchars($s->status ?? '') . '</ss:Data></ss:Cell>';
+                    
+                    if ($linkDrive) {
+                        $x .= '<ss:Cell ss:StyleID="lnk" ss:HRef="' . htmlspecialchars($linkDrive) . '"><ss:Data ss:Type="String">' . htmlspecialchars($linkDrive) . '</ss:Data></ss:Cell>';
+                    } else {
+                        $x .= '<ss:Cell ss:StyleID="' . $style . '"><ss:Data ss:Type="String">-</ss:Data></ss:Cell>';
+                    }
+                    $x .= '</ss:Row>';
+                }
+            }
+
+            $x .= '</ss:Table></ss:Worksheet>';
+        }
+
+        $x .= '</Workbook>';
+
+        return response($x)
+            ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
+            ->header('Cache-Control', 'no-cache, must-revalidate');
+    }
+
 
     /**
      * Import Data Massal Surat via Excel (JSON parsed from SheetJS)
