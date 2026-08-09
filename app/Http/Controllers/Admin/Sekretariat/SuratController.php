@@ -509,33 +509,44 @@ class SuratController extends Controller
         if (!in_array($tipe, ['masuk', 'keluar'])) $tipe = 'masuk';
 
         $fileName = $tipe === 'masuk' ? 'Template_Import_Surat_Masuk.xls' : 'Template_Import_Surat_Keluar.xls';
+        $titleLabel = $tipe === 'masuk' ? 'SURAT MASUK' : 'SURAT KELUAR';
+        $colCount = 8; // total columns
 
         // Kolom sesuai SURAT MASUK.xlsx asli:
-        // No. | TANGGAL DITERIMA | PENGIRIM | PERIHAL | NO SURAT | ARSIP PDF (link drive hyperlink) | BALASAN | ARSIP SURAT BALASAN
+        // No. | TANGGAL DITERIMA | PENGIRIM | PERIHAL | NO SURAT | ARSIP PDF | BALASAN | ARSIP SURAT BALASAN
         $headers = ['No.', 'TANGGAL DITERIMA', 'PENGIRIM', 'PERIHAL', 'NO SURAT', 'ARSIP PDF', 'BALASAN', 'ARSIP SURAT BALASAN'];
-        $widths  = [30, 90, 140, 220, 140, 200, 120, 200];
+        $widths  = [35, 95, 140, 240, 150, 210, 130, 200];
 
         $dataEksternal = [
             ['1', '09/08/2026', 'PPKT JATENG', 'Tembusan Pemberitahuan TKKT Grobogan tidak sah', '014/KT-PPJT/II/2026', 'https://drive.google.com/file/d/contoh1/view', '', ''],
             ['2', '09/08/2026', 'BELAS KASIH', 'PERMOHONAN AUDIENSI', '068/BK/IV/2026', '', '', ''],
             ['3', '09/08/2026', 'UMJ', 'PERMOHONAN STUDI MAHASISWA', '222/F.1-UMJ/IV/2026', 'https://drive.google.com/file/d/contoh3/view', 'ada surat balasan', ''],
         ];
-
         $dataInternal = [
             ['1', '01/08/2026', 'PKKT ACEH TIMUR', 'Keberlanjutan TR-PNKT', '02.01/100/2026', 'https://drive.google.com/file/d/contoh_int1/view', 'Tidak ada Balasan', ''],
             ['2', '18/01/2026', 'PPKT BANTEN', 'Permohonan Penyelesaian Konflik PPKT Pandeglang', '02/B/KT-BTN/I/2026', 'https://drive.google.com/file/d/contoh_int2/view', '', ''],
         ];
 
-        // Build SpreadsheetML XML (multi-sheet XLS)
-        $x = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        // Build SpreadsheetML XML
+        $x  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $x .= '<?mso-application progid="Excel.Sheet"?>' . "\n";
         $x .= '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">' . "\n";
+
+        // ── Styles ──────────────────────────────────────────────────────────
         $x .= '<Styles>';
-        $x .= '<Style ss:ID="h"><Font ss:Bold="1" ss:Color="#B7830F" ss:Size="11" ss:FontName="Calibri"/><Interior ss:Color="#022648" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style>';
-        $x .= '<Style ss:ID="o"><Font ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#F9FAFB" ss:Pattern="Solid"/><Alignment ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/></Borders></Style>';
-        $x .= '<Style ss:ID="e"><Font ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/><Alignment ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/></Borders></Style>';
-        $x .= '<Style ss:ID="lnk"><Font ss:Color="#1D4ED8" ss:Underline="Single" ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#F9FAFB" ss:Pattern="Solid"/><Alignment ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/></Borders></Style>';
-        $x .= '<Style ss:ID="n"><Font ss:Italic="1" ss:Color="#6B7280" ss:Size="9" ss:FontName="Calibri"/></Style>';
+        // Title row: big bold navy centered
+        $x .= '<Style ss:ID="title"><Font ss:Bold="1" ss:Color="#022648" ss:Size="14" ss:FontName="Calibri"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style>';
+        // Petunjuk/instruction: italic grey
+        $x .= '<Style ss:ID="petunjuk"><Font ss:Italic="1" ss:Color="#374151" ss:Size="10" ss:FontName="Calibri"/><Alignment ss:Horizontal="Left" ss:Vertical="Center" ss:WrapText="1"/></Style>';
+        // Header: navy bg, gold bold text
+        $x .= '<Style ss:ID="h"><Font ss:Bold="1" ss:Color="#B7830F" ss:Size="11" ss:FontName="Calibri"/><Interior ss:Color="#022648" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#B7830F"/></Borders></Style>';
+        // Data rows: all String type, alternating light rows
+        $x .= '<Style ss:ID="o"><Font ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#F9FAFB" ss:Pattern="Solid"/><Alignment ss:Vertical="Center"/><NumberFormat ss:Format="@"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/></Borders></Style>';
+        $x .= '<Style ss:ID="e"><Font ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/><Alignment ss:Vertical="Center"/><NumberFormat ss:Format="@"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#DDDDDD"/></Borders></Style>';
+        // Link style (ARSIP PDF): blue underline
+        $x .= '<Style ss:ID="lnk"><Font ss:Color="#1155CC" ss:Underline="Single" ss:FontName="Calibri" ss:Size="10"/><Interior ss:Color="#EFF6FF" ss:Pattern="Solid"/><Alignment ss:Vertical="Center"/><NumberFormat ss:Format="@"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BFDBFE"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BFDBFE"/></Borders></Style>';
+        // Note footer
+        $x .= '<Style ss:ID="note"><Font ss:Italic="1" ss:Color="#6B7280" ss:Size="9" ss:FontName="Calibri"/><Interior ss:Color="#F3F4F6" ss:Pattern="Solid"/><Alignment ss:Horizontal="Left" ss:Vertical="Center"/></Style>';
         $x .= '</Styles>';
 
         foreach (['EKSTERNAL' => $dataEksternal, 'INTERNAL' => $dataInternal] as $sheetName => $rows) {
@@ -543,17 +554,37 @@ class SuratController extends Controller
             foreach ($widths as $w) {
                 $x .= '<ss:Column ss:Width="' . $w . '"/>';
             }
-            // Header
-            $x .= '<ss:Row ss:Height="26">';
+
+            // ── Row 1: Title ──
+            $x .= '<ss:Row ss:Height="36">';
+            $x .= '<ss:Cell ss:MergeAcross="' . ($colCount - 1) . '" ss:StyleID="title"><ss:Data ss:Type="String">TEMPLATE IMPORT ' . $titleLabel . ' - SIKTN</ss:Data></ss:Cell>';
+            $x .= '</ss:Row>';
+
+            // ── Row 2: Empty ──
+            $x .= '<ss:Row ss:Height="6"></ss:Row>';
+
+            // ── Row 3: Petunjuk ──
+            $petunjuk = 'Petunjuk: Isi data pada kolom di bawah. Format tanggal: DD/MM/YYYY (Contoh: 09/08/2026). '
+                      . 'Kolom ARSIP PDF: isi dengan link Google Drive (contoh: https://drive.google.com/...). '
+                      . 'Kolom BALASAN: isi keterangan balasan jika ada. Jangan mengubah urutan kolom.';
+            $x .= '<ss:Row ss:Height="34">';
+            $x .= '<ss:Cell ss:MergeAcross="' . ($colCount - 1) . '" ss:StyleID="petunjuk"><ss:Data ss:Type="String">' . htmlspecialchars($petunjuk) . '</ss:Data></ss:Cell>';
+            $x .= '</ss:Row>';
+
+            // ── Row 4: Empty ──
+            $x .= '<ss:Row ss:Height="6"></ss:Row>';
+
+            // ── Row 5: Header ──
+            $x .= '<ss:Row ss:Height="28">';
             foreach ($headers as $h) {
                 $x .= '<ss:Cell ss:StyleID="h"><ss:Data ss:Type="String">' . htmlspecialchars($h) . '</ss:Data></ss:Cell>';
             }
             $x .= '</ss:Row>';
-            // Sample data rows
+
+            // ── Sample data rows ──
             foreach ($rows as $i => $row) {
                 $x .= '<ss:Row ss:Height="20">';
                 foreach ($row as $ci => $cell) {
-                    // Column 5 (index 5) = ARSIP PDF: render as hyperlink style if it's a URL
                     $isLink = ($ci === 5 && str_starts_with($cell, 'http'));
                     $style  = $isLink ? 'lnk' : (($i % 2 === 0) ? 'o' : 'e');
                     $x .= '<ss:Cell ss:StyleID="' . $style . '"';
@@ -564,26 +595,31 @@ class SuratController extends Controller
                 }
                 $x .= '</ss:Row>';
             }
-            // 40 blank rows
-            for ($e = 0; $e < 40; $e++) {
-                $no   = count($rows) + $e + 1;
+
+            // ── 50 blank input rows ── (all String type, prevents auto-format)
+            for ($e = 0; $e < 50; $e++) {
+                $no = count($rows) + $e + 1;
                 $styleRow = (($e + count($rows)) % 2 === 0) ? 'o' : 'e';
-                $x .= '<ss:Row ss:Height="20"><ss:Cell ss:StyleID="' . $styleRow . '"><ss:Data ss:Type="String">' . $no . '</ss:Data></ss:Cell>';
-                for ($c = 1; $c < count($headers); $c++) {
+                $x .= '<ss:Row ss:Height="20">';
+                $x .= '<ss:Cell ss:StyleID="' . $styleRow . '"><ss:Data ss:Type="String">' . $no . '</ss:Data></ss:Cell>';
+                for ($c = 1; $c < $colCount; $c++) {
                     $x .= '<ss:Cell ss:StyleID="' . $styleRow . '"><ss:Data ss:Type="String"></ss:Data></ss:Cell>';
                 }
                 $x .= '</ss:Row>';
             }
-            // Notes
+
+            // ── Footer notes ──
+            $x .= '<ss:Row ss:Height="4"></ss:Row>';
             $notes = [
-                '* Kolom ARSIP PDF: isi dengan link Google Drive (hyperlink) ke file PDF arsip surat',
-                '* Kolom BALASAN: isi keterangan jika ada surat balasan (contoh: ada surat balasan)',
-                '* Kolom ARSIP SURAT BALASAN: isi dengan link Drive atau nama file balasan',
-                '* TANGGAL DITERIMA: format DD/MM/YYYY atau YYYY-MM-DD',
+                '* ARSIP PDF: link Google Drive ke file PDF arsip surat (contoh: https://drive.google.com/file/d/xxx/view)',
+                '* BALASAN: keterangan jika ada surat balasan (contoh: ada surat balasan / tidak ada balasan)',
+                '* ARSIP SURAT BALASAN: link Drive atau nama file surat balasan',
+                '* Semua kolom diformat sebagai Teks - jangan mengubah format sel',
             ];
             foreach ($notes as $note) {
-                $x .= '<ss:Row><ss:Cell ss:MergeAcross="7" ss:StyleID="n"><ss:Data ss:Type="String">' . htmlspecialchars($note) . '</ss:Data></ss:Cell></ss:Row>';
+                $x .= '<ss:Row ss:Height="16"><ss:Cell ss:MergeAcross="' . ($colCount - 1) . '" ss:StyleID="note"><ss:Data ss:Type="String">' . htmlspecialchars($note) . '</ss:Data></ss:Cell></ss:Row>';
             }
+
             $x .= '</ss:Table></ss:Worksheet>';
         }
 
@@ -595,9 +631,11 @@ class SuratController extends Controller
             ->header('Cache-Control', 'no-cache, must-revalidate');
     }
 
+
     /**
      * Import Data Massal Surat via Excel (JSON parsed from SheetJS)
      */
+
     public function import(Request $request)
     {
         $admin = Auth::guard('admin')->user();
