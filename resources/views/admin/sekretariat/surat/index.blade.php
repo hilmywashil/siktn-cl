@@ -868,10 +868,10 @@
         </div>
     </div>
 
-    <!-- Floating / Sticky Bulk Action Bar for Surat -->
-    <div id="bulk-action-bar-surat" style="display: none; position: sticky; bottom: 20px; z-index: 99; background: #022648; color: white; padding: 12px 20px; border-radius: 8px; margin-top: 1.25rem; align-items: center; justify-content: space-between; box-shadow: 0 8px 24px rgba(2, 38, 72, 0.25);">
+    <!-- Floating / Sticky Bulk Action Bar for Surat — fixed TOP -->
+    <div id="bulk-action-bar-surat" style="display: none; position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 999; background: #022648; color: white; padding: 10px 20px; border-radius: 8px; align-items: center; justify-content: space-between; box-shadow: 0 6px 24px rgba(2, 38, 72, 0.35); min-width: 520px; gap: 16px;">
         <div style="display: flex; align-items: center; gap: 10px; font-size: 0.875rem;">
-            <span style="background: #b7830f; color: white; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem;" id="selected-surat-count">0</span>
+            <span style="background: #b7830f; color: white; min-width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; padding: 0 6px;" id="selected-surat-count">0</span>
             <strong>Surat Terpilih</strong>
         </div>
         <div style="display: flex; gap: 10px;">
@@ -885,6 +885,9 @@
             </button>
         </div>
     </div>
+
+
+
 
     <form id="bulk-delete-surat-form" action="{{ route('admin.sekretariat.surat.bulk-delete') }}" method="POST" style="display:none;">
         @csrf
