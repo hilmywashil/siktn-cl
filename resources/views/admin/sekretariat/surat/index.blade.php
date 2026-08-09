@@ -1496,65 +1496,86 @@
                 if (typeof XLSX !== 'undefined') {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonSheet = XLSX.utils.sheet_to_json(firstSheet, { header: 1, raw: false });
 
-                    jsonSheet.forEach((rowArray) => {
-                        if (!rowArray || !Array.isArray(rowArray) || rowArray.length < 2) return;
-                        
-                        const rowStr = rowArray.map(c => String(c || '').trim()).join(' ').toLowerCase();
-                        if (rowStr.includes('template import') || rowStr.includes('petunjuk:') || rowStr.includes('nomor surat')) return;
-
-                        let nomor = '';
-                        let perihal = '';
-                        let pengirimTujuan = '';
-                        let tgl = '2026-08-01';
-                        let klasifikasi = 'internal';
-                        let status = 'Terbit';
-                        let link = '';
-
-                        const firstCell = String(rowArray[0] || '').trim();
-                        if (/^\d+$/.test(firstCell) || (rowArray.length >= 3 && String(rowArray[1] || '').trim() !== '')) {
-                            nomor = String(rowArray[1] || '').trim();
-                            perihal = String(rowArray[2] || '').trim();
-                            pengirimTujuan = String(rowArray[3] || '').trim();
-                            tgl = String(rowArray[4] || tgl).trim();
-                            klasifikasi = String(rowArray[5] || klasifikasi).trim();
-                            status = String(rowArray[6] || status).trim();
-                            link = String(rowArray[7] || '').trim();
-                        } else {
-                            nomor = String(rowArray[0] || '').trim();
-                            perihal = String(rowArray[1] || '').trim();
-                            pengirimTujuan = String(rowArray[2] || '').trim();
-                            tgl = String(rowArray[3] || tgl).trim();
-                            klasifikasi = String(rowArray[4] || klasifikasi).trim();
-                            status = String(rowArray[5] || status).trim();
-                            link = String(rowArray[6] || '').trim();
+                    // ── Baca SEMUA sheet → deteksi klasifikasi dari nama sheet ──
+                    workbook.SheetNames.forEach(sheetName => {
+                        // Deteksi klasifikasi dari nama sheet
+                        const sheetNameLower = sheetName.toLowerCase().trim();
+                        let sheetKlasifikasi = 'internal'; // default
+                        if (sheetNameLower.includes('eksternal') || sheetNameLower.includes('external')) {
+                            sheetKlasifikasi = 'eksternal';
+                        } else if (sheetNameLower.includes('penting') || sheetNameLower.includes('priority')) {
+                            sheetKlasifikasi = 'penting';
+                        } else if (sheetNameLower.includes('internal')) {
+                            sheetKlasifikasi = 'internal';
                         }
 
-                        function normDate(s, def) {
-                            if (!s) return def;
-                            const m = String(s).trim().match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-                            if (m) {
-                                let p1 = parseInt(m[1]), p2 = parseInt(m[2]), y = parseInt(m[3]);
-                                if (y < 100) y += 2000;
-                                if (p1 > 12) return `${y}-${String(p2).padStart(2,'0')}-${String(p1).padStart(2,'0')}`;
-                                return `${y}-${String(p1).padStart(2,'0')}-${String(p2).padStart(2,'0')}`;
-                            }
-                            return s;
-                        }
+                        const sheet = workbook.Sheets[sheetName];
+                        const jsonSheet = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' });
 
-                        if (nomor && perihal && nomor.toLowerCase() !== 'nomor surat' && nomor.toLowerCase() !== 'no') {
+                        jsonSheet.forEach((rowArray) => {
+                            if (!rowArray || !Array.isArray(rowArray) || rowArray.length < 2) return;
+
+                            // Skip baris judul, petunjuk, header, dan baris kosong
+                            const rowStr = rowArray.map(c => String(c || '').trim()).join(' ').toLowerCase();
+                            if (rowStr.includes('template import')) return;
+                            if (rowStr.includes('petunjuk:')) return;
+                            if (rowStr.includes('* arsip pdf') || rowStr.includes('* kolom') || rowStr.includes('* tanggal') || rowStr.includes('* semua kolom')) return;
+
+                            // Deteksi baris header: "no." / "tanggal diterima" / "no surat" dll
+                            const firstCell = String(rowArray[0] || '').trim().toLowerCase();
+                            const secondCell = String(rowArray[1] || '').trim().toLowerCase();
+                            if (firstCell === 'no.' || firstCell === 'no' || secondCell === 'tanggal diterima' || secondCell === 'nomor surat') return;
+
+                            // ── Mapping kolom baru: No. | TANGGAL DITERIMA | PENGIRIM | PERIHAL | NO SURAT | ARSIP PDF | BALASAN | ARSIP SURAT BALASAN ──
+                            // Index:                  0      1                  2          3         4          5          6         7
+                            let noUrut     = String(rowArray[0] || '').trim();
+                            let tanggal    = String(rowArray[1] || '').trim();
+                            let pengirim   = String(rowArray[2] || '').trim();
+                            let perihal    = String(rowArray[3] || '').trim();
+                            let noSurat    = String(rowArray[4] || '').trim();
+                            let arsipPdf   = String(rowArray[5] || '').trim(); // link Google Drive
+                            let balasan    = String(rowArray[6] || '').trim();
+                            let arsipBalasan = String(rowArray[7] || '').trim();
+
+                            // Skip jika no surat atau perihal kosong
+                            if (!noSurat && !perihal) return;
+                            if (!noSurat || !perihal) return;
+
+                            // Skip jika row adalah header fallback (nomor_surat berisi teks header)
+                            const noLower = noSurat.toLowerCase();
+                            if (['no surat', 'no. surat', 'nomor surat', 'nomor', 'no'].includes(noLower)) return;
+                            if (['perihal', 'isi'].includes(perihal.toLowerCase())) return;
+
+                            // Normalisasi tanggal: DD/MM/YYYY → YYYY-MM-DD
+                            const normDate = (s, def) => {
+                                if (!s) return def;
+                                // ISO format YYYY-MM-DD
+                                if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+                                // DD/MM/YYYY atau DD-MM-YYYY
+                                const m = String(s).trim().match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})$/);
+                                if (m) {
+                                    let d = parseInt(m[1]), mo = parseInt(m[2]), y = parseInt(m[3]);
+                                    if (y < 100) y += 2000;
+                                    if (d > 12) return `${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                                    return `${y}-${String(d).padStart(2,'0')}-${String(mo).padStart(2,'0')}`;
+                                }
+                                return def;
+                            };
+
+
                             rows.push({
-                                nomor_surat: nomor,
-                                perihal: perihal,
-                                pengirim_tujuan: pengirimTujuan || 'Sekretariat',
-                                tanggal: normDate(tgl, '2026-08-01'),
-                                klasifikasi: klasifikasi,
-                                status: status,
-                                link_drive: link
+                                nomor_surat:    noSurat,
+                                perihal:        perihal,
+                                pengirim_tujuan: pengirim || 'Sekretariat',
+                                tanggal:        normDate(tanggal, '{{ date("Y-m-d") }}'),
+                                klasifikasi:    sheetKlasifikasi, // ← dari nama sheet!
+                                status:         'Terbit',
+                                link_drive:     arsipPdf,    // ARSIP PDF = link Drive
+                                balasan:        balasan,
+                                arsip_balasan:  arsipBalasan,
                             });
-                        }
+                        });
                     });
                 }
             } catch (err) {
@@ -1563,10 +1584,15 @@
 
             if (rows.length > 0) {
                 processRows(rows);
+            } else {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'warning', title: 'Data tidak ditemukan', text: 'Pastikan file menggunakan template yang benar dan ada data yang terisi.', confirmButtonColor: '#022648' });
+                }
             }
         };
         reader.readAsArrayBuffer(file);
     }
+
 
     function renderSuratImportPreview() {
         const rows = window.currentParsedSuratRows || [];
