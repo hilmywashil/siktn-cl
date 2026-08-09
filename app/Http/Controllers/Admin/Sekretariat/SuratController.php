@@ -508,7 +508,19 @@ class SuratController extends Controller
         $tipe = $request->get('tipe', 'masuk');
         if (!in_array($tipe, ['masuk', 'keluar'])) $tipe = 'masuk';
 
+        // ── Serve file TemplateMasuk3.0.xls asli untuk Surat Masuk ──
+        if ($tipe === 'masuk') {
+            $staticPath = public_path('templates/TemplateMasuk3.0.xls');
+            if (file_exists($staticPath)) {
+                return response()->download($staticPath, 'TemplateMasuk3.0.xls', [
+                    'Content-Type'  => 'application/vnd.ms-excel',
+                    'Cache-Control' => 'no-cache, must-revalidate',
+                ]);
+            }
+        }
+
         $fileName = $tipe === 'masuk' ? 'Template_Import_Surat_Masuk.xls' : 'Template_Import_Surat_Keluar.xls';
+
         $titleLabel = $tipe === 'masuk' ? 'SURAT MASUK' : 'SURAT KELUAR';
         $colCount = 8; // total columns
 
