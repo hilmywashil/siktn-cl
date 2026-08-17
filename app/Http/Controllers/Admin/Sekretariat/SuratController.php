@@ -132,8 +132,27 @@ class SuratController extends Controller
         ]);
 
         $fileLampiranPath = null;
+        $linkDrive = $validated['link_drive'] ?? null;
+
         if ($request->hasFile('file_lampiran')) {
-            $fileLampiranPath = $request->file('file_lampiran')->store('surat_lampiran', 'public');
+            $uploadedFile = $request->file('file_lampiran');
+            $fileLampiranPath = $uploadedFile->store('surat_lampiran', 'public');
+
+            // Automatic upload to Google Drive if link_drive is not manually provided
+            if (!$linkDrive) {
+                try {
+                    $driveService = new \App\Services\GoogleDriveService();
+                    if ($driveService->isConfigured()) {
+                        $safeNomor = preg_replace('/[^\w\-]/', '_', $validated['nomor_surat']);
+                        $driveResult = $driveService->uploadFile($uploadedFile, $safeNomor . '_' . $uploadedFile->getClientOriginalName());
+                        if ($driveResult && !empty($driveResult['link'])) {
+                            $linkDrive = $driveResult['link'];
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Google Drive auto upload error: ' . $e->getMessage());
+                }
+            }
         }
 
         $status = $request->get('status', 'Pending TTD');
@@ -150,7 +169,7 @@ class SuratController extends Controller
             'pengirim_tujuan' => $validated['pengirim_tujuan'],
             'status' => $status,
             'file_lampiran' => $fileLampiranPath,
-            'link_drive' => $validated['link_drive'] ?? null,
+            'link_drive' => $linkDrive,
             'created_by' => $admin->id,
         ]);
 
@@ -971,8 +990,26 @@ class SuratController extends Controller
 
         foreach ($items as $idx => $item) {
             $fileLampiranPath = null;
+            $linkDrive = $item['link_drive'] ?? null;
+
             if (isset($files[$idx]) && $files[$idx]->isValid()) {
-                $fileLampiranPath = $files[$idx]->store('surat_lampiran', 'public');
+                $uploadedFile = $files[$idx];
+                $fileLampiranPath = $uploadedFile->store('surat_lampiran', 'public');
+
+                if (!$linkDrive) {
+                    try {
+                        $driveService = new \App\Services\GoogleDriveService();
+                        if ($driveService->isConfigured()) {
+                            $safeNomor = preg_replace('/[^\w\-]/', '_', $item['nomor_surat']);
+                            $driveResult = $driveService->uploadFile($uploadedFile, $safeNomor . '_' . $uploadedFile->getClientOriginalName());
+                            if ($driveResult && !empty($driveResult['link'])) {
+                                $linkDrive = $driveResult['link'];
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::warning('Google Drive bulk auto upload error: ' . $e->getMessage());
+                    }
+                }
             }
 
             $surat = Surat::create([
@@ -984,7 +1021,7 @@ class SuratController extends Controller
                 'pengirim_tujuan' => $item['pengirim_tujuan'],
                 'status' => $item['status'],
                 'file_lampiran' => $fileLampiranPath,
-                'link_drive' => $item['link_drive'] ?? null,
+                'link_drive' => $linkDrive,
                 'created_by' => $admin->id,
             ]);
 
