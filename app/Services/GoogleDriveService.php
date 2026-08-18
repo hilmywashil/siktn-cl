@@ -19,14 +19,19 @@ class GoogleDriveService
 
     public function __construct()
     {
-        $credentialsPath = base_path(env('GOOGLE_DRIVE_CREDENTIALS_PATH', 'storage/app/google-credentials.json'));
+        $clientId     = env('GOOGLE_DRIVE_CLIENT_ID');
+        $clientSecret = env('GOOGLE_DRIVE_CLIENT_SECRET');
+        $refreshToken = env('GOOGLE_DRIVE_REFRESH_TOKEN');
         $this->folderId = env('GOOGLE_DRIVE_FOLDER_ID', '1kj_Duf1cShnzUUA6Z64GQ2VbWKEd99KB');
 
-        if (file_exists($credentialsPath) && !empty($this->folderId)) {
+        if (!empty($clientId) && !empty($clientSecret) && !empty($refreshToken) && !empty($this->folderId)) {
             try {
                 $this->client = new Client();
-                $this->client->setAuthConfig($credentialsPath);
+                $this->client->setClientId($clientId);
+                $this->client->setClientSecret($clientSecret);
+                $this->client->refreshToken($refreshToken);
                 $this->client->addScope(Drive::DRIVE);
+
                 $this->service = new Drive($this->client);
                 $this->isConfigured = true;
             } catch (Throwable $e) {
@@ -62,7 +67,9 @@ class GoogleDriveService
 
             $driveFile = new DriveFile();
             $driveFile->setName($fileName);
-            $driveFile->setParents([$this->folderId]);
+            if ($this->folderId) {
+                $driveFile->setParents([$this->folderId]);
+            }
 
             $content = file_get_contents($filePath);
 
@@ -71,6 +78,7 @@ class GoogleDriveService
                 'mimeType'   => $mimeType,
                 'uploadType' => 'multipart',
                 'fields'     => 'id, name, webViewLink, webContentLink',
+                'supportsAllDrives' => true,
             ]);
 
             // Set public read permission for the uploaded file
@@ -78,7 +86,7 @@ class GoogleDriveService
                 $permission = new Permission();
                 $permission->setRole('reader');
                 $permission->setType('anyone');
-                $this->service->permissions->create($result->id, $permission);
+                $this->service->permissions->create($result->id, $permission, ['supportsAllDrives' => true]);
             } catch (Throwable $pe) {
                 Log::warning('GoogleDriveService permission set error: ' . $pe->getMessage());
             }
@@ -108,7 +116,7 @@ class GoogleDriveService
         try {
             $fileId = $this->extractFileId($fileIdOrUrl);
             if ($fileId) {
-                $this->service->files->delete($fileId);
+                $this->service->files->delete($fileId, ['supportsAllDrives' => true]);
                 return true;
             }
         } catch (Throwable $e) {
