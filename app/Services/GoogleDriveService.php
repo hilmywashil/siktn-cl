@@ -5,8 +5,8 @@ namespace App\Services;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Drive\DriveFile;
-use Google\Service\Drive\Permission;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -16,7 +16,6 @@ class GoogleDriveService
     protected ?Drive $service = null;
     protected ?string $folderId = null;
     protected bool $isConfigured = false;
-    protected array $subfolderCache = [];
 
     public function __construct()
     {
@@ -48,8 +47,8 @@ class GoogleDriveService
     }
 
     /**
-     * Get or create nested subfolders inside the main parent folder
-     * @param string|array $subfolders e.g. ['Surat Masuk', 'Internal'] or 'Surat Keputusan'
+     * Get or create nested subfolders inside the main parent folder with 30-day Cache
+     * @param string|array $subfolders e.g. ['Surat Masuk', 'Internal'] or ['Notulensi Rapat', '2026-08-19 - Rapat Pleno']
      */
     public function getOrCreateSubfolderPath(string|array $subfolders): string
     {
@@ -64,38 +63,33 @@ class GoogleDriveService
             return $currentParentId;
         }
 
-        $cachePathKey = implode('/', array_map('trim', $folderArray));
-        if (isset($this->subfolderCache[$cachePathKey])) {
-            return $this->subfolderCache[$cachePathKey];
-        }
-
         foreach ($folderArray as $name) {
             $name = trim($name);
             if (empty($name)) continue;
 
-            $singleCacheKey = $currentParentId . '_' . $name;
-            if (isset($this->subfolderCache[$singleCacheKey])) {
-                $currentParentId = $this->subfolderCache[$singleCacheKey];
-                continue;
-            }
+            $cacheKey = 'gdrive_subfolder_' . md5($currentParentId . '_' . strtolower($name));
 
-            try {
-                $query = sprintf(
-                    "name = '%s' and '%s' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false",
-                    addslashes($name),
-                    $currentParentId
-                );
+            $currentParentId = Cache::remember($cacheKey, 86400 * 30, function () use ($name, $currentParentId) {
+                try {
+                    // Search if folder exists in currentParentId
+                    $query = sprintf(
+                        "name = '%s' and '%s' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false",
+                        addslashes($name),
+                        $currentParentId
+                    );
 
-                $response = $this->service->files->listFiles([
-                    'q' => $query,
-                    'fields' => 'files(id, name)',
-                    'supportsAllDrives' => true,
-                    'includeItemsFromAllDrives' => true,
-                ]);
+                    $response = $this->service->files->listFiles([
+                        'q' => $query,
+                        'fields' => 'files(id, name)',
+                        'supportsAllDrives' => true,
+                        'includeItemsFromAllDrives' => true,
+                    ]);
 
-                if (count($response->files) > 0) {
-                    $currentParentId = $response->files[0]->id;
-                } else {
+                    if (count($response->files) > 0) {
+                        return $response->files[0]->id;
+                    }
+
+                    // Create new folder if not found
                     $folderMetadata = new DriveFile([
                         'name' => $name,
                         'mimeType' => 'application/vnd.google-apps.folder',
@@ -107,35 +101,24 @@ class GoogleDriveService
                         'supportsAllDrives' => true,
                     ]);
 
-                    try {
-                        $permission = new Permission();
-                        $permission->setRole('reader');
-                        $permission->setType('anyone');
-                        $this->service->permissions->create($folder->id, $permission, ['supportsAllDrives' => true]);
-                    } catch (Throwable $pe) {
-                        // ignore permission error
-                    }
-
-                    $currentParentId = $folder->id;
+                    return $folder->id;
+                } catch (Throwable $e) {
+                    Log::error('GoogleDriveService getOrCreateSubfolderPath error: ' . $e->getMessage());
+                    return $currentParentId;
                 }
-
-                $this->subfolderCache[$singleCacheKey] = $currentParentId;
-            } catch (Throwable $e) {
-                Log::error('GoogleDriveService getOrCreateSubfolderPath error: ' . $e->getMessage());
-            }
+            });
         }
 
-        $this->subfolderCache[$cachePathKey] = $currentParentId;
         return $currentParentId;
     }
 
     /**
-     * Upload an UploadedFile or local path to Google Drive with Subfolder option
+     * Fast upload an UploadedFile or local path to Google Drive with Subfolder option (No redundant permissions call)
      *
      * @param UploadedFile|string $file
      * @param string|null $customFileName
-     * @param string|array|null $subfolders (e.g. ['Surat Masuk', 'Internal'] or ['Notulensi Rapat', '2026-08-19 - Rapat Pleno'])
-     * @return array|null Returns ['file_id' => string, 'link' => string, 'name' => string, 'folder_id' => string]
+     * @param string|array|null $subfolders
+     * @return array|null Returns ['file_id' => string, 'link' => string, 'folder_link' => string, 'name' => string, 'folder_id' => string]
      */
     public function uploadFile(UploadedFile|string $file, ?string $customFileName = null, string|array|null $subfolders = null): ?array
     {
@@ -166,16 +149,6 @@ class GoogleDriveService
                 'fields'     => 'id, name, webViewLink, webContentLink',
                 'supportsAllDrives' => true,
             ]);
-
-            // Set public read permission for the uploaded file
-            try {
-                $permission = new Permission();
-                $permission->setRole('reader');
-                $permission->setType('anyone');
-                $this->service->permissions->create($result->id, $permission, ['supportsAllDrives' => true]);
-            } catch (Throwable $pe) {
-                Log::warning('GoogleDriveService permission set error: ' . $pe->getMessage());
-            }
 
             $link = $result->webViewLink ?: "https://drive.google.com/file/d/{$result->id}/view";
             $folderLink = "https://drive.google.com/drive/folders/{$targetFolderId}";

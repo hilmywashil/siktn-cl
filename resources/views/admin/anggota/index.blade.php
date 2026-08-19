@@ -535,7 +535,7 @@
                                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                                         <div class="row-avatar">
                                             @if($hasPhoto)
-                                                <img src="{{ asset('storage/' . $item->foto_diri) }}" alt="{{ $item->nama_lengkap }}">
+                                                <img src="{{ asset('storage/' . $item->foto_diri) }}" alt="{{ $item->nama_lengkap }}" loading="lazy">
                                             @else
                                                 {{ $initials }}
                                             @endif
