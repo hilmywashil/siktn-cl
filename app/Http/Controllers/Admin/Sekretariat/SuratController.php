@@ -132,35 +132,27 @@ class SuratController extends Controller
         ]);
 
         $fileLampiranPath = null;
-        $linkDrive = $validated['link_drive'] ?? null;
-
-        if ($request->hasFile('file_lampiran')) {
-            $uploadedFile = $request->file('file_lampiran');
+        $uploadedFile = $request->hasFile('file_lampiran') ? $request->file('file_lampiran') : null;
+        if ($uploadedFile) {
             $fileLampiranPath = $uploadedFile->store('surat_lampiran', 'public');
-
-            // Automatic upload to Google Drive if link_drive is not manually provided
-            if (!$linkDrive) {
-                try {
-                    $driveService = new \App\Services\GoogleDriveService();
-                    if ($driveService->isConfigured()) {
-                        $safeNomor = preg_replace('/[^\w\-]/', '_', $validated['nomor_surat']);
-                        $mainFolder = ($validated['tipe'] === 'masuk') ? 'Surat Masuk' : 'Surat Keluar';
-                        $subFolder  = ucfirst($validated['klasifikasi']);
-                        $driveResult = $driveService->uploadFile($uploadedFile, $safeNomor . '_' . $uploadedFile->getClientOriginalName(), [$mainFolder, $subFolder]);
-                        if ($driveResult && !empty($driveResult['link'])) {
-                            $linkDrive = $driveResult['link'];
-                        }
-                    }
-                } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::warning('Google Drive auto upload error: ' . $e->getMessage());
-                }
-            }
         }
 
         $status = $request->get('status', 'Pending TTD');
         if (!in_array($status, ['Pending TTD', 'Terbit', 'Revisi', 'Draft'])) {
             $status = 'Pending TTD';
         }
+
+        $linkDrive = $this->processDriveAutoLinkForSurat(
+            $validated['tipe'],
+            $validated['klasifikasi'],
+            $validated['nomor_surat'],
+            $validated['perihal'],
+            $validated['pengirim_tujuan'],
+            $validated['tanggal'],
+            $status,
+            $validated['link_drive'] ?? null,
+            $uploadedFile
+        );
 
         $surat = Surat::create([
             'tipe' => $validated['tipe'],
@@ -934,6 +926,19 @@ class SuratController extends Controller
             }
 
             $tanggal = $this->parseDateToYmd($rawTanggal, date('Y-m-d'));
+            $pengirimTujuanVal = $pengirimTujuan ?: 'Sekretariat';
+
+            $linkDrive = $this->processDriveAutoLinkForSurat(
+                $tipe,
+                $klasifikasi,
+                $nomorSurat,
+                $perihal,
+                $pengirimTujuanVal,
+                $tanggal,
+                $status,
+                $linkDrive,
+                null
+            );
 
             $surat = Surat::create([
                 'tipe' => $tipe,
@@ -941,9 +946,9 @@ class SuratController extends Controller
                 'nomor_surat' => $nomorSurat,
                 'tanggal' => $tanggal,
                 'perihal' => $perihal,
-                'pengirim_tujuan' => $pengirimTujuan ?: 'Sekretariat',
+                'pengirim_tujuan' => $pengirimTujuanVal,
                 'status' => $status,
-                'link_drive' => $linkDrive ?: null,
+                'link_drive' => $linkDrive,
                 'created_by' => $admin->id,
             ]);
 
@@ -992,29 +997,23 @@ class SuratController extends Controller
 
         foreach ($items as $idx => $item) {
             $fileLampiranPath = null;
-            $linkDrive = $item['link_drive'] ?? null;
+            $uploadedFile = (isset($files[$idx]) && $files[$idx]->isValid()) ? $files[$idx] : null;
 
-            if (isset($files[$idx]) && $files[$idx]->isValid()) {
-                $uploadedFile = $files[$idx];
+            if ($uploadedFile) {
                 $fileLampiranPath = $uploadedFile->store('surat_lampiran', 'public');
-
-                if (!$linkDrive) {
-                    try {
-                        $driveService = new \App\Services\GoogleDriveService();
-                        if ($driveService->isConfigured()) {
-                            $safeNomor = preg_replace('/[^\w\-]/', '_', $item['nomor_surat']);
-                            $mainFolder = ($tipe === 'masuk') ? 'Surat Masuk' : 'Surat Keluar';
-                            $subFolder  = ucfirst($item['klasifikasi']);
-                            $driveResult = $driveService->uploadFile($uploadedFile, $safeNomor . '_' . $uploadedFile->getClientOriginalName(), [$mainFolder, $subFolder]);
-                            if ($driveResult && !empty($driveResult['link'])) {
-                                $linkDrive = $driveResult['link'];
-                            }
-                        }
-                    } catch (\Throwable $e) {
-                        \Illuminate\Support\Facades\Log::warning('Google Drive bulk auto upload error: ' . $e->getMessage());
-                    }
-                }
             }
+
+            $linkDrive = $this->processDriveAutoLinkForSurat(
+                $tipe,
+                $item['klasifikasi'],
+                $item['nomor_surat'],
+                $item['perihal'],
+                $item['pengirim_tujuan'],
+                $item['tanggal'],
+                $item['status'],
+                $item['link_drive'] ?? null,
+                $uploadedFile
+            );
 
             $surat = Surat::create([
                 'tipe' => $tipe,
@@ -1090,5 +1089,100 @@ class SuratController extends Controller
         }
 
         return $default ?: date('Y-m-d');
+    }
+
+    /**
+     * Helper to auto create Google Drive dedicated folder & upload files/.txt archive for Surat (Masuk/Keluar) if link_drive is empty
+     */
+    private function processDriveAutoLinkForSurat($tipe, $klasifikasi, $nomorSurat, $perihal, $pengirimTujuan, $tanggal, $status, $existingLinkDrive = null, $uploadedFile = null)
+    {
+        $existingLinkDrive = trim($existingLinkDrive ?? '');
+        if (!empty($existingLinkDrive) && $existingLinkDrive !== '-') {
+            return $existingLinkDrive;
+        }
+
+        try {
+            $driveService = new \App\Services\GoogleDriveService();
+            if (!$driveService->isConfigured()) {
+                return null;
+            }
+
+            $mainFolder = ($tipe === 'masuk') ? 'Surat Masuk' : 'Surat Keluar';
+            $subFolder  = ucfirst($klasifikasi);
+            $safeNomor  = preg_replace('/[^\w\-]/', '_', $nomorSurat);
+            $safeDate   = date('Y-m-d', strtotime($tanggal));
+            $suratFolderName = "{$safeDate} - {$safeNomor}";
+            $subfolders = [$mainFolder, $subFolder, $suratFolderName];
+
+            // 1. If physical file (PDF/Word) is uploaded, upload that file into the dedicated subfolder
+            if ($uploadedFile && $uploadedFile->isValid()) {
+                $driveService->uploadFile($uploadedFile, "Surat_{$safeNomor}_" . $uploadedFile->getClientOriginalName(), $subfolders);
+            }
+
+            // 2. Always generate structured .txt file archive in the dedicated subfolder
+            $formattedTxtContent = $this->buildStructuredSuratTxtContent(
+                $tipe,
+                $klasifikasi,
+                $nomorSurat,
+                $perihal,
+                $pengirimTujuan,
+                $tanggal,
+                $status
+            );
+
+            $tempTxtDir = storage_path('app/surat_txt');
+            if (!file_exists($tempTxtDir)) {
+                mkdir($tempTxtDir, 0755, true);
+            }
+            $tempTxtPath = $tempTxtDir . "/Arsip_Surat_{$safeNomor}.txt";
+            file_put_contents($tempTxtPath, $formattedTxtContent);
+
+            $txtResult = $driveService->uploadFile($tempTxtPath, "Arsip_Surat_{$safeNomor}.txt", $subfolders);
+            @unlink($tempTxtPath);
+
+            // 3. Return dedicated folder link so database link_drive points directly to the letter folder
+            if ($txtResult && !empty($txtResult['folder_link'])) {
+                return $txtResult['folder_link'];
+            }
+
+            $folderId = $driveService->getOrCreateSubfolderPath($subfolders);
+            if ($folderId) {
+                return "https://drive.google.com/drive/folders/{$folderId}";
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('processDriveAutoLinkForSurat error: ' . $e->getMessage());
+        }
+
+        return null;
+    }
+
+    /**
+     * Build formatted structured text file content for Surat archive
+     */
+    private function buildStructuredSuratTxtContent($tipe, $klasifikasi, $nomorSurat, $perihal, $pengirimTujuan, $tanggal, $status): string
+    {
+        $tipeStr = ($tipe === 'masuk') ? 'SURAT MASUK' : 'SURAT KELUAR';
+        $tanggalFmt = \Carbon\Carbon::parse($tanggal)->locale('id')->isoFormat('D MMMM YYYY');
+
+        $dividerHeader  = str_repeat('=', 80);
+        $dividerSection = str_repeat('-', 80);
+
+        $txt  = "{$dividerHeader}\n";
+        $txt .= str_pad("ARSIP DOKUMEN {$tipeStr} SIKTN", 80, " ", STR_PAD_BOTH) . "\n";
+        $txt .= "{$dividerHeader}\n\n";
+
+        $txt .= sprintf("%-20s : %s\n", "Jenis Surat", $tipeStr);
+        $txt .= sprintf("%-20s : %s\n", "Klasifikasi", ucfirst($klasifikasi));
+        $txt .= sprintf("%-20s : %s\n", "Nomor Surat", $nomorSurat);
+        $txt .= sprintf("%-20s : %s\n", "Tanggal Surat", $tanggalFmt);
+        $txt .= sprintf("%-20s : %s\n", "Perihal", $perihal);
+        $txt .= sprintf("%-20s : %s\n", ($tipe === 'masuk' ? "Pengirim" : "Tujuan"), $pengirimTujuan);
+        $txt .= sprintf("%-20s : %s\n", "Status Surat", $status);
+        $txt .= "\n{$dividerSection}\n";
+
+        $txt .= "Dokumen ini di-generate secara otomatis oleh Sistem Informasi Karang Taruna (SIKTN)\n";
+        $txt .= "{$dividerHeader}\n";
+
+        return $txt;
     }
 }
