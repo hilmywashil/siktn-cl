@@ -486,7 +486,7 @@
             <button type="button" onclick="closeCreateModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
         </div>
 
-        <form action="{{ route('admin.sekretariat.sk.store') }}" method="POST">
+        <form action="{{ route('admin.sekretariat.sk.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="modal-body-prof">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
@@ -516,6 +516,16 @@
                     <div class="form-group">
                         <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Tanggal Berakhir <span style="color: red;">*</span></label>
                         <input type="text" name="tanggal_berakhir" class="form-control datepicker" style="background: white; font-size: 0.85rem;" placeholder="Pilih tanggal berakhir..." required>
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Upload Berkas Fisik SK (PDF / Word) <span style="color: #64748b; font-weight: 500;">(Opsional)</span></label>
+                        <div style="border: 2px dashed #cbd5e1; border-radius: 8px; padding: 1rem; text-align: center; background: #f8fafc; cursor: pointer; transition: all 0.2s;" onclick="document.getElementById('skCreateFileInput').click()">
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="#022648" fill="none" stroke-width="2" style="margin-bottom: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            <div style="font-size: 0.8rem; font-weight: 600; color: var(--navy);" id="skCreateFileNameText">Klik / Drag berkas format .pdf, .doc, .docx</div>
+                            <span style="font-size: 0.7rem; color: #64748b;">Maksimal 10MB</span>
+                            <input type="file" name="file_pdf" id="skCreateFileInput" accept=".pdf,.doc,.docx" style="display: none;" onchange="if(this.files[0]) document.getElementById('skCreateFileNameText').innerText = '📁 ' + this.files[0].name">
+                        </div>
                     </div>
 
                     <div class="form-group" style="grid-column: 1 / -1;">
@@ -554,7 +564,7 @@
             <button type="button" onclick="closeEditModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
         </div>
 
-        <form id="editForm" method="POST">
+        <form id="editForm" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             

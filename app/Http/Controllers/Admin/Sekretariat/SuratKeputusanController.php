@@ -65,6 +65,8 @@ class SuratKeputusanController extends Controller
             'status' => 'required|in:Aktif,Tidak Aktif',
             'link_drive' => 'nullable|url',
             'keterangan' => 'nullable|string',
+            'file_pdf' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+            'file_lampiran' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
         ]);
 
         $uploadedFile = $request->hasFile('file_pdf') ? $request->file('file_pdf') : ($request->hasFile('file_lampiran') ? $request->file('file_lampiran') : null);
@@ -125,7 +127,24 @@ class SuratKeputusanController extends Controller
             'status' => 'required|in:Aktif,Tidak Aktif',
             'link_drive' => 'nullable|url',
             'keterangan' => 'nullable|string',
+            'file_pdf' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+            'file_lampiran' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
         ]);
+
+        $uploadedFile = $request->hasFile('file_pdf') ? $request->file('file_pdf') : ($request->hasFile('file_lampiran') ? $request->file('file_lampiran') : null);
+
+        $linkDrive = $this->processDriveAutoLinkForSk(
+            $validated['nomor_sk'],
+            $validated['judul_sk'],
+            $validated['tanggal_berlaku'],
+            $validated['tanggal_berakhir'],
+            $validated['status'],
+            $validated['keterangan'] ?? null,
+            $validated['link_drive'] ?? null,
+            $uploadedFile
+        );
+
+        $validated['link_drive'] = $linkDrive;
 
         $sk->update($validated);
 
