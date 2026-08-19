@@ -144,8 +144,9 @@ class SuratController extends Controller
                     $driveService = new \App\Services\GoogleDriveService();
                     if ($driveService->isConfigured()) {
                         $safeNomor = preg_replace('/[^\w\-]/', '_', $validated['nomor_surat']);
-                        $subfolderName = ($validated['tipe'] === 'masuk') ? 'Surat Masuk' : 'Surat Keluar';
-                        $driveResult = $driveService->uploadFile($uploadedFile, $safeNomor . '_' . $uploadedFile->getClientOriginalName(), $subfolderName);
+                        $mainFolder = ($validated['tipe'] === 'masuk') ? 'Surat Masuk' : 'Surat Keluar';
+                        $subFolder  = ucfirst($validated['klasifikasi']);
+                        $driveResult = $driveService->uploadFile($uploadedFile, $safeNomor . '_' . $uploadedFile->getClientOriginalName(), [$mainFolder, $subFolder]);
                         if ($driveResult && !empty($driveResult['link'])) {
                             $linkDrive = $driveResult['link'];
                         }
@@ -1002,8 +1003,9 @@ class SuratController extends Controller
                         $driveService = new \App\Services\GoogleDriveService();
                         if ($driveService->isConfigured()) {
                             $safeNomor = preg_replace('/[^\w\-]/', '_', $item['nomor_surat']);
-                            $subfolderName = ($tipe === 'masuk') ? 'Surat Masuk' : 'Surat Keluar';
-                            $driveResult = $driveService->uploadFile($uploadedFile, $safeNomor . '_' . $uploadedFile->getClientOriginalName(), $subfolderName);
+                            $mainFolder = ($tipe === 'masuk') ? 'Surat Masuk' : 'Surat Keluar';
+                            $subFolder  = ucfirst($item['klasifikasi']);
+                            $driveResult = $driveService->uploadFile($uploadedFile, $safeNomor . '_' . $uploadedFile->getClientOriginalName(), [$mainFolder, $subFolder]);
                             if ($driveResult && !empty($driveResult['link'])) {
                                 $linkDrive = $driveResult['link'];
                             }

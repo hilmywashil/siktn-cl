@@ -60,32 +60,57 @@ class NotulensiController extends Controller
         $filePdfPath = null;
         $linkDrive = $validated['link_drive'] ?? null;
 
+        $safeDate = date('Y-m-d', strtotime($validated['tanggal_rapat']));
+        $safeJudul = preg_replace('/[^\w\s\-]/', '', $validated['judul_rapat']);
+        $meetingFolderName = "{$safeDate} - {$safeJudul}";
+        $subfolders = ['Notulensi Rapat', $meetingFolderName];
+
+        $driveService = new \App\Services\GoogleDriveService();
+        $isDriveConfigured = $driveService->isConfigured();
+
+        // 1. Upload File Risalah (PDF/Word)
         if ($request->hasFile('file_pdf') && $request->file('file_pdf')->isValid()) {
             $uploadedFile = $request->file('file_pdf');
             $filePdfPath = $uploadedFile->store('notulensi_pdf', 'public');
 
-            if (!$linkDrive) {
+            if ($isDriveConfigured) {
                 try {
-                    $driveService = new \App\Services\GoogleDriveService();
-                    if ($driveService->isConfigured()) {
-                        $safeJudul = preg_replace('/[^\w\-]/', '_', $validated['judul_rapat']);
-                        $driveResult = $driveService->uploadFile($uploadedFile, $safeJudul . '_' . $uploadedFile->getClientOriginalName(), 'Notulensi Rapat');
-                        if ($driveResult && !empty($driveResult['link'])) {
-                            $linkDrive = $driveResult['link'];
-                        }
+                    $driveResult = $driveService->uploadFile($uploadedFile, "Risalah_{$safeJudul}_" . $uploadedFile->getClientOriginalName(), $subfolders);
+                    if (!$linkDrive && $driveResult && !empty($driveResult['folder_link'])) {
+                        $linkDrive = $driveResult['folder_link'];
                     }
                 } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::warning('Google Drive Notulensi upload error: ' . $e->getMessage());
+                    \Illuminate\Support\Facades\Log::warning('Google Drive Notulensi PDF upload error: ' . $e->getMessage());
                 }
             }
         }
 
+        // 2. Upload Foto Dokumentasi (Multi-foto)
         $fotoPaths = [];
         if ($request->hasFile('foto_dokumentasi')) {
-            foreach ($request->file('foto_dokumentasi') as $foto) {
+            foreach ($request->file('foto_dokumentasi') as $idx => $foto) {
                 if ($foto->isValid()) {
                     $fotoPaths[] = $foto->store('notulensi_dokumentasi', 'public');
+
+                    if ($isDriveConfigured) {
+                        try {
+                            $fotoResult = $driveService->uploadFile($foto, "Foto_" . ($idx + 1) . "_{$safeJudul}." . $foto->getClientOriginalExtension(), $subfolders);
+                            if (!$linkDrive && $fotoResult && !empty($fotoResult['folder_link'])) {
+                                $linkDrive = $fotoResult['folder_link'];
+                            }
+                        } catch (\Throwable $e) {
+                            \Illuminate\Support\Facades\Log::warning('Google Drive Notulensi Foto upload error: ' . $e->getMessage());
+                        }
+                    }
                 }
+            }
+        }
+
+        // Auto get folder link if still empty and drive is configured
+        if (!$linkDrive && $isDriveConfigured) {
+            $folderId = $driveService->getOrCreateSubfolderPath($subfolders);
+            if ($folderId) {
+                $linkDrive = "https://drive.google.com/drive/folders/{$folderId}";
             }
         }
 
