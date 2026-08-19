@@ -67,13 +67,26 @@ class SuratKeputusanController extends Controller
             'keterangan' => 'nullable|string',
         ]);
 
+        $uploadedFile = $request->hasFile('file_pdf') ? $request->file('file_pdf') : ($request->hasFile('file_lampiran') ? $request->file('file_lampiran') : null);
+
+        $linkDrive = $this->processDriveAutoLinkForSk(
+            $validated['nomor_sk'],
+            $validated['judul_sk'],
+            $validated['tanggal_berlaku'],
+            $validated['tanggal_berakhir'],
+            $validated['status'],
+            $validated['keterangan'] ?? null,
+            $validated['link_drive'] ?? null,
+            $uploadedFile
+        );
+
         $sk = SuratKeputusan::create([
             'nomor_sk' => $validated['nomor_sk'],
             'judul_sk' => $validated['judul_sk'],
             'tanggal_berlaku' => $validated['tanggal_berlaku'],
             'tanggal_berakhir' => $validated['tanggal_berakhir'],
             'status' => $validated['status'],
-            'link_drive' => $validated['link_drive'] ?? null,
+            'link_drive' => $linkDrive,
             'keterangan' => $validated['keterangan'] ?? null,
             'created_by' => $admin->id,
         ]);
@@ -356,13 +369,27 @@ class SuratKeputusanController extends Controller
             if (empty($nomorSk) || empty($judulSk)) continue;
             if (strtolower($nomorSk) === 'nomor sk' || strtolower($nomorSk) === 'no') continue;
 
+            $statusVal = in_array($status, ['Aktif', 'Tidak Aktif']) ? $status : 'Aktif';
+
+            // Auto create Google Drive archive file .txt if link_drive is empty
+            $linkDrive = $this->processDriveAutoLinkForSk(
+                $nomorSk,
+                $judulSk,
+                $tglBerlaku,
+                $tglBerakhir,
+                $statusVal,
+                $keterangan,
+                $linkDrive,
+                null
+            );
+
             SuratKeputusan::create([
                 'nomor_sk' => $nomorSk,
                 'judul_sk' => $judulSk,
                 'tanggal_berlaku' => $tglBerlaku,
                 'tanggal_berakhir' => $tglBerakhir,
-                'link_drive' => $linkDrive ?: null,
-                'status' => in_array($status, ['Aktif', 'Tidak Aktif']) ? $status : 'Aktif',
+                'link_drive' => $linkDrive,
+                'status' => $statusVal,
                 'keterangan' => $keterangan ?: null,
             ]);
 
@@ -422,5 +449,96 @@ class SuratKeputusanController extends Controller
         }
 
         return $default ?: date('Y-m-d');
+    }
+
+    /**
+     * Helper to auto create Google Drive folder & upload .txt archive for SK if link_drive is empty
+     */
+    private function processDriveAutoLinkForSk($nomorSk, $judulSk, $tanggalBerlaku, $tanggalBerakhir, $status, $keterangan = null, $existingLinkDrive = null, $uploadedFile = null)
+    {
+        $existingLinkDrive = trim($existingLinkDrive ?? '');
+        if (!empty($existingLinkDrive) && $existingLinkDrive !== '-') {
+            return $existingLinkDrive;
+        }
+
+        try {
+            $driveService = new \App\Services\GoogleDriveService();
+            if (!$driveService->isConfigured()) {
+                return null;
+            }
+
+            $subfolders = ['Surat Keputusan'];
+            $safeNomor  = preg_replace('/[^\w\-]/', '_', $nomorSk);
+
+            // 1. If physical file (PDF/Word) is uploaded, upload that file
+            if ($uploadedFile && $uploadedFile->isValid()) {
+                $res = $driveService->uploadFile($uploadedFile, "SK_{$safeNomor}_" . $uploadedFile->getClientOriginalName(), $subfolders);
+                if ($res && !empty($res['link'])) {
+                    return $res['link'];
+                }
+            }
+
+            // 2. Otherwise generate structured .txt file
+            $formattedTxtContent = $this->buildStructuredSkTxtContent(
+                $nomorSk,
+                $judulSk,
+                $tanggalBerlaku,
+                $tanggalBerakhir,
+                $status,
+                $keterangan
+            );
+
+            $tempTxtDir = storage_path('app/sk_txt');
+            if (!file_exists($tempTxtDir)) {
+                mkdir($tempTxtDir, 0755, true);
+            }
+            $tempTxtPath = $tempTxtDir . "/Arsip_SK_{$safeNomor}.txt";
+            file_put_contents($tempTxtPath, $formattedTxtContent);
+
+            $txtResult = $driveService->uploadFile($tempTxtPath, "Arsip_SK_{$safeNomor}.txt", $subfolders);
+            @unlink($tempTxtPath);
+
+            if ($txtResult && !empty($txtResult['link'])) {
+                return $txtResult['link'];
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('processDriveAutoLinkForSk error: ' . $e->getMessage());
+        }
+
+        return null;
+    }
+
+    /**
+     * Build formatted structured text file content for SK archive
+     */
+    private function buildStructuredSkTxtContent($nomorSk, $judulSk, $tanggalBerlaku, $tanggalBerakhir, $status, $keterangan): string
+    {
+        $berlakuFmt = \Carbon\Carbon::parse($tanggalBerlaku)->locale('id')->isoFormat('D MMMM YYYY');
+        $berakhirFmt = \Carbon\Carbon::parse($tanggalBerakhir)->locale('id')->isoFormat('D MMMM YYYY');
+        $ketStr = $keterangan ?: '-';
+
+        $dividerHeader  = str_repeat('=', 80);
+        $dividerSection = str_repeat('-', 80);
+
+        $txt  = "{$dividerHeader}\n";
+        $txt .= str_pad("ARSIP DOKUMEN SURAT KEPUTUSAN (SK) SIKTN", 80, " ", STR_PAD_BOTH) . "\n";
+        $txt .= "{$dividerHeader}\n\n";
+
+        $txt .= sprintf("%-20s : %s\n", "Nomor SK", $nomorSk);
+        $txt .= sprintf("%-20s : %s\n", "Judul Surat Keputusan", $judulSk);
+        $txt .= sprintf("%-20s : %s\n", "Tanggal Berlaku", $berlakuFmt);
+        $txt .= sprintf("%-20s : %s\n", "Tanggal Berakhir", $berakhirFmt);
+        $txt .= sprintf("%-20s : %s\n", "Status Masa Berlaku", $status);
+        $txt .= "\n{$dividerSection}\n";
+        $txt .= str_pad("KETERANGAN & CATATAN TAMBAHAN", 80, " ", STR_PAD_BOTH) . "\n";
+        $txt .= "{$dividerSection}\n\n";
+
+        $txt .= trim($ketStr) . "\n\n";
+
+        $txt .= "{$dividerSection}\n";
+        $txt .= "Dokumen ini di-generate secara otomatis oleh Sistem Informasi Karang Taruna (SIKTN)\n";
+        $txt .= "{$dividerHeader}\n";
+
+        return $txt;
     }
 }
