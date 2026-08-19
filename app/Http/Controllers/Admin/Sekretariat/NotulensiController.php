@@ -68,7 +68,7 @@ class NotulensiController extends Controller
         $driveService = new \App\Services\GoogleDriveService();
         $isDriveConfigured = $driveService->isConfigured();
 
-        // 1. Upload File Risalah (PDF/Word)
+        // 1. Upload File Risalah (PDF/Word) or Generate Structured .txt File
         if ($request->hasFile('file_pdf') && $request->file('file_pdf')->isValid()) {
             $uploadedFile = $request->file('file_pdf');
             $filePdfPath = $uploadedFile->store('notulensi_pdf', 'public');
@@ -82,6 +82,36 @@ class NotulensiController extends Controller
                 } catch (\Throwable $e) {
                     \Illuminate\Support\Facades\Log::warning('Google Drive Notulensi PDF upload error: ' . $e->getMessage());
                 }
+            }
+        }
+
+        // Always generate & upload structured .txt file if summary text exists
+        if (!empty($validated['ringkasan_hasil'])) {
+            try {
+                $formattedTxtContent = $this->buildStructuredTxtContent(
+                    $validated['judul_rapat'],
+                    $validated['tanggal_rapat'],
+                    $validated['pemimpin_rapat'] ?? null,
+                    $validated['ringkasan_hasil'],
+                    $admin->name ?? 'Admin SIKTN'
+                );
+
+                $tempTxtDir = storage_path('app/notulensi_txt');
+                if (!file_exists($tempTxtDir)) {
+                    mkdir($tempTxtDir, 0755, true);
+                }
+                $tempTxtPath = $tempTxtDir . "/Risalah_Ringkasan_{$safeJudul}.txt";
+                file_put_contents($tempTxtPath, $formattedTxtContent);
+
+                if ($isDriveConfigured) {
+                    $txtResult = $driveService->uploadFile($tempTxtPath, "Risalah_Ringkasan_{$safeJudul}.txt", $subfolders);
+                    if (!$linkDrive && $txtResult && !empty($txtResult['folder_link'])) {
+                        $linkDrive = $txtResult['folder_link'];
+                    }
+                }
+                @unlink($tempTxtPath);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Google Drive Txt generation error: ' . $e->getMessage());
             }
         }
 
@@ -457,5 +487,38 @@ class NotulensiController extends Controller
         }
 
         return response()->download($zipPath)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Build formatted structured text file content for meeting summary
+     */
+    private function buildStructuredTxtContent($judul, $tanggal, $pemimpin, $ringkasan, $adminName): string
+    {
+        $tanggalFmt = \Carbon\Carbon::parse($tanggal)->locale('id')->isoFormat('dddd, D MMMM YYYY - HH:mm') . ' WIB';
+        $pemimpinStr = $pemimpin ?: '-';
+        $adminStr = $adminName ?: 'Sekretariat SIKTN';
+
+        $dividerHeader  = str_repeat('=', 80);
+        $dividerSection = str_repeat('-', 80);
+
+        $txt  = "{$dividerHeader}\n";
+        $txt .= str_pad("NOTULENSI HASIL RAPAT SIKTN", 80, " ", STR_PAD_BOTH) . "\n";
+        $txt .= "{$dividerHeader}\n\n";
+
+        $txt .= sprintf("%-18s : %s\n", "Judul Rapat", $judul);
+        $txt .= sprintf("%-18s : %s\n", "Tanggal & Waktu", $tanggalFmt);
+        $txt .= sprintf("%-18s : %s\n", "Pemimpin Rapat", $pemimpinStr);
+        $txt .= sprintf("%-18s : %s\n", "Dicuplik Oleh", $adminStr);
+        $txt .= "\n{$dividerSection}\n";
+        $txt .= str_pad("RINGKASAN HASIL & KEPUTUSAN RAPAT", 80, " ", STR_PAD_BOTH) . "\n";
+        $txt .= "{$dividerSection}\n\n";
+
+        $txt .= trim($ringkasan) . "\n\n";
+
+        $txt .= "{$dividerSection}\n";
+        $txt .= "Dokumen ini di-generate secara otomatis oleh Sistem Informasi Karang Taruna (SIKTN)\n";
+        $txt .= "{$dividerHeader}\n";
+
+        return $txt;
     }
 }
