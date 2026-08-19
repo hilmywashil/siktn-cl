@@ -58,8 +58,26 @@ class NotulensiController extends Controller
         ]);
 
         $filePdfPath = null;
+        $linkDrive = $validated['link_drive'] ?? null;
+
         if ($request->hasFile('file_pdf') && $request->file('file_pdf')->isValid()) {
-            $filePdfPath = $request->file('file_pdf')->store('notulensi_pdf', 'public');
+            $uploadedFile = $request->file('file_pdf');
+            $filePdfPath = $uploadedFile->store('notulensi_pdf', 'public');
+
+            if (!$linkDrive) {
+                try {
+                    $driveService = new \App\Services\GoogleDriveService();
+                    if ($driveService->isConfigured()) {
+                        $safeJudul = preg_replace('/[^\w\-]/', '_', $validated['judul_rapat']);
+                        $driveResult = $driveService->uploadFile($uploadedFile, $safeJudul . '_' . $uploadedFile->getClientOriginalName(), 'Notulensi Rapat');
+                        if ($driveResult && !empty($driveResult['link'])) {
+                            $linkDrive = $driveResult['link'];
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Google Drive Notulensi upload error: ' . $e->getMessage());
+                }
+            }
         }
 
         $fotoPaths = [];
@@ -77,7 +95,7 @@ class NotulensiController extends Controller
             'tanggal_rapat' => $validated['tanggal_rapat'],
             'pemimpin_rapat' => $validated['pemimpin_rapat'] ?? null,
             'ringkasan_hasil' => $validated['ringkasan_hasil'] ?? null,
-            'link_drive' => $validated['link_drive'] ?? null,
+            'link_drive' => $linkDrive,
             'file_pdf' => $filePdfPath,
             'foto_dokumentasi' => !empty($fotoPaths) ? $fotoPaths : null,
             'created_by' => $admin->id,

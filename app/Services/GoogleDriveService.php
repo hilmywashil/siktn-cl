@@ -16,6 +16,7 @@ class GoogleDriveService
     protected ?Drive $service = null;
     protected ?string $folderId = null;
     protected bool $isConfigured = false;
+    protected array $subfolderCache = [];
 
     public function __construct()
     {
@@ -47,13 +48,78 @@ class GoogleDriveService
     }
 
     /**
-     * Upload an UploadedFile or local path to Google Drive
+     * Get or create a subfolder inside the main parent folder
+     */
+    public function getOrCreateSubfolder(string $subfolderName): string
+    {
+        if (isset($this->subfolderCache[$subfolderName])) {
+            return $this->subfolderCache[$subfolderName];
+        }
+
+        if (!$this->isConfigured || !$this->service) {
+            return $this->folderId;
+        }
+
+        try {
+            // Search if subfolder already exists in main parent folder
+            $query = sprintf(
+                "name = '%s' and '%s' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false",
+                addslashes($subfolderName),
+                $this->folderId
+            );
+
+            $response = $this->service->files->listFiles([
+                'q' => $query,
+                'fields' => 'files(id, name)',
+                'supportsAllDrives' => true,
+                'includeItemsFromAllDrives' => true,
+            ]);
+
+            if (count($response->files) > 0) {
+                $folderId = $response->files[0]->id;
+                $this->subfolderCache[$subfolderName] = $folderId;
+                return $folderId;
+            }
+
+            // Create new subfolder if not found
+            $folderMetadata = new DriveFile([
+                'name' => $subfolderName,
+                'mimeType' => 'application/vnd.google-apps.folder',
+                'parents' => [$this->folderId],
+            ]);
+
+            $folder = $this->service->files->create($folderMetadata, [
+                'fields' => 'id',
+                'supportsAllDrives' => true,
+            ]);
+
+            // Set public permission for subfolder
+            try {
+                $permission = new Permission();
+                $permission->setRole('reader');
+                $permission->setType('anyone');
+                $this->service->permissions->create($folder->id, $permission, ['supportsAllDrives' => true]);
+            } catch (Throwable $e) {
+                // Ignore permission error if any
+            }
+
+            $this->subfolderCache[$subfolderName] = $folder->id;
+            return $folder->id;
+        } catch (Throwable $e) {
+            Log::error('GoogleDriveService getOrCreateSubfolder error: ' . $e->getMessage());
+            return $this->folderId;
+        }
+    }
+
+    /**
+     * Upload an UploadedFile or local path to Google Drive with Subfolder option
      *
      * @param UploadedFile|string $file
      * @param string|null $customFileName
+     * @param string|null $subfolderName (e.g. 'Surat Masuk', 'Surat Keluar', 'Surat Keputusan', 'Notulensi Rapat')
      * @return array|null Returns ['file_id' => string, 'link' => string, 'name' => string]
      */
-    public function uploadFile(UploadedFile|string $file, ?string $customFileName = null): ?array
+    public function uploadFile(UploadedFile|string $file, ?string $customFileName = null, ?string $subfolderName = null): ?array
     {
         if (!$this->isConfigured || !$this->service) {
             Log::warning('GoogleDriveService is not properly configured.');
@@ -65,10 +131,12 @@ class GoogleDriveService
             $fileName = $customFileName ?: (($file instanceof UploadedFile) ? $file->getClientOriginalName() : basename($file));
             $mimeType = ($file instanceof UploadedFile) ? $file->getClientMimeType() : (mime_content_type($filePath) ?: 'application/octet-stream');
 
+            $targetFolderId = $subfolderName ? $this->getOrCreateSubfolder($subfolderName) : $this->folderId;
+
             $driveFile = new DriveFile();
             $driveFile->setName($fileName);
-            if ($this->folderId) {
-                $driveFile->setParents([$this->folderId]);
+            if ($targetFolderId) {
+                $driveFile->setParents([$targetFolderId]);
             }
 
             $content = file_get_contents($filePath);

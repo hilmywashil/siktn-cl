@@ -144,7 +144,8 @@ class SuratController extends Controller
                     $driveService = new \App\Services\GoogleDriveService();
                     if ($driveService->isConfigured()) {
                         $safeNomor = preg_replace('/[^\w\-]/', '_', $validated['nomor_surat']);
-                        $driveResult = $driveService->uploadFile($uploadedFile, $safeNomor . '_' . $uploadedFile->getClientOriginalName());
+                        $subfolderName = ($validated['tipe'] === 'masuk') ? 'Surat Masuk' : 'Surat Keluar';
+                        $driveResult = $driveService->uploadFile($uploadedFile, $safeNomor . '_' . $uploadedFile->getClientOriginalName(), $subfolderName);
                         if ($driveResult && !empty($driveResult['link'])) {
                             $linkDrive = $driveResult['link'];
                         }
@@ -1001,7 +1002,8 @@ class SuratController extends Controller
                         $driveService = new \App\Services\GoogleDriveService();
                         if ($driveService->isConfigured()) {
                             $safeNomor = preg_replace('/[^\w\-]/', '_', $item['nomor_surat']);
-                            $driveResult = $driveService->uploadFile($uploadedFile, $safeNomor . '_' . $uploadedFile->getClientOriginalName());
+                            $subfolderName = ($tipe === 'masuk') ? 'Surat Masuk' : 'Surat Keluar';
+                            $driveResult = $driveService->uploadFile($uploadedFile, $safeNomor . '_' . $uploadedFile->getClientOriginalName(), $subfolderName);
                             if ($driveResult && !empty($driveResult['link'])) {
                                 $linkDrive = $driveResult['link'];
                             }
