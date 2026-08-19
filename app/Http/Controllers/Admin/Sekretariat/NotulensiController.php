@@ -195,6 +195,22 @@ class NotulensiController extends Controller
 
                     $pdfPath = $file->store('notulensi_pdf', 'public');
 
+                    // Auto upload to Google Drive meeting folder
+                    try {
+                        $driveService = new \App\Services\GoogleDriveService();
+                        if ($driveService->isConfigured()) {
+                            $safeJudul = preg_replace('/[^\w\s\-]/', '', $cleanTitle);
+                            $safeDate  = date('Y-m-d', strtotime($tanggalRapat));
+                            $subfolders = ['Notulensi Rapat', "{$safeDate} - {$safeJudul}"];
+                            $driveRes = $driveService->uploadFile($file, "Risalah_{$safeJudul}_" . $file->getClientOriginalName(), $subfolders);
+                            if (!$linkDrive && $driveRes && !empty($driveRes['folder_link'])) {
+                                $linkDrive = $driveRes['folder_link'];
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::warning('Bulk PDF drive upload error: ' . $e->getMessage());
+                    }
+
                     Notulensi::create([
                         'judul_rapat' => $cleanTitle,
                         'tanggal_rapat' => $tanggalRapat,
@@ -233,6 +249,9 @@ class NotulensiController extends Controller
                         $pemimpinRapat = !empty($row['pemimpin_rapat']) ? trim($row['pemimpin_rapat']) : null;
                         $ringkasan = !empty($row['ringkasan_hasil']) ? trim($row['ringkasan_hasil']) : null;
                         $linkDrive = !empty($row['link_drive']) ? trim($row['link_drive']) : null;
+
+                        // Auto create Google Drive meeting folder & upload .txt summary if link_drive is empty
+                        $linkDrive = $this->processDriveAutoLinkForNotulensi($judulRapat, $tanggalRapat, $pemimpinRapat, $ringkasan, $admin->name ?? 'Admin SIKTN', $linkDrive);
 
                         Notulensi::create([
                             'judul_rapat' => $judulRapat,
@@ -280,6 +299,9 @@ class NotulensiController extends Controller
                     $ringkasan = $tds->item(3) ? trim($tds->item(3)->nodeValue) : null;
                     $linkDrive = $tds->item(4) ? trim($tds->item(4)->nodeValue) : null;
 
+                    // Auto create Google Drive meeting folder & upload .txt summary if link_drive is empty
+                    $linkDrive = $this->processDriveAutoLinkForNotulensi($judulRapat, $tanggalRapat, $pemimpinRapat, $ringkasan, $admin->name ?? 'Admin SIKTN', $linkDrive);
+
                     Notulensi::create([
                         'judul_rapat' => $judulRapat,
                         'tanggal_rapat' => $tanggalRapat,
@@ -298,18 +320,21 @@ class NotulensiController extends Controller
                 }
 
                 $header = array_shift($lines);
-
                 foreach ($lines as $line) {
-                    $row = str_getcsv($line);
-                    if (empty($row[0])) continue;
+                    $cols = str_getcsv($line);
+                    if (count($cols) < 2) continue;
 
-                    $judulRapat = trim($row[0]);
-                    if (strtolower($judulRapat) === 'judul rapat') continue;
+                    $judulRapat = trim($cols[0] ?? '');
+                    if (empty($judulRapat)) continue;
 
-                    $tanggalRapat = !empty($row[1]) ? \Carbon\Carbon::parse(trim($row[1]))->format('Y-m-d H:i:s') : \Carbon\Carbon::now()->format('Y-m-d H:i:s');
-                    $pemimpinRapat = !empty($row[2]) ? trim($row[2]) : null;
-                    $ringkasan = !empty($row[3]) ? trim($row[3]) : null;
-                    $linkDrive = !empty($row[4]) ? trim($row[4]) : null;
+                    $tanggalVal = trim($cols[1] ?? '');
+                    $tanggalRapat = !empty($tanggalVal) ? \Carbon\Carbon::parse($tanggalVal)->format('Y-m-d H:i:s') : \Carbon\Carbon::now()->format('Y-m-d H:i:s');
+                    $pemimpinRapat = isset($cols[2]) ? trim($cols[2]) : null;
+                    $ringkasan = isset($cols[3]) ? trim($cols[3]) : null;
+                    $linkDrive = isset($cols[4]) ? trim($cols[4]) : null;
+
+                    // Auto create Google Drive meeting folder & upload .txt summary if link_drive is empty
+                    $linkDrive = $this->processDriveAutoLinkForNotulensi($judulRapat, $tanggalRapat, $pemimpinRapat, $ringkasan, $admin->name ?? 'Admin SIKTN', $linkDrive);
 
                     Notulensi::create([
                         'judul_rapat' => $judulRapat,
@@ -520,5 +545,63 @@ class NotulensiController extends Controller
         $txt .= "{$dividerHeader}\n";
 
         return $txt;
+    }
+
+    /**
+     * Helper to auto create Google Drive meeting folder & upload .txt summary if link_drive is empty during import
+     */
+    private function processDriveAutoLinkForNotulensi($judulRapat, $tanggalRapat, $pemimpinRapat, $ringkasan, $adminName, $existingLinkDrive = null)
+    {
+        $existingLinkDrive = trim($existingLinkDrive ?? '');
+        if (!empty($existingLinkDrive) && $existingLinkDrive !== '-') {
+            return $existingLinkDrive;
+        }
+
+        try {
+            $driveService = new \App\Services\GoogleDriveService();
+            if (!$driveService->isConfigured()) {
+                return null;
+            }
+
+            $safeDate = date('Y-m-d', strtotime($tanggalRapat));
+            $safeJudul = preg_replace('/[^\w\s\-]/', '', $judulRapat);
+            $meetingFolderName = "{$safeDate} - {$safeJudul}";
+            $subfolders = ['Notulensi Rapat', $meetingFolderName];
+
+            // 1. Generate & upload structured .txt file if summary text is present
+            if (!empty($ringkasan)) {
+                $formattedTxtContent = $this->buildStructuredTxtContent(
+                    $judulRapat,
+                    $tanggalRapat,
+                    $pemimpinRapat,
+                    $ringkasan,
+                    $adminName
+                );
+
+                $tempTxtDir = storage_path('app/notulensi_txt');
+                if (!file_exists($tempTxtDir)) {
+                    mkdir($tempTxtDir, 0755, true);
+                }
+                $tempTxtPath = $tempTxtDir . "/Risalah_Ringkasan_{$safeJudul}.txt";
+                file_put_contents($tempTxtPath, $formattedTxtContent);
+
+                $txtResult = $driveService->uploadFile($tempTxtPath, "Risalah_Ringkasan_{$safeJudul}.txt", $subfolders);
+                @unlink($tempTxtPath);
+
+                if ($txtResult && !empty($txtResult['folder_link'])) {
+                    return $txtResult['folder_link'];
+                }
+            }
+
+            // 2. Otherwise get or create meeting subfolder link directly
+            $folderId = $driveService->getOrCreateSubfolderPath($subfolders);
+            if ($folderId) {
+                return "https://drive.google.com/drive/folders/{$folderId}";
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('processDriveAutoLinkForNotulensi error: ' . $e->getMessage());
+        }
+
+        return null;
     }
 }
