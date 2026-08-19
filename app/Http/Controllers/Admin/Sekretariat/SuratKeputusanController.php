@@ -471,7 +471,7 @@ class SuratKeputusanController extends Controller
     }
 
     /**
-     * Helper to auto create Google Drive folder & upload .txt archive for SK if link_drive is empty
+     * Helper to auto create Google Drive dedicated folder & upload files/.txt archive for SK if link_drive is empty
      */
     private function processDriveAutoLinkForSk($nomorSk, $judulSk, $tanggalBerlaku, $tanggalBerakhir, $status, $keterangan = null, $existingLinkDrive = null, $uploadedFile = null)
     {
@@ -486,18 +486,17 @@ class SuratKeputusanController extends Controller
                 return null;
             }
 
-            $subfolders = ['Surat Keputusan'];
             $safeNomor  = preg_replace('/[^\w\-]/', '_', $nomorSk);
+            $safeDate   = date('Y-m-d', strtotime($tanggalBerlaku));
+            $skFolderName = "{$safeDate} - {$safeNomor}";
+            $subfolders = ['Surat Keputusan', $skFolderName];
 
-            // 1. If physical file (PDF/Word) is uploaded, upload that file
+            // 1. If physical file (PDF/Word) is uploaded, upload that file into the dedicated SK subfolder
             if ($uploadedFile && $uploadedFile->isValid()) {
-                $res = $driveService->uploadFile($uploadedFile, "SK_{$safeNomor}_" . $uploadedFile->getClientOriginalName(), $subfolders);
-                if ($res && !empty($res['link'])) {
-                    return $res['link'];
-                }
+                $driveService->uploadFile($uploadedFile, "SK_{$safeNomor}_" . $uploadedFile->getClientOriginalName(), $subfolders);
             }
 
-            // 2. Otherwise generate structured .txt file
+            // 2. Always generate structured .txt file archive in the dedicated SK subfolder
             $formattedTxtContent = $this->buildStructuredSkTxtContent(
                 $nomorSk,
                 $judulSk,
@@ -517,8 +516,14 @@ class SuratKeputusanController extends Controller
             $txtResult = $driveService->uploadFile($tempTxtPath, "Arsip_SK_{$safeNomor}.txt", $subfolders);
             @unlink($tempTxtPath);
 
-            if ($txtResult && !empty($txtResult['link'])) {
-                return $txtResult['link'];
+            // 3. Return dedicated SK folder link so database link_drive points directly to the SK folder
+            if ($txtResult && !empty($txtResult['folder_link'])) {
+                return $txtResult['folder_link'];
+            }
+
+            $folderId = $driveService->getOrCreateSubfolderPath($subfolders);
+            if ($folderId) {
+                return "https://drive.google.com/drive/folders/{$folderId}";
             }
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('processDriveAutoLinkForSk error: ' . $e->getMessage());
