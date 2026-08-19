@@ -26,3 +26,5 @@ google-credentials.json
 Homestead.json
 Homestead.yaml
 Thumbs.db
+client_secret*.json
+
